@@ -30,10 +30,6 @@ func (c *CommonAPI) callOrEstimateGas(args *CallArgs, height *uint64, isCall boo
 		return nil, err
 	}
 	if isCall {
-		isSameChain := clusterCfg.Quarkchain.IsSameFullShard(args.From.FullShardKey, args.To.FullShardKey)
-		if !isSameChain {
-			return nil, fmt.Errorf("Call cross-shard tx not supported yet\n")
-		}
 		res, err := c.b.ExecuteTransaction(tx, args.From, height)
 		if err != nil {
 			return nil, err

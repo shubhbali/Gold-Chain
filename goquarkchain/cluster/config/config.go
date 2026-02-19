@@ -73,33 +73,50 @@ type POSWConfig struct {
 	BoostMultiplierPerStep uint64   `json:"BOOST_MULTIPLIER_PER_STEP"`
 	BoostSteps             uint64   `json:"BOOST_STEPS"`
 	BoostStepInterval      uint64   `json:"BOOST_STEP_INTERVAL"`
+	// GILT ratio enforcement for validators
+	// GiltRatioActivationBlock: block number when enforcement starts (0 = disabled)
+	// GiltRatioPercent: minimum percentage of stake that must be in GILT (e.g., 10 = 10%)
+	// GiltTokenID: token ID for GILT token
+	// GiltRatioGovernanceContract: address of governance contract (if set, overrides static config)
+	GiltRatioActivationBlock      uint64 `json:"GILT_RATIO_ACTIVATION_BLOCK"`
+	GiltRatioPercent              uint64 `json:"GILT_RATIO_PERCENT"`
+	GiltTokenID                   uint64 `json:"GILT_TOKEN_ID"`
+	GiltRatioGovernanceContract   string `json:"GILT_RATIO_GOVERNANCE_CONTRACT"`
 }
 
 func NewPOSWConfig() *POSWConfig {
 	return &POSWConfig{
-		Enabled:                false,
-		EnableTimestamp:        0,
-		DiffDivider:            20,
-		WindowSize:             256,
-		TotalStakePerBlock:     new(big.Int).Mul(big.NewInt(1000000000), QuarkashToJiaozi),
-		BoostTimestamp:         0,     // 0 = disable
-		BoostMultiplierPerStep: 2,     // increase 2 times every time
-		BoostSteps:             10,    // max 2 ^ 10 * DiffDivider times
-		BoostStepInterval:      43200, // 12 hours
+		Enabled:                  false,
+		EnableTimestamp:          0,
+		DiffDivider:              20,
+		WindowSize:               256,
+		TotalStakePerBlock:       new(big.Int).Mul(big.NewInt(1000000000), QuarkashToJiaozi),
+		BoostTimestamp:           0,     // 0 = disable
+		BoostMultiplierPerStep:   2,     // increase 2 times every time
+		BoostSteps:               10,    // max 2 ^ 10 * DiffDivider times
+		BoostStepInterval:        43200, // 12 hours
+		GiltRatioActivationBlock:    0,  // 0 = disabled
+		GiltRatioPercent:            10, // 10% minimum GILT when enabled
+		GiltTokenID:                 0,  // set to actual GILT token ID in config
+		GiltRatioGovernanceContract: "", // empty = use static config
 	}
 }
 
 func NewRootPOSWConfig() *POSWConfig {
 	return &POSWConfig{
-		Enabled:                false,
-		EnableTimestamp:        0,
-		DiffDivider:            1000,
-		WindowSize:             4320, // 72 hours
-		TotalStakePerBlock:     new(big.Int).Mul(big.NewInt(240000), QuarkashToJiaozi),
-		BoostTimestamp:         0,         // 0 = disable
-		BoostMultiplierPerStep: 2,         // increase 2 times every time
-		BoostSteps:             10,        // max 2 ^ 10 * DiffDivider times
-		BoostStepInterval:      86400 * 2, // two days
+		Enabled:                  false,
+		EnableTimestamp:          0,
+		DiffDivider:              1000,
+		WindowSize:               4320, // 72 hours
+		TotalStakePerBlock:       new(big.Int).Mul(big.NewInt(240000), QuarkashToJiaozi),
+		BoostTimestamp:           0,         // 0 = disable
+		BoostMultiplierPerStep:   2,         // increase 2 times every time
+		BoostSteps:               10,        // max 2 ^ 10 * DiffDivider times
+		BoostStepInterval:        86400 * 2, // two days
+		GiltRatioActivationBlock:    0,  // 0 = disabled
+		GiltRatioPercent:            10, // 10% minimum GILT when enabled
+		GiltTokenID:                 0,  // set to actual GILT token ID in config
+		GiltRatioGovernanceContract: "", // empty = use static config
 	}
 }
 

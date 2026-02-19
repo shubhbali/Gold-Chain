@@ -189,7 +189,12 @@ func (s *SlaveBackend) ExecuteTx(tx *types.Transaction, address *account.Address
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return nil, err
 	}
-	if shard, ok := s.shards[tx.EvmTx.FromFullShardId()]; ok {
+	// For cross-shard calls, route to destination shard where contract lives
+	targetShardId := tx.EvmTx.FromFullShardId()
+	if tx.EvmTx.IsCrossShard() && tx.EvmTx.To() != nil {
+		targetShardId = tx.EvmTx.ToFullShardId()
+	}
+	if shard, ok := s.shards[targetShardId]; ok {
 		return shard.MinorBlockChain.ExecuteTx(tx, address, height)
 	}
 	return nil, ErrMsg("ExecuteTx")
@@ -291,11 +296,11 @@ func (s *SlaveBackend) GetLogs(args *qrpc.FilterQuery) ([]*types.Log, error) {
 }
 
 func (s *SlaveBackend) EstimateGas(tx *types.Transaction, address *account.Address) (uint32, error) {
-	fullShardId, err := s.clstrCfg.Quarkchain.GetFullShardIdByFullShardKey(address.FullShardKey)
-	if err != nil {
-		return 0, err
+	targetShardId := tx.EvmTx.FromFullShardId()
+	if tx.EvmTx.IsCrossShard() && tx.EvmTx.To() != nil {
+		targetShardId = tx.EvmTx.ToFullShardId()
 	}
-	if shrd, ok := s.shards[fullShardId]; ok {
+	if shrd, ok := s.shards[targetShardId]; ok {
 		return shrd.MinorBlockChain.EstimateGas(tx, address)
 	}
 	return 0, ErrMsg("EstimateGas")

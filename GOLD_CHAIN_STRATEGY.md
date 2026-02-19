@@ -64,7 +64,7 @@
 2. **GOLD Token Contract (Your L1)**
    - Verifies Ethereum block proofs via Sygma's verification module
    - Mints GOLD when proof validated
-   - 100 GOLD per 1 PAXG or 1 XAUT locked
+   - 1000 GOLD per 1 PAXG or 1 XAUT locked
    - Tracks origin: `goldFromPaxg`, `goldFromXaut` (for redemption routing)
 
 3. **Relayer Set (Your Validators)**
@@ -84,7 +84,7 @@ User calls vault.deposit(tokenType, amount)
     -> 5-of-7 relayers sign attestation
     -> Any relayer submits signed proof to L1
     -> L1 verifies 5-of-7 threshold signature
-    -> L1 mints 100 GOLD per token deposited
+    -> L1 mints 1000 GOLD per token deposited
     -> User receives GOLD on L1
 ```
 
@@ -297,8 +297,8 @@ Just like Lido is separate from Ethereum and has its own LDO token, the liquid s
 
 **How It Works:**
 
-1. **Stake:** User deposits 100 GOLD → receives 100 stGOLD
-2. **Rebase:** stGOLD balance increases daily (e.g., 100 → 100.02 → 100.04...)
+1. **Stake:** User deposits 1000 GOLD → receives 1000 stGOLD
+2. **Rebase:** stGOLD balance increases daily (e.g., 1000 → 1000.02 → 1000.04...)
 3. **Use in DeFi:** stGOLD can be:
    - Sold instantly on DEX (no unstaking wait)
    - Used as collateral in lending protocol
@@ -360,7 +360,7 @@ Forking Lido means the liquid staking contracts must remain open source under GP
 | Aspect | GOLD Token | GILT Token |
 |--------|------------|-----------|
 | **Purpose** | Stable value, transactions | Governance, validator staking |
-| **Backing** | 100% PAXG/XAUT (1 gold token = 100 GOLD) | None (pre-mined) |
+| **Backing** | 100% PAXG/XAUT (1 gold token = 1000 GOLD) | None (pre-mined) |
 | **Supply** | Elastic (= gold tokens bridged x 100) | Fixed 100M (no inflation) |
 | **Minting** | Only when PAXG/XAUT bridged | Cannot mint - all pre-mined |
 | **Gas Payment** | Yes | Yes |
@@ -384,14 +384,14 @@ Each protocol is independent with its own token economics and governance.
 
 **Supply Formula:**
 ```
-GOLD Supply = (PAXG Locked x 100) + (XAUT Locked x 100)
+GOLD Supply = (PAXG Locked x 1000) + (XAUT Locked x 1000)
 ```
 
 **Key Properties:**
 - **Elastic supply** - no hard cap
-- Mint: User bridges 1 PAXG/XAUT → 100 GOLD minted on L1
-- Burn: User redeems 100 GOLD → burned on L1, 1 PAXG/XAUT unlocked on Ethereum
-- Theoretical max: ~45M GOLD (based on ~450K total PAXG supply)
+- Mint: User bridges 1 PAXG/XAUT → 1000 GOLD minted on L1
+- Burn: User redeems 1000 GOLD → burned on L1, 1 PAXG/XAUT unlocked on Ethereum
+- Theoretical max: ~450M GOLD (based on ~450K total PAXG supply)
 - No governance vote needed to increase - automatically elastic based on bridged collateral
 
 **Why No Hard Cap (But Governance Can Enable One):**
@@ -831,7 +831,7 @@ Before eligibility criteria, these terms have exact meanings:
 | # | Requirement | Exact threshold |
 |---|-------------|-----------------|
 | 1 | Bridged PAXG or XAUT | ≥1 completed bridge deposit |
-| 2 | GOLD balance at snapshot | ≥100 GOLD |
+| 2 | GOLD balance at snapshot | ≥1000 GOLD |
 | 3 | Non-bridge transaction | ≥1 transaction where `to` ≠ bridge contract |
 | 4 | Wallet ETH balance at snapshot | ≥0.001 GOLD or GOV (prevents dust wallets) |
 | 5 | Not flagged as Sybil | Pass all Sybil checks (see below) |
@@ -1044,7 +1044,7 @@ Vesting:
 | 2 | Active days | ≥15 unique days | Count of calendar days (UTC) with ≥1 tx |
 | 3 | Gas spent | ≥1.0 GOLD in gas | Sum of (gasUsed × gasPrice) across all txs, converted to GOLD |
 | 4 | DEX activity | ≥10 swaps | Count of txs emitting Swap event from approved DEX |
-| 5 | Staking | ≥100 GOLD staked | Balance in staking contract at snapshot |
+| 5 | Staking | ≥1000 GOLD staked | Balance in staking contract at snapshot |
 | 6 | Governance | ≥1 vote cast | Count of castVote() calls to governance contract |
 | 7 | Contract diversity | ≥8 unique contracts | Count of distinct `to` addresses that are contracts |
 
@@ -1155,7 +1155,7 @@ Allocation (assuming 3,000,000 total points):
 | # | Requirement | Exact threshold |
 |---|-------------|-----------------|
 | 1 | Migration action | Completed migration tx on migration contract |
-| 2 | Minimum amount | ≥100 GOLD migrated per address total |
+| 2 | Minimum amount | ≥1000 GOLD migrated per address total |
 | 3 | Source verification | GOLD must have been held ≥7 days before migration |
 | 4 | Not flagged as Sybil | Pass all Sybil checks |
 
@@ -1163,8 +1163,8 @@ Allocation (assuming 3,000,000 total points):
 
 **Points calculation:**
 
-**Base points per 100 GOLD migrated:**
-| Migration timing | Points per 100 GOLD |
+**Base points per 1000 GOLD migrated:**
+| Migration timing | Points per 1000 GOLD |
 |------------------|---------------------|
 | Day 730 - Day 760 (Month 1) | 100 points |
 | Day 761 - Day 790 (Month 2) | 80 points |
@@ -1215,7 +1215,7 @@ Address: 0xJKL...
 
 Points:
 - Base: floor(3,000 / 100) = 30 units
-- Timing: Month 2 = 80 points per 100 GOLD
+- Timing: Month 2 = 80 points per 1000 GOLD
 - Raw points: 30 × 80 = 2,400 points
 - Loyalty: 2 prior seasons = 1.3x
 - Total: 2,400 × 1.3 = 3,120 points
@@ -1231,10 +1231,10 @@ Allocation:
 
 | Season | Timing | Allocation | Eligibility | Floor | Cap | Vesting |
 |--------|--------|------------|-------------|-------|-----|---------|
-| 1 | Day 180 | 10M GOV | Bridge + 100 GOLD + 1 tx + 0.001 balance | 500 | 200K | 50/50/90d |
+| 1 | Day 180 | 10M GOV | Bridge + 1000 GOLD + 1 tx + 0.001 balance | 500 | 200K | 50/50/90d |
 | 2 | Day 365 | 8M GOV | LP in approved pool + 30 LP-days + $50 min + 7d hold | 400 | 150K | 50/50/90d |
 | 3 | Day 548 | 6M GOV | Meet 4 of 7 criteria | 300 | 75K | 100% |
-| 4 | Day 730-912 | 6M GOV | Migrate ≥100 GOLD held ≥7 days | 250 | 100K | 100% |
+| 4 | Day 730-912 | 6M GOV | Migrate ≥1000 GOLD held ≥7 days | 250 | 100K | 100% |
 
 **Total:** 30,000,000 GOV (30% of supply)
 
@@ -1444,7 +1444,7 @@ Phase C: LP Mining Incentives
 
 **Commission Structure:**
 - Validator sets commission rate (5-20% typical)
-- Example: Block produces 100 GOLD in fees
+- Example: Block produces 1000 GOLD in fees
   - Commission 15%: Validator keeps 15 GOLD
   - Remaining 85 GOLD: Distributed to delegators proportionally
 
@@ -1793,8 +1793,8 @@ This completes the transition from tokenized gold wrapper to actual physical gol
 | US persons | Allowed | Blocked |
 
 **Bridge Mechanics:**
-- User bridges 1 PAXG → 100 GOLD minted
-- User bridges 1 XAUT → 100 GOLD minted
+- User bridges 1 PAXG → 1000 GOLD minted
+- User bridges 1 XAUT → 1000 GOLD minted
 - GOLD is fungible regardless of source
 - Redemption: User chooses PAXG or XAUT (subject to availability)
 - Contract tracks: `paxgLocked` and `xautLocked` separately
@@ -2303,13 +2303,13 @@ All pauses auto-expire after 7 days unless governance extends.
 |-------|------------|------|-------|----------------|
 | PAXG | $2.3B | 0.02% | 0% | 430 oz ($1.2M) |
 | XAUT | $2.1B | 0.25% | 0% | 50 oz ($140K) |
-| **Your GOLD** | **$0 start** | **0%** | **7-13%** | **100 GOLD** |
+| **Your GOLD** | **$0 start** | **0%** | **7-13%** | **1000 GOLD** |
 
 ---
 
 ## APPENDIX B: GLOSSARY
 
-- **GOLD**: Gold-backed token on your L1 (100 GOLD = 1 PAXG)
+- **GOLD**: Gold-backed token on your L1 (1000 GOLD = 1 PAXG)
 - **GOV**: Governance token for voting and staking
 - **PAXG**: Paxos Gold token on Ethereum (1 PAXG = 1 oz gold)
 - **ve(3,3)**: Vote-escrow tokenomics model for DEX

@@ -428,6 +428,41 @@ func (m *MinorBlockChain) SkipDifficultyCheck() bool {
 	return m.Config().SkipMinorDifficultyCheck
 }
 
+// GetGiltRatioFromGovernance retrieves the current GILT ratio from the governance contract storage.
+// Returns the static config value if governance is disabled.
+// Storage layout of GiltRatioGovernance.sol:
+//   slot 0: currentRatio (uint256)
+//   slot 1: pendingRatio (uint256)
+//   slot 2: pendingActivationTime (uint256)
+//   slot 3: giltTokenAddress (address)
+func (m *MinorBlockChain) GetGiltRatioFromGovernance(parentHash common.Hash) uint64 {
+	poswConfig := m.shardConfig.PoswConfig
+	if poswConfig.GiltRatioGovernanceContract == "" {
+		return poswConfig.GiltRatioPercent
+	}
+
+	// Get state at parent block
+	statedb, err := m.StateAt(m.GetBlockByHash(parentHash).Root())
+	if err != nil {
+		log.Debug(m.logInfo, "GILT governance: failed to get state, using static config", err)
+		return poswConfig.GiltRatioPercent
+	}
+
+	// Parse governance contract address
+	contractAddr := common.HexToAddress(poswConfig.GiltRatioGovernanceContract)
+
+	// Read currentRatio from storage slot 0
+	ratioBytes := statedb.GetState(contractAddr, common.Hash{})
+	ratio := new(big.Int).SetBytes(ratioBytes.Bytes())
+
+	// If ratio is 0 (disabled in governance), fall back to static config
+	if ratio.Uint64() == 0 {
+		return poswConfig.GiltRatioPercent
+	}
+
+	return ratio.Uint64()
+}
+
 func (m *MinorBlockChain) GetAdjustedDifficulty(header types.IHeader) (*big.Int, uint64, error) {
 	diff := header.GetDifficulty()
 	if m.posw.IsPoSWEnabled(header.GetTime(), header.NumberU64()) {
@@ -437,6 +472,33 @@ func (m *MinorBlockChain) GetAdjustedDifficulty(header types.IHeader) (*big.Int,
 			log.Error(m.logInfo, "PoSW: failed to get coinbase balance", err)
 			return nil, 0, err
 		}
+
+		// Check GILT ratio requirement if enabled
+		poswConfig := m.shardConfig.PoswConfig
+		if poswConfig.GiltRatioActivationBlock > 0 && header.NumberU64() >= poswConfig.GiltRatioActivationBlock {
+			// Get ratio from governance contract or static config
+			giltRatioPercent := m.GetGiltRatioFromGovernance(preHash)
+
+			// If ratio is 0, GILT requirement is disabled
+			if giltRatioPercent > 0 {
+				goldBalance := balance.GetTokenBalance(m.clusterConfig.Quarkchain.GetDefaultChainTokenID())
+				giltBalance := balance.GetTokenBalance(poswConfig.GiltTokenID)
+
+				// Calculate minimum GILT required: (goldBalance * giltRatioPercent) / 100
+				minGiltRequired := new(big.Int).Mul(goldBalance, big.NewInt(int64(giltRatioPercent)))
+				minGiltRequired = new(big.Int).Div(minGiltRequired, big.NewInt(100))
+
+				if giltBalance.Cmp(minGiltRequired) < 0 {
+					log.Error(m.logInfo, "PoSW: validator GILT ratio not met",
+						"goldBalance", goldBalance,
+						"giltBalance", giltBalance,
+						"minGiltRequired", minGiltRequired,
+						"giltRatioPercent", giltRatioPercent)
+					return nil, 0, fmt.Errorf("validator must hold at least %d%% of stake in GILT token", giltRatioPercent)
+				}
+			}
+		}
+
 		stakePreBlock := m.DecayByHeightAndTime(header.NumberU64(), header.GetTime())
 		poswAdjusted, err := m.posw.PoSWDiffAdjust(header, balance.GetTokenBalance(m.clusterConfig.Quarkchain.GetDefaultChainTokenID()), stakePreBlock)
 		if err != nil {

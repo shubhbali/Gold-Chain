@@ -92,7 +92,18 @@ func (s *QKCMasterBackend) ExecuteTransaction(tx *types.Transaction, address *ac
 	if err := tx.EvmTx.SetFromShardSize(fromShardSize); err != nil {
 		return nil, errors.New(fmt.Sprintf("Failed to set fromShardSize, fromShardSize: %d, err: %v", fromShardSize, err))
 	}
-	slaves := s.GetSlaveConnsById(evmTx.FromFullShardId())
+	toShardSize, err := s.clusterConfig.Quarkchain.GetShardSizeByChainId(tx.EvmTx.ToChainID())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.EvmTx.SetToShardSize(toShardSize); err != nil {
+		return nil, errors.New(fmt.Sprintf("Failed to set toShardSize, toShardSize: %d, err: %v", toShardSize, err))
+	}
+	targetShardId := evmTx.FromFullShardId()
+	if evmTx.IsCrossShard() && evmTx.To() != nil {
+		targetShardId = evmTx.ToFullShardId()
+	}
+	slaves := s.GetSlaveConnsById(targetShardId)
 	if len(slaves) == 0 {
 		return nil, ErrNoBranchConn
 	}

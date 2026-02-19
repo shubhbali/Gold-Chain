@@ -591,26 +591,20 @@ func (u *UnifiedShardAPI) buildCallArg(mdata MetaCallArgs) map[string]interface{
 	defaultToken := hexutil.Uint64(35760)
 	arg := make(map[string]interface{})
 
-	// Route based on To address if present, otherwise From
-	var routingAddr common.Address
-	if mdata.To != nil {
-		routingAddr = common.Address(*mdata.To)
-	} else if mdata.From != nil {
-		routingAddr = common.Address(*mdata.From)
-	}
-
-	fullShardKey := u.deriveFullShardKey(routingAddr)
-
+	// Derive separate shard keys for from and to addresses
+	// This enables cross-shard eth_call and eth_estimateGas
 	if mdata.From != nil {
+		fromShardKey := u.deriveFullShardKey(common.Address(*mdata.From))
 		arg["from"] = account.Address{
 			Recipient:    *mdata.From,
-			FullShardKey: fullShardKey,
+			FullShardKey: fromShardKey,
 		}.ToHex()
 	}
 	if mdata.To != nil {
+		toShardKey := u.deriveFullShardKey(common.Address(*mdata.To))
 		arg["to"] = account.Address{
 			Recipient:    *mdata.To,
-			FullShardKey: fullShardKey,
+			FullShardKey: toShardKey,
 		}.ToHex()
 	}
 

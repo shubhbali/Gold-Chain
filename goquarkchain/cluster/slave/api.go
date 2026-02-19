@@ -440,7 +440,7 @@ type MetaCallArgs struct {
 	Data     hexutil.Bytes      `json:"data"`
 }
 
-func toTransaction(a *MetaCallArgs, shardId uint32, networkID uint32) *types.Transaction {
+func toTransaction(a *MetaCallArgs, fromShardId uint32, toShardId uint32, networkID uint32) *types.Transaction {
 	var gas uint64 = 0
 	if a.Gas != nil {
 		gas = uint64(*a.Gas)
@@ -448,10 +448,10 @@ func toTransaction(a *MetaCallArgs, shardId uint32, networkID uint32) *types.Tra
 	evmTx := new(types.EvmTransaction)
 	if a.To == nil {
 		evmTx = types.NewEvmContractCreation(0, a.Value.ToInt(), gas, a.GasPrice.ToInt(),
-			shardId, shardId, networkID, 0, a.Data, defaultToken, defaultToken)
+			fromShardId, fromShardId, networkID, 0, a.Data, defaultToken, defaultToken)
 	} else {
 		evmTx = types.NewEvmTransaction(0, *a.To, a.Value.ToInt(), gas, a.GasPrice.ToInt(),
-			shardId, shardId, networkID, 0, a.Data, defaultToken, defaultToken)
+			fromShardId, toShardId, networkID, 0, a.Data, defaultToken, defaultToken)
 	}
 	tx := &types.Transaction{
 		EvmTx:  evmTx,
@@ -461,7 +461,7 @@ func toTransaction(a *MetaCallArgs, shardId uint32, networkID uint32) *types.Tra
 }
 
 func (api *PublicFilterAPI) Call(mdata MetaCallArgs, blockNr *rpc.BlockNumber) (hexutil.Bytes, error) {
-	tx := toTransaction(&mdata, api.shardId, api.getShardFilter().GetNetworkId())
+	tx := toTransaction(&mdata, api.shardId, api.shardId, api.getShardFilter().GetNetworkId())
 	var (
 		result []byte
 		err    error
@@ -481,7 +481,7 @@ func (api *PublicFilterAPI) Call(mdata MetaCallArgs, blockNr *rpc.BlockNumber) (
 }
 
 func (api *PublicFilterAPI) EstimateGas(mdata MetaCallArgs) (hexutil.Uint, error) {
-	tx := toTransaction(&mdata, api.shardId, api.getShardFilter().GetNetworkId())
+	tx := toTransaction(&mdata, api.shardId, api.shardId, api.getShardFilter().GetNetworkId())
 	result, err := api.getShardFilter().EstimateGas(tx, &account.Address{Recipient: mdata.From, FullShardKey: api.shardId})
 	return hexutil.Uint(result), err
 }

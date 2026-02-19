@@ -35,7 +35,15 @@
       "WebFetch(domain:blog.zilliqa.com)",
       "Bash(dir:*)",
       "Bash(findstr:*)",
-      "Bash(xargs -I {} bash -c 'echo {}')"
+      "Bash(xargs -I {} bash -c 'echo {}')",
+      "WebFetch(domain:chainlist.org)",
+      "WebFetch(domain:hive.blog)",
+      "WebFetch(domain:steemit.com)",
+      "WebFetch(domain:chainspect.app)",
+      "WebFetch(domain:docs.solanalabs.com)",
+      "WebFetch(domain:solanacompass.com)",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(go build:*)"
     ]
   }
 }
