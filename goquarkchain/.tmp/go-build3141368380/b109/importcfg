@@ -1,0 +1,17 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile cmp=C:\gold\goquarkchain\.tmp\go-build3141368380\b046\_pkg_.a
+packagefile encoding=C:\gold\goquarkchain\.tmp\go-build3141368380\b068\_pkg_.a
+packagefile encoding/base64=C:\gold\goquarkchain\.tmp\go-build3141368380\b110\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile unicode=C:\gold\goquarkchain\.tmp\go-build3141368380\b063\_pkg_.a
+packagefile unicode/utf16=C:\gold\goquarkchain\.tmp\go-build3141368380\b048\_pkg_.a
+packagefile unicode/utf8=C:\gold\goquarkchain\.tmp\go-build3141368380\b049\_pkg_.a

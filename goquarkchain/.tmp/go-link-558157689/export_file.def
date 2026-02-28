@@ -1,0 +1,3 @@
+EXPORTS
+secp256k1GoPanicError
+secp256k1GoPanicIllegal

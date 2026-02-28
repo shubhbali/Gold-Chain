@@ -1,0 +1,21 @@
+# import config
+importmap golang.org/x/net/http/httpguts=vendor/golang.org/x/net/http/httpguts
+packagefile bufio=C:\gold\goquarkchain\.tmp\go-build3141368380\b078\_pkg_.a
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile crypto/tls=C:\gold\goquarkchain\.tmp\go-build3141368380\b226\_pkg_.a
+packagefile crypto/x509=C:\gold\goquarkchain\.tmp\go-build3141368380\b247\_pkg_.a
+packagefile flag=C:\gold\goquarkchain\.tmp\go-build3141368380\b067\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile vendor/golang.org/x/net/http/httpguts=C:\gold\goquarkchain\.tmp\go-build3141368380\b256\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile log=C:\gold\goquarkchain\.tmp\go-build3141368380\b196\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile net/http=C:\gold\goquarkchain\.tmp\go-build3141368380\b255\_pkg_.a
+packagefile net/http/internal/testcert=C:\gold\goquarkchain\.tmp\go-build3141368380\b287\_pkg_.a
+packagefile net/textproto=C:\gold\goquarkchain\.tmp\go-build3141368380\b262\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

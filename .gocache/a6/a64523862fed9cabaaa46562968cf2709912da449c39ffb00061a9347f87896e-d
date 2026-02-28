@@ -1,0 +1,5 @@
+./algorithm.go
+./ethash.go
+./qethash.go
+./algorithm_test.go
+./qethash_test.go

@@ -54,6 +54,12 @@ var (
 	commitBlockByHash  = []byte("cmB")  //CommittedMinorBlock
 	xsHashList         = []byte("xd")
 	mConfiredByRoot    = []byte("mr") //key:mHash value rHash
+	justifiedRootKey   = []byte("fjr")
+	finalizedRootKey   = []byte("ffr")
+	posaVotesKey       = []byte("psv")
+	posaValidatorKey   = []byte("psl")
+	bftStateKey        = []byte("bfs")
+	bftEvidenceKey     = []byte("bfe")
 )
 
 type ChainType byte

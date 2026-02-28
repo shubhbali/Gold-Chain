@@ -1,0 +1,4 @@
+# import config
+packagefile crypto/internal/constanttime=C:\gold\goquarkchain\.tmp\go-build3141368380\b097\_pkg_.a
+packagefile crypto/internal/fips140/subtle=C:\gold\goquarkchain\.tmp\go-build3141368380\b096\_pkg_.a
+packagefile internal/runtime/sys=C:\gold\goquarkchain\.tmp\go-build3141368380\b023\_pkg_.a

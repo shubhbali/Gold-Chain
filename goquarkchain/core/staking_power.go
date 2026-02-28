@@ -1,0 +1,46 @@
+package core
+
+import (
+	"fmt"
+	"math/big"
+)
+
+// EffectiveStake computes weighted stake power from two tokens.
+// Weights are basis-points style multipliers where 10000 means 1x.
+func EffectiveStake(stakeA, stakeB *big.Int, weightA, weightB uint64) *big.Int {
+	if stakeA == nil {
+		stakeA = new(big.Int)
+	}
+	if stakeB == nil {
+		stakeB = new(big.Int)
+	}
+	if weightA == 0 {
+		weightA = 10000
+	}
+	if weightB == 0 {
+		weightB = 10000
+	}
+	scaledA := new(big.Int).Mul(stakeA, new(big.Int).SetUint64(weightA))
+	scaledB := new(big.Int).Mul(stakeB, new(big.Int).SetUint64(weightB))
+	sum := new(big.Int).Add(scaledA, scaledB)
+	return sum.Div(sum, new(big.Int).SetUint64(10000))
+}
+
+// ValidateStakeRatio enforces stakeB >= stakeA * ratioPercent / 100 when ratioPercent > 0.
+func ValidateStakeRatio(stakeA, stakeB *big.Int, ratioPercent uint64) error {
+	if ratioPercent == 0 {
+		return nil
+	}
+	if stakeA == nil {
+		stakeA = new(big.Int)
+	}
+	if stakeB == nil {
+		stakeB = new(big.Int)
+	}
+	minB := new(big.Int).Mul(stakeA, new(big.Int).SetUint64(ratioPercent))
+	minB.Div(minB, big.NewInt(100))
+	if stakeB.Cmp(minB) < 0 {
+		return fmt.Errorf("validator must hold at least %d%% of stake in token B", ratioPercent)
+	}
+	return nil
+}

@@ -1,0 +1,5 @@
+# import config
+packagefile crypto=C:\gold\goquarkchain\.tmp\go-build3141368380\b081\_pkg_.a
+packagefile crypto/internal/boring=C:\gold\goquarkchain\.tmp\go-build3141368380\b083\_pkg_.a
+packagefile crypto/internal/fips140/sha512=C:\gold\goquarkchain\.tmp\go-build3141368380\b098\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a

@@ -1,0 +1,11 @@
+# import config
+importmap golang.org/x/net/idna=vendor/golang.org/x/net/idna
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile vendor/golang.org/x/net/idna=C:\gold\goquarkchain\.tmp\go-build3141368380\b257\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile net/netip=C:\gold\goquarkchain\.tmp\go-build3141368380\b170\_pkg_.a
+packagefile net/url=C:\gold\goquarkchain\.tmp\go-build3141368380\b251\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile unicode/utf8=C:\gold\goquarkchain\.tmp\go-build3141368380\b049\_pkg_.a

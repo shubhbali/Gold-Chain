@@ -1,0 +1,27 @@
+# import config
+packagefile crypto/ecdsa=C:\gold\goquarkchain\.gocache\44\44ca1bf17f64cff2566d6729de5d01c1a658e67242a76e07ef95643e6ca58f86-d
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile fmt=C:\gold\goquarkchain\.gocache\20\207f6635331b9a1c4d35dd7629029b2e850226585f05c753c5eca3310391c2be-d
+packagefile github.com/QuarkChain/goquarkchain/cluster/rpc=C:\gold\goquarkchain\.tmp\go-build116332165\b289\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/p2p=C:\gold\goquarkchain\.tmp\go-build116332165\b290\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/qkcdb=C:\gold\goquarkchain\.gocache\c8\c883421871cc103b616d14e818a5063a31b8ec11c646f120c8fd2e713e164d3a-d
+packagefile github.com/QuarkChain/goquarkchain/rpc=C:\gold\goquarkchain\.gocache\5f\5fa7f48573a3664a775a363a47493cf09d9faad952f99110955d13471a79934f-d
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.gocache\62\62346fac565a68e745d89c18ced208bc512246a4383e6f3bd1fa90b1d26a3a68-d
+packagefile github.com/ethereum/go-ethereum/crypto=C:\gold\goquarkchain\.gocache\d8\d82b5a811c41404683c4cd04df64944a2c00909b0982eb7240854f6e1b89f36a-d
+packagefile github.com/ethereum/go-ethereum/ethdb=C:\gold\goquarkchain\.gocache\fb\fb639b98ba41d775dc7ba607480eb2bb9b9ac58730c2316c48b9ff94bc3f11b2-d
+packagefile github.com/ethereum/go-ethereum/event=C:\gold\goquarkchain\.gocache\af\af58eae57400edfbe7135f8bcf05efd54bea176232082ac00638feef6f472d62-d
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\goquarkchain\.gocache\ea\eaa6f850e52052ce30b1c49dc565ed231310ef3162da6ddfbc951f6322ecb86c-d
+packagefile github.com/ethereum/go-ethereum/p2p/enode=C:\gold\goquarkchain\.gocache\e0\e0f9df5f07095ed0dbb483f318b14ae64b06c550248309b6e9626dbab978585f-d
+packagefile github.com/ethereum/go-ethereum/p2p/nat=C:\gold\goquarkchain\.gocache\2d\2d2ba8d58e8ecdc3d56623b66803b0c7bc28e7ab305528a2df9aab28ec88eaae-d
+packagefile github.com/prometheus/prometheus/util/flock=C:\gold\goquarkchain\.gocache\1e\1ea2c6958ebda00e4980fe3ec4136ee0f610018669beba555b1e5a32fe4a16a9-d
+packagefile google.golang.org/grpc=C:\gold\goquarkchain\.gocache\37\37977c212427084cfbed240972b0a994250053d2f80c6839d70fe99541556a1f-d
+packagefile net=C:\gold\goquarkchain\.gocache\37\37742d27d09c119df7a2e577e245924b7bcafbeb585c22ac2dfc50d478f218d3-d
+packagefile os=C:\gold\goquarkchain\.gocache\6d\6d65fcdbe43fb8ca927d4bfc1e00f60426edb008458e1510d70d946c4507d746-d
+packagefile os/user=C:\gold\goquarkchain\.gocache\e1\e1a3d3e8eca5b89fe011be3d79406a7f8c16f7aec90a60ab62114e7c809aaeb6-d
+packagefile path/filepath=C:\gold\goquarkchain\.gocache\94\943e0751f14e68114407cb079fd36deb094898fde84c00ca4a730acf5fc59ff5-d
+packagefile reflect=C:\gold\goquarkchain\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d
+packagefile runtime=C:\gold\goquarkchain\.gocache\c6\c68c1df726da3f3e04dbf7af34addaa5367a09c425515a338069b4693cace785-d
+packagefile strings=C:\gold\goquarkchain\.gocache\bb\bb220c3fe80d5e749c9382ac634507db68495a2af21b9a9fd847547eb08f02ef-d
+packagefile sync=C:\gold\goquarkchain\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d
+packagefile syscall=C:\gold\goquarkchain\.gocache\3d\3dee3a62384f5da67deca0ac3869f9a7ec424dbb03002c1dec43353d54d2f81d-d
+packagefile time=C:\gold\goquarkchain\.gocache\6b\6b6b728fcd59a2ea84a13cc62c224b99a029c57c84a63b33792fc34160437768-d

@@ -1,0 +1,21 @@
+# import config
+packagefile bufio=C:\gold\goquarkchain\.tmp\go-build3141368380\b078\_pkg_.a
+packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/golang/protobuf/proto=C:\gold\goquarkchain\.tmp\go-build3141368380\b329\_pkg_.a
+packagefile github.com/golang/protobuf/ptypes=C:\gold\goquarkchain\.tmp\go-build3141368380\b353\_pkg_.a
+packagefile google.golang.org/grpc/binarylog/grpc_binarylog_v1=C:\gold\goquarkchain\.tmp\go-build3141368380\b357\_pkg_.a
+packagefile google.golang.org/grpc/grpclog=C:\gold\goquarkchain\.tmp\go-build3141368380\b339\_pkg_.a
+packagefile google.golang.org/grpc/metadata=C:\gold\goquarkchain\.tmp\go-build3141368380\b343\_pkg_.a
+packagefile google.golang.org/grpc/status=C:\gold\goquarkchain\.tmp\go-build3141368380\b358\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile io/ioutil=C:\gold\goquarkchain\.tmp\go-build3141368380\b163\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile regexp=C:\gold\goquarkchain\.tmp\go-build3141368380\b120\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

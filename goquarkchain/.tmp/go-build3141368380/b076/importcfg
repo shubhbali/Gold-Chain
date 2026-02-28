@@ -1,0 +1,11 @@
+# import config
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile internal/trace/tracev2=C:\gold\goquarkchain\.tmp\go-build3141368380\b034\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile runtime=C:\gold\goquarkchain\.tmp\go-build3141368380\b009\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

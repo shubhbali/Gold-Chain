@@ -1,0 +1,11 @@
+# import config
+importmap golang.org/x/text/secure/bidirule=vendor/golang.org/x/text/secure/bidirule
+importmap golang.org/x/text/unicode/bidi=vendor/golang.org/x/text/unicode/bidi
+importmap golang.org/x/text/unicode/norm=vendor/golang.org/x/text/unicode/norm
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile vendor/golang.org/x/text/secure/bidirule=C:\gold\goquarkchain\.tmp\go-build3141368380\b258\_pkg_.a
+packagefile vendor/golang.org/x/text/unicode/bidi=C:\gold\goquarkchain\.tmp\go-build3141368380\b260\_pkg_.a
+packagefile vendor/golang.org/x/text/unicode/norm=C:\gold\goquarkchain\.tmp\go-build3141368380\b261\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile unicode/utf8=C:\gold\goquarkchain\.tmp\go-build3141368380\b049\_pkg_.a

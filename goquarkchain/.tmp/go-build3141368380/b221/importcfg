@@ -1,0 +1,4 @@
+# import config
+packagefile github.com/aristanetworks/goarista/monotime=C:\gold\goquarkchain\.tmp\go-build3141368380\b222\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

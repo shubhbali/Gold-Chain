@@ -38,10 +38,14 @@ const (
 	NewRootBlockMsg
 	GetMinorBlockHeaderListWithSkipRequestMsg
 	GetMinorBlockHeaderListWithSkipResponseMsg
+	NewPOSAVoteMsg
+	NewShardActivationVoteMsg
+	NewBFTProposalMsg
+	NewBFTVoteMsg
 	MaxOPNum
 )
 
-//OPSerializerMap Op and its struct
+// OPSerializerMap Op and its struct
 var OPSerializerMap = map[P2PCommandOp]interface{}{
 	Hello:                                      HelloCmd{},
 	NewTipMsg:                                  Tip{},
@@ -64,6 +68,10 @@ var OPSerializerMap = map[P2PCommandOp]interface{}{
 	NewRootBlockMsg:                            NewRootBlockCommand{},
 	GetMinorBlockHeaderListWithSkipRequestMsg:  GetMinorBlockHeaderListWithSkipRequest{},
 	GetMinorBlockHeaderListWithSkipResponseMsg: GetMinorBlockHeaderListResponse{},
+	NewPOSAVoteMsg:                             POSAVoteCommand{},
+	NewShardActivationVoteMsg:                  ShardActivationVoteCommand{},
+	NewBFTProposalMsg:                          BFTProposalCommand{},
+	NewBFTVoteMsg:                              BFTVoteCommand{},
 }
 
 func (p P2PCommandOp) String() string {
@@ -90,7 +98,7 @@ func MakeMsg(op P2PCommandOp, rpcID uint64, metadata Metadata, msg interface{}) 
 	return MakeMsgWithSerializedData(op, rpcID, metadata, cmdBytes)
 }
 
-//HelloCmd hello cmd struct
+// HelloCmd hello cmd struct
 type HelloCmd struct {
 	Version              uint32
 	NetWorkID            uint32
@@ -108,7 +116,7 @@ type Tip struct {
 	MinorBlockHeaderList []*types.MinorBlockHeader `bytesizeofslicelen:"4"`
 }
 
-//NewTransactionList new transaction list
+// NewTransactionList new transaction list
 type NewTransactionList struct {
 	TransactionList []*types.Transaction `bytesizeofslicelen:"4"`
 }
@@ -118,7 +126,7 @@ type GetPeerListRequest struct {
 	MaxPeers uint32
 }
 
-//GetPeerListResponse get peer list response
+// GetPeerListResponse get peer list response
 type GetPeerListResponse struct {
 	PeerInfoList []P2PeerInfo `bytesizeofslicelen:"4"`
 }
@@ -130,18 +138,18 @@ type GetRootBlockHeaderListRequest struct {
 	Direction uint8
 }
 
-//GetRootBlockHeaderListResponse get root block header list response
+// GetRootBlockHeaderListResponse get root block header list response
 type GetRootBlockHeaderListResponse struct {
 	RootTip         *types.RootBlockHeader
 	BlockHeaderList []*types.RootBlockHeader `bytesizeofslicelen:"4"`
 }
 
-//GetRootBlockListRequest get root block list request
+// GetRootBlockListRequest get root block list request
 type GetRootBlockListRequest struct {
 	RootBlockHashList []common.Hash `bytesizeofslicelen:"4"`
 }
 
-//GetRootBlockListResponse get root block list response
+// GetRootBlockListResponse get root block list response
 type GetRootBlockListResponse struct {
 	RootBlockList []*types.RootBlock `bytesizeofslicelen:"4"`
 }
@@ -151,12 +159,12 @@ type GetMinorBlockListRequest struct {
 	MinorBlockHashList []common.Hash `bytesizeofslicelen:"4"`
 }
 
-//GetMinorBlockListResponse get minor block list response
+// GetMinorBlockListResponse get minor block list response
 type GetMinorBlockListResponse struct {
 	MinorBlockList []*types.MinorBlock `bytesizeofslicelen:"4"`
 }
 
-//GetMinorBlockHeaderListRequest get minor block header list request
+// GetMinorBlockHeaderListRequest get minor block header list request
 type GetMinorBlockHeaderListRequest struct {
 	BlockHash common.Hash
 	Branch    account.Branch
@@ -164,14 +172,14 @@ type GetMinorBlockHeaderListRequest struct {
 	Direction uint8
 }
 
-//GetMinorBlockHeaderListResponse get minor block header list response
+// GetMinorBlockHeaderListResponse get minor block header list response
 type GetMinorBlockHeaderListResponse struct {
 	RootTip         *types.RootBlockHeader
 	ShardTip        *types.MinorBlockHeader
 	BlockHeaderList []*types.MinorBlockHeader `bytesizeofslicelen:"4"`
 }
 
-//NewBlockMinor new block minor
+// NewBlockMinor new block minor
 type NewBlockMinor struct {
 	Block *types.MinorBlock
 }
@@ -183,6 +191,32 @@ type PingPongCommand struct {
 
 type NewRootBlockCommand struct {
 	Block *types.RootBlock
+}
+
+type POSAVoteCommand struct {
+	TargetHash   common.Hash
+	TargetNumber uint64
+	Signature    [65]byte
+}
+
+type ShardActivationVoteCommand struct {
+	Target    uint32
+	Signature [65]byte
+}
+
+type BFTProposalCommand struct {
+	Epoch      uint64
+	Round      uint64
+	TargetHash common.Hash
+	Signature  [65]byte
+}
+
+type BFTVoteCommand struct {
+	Epoch      uint64
+	Round      uint64
+	VoteType   string
+	TargetHash common.Hash
+	Signature  [65]byte
 }
 
 type GetRootBlockHeaderListWithSkipRequest struct {

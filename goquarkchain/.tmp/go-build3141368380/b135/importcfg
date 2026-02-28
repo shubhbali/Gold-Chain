@@ -1,0 +1,6 @@
+# import config
+packagefile crypto/internal/boring=C:\gold\goquarkchain\.tmp\go-build3141368380\b083\_pkg_.a
+packagefile crypto/internal/fips140/drbg=C:\gold\goquarkchain\.tmp\go-build3141368380\b100\_pkg_.a
+packagefile crypto/internal/randutil=C:\gold\goquarkchain\.tmp\go-build3141368380\b136\_pkg_.a
+packagefile internal/godebug=C:\gold\goquarkchain\.tmp\go-build3141368380\b054\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a

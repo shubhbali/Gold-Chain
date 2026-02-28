@@ -1,0 +1,5 @@
+./idscheme.go
+./localnode.go
+./node.go
+./nodedb.go
+./urlv4.go

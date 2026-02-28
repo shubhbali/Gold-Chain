@@ -1,0 +1,5 @@
+# import config
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b159\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/params=C:\gold\goquarkchain\.tmp\go-build3141368380\b186\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a

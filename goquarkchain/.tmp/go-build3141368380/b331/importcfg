@@ -1,0 +1,20 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile golang.org/x/net/internal/timeseries=C:\gold\goquarkchain\.tmp\go-build3141368380\b332\_pkg_.a
+packagefile html/template=C:\gold\goquarkchain\.tmp\go-build3141368380\b333\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile log=C:\gold\goquarkchain\.tmp\go-build3141368380\b196\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile net/http=C:\gold\goquarkchain\.tmp\go-build3141368380\b255\_pkg_.a
+packagefile net/url=C:\gold\goquarkchain\.tmp\go-build3141368380\b251\_pkg_.a
+packagefile runtime=C:\gold\goquarkchain\.tmp\go-build3141368380\b009\_pkg_.a
+packagefile sort=C:\gold\goquarkchain\.tmp\go-build3141368380\b115\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile text/tabwriter=C:\gold\goquarkchain\.tmp\go-build3141368380\b126\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

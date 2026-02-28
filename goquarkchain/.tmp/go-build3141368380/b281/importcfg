@@ -1,0 +1,8 @@
+# import config
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/common/mclock=C:\gold\goquarkchain\.tmp\go-build3141368380\b221\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

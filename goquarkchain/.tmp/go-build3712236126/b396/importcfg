@@ -1,0 +1,6 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile golang.org/x/sys/windows=C:\gold\goquarkchain\.tmp\go-build3712236126\b397\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.gocache\6d\6d65fcdbe43fb8ca927d4bfc1e00f60426edb008458e1510d70d946c4507d746-d
+packagefile reflect=C:\gold\goquarkchain\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d
+packagefile sync=C:\gold\goquarkchain\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d

@@ -1,0 +1,26 @@
+# import config
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/account=C:\gold\goquarkchain\.tmp\go-build3141368380\b153\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b156\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/consensus=C:\gold\goquarkchain\.tmp\go-build3141368380\b187\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\goquarkchain\.tmp\go-build3141368380\b189\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/p2p=C:\gold\goquarkchain\.tmp\go-build3141368380\b289\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/rpc=C:\gold\goquarkchain\.tmp\go-build3141368380\b327\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/serialize=C:\gold\goquarkchain\.tmp\go-build3141368380\b191\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b159\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\goquarkchain\.tmp\go-build3141368380\b164\_pkg_.a
+packagefile github.com/golang/protobuf/proto=C:\gold\goquarkchain\.tmp\go-build3141368380\b329\_pkg_.a
+packagefile google.golang.org/grpc=C:\gold\goquarkchain\.tmp\go-build3141368380\b330\_pkg_.a
+packagefile google.golang.org/grpc/codes=C:\gold\goquarkchain\.tmp\go-build3141368380\b348\_pkg_.a
+packagefile google.golang.org/grpc/connectivity=C:\gold\goquarkchain\.tmp\go-build3141368380\b338\_pkg_.a
+packagefile google.golang.org/grpc/status=C:\gold\goquarkchain\.tmp\go-build3141368380\b358\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

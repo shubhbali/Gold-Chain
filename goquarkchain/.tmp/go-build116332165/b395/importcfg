@@ -1,0 +1,10 @@
+# import config
+packagefile github.com/QuarkChain/goquarkchain/account=C:\gold\goquarkchain\.gocache\be\bec70037151357a32e26c8b09f571554c74a8bbf4295c57934bf5c95bdc63c28-d
+packagefile github.com/QuarkChain/goquarkchain/cluster/rpc=C:\gold\goquarkchain\.tmp\go-build116332165\b289\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/consensus=C:\gold\goquarkchain\.tmp\go-build116332165\b215\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\goquarkchain\.gocache\8c\8c8253dd1f68703a7fac1948bb79a174954174beaeaabc3dfadf6106b5c884bf-d
+packagefile github.com/QuarkChain/goquarkchain/rpc=C:\gold\goquarkchain\.gocache\5f\5fa7f48573a3664a775a363a47493cf09d9faad952f99110955d13471a79934f-d
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.gocache\62\62346fac565a68e745d89c18ced208bc512246a4383e6f3bd1fa90b1d26a3a68-d
+packagefile github.com/golang/mock/gomock=C:\gold\goquarkchain\.gocache\d2\d2afdfb857ad19f3ec09b1dfdb5e9e2899320e4fedb09be0d6c6772f8bd0de96-d
+packagefile math/big=C:\gold\goquarkchain\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d
+packagefile reflect=C:\gold\goquarkchain\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d

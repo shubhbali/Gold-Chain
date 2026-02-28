@@ -1,0 +1,12 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.gocache\c6\c609a204aaec4b4911654b5957914792eeb751cb4ee01ae15e1afe3361b05b11-d
+packagefile encoding/binary=C:\gold\goquarkchain\.gocache\f2\f28479b64f776ebdc19e3ee302d15d5dd7ae78aa4712f047aa78b8b9f8878765-d
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile fmt=C:\gold\goquarkchain\.gocache\20\207f6635331b9a1c4d35dd7629029b2e850226585f05c753c5eca3310391c2be-d
+packagefile math/big=C:\gold\goquarkchain\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d
+packagefile reflect=C:\gold\goquarkchain\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d
+packagefile strings=C:\gold\goquarkchain\.gocache\bb\bb220c3fe80d5e749c9382ac634507db68495a2af21b9a9fd847547eb08f02ef-d
+packagefile syscall=C:\gold\goquarkchain\.gocache\3d\3dee3a62384f5da67deca0ac3869f9a7ec424dbb03002c1dec43353d54d2f81d-d
+packagefile time=C:\gold\goquarkchain\.gocache\6b\6b6b728fcd59a2ea84a13cc62c224b99a029c57c84a63b33792fc34160437768-d
+packagefile unicode/utf16=C:\gold\goquarkchain\.gocache\50\50c28aba2fa0eb38f4fefaf03a2d2e3e04eff4645d357cd7f3a564681c80afb4-d
+packagefile unicode/utf8=C:\gold\goquarkchain\.gocache\9e\9e148e79b7b889009122b61a1d1d6e49f06c52ad46745f04d102848cfac79b54-d

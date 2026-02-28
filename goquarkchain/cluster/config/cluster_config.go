@@ -281,6 +281,9 @@ func (q *QuarkChainConfig) Update(chainSize, shardSizePerChain, rootBlockTime, m
 	if q.Root == nil {
 		q.Root = NewRootConfig()
 	}
+	if q.Root.PoSAConfig == nil {
+		q.Root.PoSAConfig = NewPOSAConfig()
+	}
 	q.Root.ConsensusType = PoWSimulate
 	if q.Root.ConsensusConfig == nil {
 		q.Root.ConsensusConfig = NewPOWConfig()
@@ -294,6 +297,9 @@ func (q *QuarkChainConfig) Update(chainSize, shardSizePerChain, rootBlockTime, m
 		chainCfg.ChainID = chainId
 		chainCfg.ShardSize = shardSizePerChain
 		chainCfg.ConsensusType = PoWSimulate
+		if chainCfg.PoSAConfig == nil {
+			chainCfg.PoSAConfig = NewPOSAConfig()
+		}
 		chainCfg.ConsensusConfig = NewPOWConfig()
 		chainCfg.ConsensusConfig.TargetBlockTime = minorBlockTime
 		chainCfg.DefaultChainToken = DefaultToken
@@ -312,6 +318,9 @@ func (q *QuarkChainConfig) Update(chainSize, shardSizePerChain, rootBlockTime, m
 }
 
 func (q *QuarkChainConfig) initAndValidate() {
+	if q.Root != nil && q.Root.PoSAConfig == nil {
+		q.Root.PoSAConfig = NewPOSAConfig()
+	}
 	if q.MinMiningGasPrice == nil {
 		q.MinMiningGasPrice = new(big.Int).SetUint64(1000000000)
 	}
@@ -329,6 +338,9 @@ func (q *QuarkChainConfig) initAndValidate() {
 	q.chainIdToShardIds = make(map[uint32][]uint32)
 
 	for fullShardId, shardCfg := range q.shards {
+		if shardCfg.PoSAConfig == nil {
+			shardCfg.PoSAConfig = NewPOSAConfig()
+		}
 		chainID := shardCfg.ChainID
 		shardSize := shardCfg.ShardSize
 		shardID := shardCfg.ShardID
@@ -438,6 +450,7 @@ func NewQuarkChainConfig() *QuarkChainConfig {
 	}
 
 	ret.Root.ConsensusType = PoWSimulate
+	ret.Root.PoSAConfig = NewPOSAConfig()
 	ret.Root.ConsensusConfig = NewPOWConfig()
 	ret.Root.ConsensusConfig.TargetBlockTime = 10
 
@@ -451,6 +464,7 @@ func NewQuarkChainConfig() *QuarkChainConfig {
 		cfg := NewChainConfig()
 		cfg.ChainID = chainID
 		cfg.ConsensusType = PoWSimulate
+		cfg.PoSAConfig = NewPOSAConfig()
 		cfg.ConsensusConfig = NewPOWConfig()
 		cfg.ConsensusConfig.TargetBlockTime = 3
 		ret.Chains[chainID] = cfg

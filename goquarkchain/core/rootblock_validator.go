@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"reflect"
 
+	"github.com/QuarkChain/goquarkchain/account"
 	"github.com/QuarkChain/goquarkchain/cluster/config"
 	"github.com/QuarkChain/goquarkchain/consensus"
 	"github.com/QuarkChain/goquarkchain/core/state"
@@ -16,9 +17,10 @@ import (
 
 // RootBlockValidator implements Validator.
 type RootBlockValidator struct {
-	config     *config.QuarkChainConfig // config configuration options
-	blockChain *RootBlockChain          // root block chain
-	engine     consensus.Engine         // engine engine used for validating
+	config         *config.QuarkChainConfig // config configuration options
+	blockChain     *RootBlockChain          // root block chain
+	engine         consensus.Engine         // engine engine used for validating
+	posaValidators []account.Address
 }
 
 // NewRootBlockValidator returns a new root block validator which is safe for re-use
@@ -27,6 +29,9 @@ func NewRootBlockValidator(config *config.QuarkChainConfig, blockchain *RootBloc
 		config:     config,
 		engine:     engine,
 		blockChain: blockchain,
+	}
+	if config != nil && config.Root != nil && config.Root.PoSAConfig != nil {
+		validator.posaValidators = parsePOSAValidators(config.Root.PoSAConfig.Validators)
 	}
 	return validator
 }
@@ -54,6 +59,25 @@ func (v *RootBlockValidator) ValidateBlock(block types.IBlock, force bool) error
 
 	if err := v.engine.VerifyHeader(v.blockChain, header, true); err != nil {
 		return err
+	}
+	if v.config.Root.ConsensusType == config.PoSA {
+		validators := v.posaValidators
+		if v.blockChain != nil {
+			if active := v.blockChain.activePOSAValidatorAddresses(); len(active) > 0 {
+				validators = active
+			}
+		}
+		if len(validators) == 0 {
+			return errors.New("no active POSA validators")
+		}
+		idx := proposerIndexForHeight(rootBlock.NumberU64(), len(validators))
+		if idx < 0 || idx >= len(validators) {
+			return errors.New("failed to resolve POSA proposer index")
+		}
+		expected := validators[idx]
+		if !account.IsSameAddress(expected, rootBlock.Coinbase()) {
+			return fmt.Errorf("unexpected root proposer: have %s want %s", rootBlock.Coinbase().ToHex(), expected.ToHex())
+		}
 	}
 
 	parent, ok := v.blockChain.GetBlock(block.ParentHash()).(*types.RootBlock)
@@ -183,6 +207,9 @@ func (v *RootBlockValidator) ValidateSeal(rHeader types.IHeader, usePosw bool) e
 	}
 	if header.NumberU64() == 0 {
 		return nil
+	}
+	if v.config.Root.ConsensusType == config.PoSA {
+		return v.engine.VerifySeal(v.blockChain, header, nil)
 	}
 	adjustedDiff := header.GetDifficulty()
 	if usePosw {

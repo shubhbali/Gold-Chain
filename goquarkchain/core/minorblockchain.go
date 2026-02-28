@@ -431,10 +431,11 @@ func (m *MinorBlockChain) SkipDifficultyCheck() bool {
 // GetGiltRatioFromGovernance retrieves the current GILT ratio from the governance contract storage.
 // Returns the static config value if governance is disabled.
 // Storage layout of GiltRatioGovernance.sol:
-//   slot 0: currentRatio (uint256)
-//   slot 1: pendingRatio (uint256)
-//   slot 2: pendingActivationTime (uint256)
-//   slot 3: giltTokenAddress (address)
+//
+//	slot 0: currentRatio (uint256)
+//	slot 1: pendingRatio (uint256)
+//	slot 2: pendingActivationTime (uint256)
+//	slot 3: giltTokenAddress (address)
 func (m *MinorBlockChain) GetGiltRatioFromGovernance(parentHash common.Hash) uint64 {
 	poswConfig := m.shardConfig.PoswConfig
 	if poswConfig.GiltRatioGovernanceContract == "" {
@@ -442,7 +443,11 @@ func (m *MinorBlockChain) GetGiltRatioFromGovernance(parentHash common.Hash) uin
 	}
 
 	// Get state at parent block
-	statedb, err := m.StateAt(m.GetBlockByHash(parentHash).Root())
+	parentBlock := m.GetMinorBlock(parentHash)
+	if parentBlock == nil {
+		return poswConfig.GiltRatioPercent
+	}
+	statedb, err := m.StateAt(parentBlock.Root())
 	if err != nil {
 		log.Debug(m.logInfo, "GILT governance: failed to get state, using static config", err)
 		return poswConfig.GiltRatioPercent
@@ -475,32 +480,30 @@ func (m *MinorBlockChain) GetAdjustedDifficulty(header types.IHeader) (*big.Int,
 
 		// Check GILT ratio requirement if enabled
 		poswConfig := m.shardConfig.PoswConfig
+		stakeA := balance.GetTokenBalance(m.clusterConfig.Quarkchain.GetDefaultChainTokenID())
+		stakeB := balance.GetTokenBalance(poswConfig.GiltTokenID)
 		if poswConfig.GiltRatioActivationBlock > 0 && header.NumberU64() >= poswConfig.GiltRatioActivationBlock {
 			// Get ratio from governance contract or static config
 			giltRatioPercent := m.GetGiltRatioFromGovernance(preHash)
 
 			// If ratio is 0, GILT requirement is disabled
 			if giltRatioPercent > 0 {
-				goldBalance := balance.GetTokenBalance(m.clusterConfig.Quarkchain.GetDefaultChainTokenID())
-				giltBalance := balance.GetTokenBalance(poswConfig.GiltTokenID)
-
-				// Calculate minimum GILT required: (goldBalance * giltRatioPercent) / 100
-				minGiltRequired := new(big.Int).Mul(goldBalance, big.NewInt(int64(giltRatioPercent)))
-				minGiltRequired = new(big.Int).Div(minGiltRequired, big.NewInt(100))
-
-				if giltBalance.Cmp(minGiltRequired) < 0 {
+				if err := ValidateStakeRatio(stakeA, stakeB, giltRatioPercent); err != nil {
+					minGiltRequired := new(big.Int).Mul(stakeA, big.NewInt(int64(giltRatioPercent)))
+					minGiltRequired = new(big.Int).Div(minGiltRequired, big.NewInt(100))
 					log.Error(m.logInfo, "PoSW: validator GILT ratio not met",
-						"goldBalance", goldBalance,
-						"giltBalance", giltBalance,
+						"goldBalance", stakeA,
+						"giltBalance", stakeB,
 						"minGiltRequired", minGiltRequired,
 						"giltRatioPercent", giltRatioPercent)
-					return nil, 0, fmt.Errorf("validator must hold at least %d%% of stake in GILT token", giltRatioPercent)
+					return nil, 0, err
 				}
 			}
 		}
 
 		stakePreBlock := m.DecayByHeightAndTime(header.NumberU64(), header.GetTime())
-		poswAdjusted, err := m.posw.PoSWDiffAdjust(header, balance.GetTokenBalance(m.clusterConfig.Quarkchain.GetDefaultChainTokenID()), stakePreBlock)
+		effectiveStake := EffectiveStake(stakeA, stakeB, poswConfig.StakeWeightA, poswConfig.StakeWeightB)
+		poswAdjusted, err := m.posw.PoSWDiffAdjust(header, effectiveStake, stakePreBlock)
 		if err != nil {
 			log.Error(m.logInfo, "PoSW: err", err)
 			return nil, 0, err

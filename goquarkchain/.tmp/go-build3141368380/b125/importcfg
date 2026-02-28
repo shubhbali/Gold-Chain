@@ -1,0 +1,7 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a
+packagefile internal/byteorder=C:\gold\goquarkchain\.tmp\go-build3141368380\b012\_pkg_.a
+packagefile internal/cpu=C:\gold\goquarkchain\.tmp\go-build3141368380\b011\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a

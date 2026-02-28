@@ -18,6 +18,8 @@ import (
 const (
 	// PoWNone is the default empty consensus type specifying no shard.
 	PoWNone = "NONE"
+	// PoSA is the validator-based consensus type.
+	PoSA = "POSA"
 	// PoWEthash is the consensus type running ethash algorithm.
 	PoWEthash = "POW_ETHASH"
 	// PoWDoubleSha256 is the consensus type running double-sha256 algorithm.
@@ -63,12 +65,64 @@ func NewPOWConfig() *POWConfig {
 	}
 }
 
+type POSAConfig struct {
+	EpochInterval        uint64 `json:"EPOCH_INTERVAL"`
+	SlotTimeSec          uint32 `json:"SLOT_TIME_SEC"`
+	FinalityThresholdBps uint32 `json:"FINALITY_THRESHOLD_BPS"`
+	ConsensusFamily      string `json:"CONSENSUS_FAMILY"`
+	ValidatorModel       string `json:"VALIDATOR_MODEL"`
+	TargetFinalitySec    uint32 `json:"TARGET_FINALITY_SEC"`
+	MinValidatorCount    uint32 `json:"MIN_VALIDATOR_COUNT"`
+	GovernanceMode       string `json:"GOVERNANCE_MODE"`
+	RatioActivationMode  string `json:"RATIO_ACTIVATION_MODE"`
+	EquivocationSlashBps uint32 `json:"EQUIVOCATION_SLASH_BPS"`
+	DowntimeSlashBps     uint32 `json:"DOWNTIME_SLASH_BPS"`
+	DowntimeJailSec      uint64 `json:"DOWNTIME_JAIL_SEC"`
+	EquivocationJailSec  uint64 `json:"EQUIVOCATION_JAIL_SEC"`
+	UnbondingPeriodSec   uint64 `json:"UNBONDING_PERIOD_SEC"`
+	// Validators is an ordered list of validator coinbase addresses (full QuarkChain
+	// addresses, 24-byte hex) used by deterministic proposer scheduling.
+	Validators                     []string `json:"VALIDATORS"`
+	InitialActiveShards            uint32   `json:"INITIAL_ACTIVE_SHARDS"`
+	MaxActiveShards                uint32   `json:"MAX_ACTIVE_SHARDS"`
+	ShardActivationThresholdBps    uint32   `json:"SHARD_ACTIVATION_THRESHOLD_BPS"`
+	ShardActivationDelayRootBlocks uint64   `json:"SHARD_ACTIVATION_DELAY_ROOT_BLOCKS"`
+}
+
+func NewPOSAConfig() *POSAConfig {
+	return &POSAConfig{
+		EpochInterval:                  300,
+		SlotTimeSec:                    5,
+		FinalityThresholdBps:           6666,
+		ConsensusFamily:                "HOTSTUFF",
+		ValidatorModel:                 "HYBRID",
+		TargetFinalitySec:              5,
+		MinValidatorCount:              7,
+		GovernanceMode:                 "BOTH",
+		RatioActivationMode:            "GOVERNANCE",
+		EquivocationSlashBps:           500,
+		DowntimeSlashBps:               0,
+		DowntimeJailSec:                86400,   // 24h
+		EquivocationJailSec:            2592000, // 30d
+		UnbondingPeriodSec:             1209600, // 14d
+		Validators:                     []string{},
+		InitialActiveShards:            8,
+		MaxActiveShards:                16,
+		ShardActivationThresholdBps:    6666,
+		ShardActivationDelayRootBlocks: 64,
+	}
+}
+
 type POSWConfig struct {
 	Enabled                bool     `json:"ENABLED"`
 	EnableTimestamp        uint64   `json:"ENABLE_TIMESTAMP"`
 	DiffDivider            uint64   `json:"DIFF_DIVIDER"`
 	WindowSize             uint64   `json:"WINDOW_SIZE"`
 	TotalStakePerBlock     *big.Int `json:"TOTAL_STAKE_PER_BLOCK"`
+	StakeTokenAID          uint64   `json:"STAKE_TOKEN_A_ID"`
+	StakeTokenBID          uint64   `json:"STAKE_TOKEN_B_ID"`
+	StakeWeightA           uint64   `json:"STAKE_WEIGHT_A"`
+	StakeWeightB           uint64   `json:"STAKE_WEIGHT_B"`
 	BoostTimestamp         uint64   `json:"BOOST_TIMESTAMP"`
 	BoostMultiplierPerStep uint64   `json:"BOOST_MULTIPLIER_PER_STEP"`
 	BoostSteps             uint64   `json:"BOOST_STEPS"`
@@ -78,45 +132,53 @@ type POSWConfig struct {
 	// GiltRatioPercent: minimum percentage of stake that must be in GILT (e.g., 10 = 10%)
 	// GiltTokenID: token ID for GILT token
 	// GiltRatioGovernanceContract: address of governance contract (if set, overrides static config)
-	GiltRatioActivationBlock      uint64 `json:"GILT_RATIO_ACTIVATION_BLOCK"`
-	GiltRatioPercent              uint64 `json:"GILT_RATIO_PERCENT"`
-	GiltTokenID                   uint64 `json:"GILT_TOKEN_ID"`
-	GiltRatioGovernanceContract   string `json:"GILT_RATIO_GOVERNANCE_CONTRACT"`
+	GiltRatioActivationBlock    uint64 `json:"GILT_RATIO_ACTIVATION_BLOCK"`
+	GiltRatioPercent            uint64 `json:"GILT_RATIO_PERCENT"`
+	GiltTokenID                 uint64 `json:"GILT_TOKEN_ID"`
+	GiltRatioGovernanceContract string `json:"GILT_RATIO_GOVERNANCE_CONTRACT"`
 }
 
 func NewPOSWConfig() *POSWConfig {
 	return &POSWConfig{
-		Enabled:                  false,
-		EnableTimestamp:          0,
-		DiffDivider:              20,
-		WindowSize:               256,
-		TotalStakePerBlock:       new(big.Int).Mul(big.NewInt(1000000000), QuarkashToJiaozi),
-		BoostTimestamp:           0,     // 0 = disable
-		BoostMultiplierPerStep:   2,     // increase 2 times every time
-		BoostSteps:               10,    // max 2 ^ 10 * DiffDivider times
-		BoostStepInterval:        43200, // 12 hours
-		GiltRatioActivationBlock:    0,  // 0 = disabled
-		GiltRatioPercent:            10, // 10% minimum GILT when enabled
-		GiltTokenID:                 0,  // set to actual GILT token ID in config
-		GiltRatioGovernanceContract: "", // empty = use static config
+		Enabled:                     false,
+		EnableTimestamp:             0,
+		DiffDivider:                 20,
+		WindowSize:                  256,
+		TotalStakePerBlock:          new(big.Int).Mul(big.NewInt(1000000000), QuarkashToJiaozi),
+		StakeTokenAID:               0,
+		StakeTokenBID:               0,
+		StakeWeightA:                10000,
+		StakeWeightB:                10000,
+		BoostTimestamp:              0,     // 0 = disable
+		BoostMultiplierPerStep:      2,     // increase 2 times every time
+		BoostSteps:                  10,    // max 2 ^ 10 * DiffDivider times
+		BoostStepInterval:           43200, // 12 hours
+		GiltRatioActivationBlock:    0,     // 0 = disabled
+		GiltRatioPercent:            10,    // 10% minimum GILT when enabled
+		GiltTokenID:                 0,     // set to actual GILT token ID in config
+		GiltRatioGovernanceContract: "",    // empty = use static config
 	}
 }
 
 func NewRootPOSWConfig() *POSWConfig {
 	return &POSWConfig{
-		Enabled:                  false,
-		EnableTimestamp:          0,
-		DiffDivider:              1000,
-		WindowSize:               4320, // 72 hours
-		TotalStakePerBlock:       new(big.Int).Mul(big.NewInt(240000), QuarkashToJiaozi),
-		BoostTimestamp:           0,         // 0 = disable
-		BoostMultiplierPerStep:   2,         // increase 2 times every time
-		BoostSteps:               10,        // max 2 ^ 10 * DiffDivider times
-		BoostStepInterval:        86400 * 2, // two days
-		GiltRatioActivationBlock:    0,  // 0 = disabled
-		GiltRatioPercent:            10, // 10% minimum GILT when enabled
-		GiltTokenID:                 0,  // set to actual GILT token ID in config
-		GiltRatioGovernanceContract: "", // empty = use static config
+		Enabled:                     false,
+		EnableTimestamp:             0,
+		DiffDivider:                 1000,
+		WindowSize:                  4320, // 72 hours
+		TotalStakePerBlock:          new(big.Int).Mul(big.NewInt(240000), QuarkashToJiaozi),
+		StakeTokenAID:               0,
+		StakeTokenBID:               0,
+		StakeWeightA:                10000,
+		StakeWeightB:                10000,
+		BoostTimestamp:              0,         // 0 = disable
+		BoostMultiplierPerStep:      2,         // increase 2 times every time
+		BoostSteps:                  10,        // max 2 ^ 10 * DiffDivider times
+		BoostStepInterval:           86400 * 2, // two days
+		GiltRatioActivationBlock:    0,         // 0 = disabled
+		GiltRatioPercent:            10,        // 10% minimum GILT when enabled
+		GiltTokenID:                 0,         // set to actual GILT token ID in config
+		GiltRatioGovernanceContract: "",        // empty = use static config
 	}
 }
 
@@ -184,6 +246,7 @@ type RootConfig struct {
 	MaxStaleRootBlockHeightDiff    uint64          `json:"MAX_STALE_ROOT_BLOCK_HEIGHT_DIFF"`
 	ConsensusType                  string          `json:"CONSENSUS_TYPE"`
 	ConsensusConfig                *POWConfig      `json:"CONSENSUS_CONFIG"`
+	PoSAConfig                     *POSAConfig     `json:"POSA_CONFIG"`
 	Genesis                        *RootGenesis    `json:"GENESIS"`
 	CoinbaseAddress                account.Address `json:"-"`
 	CoinbaseAmount                 *big.Int        `json:"COINBASE_AMOUNT"`
@@ -200,6 +263,7 @@ func NewRootConfig() *RootConfig {
 		MaxStaleRootBlockHeightDiff:    22500,
 		ConsensusType:                  PoWNone,
 		ConsensusConfig:                nil,
+		PoSAConfig:                     NewPOSAConfig(),
 		Genesis:                        NewRootGenesis(),
 		CoinbaseAddress:                account.CreatEmptyAddress(0),
 		CoinbaseAmount:                 new(big.Int).Mul(big.NewInt(120), QuarkashToJiaozi),

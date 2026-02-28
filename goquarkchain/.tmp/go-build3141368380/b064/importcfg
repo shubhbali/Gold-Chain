@@ -1,0 +1,27 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile flag=C:\gold\goquarkchain\.tmp\go-build3141368380\b067\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile internal/race=C:\gold\goquarkchain\.tmp\go-build3141368380\b027\_pkg_.a
+packagefile internal/syscall/windows=C:\gold\goquarkchain\.tmp\go-build3141368380\b036\_pkg_.a
+packagefile internal/sysinfo=C:\gold\goquarkchain\.tmp\go-build3141368380\b072\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile math/bits=C:\gold\goquarkchain\.tmp\go-build3141368380\b032\_pkg_.a
+packagefile math/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b073\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile path/filepath=C:\gold\goquarkchain\.tmp\go-build3141368380\b074\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile runtime=C:\gold\goquarkchain\.tmp\go-build3141368380\b009\_pkg_.a
+packagefile runtime/debug=C:\gold\goquarkchain\.tmp\go-build3141368380\b075\_pkg_.a
+packagefile runtime/trace=C:\gold\goquarkchain\.tmp\go-build3141368380\b076\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile syscall=C:\gold\goquarkchain\.tmp\go-build3141368380\b044\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a
+packagefile unicode=C:\gold\goquarkchain\.tmp\go-build3141368380\b063\_pkg_.a

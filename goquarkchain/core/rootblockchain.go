@@ -9,6 +9,7 @@ import (
 	"io"
 	"math/big"
 	"sort"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -34,7 +35,8 @@ import (
 )
 
 var (
-	ErrNoGenesis = errors.New("Genesis not found in chain")
+	ErrNoGenesis      = errors.New("Genesis not found in chain")
+	ErrFinalizedReorg = errors.New("reorg would violate finalized checkpoint")
 )
 
 const (
@@ -112,6 +114,14 @@ type RootBlockChain struct {
 	isCheckDB           bool
 	posw                consensus.PoSWCalculator
 	rootChainStakesFunc func(address account.Address, lastMinor common.Hash) (*big.Int, *account.Recipient, error)
+	finality            *FinalityState
+	shardActivation     *ShardActivationState
+	posaVotes           *POSAVoteCollector
+	posaLifecycle       *POSAValidatorLifecycle
+	bftState            *BFTRoundState
+	bftEvidenceMu       sync.RWMutex
+	bftEvidence         []BFTEvidence
+	shardProposalHeight uint64
 }
 
 // NewBlockChain returns a fully initialized block chain using information
@@ -133,6 +143,22 @@ func NewRootBlockChain(db ethdb.Database, chainConfig *config.QuarkChainConfig, 
 		engine:                   engine,
 		validatedMinorBlockCache: validatedMinorBlockHashCache,
 		isCheckDB:                false,
+		finality:                 NewFinalityState(),
+		posaVotes:                NewPOSAVoteCollector(),
+		posaLifecycle:            NewPOSAValidatorLifecycle(),
+		bftState:                 NewBFTRoundState(),
+		bftEvidence:              make([]BFTEvidence, 0),
+	}
+	posaCfg := chainConfig.Root.PoSAConfig
+	if err := validatePOSAConfigForStart(chainConfig); err != nil {
+		return nil, err
+	}
+	if posaCfg != nil {
+		bc.shardActivation = NewShardActivationState(
+			posaCfg.InitialActiveShards,
+			posaCfg.MaxActiveShards,
+			posaCfg.ShardActivationThresholdBps,
+		)
 	}
 	bc.SetValidator(NewRootBlockValidator(chainConfig, bc, engine))
 	bc.posw = posw.NewPoSW(bc, chainConfig.Root.PoSWConfig)
@@ -149,9 +175,30 @@ func NewRootBlockChain(db ethdb.Database, chainConfig *config.QuarkChainConfig, 
 	if err := bc.loadLastState(); err != nil {
 		return nil, err
 	}
+	if !bc.loadFinalityState() {
+		bc.finality.SetJustifiedCheckpoint(bc.CurrentBlock().NumberU64(), bc.CurrentBlock().Hash())
+		bc.finality.SetFinalizedCheckpoint(0, common.Hash{})
+		bc.persistFinalityState()
+	}
+	bc.loadPOSAState()
+	bc.loadBFTState()
 	// Take ownership of this particular state
 	go bc.update()
 	return bc, nil
+}
+
+func validatePOSAConfigForStart(chainConfig *config.QuarkChainConfig) error {
+	if chainConfig == nil || chainConfig.Root == nil || chainConfig.Root.ConsensusType != config.PoSA || chainConfig.Root.PoSAConfig == nil {
+		return nil
+	}
+	posaCfg := chainConfig.Root.PoSAConfig
+	if posaCfg.MinValidatorCount > 0 && uint32(len(posaCfg.Validators)) < posaCfg.MinValidatorCount {
+		return fmt.Errorf("insufficient validators for POSA start: have %d need %d", len(posaCfg.Validators), posaCfg.MinValidatorCount)
+	}
+	if posaCfg.InitialActiveShards == 0 || posaCfg.MaxActiveShards < posaCfg.InitialActiveShards {
+		return errors.New("invalid shard activation bounds in POSA config")
+	}
+	return nil
 }
 
 func (bc *RootBlockChain) getProcInterrupt() bool {
@@ -440,7 +487,7 @@ func (bc *RootBlockChain) WriteBlockWithoutState(block types.IBlock) (err error)
 	return nil
 }
 
-//todo
+// todo
 // WriteBlockWithState writes the block and all associated state to the database.
 func (bc *RootBlockChain) WriteBlockWithState(block *types.RootBlock) (status WriteStatus, err error) {
 	bc.wg.Add(1)
@@ -473,6 +520,11 @@ func (bc *RootBlockChain) WriteBlockWithState(block *types.RootBlock) (status Wr
 		}
 	}
 	if reorg {
+		if err := bc.ensureRespectsFinalizedCheckpoint(block); err != nil {
+			return NonStatTy, err
+		}
+	}
+	if reorg {
 		// Reorganise the chain if the parent is not the head block
 		if block.ParentHash() != currentBlock.Hash() {
 			if err := bc.reorg(currentBlock, block); err != nil {
@@ -493,6 +545,8 @@ func (bc *RootBlockChain) WriteBlockWithState(block *types.RootBlock) (status Wr
 	// Set new head.
 	if status == CanonStatTy {
 		bc.insert(block)
+		bc.updateFinalityOnCanonicalInsert(block)
+		bc.tryAutoActivateShardsOnCanonicalInsert()
 	}
 	bc.futureBlocks.Remove(block.Hash())
 	return status, nil
@@ -903,10 +957,16 @@ func (bc *RootBlockChain) PostChainEvents(events []interface{}) {
 func (bc *RootBlockChain) update() {
 	futureTimer := time.NewTicker(5 * time.Second)
 	defer futureTimer.Stop()
+	bftTimer := time.NewTicker(1 * time.Second)
+	defer bftTimer.Stop()
 	for {
 		select {
 		case <-futureTimer.C:
 			bc.procFutureBlocks()
+		case <-bftTimer.C:
+			bc.maybeAutoBFTProposal()
+			bc.advanceBFTRoundOnTimeout()
+			bc.maybeAutoBFTProposal()
 		case <-bc.quit:
 			return
 		}
@@ -1052,6 +1112,1060 @@ func (bc *RootBlockChain) GetHeaderByNumber(number uint64) types.IHeader {
 // Config retrieves the blockchain's chain configuration.
 func (bc *RootBlockChain) Config() *config.QuarkChainConfig { return bc.chainConfig }
 
+func (bc *RootBlockChain) JustifiedRootHeight() uint64 {
+	if bc.finality == nil {
+		return 0
+	}
+	return bc.finality.Justified()
+}
+
+func (bc *RootBlockChain) FinalizedRootHeight() uint64 {
+	if bc.finality == nil {
+		return 0
+	}
+	return bc.finality.Finalized()
+}
+
+func (bc *RootBlockChain) JustifiedRootHash() common.Hash {
+	if bc.finality == nil {
+		return common.Hash{}
+	}
+	return bc.finality.JustifiedHash()
+}
+
+func (bc *RootBlockChain) FinalizedRootHash() common.Hash {
+	if bc.finality == nil {
+		return common.Hash{}
+	}
+	return bc.finality.FinalizedHash()
+}
+
+func (bc *RootBlockChain) CurrentActiveShards() uint32 {
+	if bc.shardActivation == nil {
+		return 0
+	}
+	return bc.shardActivation.CurrentActiveShards()
+}
+
+func (bc *RootBlockChain) PendingShardActivationTarget() uint32 {
+	if bc.shardActivation == nil {
+		return 0
+	}
+	return bc.shardActivation.PendingTarget()
+}
+
+func (bc *RootBlockChain) PendingShardActivationVotedPower() uint64 {
+	if bc.shardActivation == nil {
+		return 0
+	}
+	return bc.shardActivation.PendingVotedPower()
+}
+
+func (bc *RootBlockChain) knownPOSAValidators() map[string]struct{} {
+	out := make(map[string]struct{})
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return out
+	}
+	for _, v := range bc.chainConfig.Root.PoSAConfig.Validators {
+		out[strings.ToLower(v)] = struct{}{}
+	}
+	return out
+}
+
+func (bc *RootBlockChain) activePOSAValidatorAddresses() []account.Address {
+	out := make([]account.Address, 0)
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return out
+	}
+	for _, raw := range bc.chainConfig.Root.PoSAConfig.Validators {
+		addrBytes := common.FromHex(raw)
+		addr, err := account.CreatAddressFromBytes(addrBytes)
+		if err != nil {
+			continue
+		}
+		if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(strings.ToLower(raw)) {
+			continue
+		}
+		out = append(out, addr)
+	}
+	return out
+}
+
+func (bc *RootBlockChain) activePOSAValidatorIDs() []string {
+	out := make([]string, 0)
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return out
+	}
+	for _, raw := range bc.chainConfig.Root.PoSAConfig.Validators {
+		vid := strings.ToLower(strings.TrimSpace(raw))
+		if vid == "" {
+			continue
+		}
+		if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(vid) {
+			continue
+		}
+		out = append(out, vid)
+	}
+	return out
+}
+
+func (bc *RootBlockChain) expectedBFTProposer(epoch, round uint64) (string, error) {
+	active := bc.activePOSAValidatorIDs()
+	if len(active) == 0 {
+		return "", errors.New("no active validators")
+	}
+	slot := epoch * 1000000
+	if round > 0 {
+		slot += round - 1
+	}
+	idx := int(slot % uint64(len(active)))
+	return active[idx], nil
+}
+
+func (bc *RootBlockChain) posaValidatorPower(validatorID string) uint64 {
+	validatorID = strings.ToLower(validatorID)
+	known := bc.knownPOSAValidators()
+	if _, ok := known[validatorID]; !ok {
+		return 0
+	}
+	if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(validatorID) {
+		return 0
+	}
+	return 1
+}
+
+func (bc *RootBlockChain) totalPOSAValidatorPower() uint64 {
+	active := bc.activePOSAValidators()
+	var total uint64
+	for validatorID := range active {
+		total += bc.posaValidatorPower(validatorID)
+	}
+	return total
+}
+
+func (bc *RootBlockChain) activePOSAValidators() map[string]struct{} {
+	known := bc.knownPOSAValidators()
+	if bc.posaLifecycle == nil {
+		return known
+	}
+	out := make(map[string]struct{})
+	for v := range known {
+		if bc.posaLifecycle.IsActive(v) {
+			out[v] = struct{}{}
+		}
+	}
+	return out
+}
+
+func (bc *RootBlockChain) posaRequiredPower() uint64 {
+	total := bc.totalPOSAValidatorPower()
+	if total == 0 || bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return 0
+	}
+	thresholdBps := uint64(bc.chainConfig.Root.PoSAConfig.FinalityThresholdBps)
+	if thresholdBps == 0 {
+		thresholdBps = 6666
+	}
+	return (total*thresholdBps + 9999) / 10000
+}
+
+func (bc *RootBlockChain) updateFinalityOnCanonicalInsert(block *types.RootBlock) {
+	if bc.finality == nil {
+		return
+	}
+	// Non-POSA mode keeps legacy monotonic behavior.
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.ConsensusType != config.PoSA {
+		bc.finality.SetJustifiedCheckpoint(block.NumberU64(), block.Hash())
+		if block.NumberU64() >= 2 {
+			parent := bc.GetBlockByNumber(block.NumberU64() - 2)
+			if parent != nil {
+				bc.finality.SetFinalizedCheckpoint(block.NumberU64()-2, parent.Hash())
+			}
+		}
+		bc.persistFinalityState()
+		return
+	}
+
+	required := bc.posaRequiredPower()
+	if required == 0 {
+		bc.finality.SetJustifiedCheckpoint(block.NumberU64(), block.Hash())
+		bc.persistFinalityState()
+		return
+	}
+
+	votedPower := bc.POSAVotedPower(block.Hash())
+	if votedPower < required {
+		// Keep current finality state unchanged until quorum votes arrive.
+		return
+	}
+
+	bc.finality.SetJustifiedCheckpoint(block.NumberU64(), block.Hash())
+
+	// Finalize direct parent when current block has reached justification quorum.
+	if block.NumberU64() == 0 {
+		bc.persistFinalityState()
+		return
+	}
+	parent := bc.GetBlock(block.ParentHash())
+	if parent == nil {
+		bc.persistFinalityState()
+		return
+	}
+	// Finalize only when parent is also justified (2-chain rule).
+	parentJustified := false
+	if p, ok := parent.(*types.RootBlock); ok {
+		parentJustified = bc.POSAVotedPower(p.Hash()) >= required
+	}
+	if !parentJustified {
+		bc.persistFinalityState()
+		return
+	}
+	bc.finality.SetFinalizedCheckpoint(parent.NumberU64(), parent.Hash())
+	bc.persistFinalityState()
+}
+
+func (bc *RootBlockChain) ensureRespectsFinalizedCheckpoint(candidate *types.RootBlock) error {
+	if candidate == nil || bc.finality == nil || bc.chainConfig == nil || bc.chainConfig.Root == nil {
+		return nil
+	}
+	if bc.chainConfig.Root.ConsensusType != config.PoSA {
+		return nil
+	}
+	finalizedHeight := bc.finality.Finalized()
+	finalizedHash := bc.finality.FinalizedHash()
+	if finalizedHeight == 0 || finalizedHash == (common.Hash{}) {
+		return nil
+	}
+	ancestorHash, ok := bc.ancestorHashAtOrAboveHeight(candidate, finalizedHeight)
+	if !ok {
+		return nil
+	}
+	if ancestorHash != finalizedHash {
+		return ErrFinalizedReorg
+	}
+	return nil
+}
+
+func (bc *RootBlockChain) ancestorHashAtOrAboveHeight(block *types.RootBlock, height uint64) (common.Hash, bool) {
+	if block == nil {
+		return common.Hash{}, false
+	}
+	if block.NumberU64() < height {
+		return common.Hash{}, false
+	}
+	cur := block
+	for cur != nil && cur.NumberU64() > height {
+		parent := bc.GetBlock(cur.ParentHash())
+		if parent == nil {
+			return common.Hash{}, false
+		}
+		rb, ok := parent.(*types.RootBlock)
+		if !ok {
+			return common.Hash{}, false
+		}
+		cur = rb
+	}
+	if cur == nil || cur.NumberU64() != height {
+		return common.Hash{}, false
+	}
+	return cur.Hash(), true
+}
+
+func (bc *RootBlockChain) tryAutoActivateShardsOnCanonicalInsert() {
+	if bc.shardActivation == nil {
+		return
+	}
+	if bc.shardActivation.PendingTarget() == 0 {
+		return
+	}
+	if _, err := bc.TryActivateShardExpansion(); err != nil {
+		return
+	}
+}
+
+func (bc *RootBlockChain) ProposeNextShardActivation() error {
+	if bc.shardActivation == nil {
+		return errors.New("shard activation is not configured")
+	}
+	current := bc.shardActivation.CurrentActiveShards()
+	if err := bc.shardActivation.Propose(current + 1); err != nil {
+		return err
+	}
+	bc.shardProposalHeight = bc.currentRootHeight()
+	return nil
+}
+
+func (bc *RootBlockChain) VoteShardActivation(validatorID string) error {
+	if bc.shardActivation == nil {
+		return errors.New("shard activation is not configured")
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(validatorID) {
+		return fmt.Errorf("validator is not active: %s", validatorID)
+	}
+	target := bc.shardActivation.PendingTarget()
+	if target == 0 {
+		return errors.New("no pending shard activation proposal")
+	}
+	return bc.shardActivation.Vote(validatorID, 1, target)
+}
+
+func (bc *RootBlockChain) TryActivateShardExpansion() (uint32, error) {
+	if bc.shardActivation == nil {
+		return 0, errors.New("shard activation is not configured")
+	}
+	if bc.chainConfig != nil && bc.chainConfig.Root != nil && bc.chainConfig.Root.PoSAConfig != nil {
+		delay := bc.chainConfig.Root.PoSAConfig.ShardActivationDelayRootBlocks
+		if delay > 0 && bc.shardProposalHeight > 0 {
+			if bc.currentRootHeight() < bc.shardProposalHeight+delay {
+				return bc.shardActivation.CurrentActiveShards(), fmt.Errorf("shard activation delay not elapsed")
+			}
+		}
+	}
+	next, err := bc.shardActivation.Activate(bc.totalPOSAValidatorPower())
+	if err != nil {
+		return next, err
+	}
+	bc.shardProposalHeight = 0
+	return next, nil
+}
+
+func (bc *RootBlockChain) currentRootHeight() uint64 {
+	head := bc.currentBlock.Load()
+	if head == nil {
+		return 0
+	}
+	rb, ok := head.(*types.RootBlock)
+	if !ok || rb == nil {
+		return 0
+	}
+	return rb.NumberU64()
+}
+
+func (bc *RootBlockChain) SubmitPOSAVote(v POSAVote) {
+	if bc.posaVotes == nil {
+		return
+	}
+	bc.posaVotes.Add(v)
+}
+
+func (bc *RootBlockChain) SubmitPOSAVoteByValidator(validatorID string, targetHash common.Hash) error {
+	if bc.posaVotes == nil {
+		return errors.New("posa vote collector is not configured")
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(validatorID) {
+		return fmt.Errorf("validator is not active: %s", validatorID)
+	}
+	targetBlock := bc.GetBlock(targetHash)
+	if targetBlock == nil {
+		return fmt.Errorf("unknown target root block: %s", targetHash.Hex())
+	}
+	if bc.db != nil {
+		canon := bc.GetBlockByNumber(targetBlock.NumberU64())
+		if canon == nil || canon.Hash() != targetHash {
+			return fmt.Errorf("target root block is not canonical: %s", targetHash.Hex())
+		}
+	}
+	power := bc.posaValidatorPower(validatorID)
+	if power == 0 {
+		return fmt.Errorf("validator has zero voting power: %s", validatorID)
+	}
+	v := POSAVote{
+		ValidatorID: validatorID,
+		TargetHash:  targetHash,
+		TargetNum:   targetBlock.NumberU64(),
+		Power:       power,
+	}
+	added, equivocation := bc.posaVotes.AddChecked(v)
+	if equivocation {
+		bc.slashAndJailValidator(validatorID)
+		return fmt.Errorf("equivocation detected for validator %s", validatorID)
+	}
+	if !added {
+		return nil
+	}
+	if bc.posaLifecycle != nil {
+		bc.posaLifecycle.AddReward(validatorID, 1)
+	}
+	bc.persistPOSAState()
+	// If the voted block is canonical and already inserted, update finality now.
+	if bc.db != nil {
+		if canon := bc.GetBlockByNumber(targetBlock.NumberU64()); canon != nil && canon.Hash() == targetHash {
+			if rb, ok := canon.(*types.RootBlock); ok {
+				bc.updateFinalityOnCanonicalInsert(rb)
+			}
+		}
+	}
+	return nil
+}
+
+func (bc *RootBlockChain) SubmitSignedPOSAVote(targetHash common.Hash, targetNum uint64, signature [65]byte) error {
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return errors.New("posa config is not available")
+	}
+	networkID := bc.chainConfig.NetworkID
+	signHash := posaVoteSigningHash(networkID, targetHash, targetNum)
+	recovered, err := sigToAddr(signHash.Bytes(), signature)
+	if err != nil {
+		return err
+	}
+	validatorID, err := validatorIDByRecipient(bc.chainConfig.Root.PoSAConfig.Validators, *recovered)
+	if err != nil {
+		return err
+	}
+	targetBlock := bc.GetBlock(targetHash)
+	if targetBlock == nil {
+		return fmt.Errorf("unknown target root block: %s", targetHash.Hex())
+	}
+	if targetBlock.NumberU64() != targetNum {
+		return fmt.Errorf("target number mismatch: have %d want %d", targetNum, targetBlock.NumberU64())
+	}
+	return bc.SubmitPOSAVoteByValidator(validatorID, targetHash)
+}
+
+func (bc *RootBlockChain) VoteShardActivationSigned(target uint32, signature [65]byte) error {
+	if bc.shardActivation == nil {
+		return errors.New("shard activation is not configured")
+	}
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return errors.New("posa config is not available")
+	}
+	if pending := bc.shardActivation.PendingTarget(); pending == 0 {
+		return errors.New("no pending shard activation proposal")
+	} else if pending != target {
+		return fmt.Errorf("target mismatch: have %d want %d", target, pending)
+	}
+	networkID := bc.chainConfig.NetworkID
+	signHash := shardActivationSigningHash(networkID, target)
+	recovered, err := sigToAddr(signHash.Bytes(), signature)
+	if err != nil {
+		return err
+	}
+	validatorID, err := validatorIDByRecipient(bc.chainConfig.Root.PoSAConfig.Validators, *recovered)
+	if err != nil {
+		return err
+	}
+	return bc.VoteShardActivation(validatorID)
+}
+
+func (bc *RootBlockChain) POSAVotedPower(target common.Hash) uint64 {
+	if bc.posaVotes == nil {
+		return 0
+	}
+	return bc.posaVotes.TotalPower(target)
+}
+
+func (bc *RootBlockChain) POSARequiredPower() uint64 {
+	return bc.posaRequiredPower()
+}
+
+func (bc *RootBlockChain) ActivePOSAValidatorCount() uint64 {
+	return bc.totalPOSAValidatorPower()
+}
+
+func (bc *RootBlockChain) slashAndJailValidator(validatorID string) {
+	if bc.posaLifecycle == nil {
+		return
+	}
+	validatorID = strings.ToLower(validatorID)
+	bc.posaLifecycle.AddSlash(validatorID)
+	jailSec := uint64(0)
+	if bc.chainConfig != nil && bc.chainConfig.Root != nil && bc.chainConfig.Root.PoSAConfig != nil {
+		jailSec = bc.chainConfig.Root.PoSAConfig.EquivocationJailSec
+	}
+	bc.posaLifecycle.JailFor(validatorID, jailSec)
+	if bc.posaVotes != nil {
+		bc.posaVotes.RemoveValidator(validatorID)
+	}
+	bc.persistPOSAState()
+}
+
+func (bc *RootBlockChain) JailValidator(validatorID string) error {
+	if bc.posaLifecycle == nil {
+		return errors.New("validator lifecycle is not configured")
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	jailSec := uint64(0)
+	if bc.chainConfig != nil && bc.chainConfig.Root != nil && bc.chainConfig.Root.PoSAConfig != nil {
+		jailSec = bc.chainConfig.Root.PoSAConfig.DowntimeJailSec
+	}
+	bc.posaLifecycle.JailFor(validatorID, jailSec)
+	if bc.posaVotes != nil {
+		bc.posaVotes.RemoveValidator(validatorID)
+	}
+	bc.persistPOSAState()
+	return nil
+}
+
+func (bc *RootBlockChain) UnjailValidator(validatorID string) error {
+	if bc.posaLifecycle == nil {
+		return errors.New("validator lifecycle is not configured")
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	bc.posaLifecycle.Unjail(validatorID)
+	bc.persistPOSAState()
+	return nil
+}
+
+func (bc *RootBlockChain) ExitValidator(validatorID string) error {
+	if bc.posaLifecycle == nil {
+		return errors.New("validator lifecycle is not configured")
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	bc.posaLifecycle.Exit(validatorID)
+	if bc.posaVotes != nil {
+		bc.posaVotes.RemoveValidator(validatorID)
+	}
+	bc.persistPOSAState()
+	return nil
+}
+
+func (bc *RootBlockChain) ValidatorStatus(validatorID string) map[string]interface{} {
+	if bc.posaLifecycle == nil {
+		return map[string]interface{}{"validator": strings.ToLower(validatorID), "active": false}
+	}
+	return bc.posaLifecycle.Status(validatorID)
+}
+
+func (bc *RootBlockChain) SubmitBFTProposal(proposerID string, epoch uint64, round uint64, targetHash common.Hash) error {
+	if bc.bftState == nil {
+		return errors.New("bft state is not configured")
+	}
+	if epoch == 0 || round == 0 {
+		return errors.New("epoch and round must be >= 1")
+	}
+	known := bc.knownPOSAValidators()
+	proposerID = strings.ToLower(proposerID)
+	if _, ok := known[proposerID]; !ok {
+		return fmt.Errorf("unknown proposer: %s", proposerID)
+	}
+	if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(proposerID) {
+		return fmt.Errorf("proposer is not active: %s", proposerID)
+	}
+	expected, err := bc.expectedBFTProposer(epoch, round)
+	if err != nil {
+		return err
+	}
+	if proposerID != expected {
+		return fmt.Errorf("unexpected proposer for epoch %d round %d: have %s want %s", epoch, round, proposerID, expected)
+	}
+	if block := bc.GetBlock(targetHash); block == nil {
+		return fmt.Errorf("unknown proposal target: %s", targetHash.Hex())
+	}
+	if bc.db != nil {
+		target := bc.GetBlock(targetHash)
+		if target == nil {
+			return fmt.Errorf("unknown proposal target: %s", targetHash.Hex())
+		}
+		if canon := bc.GetBlockByNumber(target.NumberU64()); canon == nil || canon.Hash() != targetHash {
+			return fmt.Errorf("proposal target is not canonical: %s", targetHash.Hex())
+		}
+	}
+	snap := bc.bftState.Snapshot()
+	if snap != nil {
+		if epoch < snap.CurrentEpoch || (epoch == snap.CurrentEpoch && round < snap.CurrentRound) {
+			return fmt.Errorf("stale bft proposal epoch/round: have %d/%d current %d/%d", epoch, round, snap.CurrentEpoch, snap.CurrentRound)
+		}
+	}
+	bc.bftState.SubmitProposal(epoch, round, targetHash)
+	bc.persistBFTState()
+	return nil
+}
+
+func (bc *RootBlockChain) SubmitSignedBFTProposal(epoch uint64, round uint64, targetHash common.Hash, signature [65]byte) error {
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return errors.New("posa config is not available")
+	}
+	networkID := bc.chainConfig.NetworkID
+	signHash := bftProposalSigningHash(networkID, epoch, round, targetHash)
+	recovered, err := sigToAddr(signHash.Bytes(), signature)
+	if err != nil {
+		return err
+	}
+	proposerID, err := validatorIDByRecipient(bc.chainConfig.Root.PoSAConfig.Validators, *recovered)
+	if err != nil {
+		return err
+	}
+	return bc.SubmitBFTProposal(proposerID, epoch, round, targetHash)
+}
+
+func (bc *RootBlockChain) SubmitBFTVoteByValidator(validatorID string, epoch uint64, round uint64, voteType string, targetHash common.Hash) error {
+	if bc.bftState == nil {
+		return errors.New("bft state is not configured")
+	}
+	if epoch == 0 || round == 0 {
+		return errors.New("epoch and round must be >= 1")
+	}
+	vt, err := normalizeBFTVoteType(voteType)
+	if err != nil {
+		return err
+	}
+	known := bc.knownPOSAValidators()
+	validatorID = strings.ToLower(validatorID)
+	if _, ok := known[validatorID]; !ok {
+		return fmt.Errorf("unknown validator: %s", validatorID)
+	}
+	if bc.posaLifecycle != nil && !bc.posaLifecycle.IsActive(validatorID) {
+		return fmt.Errorf("validator is not active: %s", validatorID)
+	}
+	if bc.GetBlock(targetHash) == nil {
+		return fmt.Errorf("unknown bft vote target: %s", targetHash.Hex())
+	}
+	if bc.db != nil {
+		target := bc.GetBlock(targetHash)
+		if target == nil {
+			return fmt.Errorf("unknown bft vote target: %s", targetHash.Hex())
+		}
+		if canon := bc.GetBlockByNumber(target.NumberU64()); canon == nil || canon.Hash() != targetHash {
+			return fmt.Errorf("bft vote target is not canonical: %s", targetHash.Hex())
+		}
+	}
+	snap := bc.bftState.Snapshot()
+	if snap != nil {
+		if epoch < snap.CurrentEpoch || (epoch == snap.CurrentEpoch && round < snap.CurrentRound) {
+			return fmt.Errorf("stale bft vote epoch/round: have %d/%d current %d/%d", epoch, round, snap.CurrentEpoch, snap.CurrentRound)
+		}
+	}
+	// Accept out-of-order vote gossip by registering a proposal for the round if missing.
+	// This prevents dropping otherwise valid votes when proposal gossip arrives later.
+	if !bc.bftState.HasProposal(epoch, round) {
+		bc.bftState.SubmitProposal(epoch, round, targetHash)
+	}
+	required := bc.posaRequiredPower()
+	if required == 0 {
+		return errors.New("required validator power is zero")
+	}
+	power := bc.posaValidatorPower(validatorID)
+	if power == 0 {
+		return fmt.Errorf("validator has zero voting power: %s", validatorID)
+	}
+	v := BFTVote{
+		ValidatorID: validatorID,
+		Epoch:       epoch,
+		Round:       round,
+		VoteType:    vt,
+		TargetHash:  targetHash,
+		Power:       power,
+	}
+	qc, evidence, added := bc.bftState.SubmitVote(v, required)
+	if evidence != nil {
+		bc.recordBFTEvidence(*evidence)
+		bc.slashAndJailValidator(validatorID)
+		return fmt.Errorf("bft equivocation detected for validator %s", validatorID)
+	}
+	if !added {
+		return nil
+	}
+	if bc.posaLifecycle != nil {
+		bc.posaLifecycle.AddReward(validatorID, 1)
+	}
+	if qc != nil {
+		bc.applyBFTQC(qc)
+	}
+	bc.persistPOSAState()
+	bc.persistBFTState()
+	return nil
+}
+
+func (bc *RootBlockChain) SubmitSignedBFTVote(epoch uint64, round uint64, voteType string, targetHash common.Hash, signature [65]byte) error {
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return errors.New("posa config is not available")
+	}
+	vt, err := normalizeBFTVoteType(voteType)
+	if err != nil {
+		return err
+	}
+	networkID := bc.chainConfig.NetworkID
+	signHash := bftVoteSigningHash(networkID, epoch, round, string(vt), targetHash)
+	recovered, err := sigToAddr(signHash.Bytes(), signature)
+	if err != nil {
+		return err
+	}
+	validatorID, err := validatorIDByRecipient(bc.chainConfig.Root.PoSAConfig.Validators, *recovered)
+	if err != nil {
+		return err
+	}
+	return bc.SubmitBFTVoteByValidator(validatorID, epoch, round, string(vt), targetHash)
+}
+
+func (bc *RootBlockChain) applyBFTQC(qc *BFTQuorumCert) {
+	if qc == nil || bc.bftState == nil {
+		return
+	}
+	bc.bftState.ApplyQC(qc)
+	// Precommit QC over canonical block can advance finality checkpointing.
+	if qc.VoteType == BFTVotePrecommit && bc.db != nil {
+		target := bc.GetBlock(qc.BlockHash)
+		if target != nil {
+			if canon := bc.GetBlockByNumber(target.NumberU64()); canon != nil && canon.Hash() == target.Hash() {
+				if rb, ok := target.(*types.RootBlock); ok {
+					bc.updateFinalityOnCanonicalInsert(rb)
+				}
+			}
+		}
+	}
+	bc.persistBFTState()
+}
+
+func (bc *RootBlockChain) recordBFTEvidence(e BFTEvidence) {
+	bc.bftEvidenceMu.Lock()
+	defer bc.bftEvidenceMu.Unlock()
+	bc.bftEvidence = append(bc.bftEvidence, e)
+	bc.persistBFTState()
+}
+
+func (bc *RootBlockChain) BFTEvidenceList() []map[string]interface{} {
+	bc.bftEvidenceMu.RLock()
+	defer bc.bftEvidenceMu.RUnlock()
+	out := make([]map[string]interface{}, 0, len(bc.bftEvidence))
+	for _, e := range bc.bftEvidence {
+		out = append(out, map[string]interface{}{
+			"validator": e.ValidatorID,
+			"epoch":     e.Epoch,
+			"round":     e.Round,
+			"voteType":  string(e.VoteType),
+			"oldHash":   e.OldHash.Hex(),
+			"newHash":   e.NewHash.Hex(),
+			"timestamp": e.Timestamp,
+		})
+	}
+	return out
+}
+
+func (bc *RootBlockChain) BFTStatus() map[string]interface{} {
+	status := map[string]interface{}{
+		"requiredPower": bc.POSARequiredPower(),
+	}
+	if bc.bftState == nil {
+		status["enabled"] = false
+		return status
+	}
+	snap := bc.bftState.Snapshot()
+	status["enabled"] = true
+	status["epoch"] = snap.CurrentEpoch
+	status["round"] = snap.CurrentRound
+	if target, ok := bc.bftState.ProposalTarget(snap.CurrentEpoch, snap.CurrentRound); ok {
+		status["proposalTarget"] = target.Hex()
+	}
+	if expected, err := bc.expectedBFTProposer(snap.CurrentEpoch, snap.CurrentRound); err == nil {
+		status["expectedProposer"] = expected
+	}
+	if snap.LockedQC != nil {
+		status["lockedQC"] = map[string]interface{}{
+			"epoch":     snap.LockedQC.Epoch,
+			"round":     snap.LockedQC.Round,
+			"voteType":  string(snap.LockedQC.VoteType),
+			"blockHash": snap.LockedQC.BlockHash.Hex(),
+			"voters":    append([]string(nil), snap.LockedQC.Voters...),
+		}
+	}
+	if snap.HighQC != nil {
+		status["highQC"] = map[string]interface{}{
+			"epoch":     snap.HighQC.Epoch,
+			"round":     snap.HighQC.Round,
+			"voteType":  string(snap.HighQC.VoteType),
+			"blockHash": snap.HighQC.BlockHash.Hex(),
+			"voters":    append([]string(nil), snap.HighQC.Voters...),
+		}
+	}
+	status["evidenceCount"] = len(bc.BFTEvidenceList())
+	return status
+}
+
+func (bc *RootBlockChain) BFTVotePower(epoch uint64, round uint64, voteType string, targetHash common.Hash) uint64 {
+	if bc.bftState == nil {
+		return 0
+	}
+	vt, err := normalizeBFTVoteType(voteType)
+	if err != nil {
+		return 0
+	}
+	return bc.bftState.VotePower(epoch, round, vt, targetHash)
+}
+
+func (bc *RootBlockChain) bftTimeoutSeconds() uint64 {
+	if bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.PoSAConfig == nil {
+		return 5
+	}
+	posaCfg := bc.chainConfig.Root.PoSAConfig
+	if posaCfg.TargetFinalitySec > 0 {
+		return uint64(posaCfg.TargetFinalitySec)
+	}
+	if posaCfg.SlotTimeSec > 0 {
+		return uint64(posaCfg.SlotTimeSec)
+	}
+	return 5
+}
+
+func (bc *RootBlockChain) currentCanonicalRootHashForBFT() common.Hash {
+	head := bc.currentBlock.Load()
+	if rb, ok := head.(*types.RootBlock); ok && rb != nil {
+		return rb.Hash()
+	}
+	if bc.db != nil {
+		if cur := bc.CurrentBlock(); cur != nil {
+			return cur.Hash()
+		}
+	}
+	return common.Hash{}
+}
+
+func (bc *RootBlockChain) maybeAutoBFTProposal() {
+	if bc.bftState == nil || bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.ConsensusType != config.PoSA {
+		return
+	}
+	snap := bc.bftState.Snapshot()
+	if snap == nil {
+		return
+	}
+	epoch := snap.CurrentEpoch
+	round := snap.CurrentRound
+	if epoch == 0 {
+		epoch = 1
+	}
+	if round == 0 {
+		round = 1
+	}
+	if bc.bftState.HasProposal(epoch, round) {
+		return
+	}
+	targetHash := bc.currentCanonicalRootHashForBFT()
+	if targetHash == (common.Hash{}) {
+		return
+	}
+	sig, ok := bc.signBFTProposal(epoch, round, targetHash)
+	if !ok {
+		return
+	}
+	_ = bc.SubmitSignedBFTProposal(epoch, round, targetHash, sig)
+}
+
+func (bc *RootBlockChain) signBFTProposal(epoch, round uint64, targetHash common.Hash) ([65]byte, bool) {
+	var out [65]byte
+	if bc.chainConfig == nil || len(bc.chainConfig.RootSignerPrivateKey) == 0 {
+		return out, false
+	}
+	prvKey, err := crypto.ToECDSA(bc.chainConfig.RootSignerPrivateKey)
+	if err != nil {
+		return out, false
+	}
+	signHash := bftProposalSigningHash(bc.chainConfig.NetworkID, epoch, round, targetHash)
+	sig, err := crypto.Sign(signHash.Bytes(), prvKey)
+	if err != nil || len(sig) != 65 {
+		return out, false
+	}
+	copy(out[:], sig)
+	return out, true
+}
+
+func (bc *RootBlockChain) advanceBFTRoundOnTimeout() {
+	if bc.bftState == nil || bc.chainConfig == nil || bc.chainConfig.Root == nil || bc.chainConfig.Root.ConsensusType != config.PoSA {
+		return
+	}
+	advanced, _, _ := bc.bftState.AdvanceOnTimeout(uint64(time.Now().Unix()), bc.bftTimeoutSeconds())
+	if !advanced {
+		return
+	}
+	bc.persistBFTState()
+}
+
+func (bc *RootBlockChain) loadFinalityState() bool {
+	if bc.db == nil || bc.finality == nil {
+		return false
+	}
+	jHeight, jHash := rawdb.ReadJustifiedRootCheckpoint(bc.db)
+	fHeight, fHash := rawdb.ReadFinalizedRootCheckpoint(bc.db)
+	if jHeight == 0 && jHash == (common.Hash{}) {
+		return false
+	}
+	bc.finality.SetJustifiedCheckpoint(jHeight, jHash)
+	bc.finality.SetFinalizedCheckpoint(fHeight, fHash)
+	return true
+}
+
+func (bc *RootBlockChain) persistFinalityState() {
+	if bc.db == nil || bc.finality == nil {
+		return
+	}
+	rawdb.WriteJustifiedRootCheckpoint(bc.db, bc.finality.Justified(), bc.finality.JustifiedHash())
+	rawdb.WriteFinalizedRootCheckpoint(bc.db, bc.finality.Finalized(), bc.finality.FinalizedHash())
+}
+
+func (bc *RootBlockChain) loadPOSAState() {
+	if bc.db == nil {
+		return
+	}
+	if bc.posaVotes != nil {
+		persistedVotes := rawdb.ReadPOSAVotes(bc.db)
+		votes := make([]POSAVote, 0, len(persistedVotes))
+		for _, v := range persistedVotes {
+			votes = append(votes, POSAVote{
+				ValidatorID: strings.ToLower(v.ValidatorID),
+				TargetHash:  common.HexToHash(v.TargetHash),
+				TargetNum:   v.TargetNum,
+				Power:       v.Power,
+			})
+		}
+		bc.posaVotes.Load(votes)
+	}
+	if bc.posaLifecycle != nil {
+		state := rawdb.ReadPOSAValidatorState(bc.db)
+		if state != nil {
+			bc.posaLifecycle.Load(state.Jailed, state.JailedTill, state.Exited, state.SlashCount, state.Rewards)
+		}
+	}
+}
+
+func (bc *RootBlockChain) persistPOSAState() {
+	if bc.db == nil {
+		return
+	}
+	if bc.posaVotes != nil {
+		snapshot := bc.posaVotes.Snapshot()
+		votes := make([]rawdb.PersistedPOSAVote, 0, len(snapshot))
+		for _, v := range snapshot {
+			votes = append(votes, rawdb.PersistedPOSAVote{
+				ValidatorID: strings.ToLower(v.ValidatorID),
+				TargetHash:  v.TargetHash.Hex(),
+				TargetNum:   v.TargetNum,
+				Power:       v.Power,
+			})
+		}
+		rawdb.WritePOSAVotes(bc.db, votes)
+	}
+	if bc.posaLifecycle != nil {
+		jailed, exited, slashCount, rewards := bc.posaLifecycle.Snapshot()
+		jailedTill := bc.posaLifecycle.SnapshotJailUntil()
+		rawdb.WritePOSAValidatorState(bc.db, &rawdb.PersistedPOSAValidatorState{
+			Jailed:     jailed,
+			JailedTill: jailedTill,
+			Exited:     exited,
+			SlashCount: slashCount,
+			Rewards:    rewards,
+		})
+	}
+}
+
+func (bc *RootBlockChain) loadBFTState() {
+	if bc.db == nil {
+		return
+	}
+	if bc.bftState != nil {
+		state := rawdb.ReadBFTState(bc.db)
+		if state != nil {
+			snap := &BFTStateSnapshot{
+				CurrentEpoch: state.CurrentEpoch,
+				CurrentRound: state.CurrentRound,
+			}
+			if state.LockedQC != nil {
+				snap.LockedQC = &BFTQuorumCert{
+					Epoch:     state.LockedQC.Epoch,
+					Round:     state.LockedQC.Round,
+					VoteType:  BFTVoteType(strings.ToUpper(state.LockedQC.VoteType)),
+					BlockHash: common.HexToHash(state.LockedQC.BlockHash),
+					Voters:    append([]string(nil), state.LockedQC.Voters...),
+				}
+			}
+			if state.HighQC != nil {
+				snap.HighQC = &BFTQuorumCert{
+					Epoch:     state.HighQC.Epoch,
+					Round:     state.HighQC.Round,
+					VoteType:  BFTVoteType(strings.ToUpper(state.HighQC.VoteType)),
+					BlockHash: common.HexToHash(state.HighQC.BlockHash),
+					Voters:    append([]string(nil), state.HighQC.Voters...),
+				}
+			}
+			bc.bftState.Load(snap)
+		}
+	}
+	persistedEvidence := rawdb.ReadBFTEvidence(bc.db)
+	if persistedEvidence == nil {
+		return
+	}
+	bc.bftEvidenceMu.Lock()
+	defer bc.bftEvidenceMu.Unlock()
+	bc.bftEvidence = make([]BFTEvidence, 0, len(persistedEvidence))
+	for _, e := range persistedEvidence {
+		bc.bftEvidence = append(bc.bftEvidence, BFTEvidence{
+			ValidatorID: strings.ToLower(e.ValidatorID),
+			Epoch:       e.Epoch,
+			Round:       e.Round,
+			VoteType:    BFTVoteType(strings.ToUpper(e.VoteType)),
+			OldHash:     common.HexToHash(e.OldHash),
+			NewHash:     common.HexToHash(e.NewHash),
+			Timestamp:   e.Timestamp,
+		})
+	}
+}
+
+func (bc *RootBlockChain) persistBFTState() {
+	if bc.db == nil {
+		return
+	}
+	if bc.bftState != nil {
+		snap := bc.bftState.Snapshot()
+		state := &rawdb.PersistedBFTState{
+			CurrentEpoch: snap.CurrentEpoch,
+			CurrentRound: snap.CurrentRound,
+		}
+		if snap.LockedQC != nil {
+			state.LockedQC = &rawdb.PersistedBFTQC{
+				Epoch:     snap.LockedQC.Epoch,
+				Round:     snap.LockedQC.Round,
+				VoteType:  string(snap.LockedQC.VoteType),
+				BlockHash: snap.LockedQC.BlockHash.Hex(),
+				Voters:    append([]string(nil), snap.LockedQC.Voters...),
+			}
+		}
+		if snap.HighQC != nil {
+			state.HighQC = &rawdb.PersistedBFTQC{
+				Epoch:     snap.HighQC.Epoch,
+				Round:     snap.HighQC.Round,
+				VoteType:  string(snap.HighQC.VoteType),
+				BlockHash: snap.HighQC.BlockHash.Hex(),
+				Voters:    append([]string(nil), snap.HighQC.Voters...),
+			}
+		}
+		rawdb.WriteBFTState(bc.db, state)
+	}
+	bc.bftEvidenceMu.RLock()
+	evidenceCopy := make([]rawdb.PersistedBFTEvidence, 0, len(bc.bftEvidence))
+	for _, e := range bc.bftEvidence {
+		evidenceCopy = append(evidenceCopy, rawdb.PersistedBFTEvidence{
+			ValidatorID: e.ValidatorID,
+			Epoch:       e.Epoch,
+			Round:       e.Round,
+			VoteType:    string(e.VoteType),
+			OldHash:     e.OldHash.Hex(),
+			NewHash:     e.NewHash.Hex(),
+			Timestamp:   e.Timestamp,
+		})
+	}
+	bc.bftEvidenceMu.RUnlock()
+	rawdb.WriteBFTEvidence(bc.db, evidenceCopy)
+}
+
 // Engine retrieves the blockchain's consensus engine.
 func (bc *RootBlockChain) Engine() consensus.Engine { return bc.engine }
 
@@ -1059,7 +2173,7 @@ func (bc *RootBlockChain) SkipDifficultyCheck() bool {
 	return bc.Config().SkipRootDifficultyCheck
 }
 
-//For remote miner to getWork, no signature verified
+// For remote miner to getWork, no signature verified
 func (bc *RootBlockChain) GetAdjustedDifficultyToMine(header types.IHeader) (*big.Int, uint64, error) {
 	rHeader := header.(*types.RootBlockHeader)
 	if crypto.VerifySignature(bc.Config().GuardianPublicKey, rHeader.SealHash().Bytes(), rHeader.Signature[:64]) {

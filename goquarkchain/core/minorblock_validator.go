@@ -41,6 +41,7 @@ type MinorBlockValidator struct {
 	engine           consensus.Engine         // Consensus engine used for validating
 	branch           account.Branch
 	logInfo          string
+	posaValidators   []account.Address
 }
 
 // NewBlockValidator returns a new block validator which is safe for re-use
@@ -51,6 +52,9 @@ func NewBlockValidator(quarkChainConfig *config.QuarkChainConfig, blockchain *Mi
 		bc:               blockchain,
 		branch:           branch,
 		logInfo:          fmt.Sprintf("shard %x", branch.GetFullShardID()),
+	}
+	if blockchain != nil && blockchain.shardConfig != nil && blockchain.shardConfig.PoSAConfig != nil {
+		validator.posaValidators = parsePOSAValidators(blockchain.shardConfig.PoSAConfig.Validators)
 	}
 	return validator
 }
@@ -72,6 +76,16 @@ func (v *MinorBlockValidator) ValidateBlock(mBlock types.IBlock, force bool) err
 	if err := v.engine.VerifyHeader(v.bc, header, true); err != nil {
 		log.Error(v.logInfo, "verify header err", err)
 		return err
+	}
+	if v.bc.shardConfig.ConsensusType == config.PoSA && len(v.posaValidators) > 0 {
+		idx := proposerIndexForHeight(block.NumberU64(), len(v.posaValidators))
+		if idx < 0 || idx >= len(v.posaValidators) {
+			return errors.New("failed to resolve POSA shard proposer index")
+		}
+		expected := v.posaValidators[idx]
+		if !account.IsSameAddress(expected, block.Coinbase()) {
+			return fmt.Errorf("unexpected shard proposer: have %s want %s", block.Coinbase().ToHex(), expected.ToHex())
+		}
 	}
 
 	if block.Version() != 0 {
@@ -176,6 +190,12 @@ func (v *MinorBlockValidator) ValidateBlock(mBlock types.IBlock, force bool) err
 		log.Error(v.logInfo, "err", ErrRootBlockIsNil, "height", block.NumberU64(), "parentRootBlockHash", block.PrevRootBlockHash().String())
 		return ErrRootBlockIsNil
 	}
+	if v.bc.rootTip != nil {
+		canonicalAtHeight := v.bc.GetRootBlockByHeight(v.bc.rootTip.Hash(), rootBlockHeader.NumberU64())
+		if canonicalAtHeight == nil || canonicalAtHeight.Hash() != rootBlockHeader.Hash() {
+			return errors.New("prev root block must be canonical on root chain")
+		}
+	}
 
 	prevRootHeader := v.bc.GetRootBlockByHash(prevBlock.IHeader().(*types.MinorBlockHeader).GetPrevRootBlockHash())
 	if prevRootHeader == nil {
@@ -219,6 +239,9 @@ func (v *MinorBlockValidator) ValidateSeal(mHeader types.IHeader, usePowsDiff bo
 	}
 	if header.NumberU64() == 0 {
 		return nil
+	}
+	if v.bc.shardConfig.ConsensusType == config.PoSA {
+		return v.engine.VerifySeal(v.bc, header, nil)
 	}
 	adjustedDiff := new(big.Int).Set(header.Difficulty)
 	var err error

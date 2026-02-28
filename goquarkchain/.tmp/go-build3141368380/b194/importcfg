@@ -1,0 +1,11 @@
+# import config
+packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/allegro/bigcache/queue=C:\gold\goquarkchain\.tmp\go-build3141368380\b195\_pkg_.a
+packagefile log=C:\gold\goquarkchain\.tmp\go-build3141368380\b196\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

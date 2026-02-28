@@ -1,0 +1,6 @@
+# import config
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile google.golang.org/grpc/balancer=C:\gold\goquarkchain\.tmp\go-build3141368380\b337\_pkg_.a
+packagefile google.golang.org/grpc/connectivity=C:\gold\goquarkchain\.tmp\go-build3141368380\b338\_pkg_.a
+packagefile google.golang.org/grpc/grpclog=C:\gold\goquarkchain\.tmp\go-build3141368380\b339\_pkg_.a
+packagefile google.golang.org/grpc/resolver=C:\gold\goquarkchain\.tmp\go-build3141368380\b344\_pkg_.a

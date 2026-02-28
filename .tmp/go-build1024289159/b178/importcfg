@@ -1,0 +1,22 @@
+# import config
+packagefile bufio=C:\gold\.gocache\c0\c0076d9d5e0749dd4d8d3ed8261e8e52dc16c42a21b224fd196718820783345d-d
+packagefile encoding/json=C:\gold\.gocache\b4\b481a50b4984d89913124c49e34c06c7cbe477f753a4caecaadba6291360ce92-d
+packagefile errors=C:\gold\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile fmt=C:\gold\.gocache\20\207f6635331b9a1c4d35dd7629029b2e850226585f05c753c5eca3310391c2be-d
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\.gocache\ea\eaa6f850e52052ce30b1c49dc565ed231310ef3162da6ddfbc951f6322ecb86c-d
+packagefile io=C:\gold\.gocache\4f\4f513c0fcdffdbeb1bb65d558ffcbc5d771527b40158479683574ca1585ecc49-d
+packagefile log=C:\gold\.gocache\09\09fbea7c3ef42e8a74c5e5bef3f9ff386b78b3354e0915be3b64d3e53537417b-d
+packagefile math=C:\gold\.gocache\f5\f55d1d4f9a012ea5e0824f4780cb7d3906d046b0328cc3bcb2d45fa0ac84814f-d
+packagefile math/rand=C:\gold\.gocache\1d\1d8caab1f4cbc60e1f3645d5cc296a0aa0f037f01c29d1d1f6dd8b963913e077-d
+packagefile net=C:\gold\.gocache\37\37742d27d09c119df7a2e577e245924b7bcafbeb585c22ac2dfc50d478f218d3-d
+packagefile os=C:\gold\.gocache\6d\6d65fcdbe43fb8ca927d4bfc1e00f60426edb008458e1510d70d946c4507d746-d
+packagefile reflect=C:\gold\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d
+packagefile runtime=C:\gold\.gocache\c6\c68c1df726da3f3e04dbf7af34addaa5367a09c425515a338069b4693cace785-d
+packagefile runtime/debug=C:\gold\.gocache\1e\1e1cefe9daeace1e028f4422d8b4310ee9f689d923c8d8c191ff76001afe7f91-d
+packagefile runtime/pprof=C:\gold\.gocache\40\40dc6f0f2b2e1ff02745de47ef9bcba1486f60234a116da14d42cc9ad326c942-d
+packagefile sort=C:\gold\.gocache\26\26506e7de0e4f38fefba521f5c8ce8faae1a4d4ec51dad394af3e13f6ea152fb-d
+packagefile strconv=C:\gold\.gocache\7a\7a7047a6d27ce084c219cc8e17245669b1e290c2d77594f6f19714bbb4a3dd8a-d
+packagefile strings=C:\gold\.gocache\bb\bb220c3fe80d5e749c9382ac634507db68495a2af21b9a9fd847547eb08f02ef-d
+packagefile sync=C:\gold\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d
+packagefile sync/atomic=C:\gold\.gocache\fd\fd31b29cd9b0ba4eac4b67fa0c794d4a0bc0a1b18da9e1f1f1b720ea47a4fa5c-d
+packagefile time=C:\gold\.gocache\6b\6b6b728fcd59a2ea84a13cc62c224b99a029c57c84a63b33792fc34160437768-d

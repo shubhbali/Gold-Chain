@@ -1,0 +1,18 @@
+# import config
+packagefile crypto=C:\gold\goquarkchain\.tmp\go-build3141368380\b081\_pkg_.a
+packagefile crypto/internal/boring=C:\gold\goquarkchain\.tmp\go-build3141368380\b083\_pkg_.a
+packagefile crypto/internal/boring/bbig=C:\gold\goquarkchain\.tmp\go-build3141368380\b140\_pkg_.a
+packagefile crypto/internal/fips140/bigmod=C:\gold\goquarkchain\.tmp\go-build3141368380\b142\_pkg_.a
+packagefile crypto/internal/fips140/rsa=C:\gold\goquarkchain\.tmp\go-build3141368380\b245\_pkg_.a
+packagefile crypto/internal/fips140hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b145\_pkg_.a
+packagefile crypto/internal/fips140only=C:\gold\goquarkchain\.tmp\go-build3141368380\b104\_pkg_.a
+packagefile crypto/internal/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b135\_pkg_.a
+packagefile crypto/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b155\_pkg_.a
+packagefile crypto/subtle=C:\gold\goquarkchain\.tmp\go-build3141368380\b106\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a
+packagefile internal/godebug=C:\gold\goquarkchain\.tmp\go-build3141368380\b054\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a

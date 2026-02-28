@@ -1,0 +1,5 @@
+# import config
+packagefile github.com/syndtr/goleveldb/leveldb/cache=C:\gold\goquarkchain\.tmp\go-build3141368380\b203\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/comparer=C:\gold\goquarkchain\.tmp\go-build3141368380\b205\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/filter=C:\gold\goquarkchain\.tmp\go-build3141368380\b208\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a

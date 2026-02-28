@@ -1,0 +1,14 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile crypto/md5=C:\gold\goquarkchain\.tmp\go-build3141368380\b178\_pkg_.a
+packagefile crypto/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b155\_pkg_.a
+packagefile crypto/sha1=C:\gold\goquarkchain\.tmp\go-build3141368380\b179\_pkg_.a
+packagefile database/sql/driver=C:\gold\goquarkchain\.tmp\go-build3141368380\b160\_pkg_.a
+packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
+packagefile encoding/hex=C:\gold\goquarkchain\.tmp\go-build3141368380\b152\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/google/uuid=C:\gold\goquarkchain\.tmp\go-build3141368380\b180\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a

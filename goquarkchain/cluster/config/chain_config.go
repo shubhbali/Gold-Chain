@@ -16,6 +16,7 @@ type ChainConfig struct {
 
 	// Only set when CONSENSUS_TYPE is not NONE
 	ConsensusConfig *POWConfig    `json:"CONSENSUS_CONFIG"`
+	PoSAConfig      *POSAConfig   `json:"POSA_CONFIG"`
 	Genesis         *ShardGenesis `json:"GENESIS"`
 
 	CoinbaseAddress account.Address `json:"-"`
@@ -35,6 +36,7 @@ func NewChainConfig() *ChainConfig {
 		DefaultChainToken:              DefaultToken,
 		ConsensusType:                  PoWNone,
 		ConsensusConfig:                nil,
+		PoSAConfig:                     NewPOSAConfig(),
 		Genesis:                        NewShardGenesis(),
 		CoinbaseAmount:                 new(big.Int).Mul(big.NewInt(5), QuarkashToJiaozi),
 		DifficultyAdjustmentCutoffTime: 7,

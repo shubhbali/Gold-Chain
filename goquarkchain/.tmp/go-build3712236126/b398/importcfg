@@ -1,0 +1,10 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile github.com/QuarkChain/goquarkchain/account=C:\gold\goquarkchain\.gocache\be\bec70037151357a32e26c8b09f571554c74a8bbf4295c57934bf5c95bdc63c28-d
+packagefile github.com/QuarkChain/goquarkchain/cluster/config=C:\gold\goquarkchain\.gocache\50\50949320c0c5a91c5f5806065b5c25724890d48b875b64fe5e9296f20ab15e34-d
+packagefile github.com/QuarkChain/goquarkchain/consensus=C:\gold\goquarkchain\.gocache\be\bee08b6fb08c41d4f2e8c2b677ea626d9ec102775f220b43f0ffb1f4b7a7361f-d
+packagefile github.com/QuarkChain/goquarkchain/core/state=C:\gold\goquarkchain\.gocache\54\5432c7106e562b6649ac2f0cb562b36c7f56d08ddf22d1b9671a1e20c9ccb07b-d
+packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\goquarkchain\.gocache\8c\8c8253dd1f68703a7fac1948bb79a174954174beaeaabc3dfadf6106b5c884bf-d
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.gocache\62\62346fac565a68e745d89c18ced208bc512246a4383e6f3bd1fa90b1d26a3a68-d
+packagefile github.com/ethereum/go-ethereum/crypto=C:\gold\goquarkchain\.gocache\d8\d82b5a811c41404683c4cd04df64944a2c00909b0982eb7240854f6e1b89f36a-d
+packagefile math/big=C:\gold\goquarkchain\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d

@@ -1,0 +1,12 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\goquarkchain\.tmp\go-build3141368380\b164\_pkg_.a
+packagefile github.com/huin/goupnp=C:\gold\goquarkchain\.tmp\go-build3141368380\b298\_pkg_.a
+packagefile github.com/huin/goupnp/dcps/internetgateway1=C:\gold\goquarkchain\.tmp\go-build3141368380\b324\_pkg_.a
+packagefile github.com/huin/goupnp/dcps/internetgateway2=C:\gold\goquarkchain\.tmp\go-build3141368380\b325\_pkg_.a
+packagefile github.com/jackpal/go-nat-pmp=C:\gold\goquarkchain\.tmp\go-build3141368380\b326\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

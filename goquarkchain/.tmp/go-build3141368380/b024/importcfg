@@ -1,0 +1,8 @@
+# import config
+packagefile internal/abi=C:\gold\goquarkchain\.tmp\go-build3141368380\b005\_pkg_.a
+packagefile internal/asan=C:\gold\goquarkchain\.tmp\go-build3141368380\b025\_pkg_.a
+packagefile internal/goarch=C:\gold\goquarkchain\.tmp\go-build3141368380\b006\_pkg_.a
+packagefile internal/msan=C:\gold\goquarkchain\.tmp\go-build3141368380\b026\_pkg_.a
+packagefile internal/race=C:\gold\goquarkchain\.tmp\go-build3141368380\b027\_pkg_.a
+packagefile internal/runtime/math=C:\gold\goquarkchain\.tmp\go-build3141368380\b028\_pkg_.a
+packagefile internal/runtime/sys=C:\gold\goquarkchain\.tmp\go-build3141368380\b023\_pkg_.a

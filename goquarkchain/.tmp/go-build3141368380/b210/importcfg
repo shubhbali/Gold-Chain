@@ -1,0 +1,7 @@
+# import config
+packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b206\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/storage=C:\gold\goquarkchain\.tmp\go-build3141368380\b207\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/util=C:\gold\goquarkchain\.tmp\go-build3141368380\b204\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a

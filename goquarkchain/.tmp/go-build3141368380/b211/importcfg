@@ -1,0 +1,7 @@
+# import config
+packagefile github.com/syndtr/goleveldb/leveldb/comparer=C:\gold\goquarkchain\.tmp\go-build3141368380\b205\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b206\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/iterator=C:\gold\goquarkchain\.tmp\go-build3141368380\b209\_pkg_.a
+packagefile github.com/syndtr/goleveldb/leveldb/util=C:\gold\goquarkchain\.tmp\go-build3141368380\b204\_pkg_.a
+packagefile math/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b073\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a

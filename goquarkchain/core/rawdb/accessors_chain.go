@@ -3,8 +3,10 @@ package rawdb
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/QuarkChain/goquarkchain/core/types"
 	"github.com/QuarkChain/goquarkchain/serialize"
@@ -12,6 +14,46 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 )
+
+type PersistedPOSAVote struct {
+	ValidatorID string `json:"validator_id"`
+	TargetHash  string `json:"target_hash"`
+	TargetNum   uint64 `json:"target_num"`
+	Power       uint64 `json:"power"`
+}
+
+type PersistedPOSAValidatorState struct {
+	Jailed     []string          `json:"jailed"`
+	JailedTill map[string]uint64 `json:"jailed_till"`
+	Exited     []string          `json:"exited"`
+	SlashCount map[string]uint64 `json:"slash_count"`
+	Rewards    map[string]uint64 `json:"rewards"`
+}
+
+type PersistedBFTQC struct {
+	Epoch     uint64   `json:"epoch"`
+	Round     uint64   `json:"round"`
+	VoteType  string   `json:"vote_type"`
+	BlockHash string   `json:"block_hash"`
+	Voters    []string `json:"voters"`
+}
+
+type PersistedBFTState struct {
+	CurrentEpoch uint64          `json:"current_epoch"`
+	CurrentRound uint64          `json:"current_round"`
+	LockedQC     *PersistedBFTQC `json:"locked_qc"`
+	HighQC       *PersistedBFTQC `json:"high_qc"`
+}
+
+type PersistedBFTEvidence struct {
+	ValidatorID string `json:"validator_id"`
+	Epoch       uint64 `json:"epoch"`
+	Round       uint64 `json:"round"`
+	VoteType    string `json:"vote_type"`
+	OldHash     string `json:"old_hash"`
+	NewHash     string `json:"new_hash"`
+	Timestamp   uint64 `json:"timestamp"`
+}
 
 const DBLOG = "db-operation"
 
@@ -85,6 +127,164 @@ func ReadHeadBlockHash(db DatabaseReader) common.Hash {
 func WriteHeadBlockHash(db DatabaseWriter, hash common.Hash) {
 	if err := db.Put(headBlockKey, hash.Bytes()); err != nil {
 		log.Crit("Failed to store last block's hash", "err", err)
+	}
+}
+
+func ReadJustifiedRootCheckpoint(db DatabaseReader) (uint64, common.Hash) {
+	return readRootCheckpoint(db, justifiedRootKey)
+}
+
+func WriteJustifiedRootCheckpoint(db DatabaseWriter, height uint64, hash common.Hash) {
+	writeRootCheckpoint(db, justifiedRootKey, height, hash)
+}
+
+func ReadFinalizedRootCheckpoint(db DatabaseReader) (uint64, common.Hash) {
+	return readRootCheckpoint(db, finalizedRootKey)
+}
+
+func WriteFinalizedRootCheckpoint(db DatabaseWriter, height uint64, hash common.Hash) {
+	writeRootCheckpoint(db, finalizedRootKey, height, hash)
+}
+
+func readRootCheckpoint(db DatabaseReader, key []byte) (uint64, common.Hash) {
+	data, _ := db.Get(key)
+	if len(data) != 40 {
+		return 0, common.Hash{}
+	}
+	height := binary.BigEndian.Uint64(data[:8])
+	return height, common.BytesToHash(data[8:])
+}
+
+func writeRootCheckpoint(db DatabaseWriter, key []byte, height uint64, hash common.Hash) {
+	payload := make([]byte, 40)
+	binary.BigEndian.PutUint64(payload[:8], height)
+	copy(payload[8:], hash.Bytes())
+	if err := db.Put(key, payload); err != nil {
+		log.Crit("Failed to store root checkpoint", "err", err)
+	}
+}
+
+func ReadPOSAVotes(db DatabaseReader) []PersistedPOSAVote {
+	data, _ := db.Get(posaVotesKey)
+	if len(data) == 0 {
+		return nil
+	}
+	var out []PersistedPOSAVote
+	if err := json.Unmarshal(data, &out); err != nil {
+		log.Error("failed to unmarshal posa votes", "err", err)
+		return nil
+	}
+	return out
+}
+
+func WritePOSAVotes(db DatabaseWriter, votes []PersistedPOSAVote) {
+	if votes == nil {
+		votes = []PersistedPOSAVote{}
+	}
+	payload, err := json.Marshal(votes)
+	if err != nil {
+		log.Crit("failed to marshal posa votes", "err", err)
+	}
+	if err := db.Put(posaVotesKey, payload); err != nil {
+		log.Crit("failed to store posa votes", "err", err)
+	}
+}
+
+func ReadPOSAValidatorState(db DatabaseReader) *PersistedPOSAValidatorState {
+	data, _ := db.Get(posaValidatorKey)
+	if len(data) == 0 {
+		return nil
+	}
+	var out PersistedPOSAValidatorState
+	if err := json.Unmarshal(data, &out); err != nil {
+		log.Error("failed to unmarshal posa validator state", "err", err)
+		return nil
+	}
+	if out.SlashCount == nil {
+		out.SlashCount = make(map[string]uint64)
+	}
+	if out.JailedTill == nil {
+		out.JailedTill = make(map[string]uint64)
+	}
+	if out.Rewards == nil {
+		out.Rewards = make(map[string]uint64)
+	}
+	for i, v := range out.Jailed {
+		out.Jailed[i] = strings.ToLower(v)
+	}
+	for i, v := range out.Exited {
+		out.Exited[i] = strings.ToLower(v)
+	}
+	normalizedTill := make(map[string]uint64, len(out.JailedTill))
+	for v, ts := range out.JailedTill {
+		normalizedTill[strings.ToLower(v)] = ts
+	}
+	out.JailedTill = normalizedTill
+	return &out
+}
+
+func WritePOSAValidatorState(db DatabaseWriter, state *PersistedPOSAValidatorState) {
+	if state == nil {
+		state = &PersistedPOSAValidatorState{}
+	}
+	payload, err := json.Marshal(state)
+	if err != nil {
+		log.Crit("failed to marshal posa validator state", "err", err)
+	}
+	if err := db.Put(posaValidatorKey, payload); err != nil {
+		log.Crit("failed to store posa validator state", "err", err)
+	}
+}
+
+func ReadBFTState(db DatabaseReader) *PersistedBFTState {
+	data, _ := db.Get(bftStateKey)
+	if len(data) == 0 {
+		return nil
+	}
+	var out PersistedBFTState
+	if err := json.Unmarshal(data, &out); err != nil {
+		log.Error("failed to unmarshal bft state", "err", err)
+		return nil
+	}
+	return &out
+}
+
+func WriteBFTState(db DatabaseWriter, state *PersistedBFTState) {
+	if state == nil {
+		state = &PersistedBFTState{}
+	}
+	payload, err := json.Marshal(state)
+	if err != nil {
+		log.Crit("failed to marshal bft state", "err", err)
+	}
+	if err := db.Put(bftStateKey, payload); err != nil {
+		log.Crit("failed to store bft state", "err", err)
+	}
+}
+
+func ReadBFTEvidence(db DatabaseReader) []PersistedBFTEvidence {
+	data, _ := db.Get(bftEvidenceKey)
+	if len(data) == 0 {
+		return nil
+	}
+	var out []PersistedBFTEvidence
+	if err := json.Unmarshal(data, &out); err != nil {
+		log.Error("failed to unmarshal bft evidence", "err", err)
+		return nil
+	}
+	return out
+}
+
+func WriteBFTEvidence(db DatabaseWriter, evidences []PersistedBFTEvidence) {
+	if evidences == nil {
+		evidences = []PersistedBFTEvidence{}
+	}
+	payload, err := json.Marshal(evidences)
+	if err != nil {
+		log.Crit("failed to marshal bft evidence", "err", err)
+	}
+	if err := db.Put(bftEvidenceKey, payload); err != nil {
+		log.Crit("failed to store bft evidence", "err", err)
 	}
 }
 

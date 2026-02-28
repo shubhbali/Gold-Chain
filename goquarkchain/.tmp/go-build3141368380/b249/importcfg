@@ -1,0 +1,6 @@
+# import config
+packagefile encoding/asn1=C:\gold\goquarkchain\.tmp\go-build3141368380\b149\_pkg_.a
+packagefile encoding/hex=C:\gold\goquarkchain\.tmp\go-build3141368380\b152\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

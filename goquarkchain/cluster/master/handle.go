@@ -28,7 +28,7 @@ import (
 const (
 	QKCProtocolName     = "quarkchain"
 	QKCProtocolVersion  = 1
-	QKCProtocolLength   = 16
+	QKCProtocolLength   = uint64(p2p.MaxOPNum)
 	chainHeadChanSize   = 10
 	forceSyncCycle      = 1000 * time.Second
 	minDesiredPeerCount = 0
@@ -379,10 +379,104 @@ func (pm *ProtocolManager) handleMsg(peer *Peer) error {
 			log.Warn(fmt.Sprintf("chan for rpc %d is missing", qkcMsg.RpcID))
 		}
 
+	case qkcMsg.Op == p2p.NewPOSAVoteMsg:
+		var vote p2p.POSAVoteCommand
+		if err := serialize.DeserializeFromBytes(qkcMsg.Data, &vote); err != nil {
+			return err
+		}
+		pm.HandleNewPOSAVote(&vote, peer.id)
+
+	case qkcMsg.Op == p2p.NewShardActivationVoteMsg:
+		var vote p2p.ShardActivationVoteCommand
+		if err := serialize.DeserializeFromBytes(qkcMsg.Data, &vote); err != nil {
+			return err
+		}
+		pm.HandleNewShardActivationVote(&vote, peer.id)
+
+	case qkcMsg.Op == p2p.NewBFTProposalMsg:
+		var proposal p2p.BFTProposalCommand
+		if err := serialize.DeserializeFromBytes(qkcMsg.Data, &proposal); err != nil {
+			return err
+		}
+		pm.HandleNewBFTProposal(&proposal, peer.id)
+
+	case qkcMsg.Op == p2p.NewBFTVoteMsg:
+		var vote p2p.BFTVoteCommand
+		if err := serialize.DeserializeFromBytes(qkcMsg.Data, &vote); err != nil {
+			return err
+		}
+		pm.HandleNewBFTVote(&vote, peer.id)
+
 	default:
 		return fmt.Errorf("unknown msg code %d", qkcMsg.Op)
 	}
 	return nil
+}
+
+func (pm *ProtocolManager) HandleNewPOSAVote(vote *p2p.POSAVoteCommand, sourcePeerID string) {
+	if vote == nil {
+		return
+	}
+	beforePower := pm.rootBlockChain.POSAVotedPower(vote.TargetHash)
+	if err := pm.rootBlockChain.SubmitSignedPOSAVote(vote.TargetHash, vote.TargetNumber, vote.Signature); err != nil {
+		log.Debug("ignore invalid posa vote", "peer", sourcePeerID, "err", err)
+		return
+	}
+	afterPower := pm.rootBlockChain.POSAVotedPower(vote.TargetHash)
+	if afterPower <= beforePower {
+		return
+	}
+	pm.BroadcastPOSAVote(vote, sourcePeerID)
+}
+
+func (pm *ProtocolManager) HandleNewShardActivationVote(vote *p2p.ShardActivationVoteCommand, sourcePeerID string) {
+	if vote == nil {
+		return
+	}
+	beforePower := pm.rootBlockChain.PendingShardActivationVotedPower()
+	if err := pm.rootBlockChain.VoteShardActivationSigned(vote.Target, vote.Signature); err != nil {
+		log.Debug("ignore invalid shard activation vote", "peer", sourcePeerID, "err", err)
+		return
+	}
+	afterPower := pm.rootBlockChain.PendingShardActivationVotedPower()
+	if afterPower <= beforePower {
+		return
+	}
+	pm.BroadcastShardActivationVote(vote, sourcePeerID)
+}
+
+func (pm *ProtocolManager) HandleNewBFTVote(vote *p2p.BFTVoteCommand, sourcePeerID string) {
+	if vote == nil {
+		return
+	}
+	beforePower := pm.rootBlockChain.BFTVotePower(vote.Epoch, vote.Round, vote.VoteType, vote.TargetHash)
+	if err := pm.rootBlockChain.SubmitSignedBFTVote(vote.Epoch, vote.Round, vote.VoteType, vote.TargetHash, vote.Signature); err != nil {
+		log.Debug("ignore invalid bft vote", "peer", sourcePeerID, "err", err)
+		return
+	}
+	afterPower := pm.rootBlockChain.BFTVotePower(vote.Epoch, vote.Round, vote.VoteType, vote.TargetHash)
+	if afterPower <= beforePower {
+		return
+	}
+	pm.BroadcastBFTVote(vote, sourcePeerID)
+}
+
+func (pm *ProtocolManager) HandleNewBFTProposal(proposal *p2p.BFTProposalCommand, sourcePeerID string) {
+	if proposal == nil {
+		return
+	}
+	before := pm.rootBlockChain.BFTStatus()
+	if err := pm.rootBlockChain.SubmitSignedBFTProposal(proposal.Epoch, proposal.Round, proposal.TargetHash, proposal.Signature); err != nil {
+		log.Debug("ignore invalid bft proposal", "peer", sourcePeerID, "err", err)
+		return
+	}
+	after := pm.rootBlockChain.BFTStatus()
+	if fmt.Sprintf("%v", before["proposalTarget"]) == fmt.Sprintf("%v", after["proposalTarget"]) &&
+		fmt.Sprintf("%v", before["epoch"]) == fmt.Sprintf("%v", after["epoch"]) &&
+		fmt.Sprintf("%v", before["round"]) == fmt.Sprintf("%v", after["round"]) {
+		return
+	}
+	pm.BroadcastBFTProposal(proposal, sourcePeerID)
 }
 
 func (pm *ProtocolManager) HandleNewRootTip(tip *p2p.Tip, peer *Peer) error {
@@ -674,6 +768,62 @@ func (pm *ProtocolManager) BroadcastTransactions(txs *rpc.P2PRedirectRequest, so
 		}
 	}
 	log.Trace("Announced transaction", "recipients", pm.peers.Len()-1)
+}
+
+func (pm *ProtocolManager) BroadcastPOSAVote(vote *p2p.POSAVoteCommand, sourcePeerId string) {
+	for _, peer := range pm.peers.Peers() {
+		if peer.id == sourcePeerId {
+			continue
+		}
+		peer := peer
+		go func() {
+			if err := peer.SendPOSAVote(vote); err != nil {
+				peer.Log().Debug("failed to broadcast posa vote", "err", err)
+			}
+		}()
+	}
+}
+
+func (pm *ProtocolManager) BroadcastShardActivationVote(vote *p2p.ShardActivationVoteCommand, sourcePeerId string) {
+	for _, peer := range pm.peers.Peers() {
+		if peer.id == sourcePeerId {
+			continue
+		}
+		peer := peer
+		go func() {
+			if err := peer.SendShardActivationVote(vote); err != nil {
+				peer.Log().Debug("failed to broadcast shard activation vote", "err", err)
+			}
+		}()
+	}
+}
+
+func (pm *ProtocolManager) BroadcastBFTVote(vote *p2p.BFTVoteCommand, sourcePeerId string) {
+	for _, peer := range pm.peers.Peers() {
+		if peer.id == sourcePeerId {
+			continue
+		}
+		peer := peer
+		go func() {
+			if err := peer.SendBFTVote(vote); err != nil {
+				peer.Log().Debug("failed to broadcast bft vote", "err", err)
+			}
+		}()
+	}
+}
+
+func (pm *ProtocolManager) BroadcastBFTProposal(proposal *p2p.BFTProposalCommand, sourcePeerId string) {
+	for _, peer := range pm.peers.Peers() {
+		if peer.id == sourcePeerId {
+			continue
+		}
+		peer := peer
+		go func() {
+			if err := peer.SendBFTProposal(proposal); err != nil {
+				peer.Log().Debug("failed to broadcast bft proposal", "err", err)
+			}
+		}()
+	}
 }
 
 // syncer is responsible for periodically synchronising with the network, both

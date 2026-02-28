@@ -47,6 +47,24 @@ type Backend interface {
 	GetRootHashConfirmingMinorBlock(mBlockID []byte) common.Hash
 	// p2p discovery healty nodes
 	GetKadRoutingTable() ([]string, error)
+	GetFinalityStatus() map[string]interface{}
+	ProposeNextShardActivation() error
+	VoteShardActivation(validatorID string) error
+	TryActivateShardExpansion() (uint32, error)
+	SubmitPOSAVoteByValidator(validatorID string, targetHash common.Hash) error
+	SubmitSignedPOSAVote(targetHash common.Hash, targetNum uint64, signature [65]byte) error
+	VoteShardActivationSigned(target uint32, signature [65]byte) error
+	POSAVotedPower(targetHash common.Hash) uint64
+	JailValidator(validatorID string) error
+	UnjailValidator(validatorID string) error
+	ExitValidator(validatorID string) error
+	GetValidatorStatus(validatorID string) map[string]interface{}
+	SubmitBFTProposal(proposerID string, epoch uint64, round uint64, targetHash common.Hash) error
+	SubmitSignedBFTProposal(epoch uint64, round uint64, targetHash common.Hash, signature [65]byte) error
+	SubmitBFTVote(validatorID string, epoch uint64, round uint64, voteType string, targetHash common.Hash) error
+	SubmitSignedBFTVote(epoch uint64, round uint64, voteType string, targetHash common.Hash, signature [65]byte) error
+	GetBFTStatus() map[string]interface{}
+	GetBFTEvidence() []map[string]interface{}
 }
 
 func GetAPIs(apiBackend Backend) []rpc.API {

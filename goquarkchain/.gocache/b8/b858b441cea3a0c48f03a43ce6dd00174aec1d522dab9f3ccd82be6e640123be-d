@@ -1,0 +1,4 @@
+./monkey.go
+./monkey_amd64.go
+./replace.go
+./replace_windows.go

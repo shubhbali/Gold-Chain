@@ -15,6 +15,7 @@ import (
 	"github.com/QuarkChain/goquarkchain/consensus"
 	"github.com/QuarkChain/goquarkchain/consensus/doublesha256"
 	"github.com/QuarkChain/goquarkchain/consensus/ethash"
+	"github.com/QuarkChain/goquarkchain/consensus/posa"
 	"github.com/QuarkChain/goquarkchain/consensus/qkchash"
 	"github.com/QuarkChain/goquarkchain/consensus/simulate"
 	"github.com/QuarkChain/goquarkchain/core"
@@ -166,6 +167,12 @@ func createConsensusEngine(qkcHashXHeight uint64, cfg *config.ShardConfig) (cons
 	}
 	pubKey := []byte{}
 	switch cfg.ConsensusType {
+	case config.PoSA:
+		targetBlockTime := uint64(0)
+		if cfg.ConsensusConfig != nil {
+			targetBlockTime = uint64(cfg.ConsensusConfig.TargetBlockTime)
+		}
+		return posa.New(targetBlockTime, nil), nil
 	case config.PoWSimulate:
 		return simulate.New(&diffCalculator, cfg.ConsensusConfig.RemoteMine, pubKey, uint64(cfg.ConsensusConfig.TargetBlockTime)), nil
 	case config.PoWEthash:

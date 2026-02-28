@@ -253,6 +253,50 @@ func (p *Peer) AsyncSendNewMinorBlock(res *rpc.P2PRedirectRequest) {
 	}
 }
 
+func (p *Peer) SendPOSAVote(vote *p2p.POSAVoteCommand) error {
+	if vote == nil {
+		return errors.New("nil posa vote")
+	}
+	msg, err := p2p.MakeMsg(p2p.NewPOSAVoteMsg, 0, p2p.Metadata{Branch: 0}, vote)
+	if err != nil {
+		return err
+	}
+	return p.rw.WriteMsg(msg)
+}
+
+func (p *Peer) SendShardActivationVote(vote *p2p.ShardActivationVoteCommand) error {
+	if vote == nil {
+		return errors.New("nil shard activation vote")
+	}
+	msg, err := p2p.MakeMsg(p2p.NewShardActivationVoteMsg, 0, p2p.Metadata{Branch: 0}, vote)
+	if err != nil {
+		return err
+	}
+	return p.rw.WriteMsg(msg)
+}
+
+func (p *Peer) SendBFTVote(vote *p2p.BFTVoteCommand) error {
+	if vote == nil {
+		return errors.New("nil bft vote")
+	}
+	msg, err := p2p.MakeMsg(p2p.NewBFTVoteMsg, 0, p2p.Metadata{Branch: 0}, vote)
+	if err != nil {
+		return err
+	}
+	return p.rw.WriteMsg(msg)
+}
+
+func (p *Peer) SendBFTProposal(proposal *p2p.BFTProposalCommand) error {
+	if proposal == nil {
+		return errors.New("nil bft proposal")
+	}
+	msg, err := p2p.MakeMsg(p2p.NewBFTProposalMsg, 0, p2p.Metadata{Branch: 0}, proposal)
+	if err != nil {
+		return err
+	}
+	return p.rw.WriteMsg(msg)
+}
+
 func (p *Peer) getChan(rpcId uint64) chan interface{} {
 	p.chanLock.Lock()
 	defer p.chanLock.Unlock()

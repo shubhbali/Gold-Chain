@@ -1,0 +1,18 @@
+# import config
+packagefile bufio=C:\gold\goquarkchain\.tmp\go-build3141368380\b078\_pkg_.a
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile crypto/rand=C:\gold\goquarkchain\.tmp\go-build3141368380\b155\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile internal/godebug=C:\gold\goquarkchain\.tmp\go-build3141368380\b054\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile maps=C:\gold\goquarkchain\.tmp\go-build3141368380\b158\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile mime=C:\gold\goquarkchain\.tmp\go-build3141368380\b265\_pkg_.a
+packagefile mime/quotedprintable=C:\gold\goquarkchain\.tmp\go-build3141368380\b267\_pkg_.a
+packagefile net/textproto=C:\gold\goquarkchain\.tmp\go-build3141368380\b262\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile path/filepath=C:\gold\goquarkchain\.tmp\go-build3141368380\b074\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a

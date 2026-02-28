@@ -1,0 +1,9 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile internal/godebug=C:\gold\goquarkchain\.tmp\go-build3141368380\b054\_pkg_.a
+packagefile net/netip=C:\gold\goquarkchain\.tmp\go-build3141368380\b170\_pkg_.a
+packagefile path=C:\gold\goquarkchain\.tmp\go-build3141368380\b052\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a

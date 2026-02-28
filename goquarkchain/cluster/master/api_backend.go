@@ -434,3 +434,130 @@ func (s *QKCMasterBackend) CurrentBlock() *types.RootBlock {
 func (s *QKCMasterBackend) GetSlavePoolLen() int {
 	return s.ConnCount()
 }
+
+func (s *QKCMasterBackend) GetFinalityStatus() map[string]interface{} {
+	status := map[string]interface{}{
+		"consensusType":                s.clusterConfig.Quarkchain.Root.ConsensusType,
+		"justifiedRootHeight":          s.rootBlockChain.JustifiedRootHeight(),
+		"finalizedRootHeight":          s.rootBlockChain.FinalizedRootHeight(),
+		"justifiedRootHash":            s.rootBlockChain.JustifiedRootHash().Hex(),
+		"finalizedRootHash":            s.rootBlockChain.FinalizedRootHash().Hex(),
+		"activeShards":                 s.rootBlockChain.CurrentActiveShards(),
+		"pendingShardActivationTarget": s.rootBlockChain.PendingShardActivationTarget(),
+		"pendingShardActivationPower":  s.rootBlockChain.PendingShardActivationVotedPower(),
+		"requiredValidatorPower":       s.rootBlockChain.POSARequiredPower(),
+		"activeValidatorCount":         s.rootBlockChain.ActivePOSAValidatorCount(),
+	}
+	status["bft"] = s.rootBlockChain.BFTStatus()
+	return status
+}
+
+func (s *QKCMasterBackend) ProposeNextShardActivation() error {
+	return s.rootBlockChain.ProposeNextShardActivation()
+}
+
+func (s *QKCMasterBackend) VoteShardActivation(validatorID string) error {
+	return s.rootBlockChain.VoteShardActivation(validatorID)
+}
+
+func (s *QKCMasterBackend) TryActivateShardExpansion() (uint32, error) {
+	return s.rootBlockChain.TryActivateShardExpansion()
+}
+
+func (s *QKCMasterBackend) SubmitPOSAVoteByValidator(validatorID string, targetHash common.Hash) error {
+	return s.rootBlockChain.SubmitPOSAVoteByValidator(validatorID, targetHash)
+}
+
+func (s *QKCMasterBackend) SubmitSignedPOSAVote(targetHash common.Hash, targetNum uint64, signature [65]byte) error {
+	if err := s.rootBlockChain.SubmitSignedPOSAVote(targetHash, targetNum, signature); err != nil {
+		return err
+	}
+	if s.protocolManager != nil {
+		s.protocolManager.BroadcastPOSAVote(&p2p.POSAVoteCommand{
+			TargetHash:   targetHash,
+			TargetNumber: targetNum,
+			Signature:    signature,
+		}, "")
+	}
+	return nil
+}
+
+func (s *QKCMasterBackend) VoteShardActivationSigned(target uint32, signature [65]byte) error {
+	if err := s.rootBlockChain.VoteShardActivationSigned(target, signature); err != nil {
+		return err
+	}
+	if s.protocolManager != nil {
+		s.protocolManager.BroadcastShardActivationVote(&p2p.ShardActivationVoteCommand{
+			Target:    target,
+			Signature: signature,
+		}, "")
+	}
+	return nil
+}
+
+func (s *QKCMasterBackend) POSAVotedPower(targetHash common.Hash) uint64 {
+	return s.rootBlockChain.POSAVotedPower(targetHash)
+}
+
+func (s *QKCMasterBackend) JailValidator(validatorID string) error {
+	return s.rootBlockChain.JailValidator(validatorID)
+}
+
+func (s *QKCMasterBackend) UnjailValidator(validatorID string) error {
+	return s.rootBlockChain.UnjailValidator(validatorID)
+}
+
+func (s *QKCMasterBackend) ExitValidator(validatorID string) error {
+	return s.rootBlockChain.ExitValidator(validatorID)
+}
+
+func (s *QKCMasterBackend) GetValidatorStatus(validatorID string) map[string]interface{} {
+	return s.rootBlockChain.ValidatorStatus(validatorID)
+}
+
+func (s *QKCMasterBackend) SubmitBFTProposal(proposerID string, epoch uint64, round uint64, targetHash common.Hash) error {
+	return s.rootBlockChain.SubmitBFTProposal(proposerID, epoch, round, targetHash)
+}
+
+func (s *QKCMasterBackend) SubmitSignedBFTProposal(epoch uint64, round uint64, targetHash common.Hash, signature [65]byte) error {
+	if err := s.rootBlockChain.SubmitSignedBFTProposal(epoch, round, targetHash, signature); err != nil {
+		return err
+	}
+	if s.protocolManager != nil {
+		s.protocolManager.BroadcastBFTProposal(&p2p.BFTProposalCommand{
+			Epoch:      epoch,
+			Round:      round,
+			TargetHash: targetHash,
+			Signature:  signature,
+		}, "")
+	}
+	return nil
+}
+
+func (s *QKCMasterBackend) SubmitBFTVote(validatorID string, epoch uint64, round uint64, voteType string, targetHash common.Hash) error {
+	return s.rootBlockChain.SubmitBFTVoteByValidator(validatorID, epoch, round, voteType, targetHash)
+}
+
+func (s *QKCMasterBackend) SubmitSignedBFTVote(epoch uint64, round uint64, voteType string, targetHash common.Hash, signature [65]byte) error {
+	if err := s.rootBlockChain.SubmitSignedBFTVote(epoch, round, voteType, targetHash, signature); err != nil {
+		return err
+	}
+	if s.protocolManager != nil {
+		s.protocolManager.BroadcastBFTVote(&p2p.BFTVoteCommand{
+			Epoch:      epoch,
+			Round:      round,
+			VoteType:   voteType,
+			TargetHash: targetHash,
+			Signature:  signature,
+		}, "")
+	}
+	return nil
+}
+
+func (s *QKCMasterBackend) GetBFTStatus() map[string]interface{} {
+	return s.rootBlockChain.BFTStatus()
+}
+
+func (s *QKCMasterBackend) GetBFTEvidence() []map[string]interface{} {
+	return s.rootBlockChain.BFTEvidenceList()
+}

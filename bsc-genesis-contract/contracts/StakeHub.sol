@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -15,6 +17,7 @@ import "./lib/0.8.x/Utils.sol";
 contract StakeHub is SystemV2, Initializable, Protectable {
     using Utils for string;
     using Utils for bytes;
+    using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /*----------------- constants -----------------*/
@@ -150,6 +153,42 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     // where each NodeID is stored as a fixed 32-byte value.
     mapping(address => bytes32[]) private validatorNodeIDs;
 
+    // dual-token power params
+    uint256 public constant POWER_SCALE = 10_000; // 100%
+    uint256 public constant MIN_RATIO_BPS = 1_000; // 10%
+    uint256 public constant MAX_RATIO_BPS = 5_000; // 50%
+    uint256 private constant TOKEN_B_REWARD_PRECISION = 1e24;
+    address public stakeTokenB;
+    uint256 public stakeWeightA;
+    uint256 public stakeWeightB;
+    uint256 public maxBPowerRatioBps;
+    bool public ratioEnabled;
+    uint256 public minBtoARatioBps;
+    uint256 public tokenBRewardSplitBps;
+    bool public inflationEnabled;
+    uint256 public inflationStartDayIndex;
+    uint256 public inflationRateInitialBps;
+    uint256 public inflationRateMinBps;
+    uint256 public inflationDecayBpsPerYear;
+
+    // validator operator => delegator => token B amount
+    mapping(address => mapping(address => uint256)) private _delegatedTokenB;
+    // validator operator => total delegated token B amount
+    mapping(address => uint256) public totalDelegatedTokenB;
+    // validator operator => accumulated token B reward per delegated token B
+    mapping(address => uint256) private _accTokenBRewardPerShare;
+    // validator operator => delegator => reward debt
+    mapping(address => mapping(address => uint256)) private _tokenBRewardDebt;
+    // validator operator => delegator => pending token B reward amount
+    mapping(address => mapping(address => uint256)) private _pendingTokenBReward;
+
+    // validator operator => delegator => unbond request sequence => request
+    mapping(address => mapping(address => mapping(uint256 => TokenBUnbondRequest))) private _tokenBUnbondRequests;
+    // validator operator => delegator => queue head (inclusive)
+    mapping(address => mapping(address => uint256)) private _tokenBUnbondHead;
+    // validator operator => delegator => queue tail (exclusive)
+    mapping(address => mapping(address => uint256)) private _tokenBUnbondTail;
+
     /*----------------- structs and events -----------------*/
     struct StakeMigrationPackage {
         address operatorAddress; // the operator address of the target validator to delegate to
@@ -195,6 +234,11 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         uint64 maxChangeRate; // maximum daily increase of the validator commission
     }
 
+    struct TokenBUnbondRequest {
+        uint256 tokenBAmount;
+        uint256 unlockTime;
+    }
+
     enum SlashType {
         DoubleSign,
         DownTime,
@@ -231,6 +275,13 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     event ValidatorEmptyJailed(address indexed operatorAddress);
     event ValidatorUnjailed(address indexed operatorAddress);
     event Claimed(address indexed operatorAddress, address indexed delegator, uint256 bnbAmount);
+    event TokenBDelegated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBUndelegated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBSlashed(address indexed operatorAddress, uint256 tokenBAmount, uint8 slashType);
+    event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
+    event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
     event AgentChanged(address indexed operatorAddress, address indexed oldAgent, address indexed newAgent);
 
     // Events for adding and removing NodeIDs.
@@ -277,6 +328,17 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         downtimeJailTime = 2 days;
         felonyJailTime = 30 days;
         maxFelonyBetweenBreatheBlock = 2;
+        stakeWeightA = POWER_SCALE;
+        stakeWeightB = 6_000;
+        maxBPowerRatioBps = MAX_RATIO_BPS;
+        ratioEnabled = false;
+        minBtoARatioBps = MIN_RATIO_BPS;
+        tokenBRewardSplitBps = 0;
+        inflationEnabled = false;
+        inflationStartDayIndex = block.timestamp / BREATHE_BLOCK_INTERVAL;
+        inflationRateInitialBps = 1_000; // 10%
+        inflationRateMinBps = 150; // 1.5%
+        inflationDecayBpsPerYear = 1_500; // 15% yearly decay
         // Different address will be set depending on the environment
         __Protectable_init_unchained(0x08E68Ec70FA3b629784fDB28887e206ce8561E08);
     }
@@ -545,6 +607,47 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     }
 
     /**
+     * @notice Delegate token B to a validator for election power calculation.
+     * @param operatorAddress validator operator address
+     * @param tokenBAmount amount of token B to delegate
+     */
+    function delegateTokenB(
+        address operatorAddress,
+        uint256 tokenBAmount
+    ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        if (stakeTokenB == address(0) || tokenBAmount == 0) revert InvalidRequest();
+
+        _settleTokenBReward(operatorAddress, msg.sender);
+        IERC20(stakeTokenB).safeTransferFrom(msg.sender, address(this), tokenBAmount);
+        _delegatedTokenB[operatorAddress][msg.sender] += tokenBAmount;
+        totalDelegatedTokenB[operatorAddress] += tokenBAmount;
+        _syncTokenBRewardDebt(operatorAddress, msg.sender);
+
+        emit TokenBDelegated(operatorAddress, msg.sender, tokenBAmount);
+    }
+
+    /**
+     * @notice Undelegate token B from a validator.
+     * @param operatorAddress validator operator address
+     * @param tokenBAmount amount of token B to undelegate
+     */
+    function undelegateTokenB(
+        address operatorAddress,
+        uint256 tokenBAmount
+    ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        uint256 delegatedAmount = _delegatedTokenB[operatorAddress][msg.sender];
+        if (tokenBAmount == 0 || tokenBAmount > delegatedAmount) revert InvalidRequest();
+
+        _settleTokenBReward(operatorAddress, msg.sender);
+        _delegatedTokenB[operatorAddress][msg.sender] = delegatedAmount - tokenBAmount;
+        totalDelegatedTokenB[operatorAddress] -= tokenBAmount;
+        _syncTokenBRewardDebt(operatorAddress, msg.sender);
+        _queueTokenBUnbond(operatorAddress, msg.sender, tokenBAmount);
+
+        emit TokenBUndelegated(operatorAddress, msg.sender, tokenBAmount);
+    }
+
+    /**
      * @param srcValidator the operator address of the validator to be redelegated from
      * @param dstValidator the operator address of the validator to be redelegated to
      * @param shares the shares to be redelegated
@@ -623,6 +726,58 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     }
 
     /**
+     * @dev Claim undelegated token B after unbondPeriod.
+     * @param operatorAddress the operator address of the validator
+     * @param requestNumber number of unbond requests to claim. 0 means claim all.
+     */
+    function claimTokenB(
+        address operatorAddress,
+        uint256 requestNumber
+    ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        _claimTokenB(operatorAddress, msg.sender, requestNumber);
+    }
+
+    /**
+     * @dev Batch claim undelegated token B after unbondPeriod.
+     * @param operatorAddresses the operator addresses of the validators
+     * @param requestNumbers number of unbond requests to claim for each validator. 0 means claim all.
+     */
+    function claimTokenBBatch(
+        address[] calldata operatorAddresses,
+        uint256[] calldata requestNumbers
+    ) external whenNotPaused notInBlackList {
+        if (operatorAddresses.length != requestNumbers.length) revert InvalidRequest();
+
+        for (uint256 i; i < operatorAddresses.length; ++i) {
+            if (!_validatorSet.contains(operatorAddresses[i])) revert ValidatorNotExisted();
+            _claimTokenB(operatorAddresses[i], msg.sender, requestNumbers[i]);
+        }
+    }
+
+    /**
+     * @dev Claim accumulated token B reward for one validator.
+     * @param operatorAddress validator operator address
+     */
+    function claimTokenBReward(
+        address operatorAddress
+    ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        _claimTokenBReward(operatorAddress, msg.sender);
+    }
+
+    /**
+     * @dev Batch claim accumulated token B rewards.
+     * @param operatorAddresses validator operator addresses
+     */
+    function claimTokenBRewardBatch(
+        address[] calldata operatorAddresses
+    ) external whenNotPaused notInBlackList {
+        for (uint256 i; i < operatorAddresses.length; ++i) {
+            if (!_validatorSet.contains(operatorAddresses[i])) revert ValidatorNotExisted();
+            _claimTokenBReward(operatorAddresses[i], msg.sender);
+        }
+    }
+
+    /**
      * @dev Sync the gov tokens of validators in operatorAddresses
      * @param operatorAddresses the operator addresses of the validators
      * @param account the account to sync gov tokens to
@@ -658,8 +813,36 @@ contract StakeHub is SystemV2, Initializable, Protectable {
             return;
         }
 
-        IStakeCredit(valInfo.creditContract).distributeReward{ value: msg.value }(valInfo.commission.rate);
-        emit RewardDistributed(operatorAddress, msg.value);
+        uint256 totalReward = msg.value;
+        if (inflationEnabled && msg.value != 0) {
+            uint256 currentBps = _currentInflationBps(block.timestamp / BREATHE_BLOCK_INTERVAL);
+            if (currentBps != 0) {
+                uint256 topupRequest = (msg.value * currentBps) / POWER_SCALE;
+                if (topupRequest != 0) {
+                    uint256 topup = _claimInflationTopup(topupRequest);
+                    if (topup != 0) {
+                        totalReward += topup;
+                        emit InflationTopupApplied(operatorAddress, topup, currentBps);
+                    }
+                }
+            }
+        }
+
+        uint256 tokenBReward;
+        uint256 totalTokenB = totalDelegatedTokenB[operatorAddress];
+        if (tokenBRewardSplitBps != 0 && totalTokenB != 0) {
+            tokenBReward = (totalReward * tokenBRewardSplitBps) / POWER_SCALE;
+            if (tokenBReward != 0) {
+                _distributeTokenBReward(operatorAddress, tokenBReward, totalTokenB);
+                emit TokenBRewardDistributed(operatorAddress, tokenBReward);
+            }
+        }
+
+        uint256 tokenAReward = totalReward - tokenBReward;
+        if (tokenAReward != 0) {
+            IStakeCredit(valInfo.creditContract).distributeReward{ value: tokenAReward }(valInfo.commission.rate);
+        }
+        emit RewardDistributed(operatorAddress, totalReward);
 
         IGovToken(GOV_TOKEN_ADDR).sync(valInfo.creditContract, operatorAddress);
     }
@@ -674,8 +857,8 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         if (!_validatorSet.contains(operatorAddress)) revert ValidatorNotExisted(); // should never happen
         Validator storage valInfo = _validators[operatorAddress];
 
-        // slash
-        uint256 slashAmount = IStakeCredit(valInfo.creditContract).slash(downtimeSlashAmount);
+        uint256 slashAmount =
+            _slashWithTokenBFirst(operatorAddress, valInfo.creditContract, downtimeSlashAmount, SlashType.DownTime);
         uint256 jailUntil = block.timestamp + downtimeJailTime;
         _jailValidator(valInfo, jailUntil);
 
@@ -708,7 +891,8 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         // slash
         (bool canSlash, uint256 jailUntil) = _checkFelonyRecord(operatorAddress, SlashType.MaliciousVote);
         if (!canSlash) revert AlreadySlashed();
-        uint256 slashAmount = IStakeCredit(valInfo.creditContract).slash(felonySlashAmount);
+        uint256 slashAmount =
+            _slashWithTokenBFirst(operatorAddress, valInfo.creditContract, felonySlashAmount, SlashType.MaliciousVote);
         _jailValidator(valInfo, jailUntil);
 
         emit ValidatorSlashed(operatorAddress, jailUntil, slashAmount, SlashType.MaliciousVote);
@@ -742,7 +926,8 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         // slash
         (bool canSlash, uint256 jailUntil) = _checkFelonyRecord(operatorAddress, SlashType.DoubleSign);
         if (!canSlash) revert AlreadySlashed();
-        uint256 slashAmount = IStakeCredit(valInfo.creditContract).slash(felonySlashAmount);
+        uint256 slashAmount =
+            _slashWithTokenBFirst(operatorAddress, valInfo.creditContract, felonySlashAmount, SlashType.DoubleSign);
         _jailValidator(valInfo, jailUntil);
 
         emit ValidatorSlashed(operatorAddress, jailUntil, slashAmount, SlashType.DoubleSign);
@@ -830,6 +1015,72 @@ contract StakeHub is SystemV2, Initializable, Protectable {
             uint256 newMaxNodeIDs = value.bytesToUint256(32);
             if (newMaxNodeIDs == 0) revert InvalidValue(key, value);
             maxNodeIDs = newMaxNodeIDs;
+        } else if (key.compareStrings("stakeTokenB")) {
+            if (value.length != 20) revert InvalidValue(key, value);
+            address newStakeTokenB = value.bytesToAddress(20);
+            if (newStakeTokenB == address(0)) revert InvalidValue(key, value);
+            stakeTokenB = newStakeTokenB;
+        } else if (key.compareStrings("stakeWeightA")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newStakeWeightA = value.bytesToUint256(32);
+            if (newStakeWeightA > 10 * POWER_SCALE) revert InvalidValue(key, value);
+            stakeWeightA = newStakeWeightA;
+        } else if (key.compareStrings("stakeWeightB")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newStakeWeightB = value.bytesToUint256(32);
+            if (newStakeWeightB > 10 * POWER_SCALE) revert InvalidValue(key, value);
+            stakeWeightB = newStakeWeightB;
+        } else if (key.compareStrings("maxBPowerRatioBps")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newMaxBPowerRatioBps = value.bytesToUint256(32);
+            if (newMaxBPowerRatioBps == 0 || newMaxBPowerRatioBps > MAX_RATIO_BPS) revert InvalidValue(key, value);
+            maxBPowerRatioBps = newMaxBPowerRatioBps;
+        } else if (key.compareStrings("ratioEnabled")) {
+            if (value.length != 1) revert InvalidValue(key, value);
+            if (uint8(value[0]) > 1) revert InvalidValue(key, value);
+            ratioEnabled = uint8(value[0]) == 1;
+        } else if (key.compareStrings("minBtoARatioBps")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newMinBtoARatioBps = value.bytesToUint256(32);
+            if (newMinBtoARatioBps < MIN_RATIO_BPS || newMinBtoARatioBps > MAX_RATIO_BPS) {
+                revert InvalidValue(key, value);
+            }
+            minBtoARatioBps = newMinBtoARatioBps;
+        } else if (key.compareStrings("tokenBRewardSplitBps")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newTokenBRewardSplitBps = value.bytesToUint256(32);
+            if (newTokenBRewardSplitBps > POWER_SCALE) revert InvalidValue(key, value);
+            if (newTokenBRewardSplitBps != 0 && stakeTokenB == address(0)) revert InvalidValue(key, value);
+            tokenBRewardSplitBps = newTokenBRewardSplitBps;
+        } else if (key.compareStrings("inflationEnabled")) {
+            if (value.length != 1) revert InvalidValue(key, value);
+            if (uint8(value[0]) > 1) revert InvalidValue(key, value);
+            inflationEnabled = uint8(value[0]) == 1;
+        } else if (key.compareStrings("inflationStartDayIndex")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            inflationStartDayIndex = value.bytesToUint256(32);
+        } else if (key.compareStrings("inflationRateInitialBps")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newInflationRateInitialBps = value.bytesToUint256(32);
+            if (
+                newInflationRateInitialBps == 0 || newInflationRateInitialBps > POWER_SCALE
+                    || newInflationRateInitialBps < inflationRateMinBps
+            ) {
+                revert InvalidValue(key, value);
+            }
+            inflationRateInitialBps = newInflationRateInitialBps;
+        } else if (key.compareStrings("inflationRateMinBps")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newInflationRateMinBps = value.bytesToUint256(32);
+            if (newInflationRateMinBps == 0 || newInflationRateMinBps > inflationRateInitialBps) {
+                revert InvalidValue(key, value);
+            }
+            inflationRateMinBps = newInflationRateMinBps;
+        } else if (key.compareStrings("inflationDecayBpsPerYear")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newInflationDecayBpsPerYear = value.bytesToUint256(32);
+            if (newInflationDecayBpsPerYear > POWER_SCALE) revert InvalidValue(key, value);
+            inflationDecayBpsPerYear = newInflationDecayBpsPerYear;
         } else {
             revert UnknownParam(key, value);
         }
@@ -1032,9 +1283,93 @@ contract StakeHub is SystemV2, Initializable, Protectable {
             address operatorAddress = _validatorSet.at(offset + i);
             Validator memory valInfo = _validators[operatorAddress];
             consensusAddrs[i] = valInfo.consensusAddress;
-            votingPowers[i] = valInfo.jailed ? 0 : IStakeCredit(valInfo.creditContract).totalPooledBNB();
+            if (valInfo.jailed) {
+                votingPowers[i] = 0;
+            } else {
+                uint256 stakeA = IStakeCredit(valInfo.creditContract).totalPooledBNB();
+                uint256 stakeB = totalDelegatedTokenB[operatorAddress];
+                votingPowers[i] = _effectiveVotingPower(stakeA, stakeB);
+            }
             voteAddrs[i] = valInfo.voteAddress;
         }
+    }
+
+    /**
+     * @notice Returns delegated token B amount for a validator/delegator pair.
+     */
+    function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256) {
+        return _delegatedTokenB[operatorAddress][delegator];
+    }
+
+    /**
+     * @notice Returns token B unbond request by queue index for a validator/delegator pair.
+     */
+    function tokenBUnbondRequest(
+        address operatorAddress,
+        address delegator,
+        uint256 index
+    ) external view returns (uint256 tokenBAmount, uint256 unlockTime) {
+        uint256 head = _tokenBUnbondHead[operatorAddress][delegator];
+        uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
+        if (head + index >= tail) revert InvalidRequest();
+
+        TokenBUnbondRequest memory request = _tokenBUnbondRequests[operatorAddress][delegator][head + index];
+        tokenBAmount = request.tokenBAmount;
+        unlockTime = request.unlockTime;
+    }
+
+    /**
+     * @notice Returns total pending token B unbond requests for a validator/delegator pair.
+     */
+    function pendingTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256) {
+        return _tokenBUnbondTail[operatorAddress][delegator] - _tokenBUnbondHead[operatorAddress][delegator];
+    }
+
+    /**
+     * @notice Returns total claimable token B unbond requests for a validator/delegator pair.
+     */
+    function claimableTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256) {
+        uint256 head = _tokenBUnbondHead[operatorAddress][delegator];
+        uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
+        uint256 count;
+
+        while (head < tail) {
+            TokenBUnbondRequest memory request = _tokenBUnbondRequests[operatorAddress][delegator][head];
+            if (block.timestamp < request.unlockTime) {
+                break;
+            }
+            ++count;
+            ++head;
+        }
+
+        return count;
+    }
+
+    /**
+     * @notice Returns claimable token B reward amount for validator/delegator.
+     */
+    function pendingTokenBReward(address operatorAddress, address delegator) external view returns (uint256) {
+        uint256 pending = _pendingTokenBReward[operatorAddress][delegator];
+        uint256 delegatedAmount = _delegatedTokenB[operatorAddress][delegator];
+        if (delegatedAmount == 0) {
+            return pending;
+        }
+
+        uint256 accumulated = (delegatedAmount * _accTokenBRewardPerShare[operatorAddress]) / TOKEN_B_REWARD_PRECISION;
+        uint256 debt = _tokenBRewardDebt[operatorAddress][delegator];
+        if (accumulated > debt) {
+            pending += accumulated - debt;
+        }
+        return pending;
+    }
+
+    /**
+     * @notice Returns effective inflation bps for a given day index.
+     */
+    function currentInflationBps(
+        uint256 dayIndex
+    ) external view returns (uint256) {
+        return _currentInflationBps(dayIndex);
     }
 
     /**
@@ -1273,6 +1608,115 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         emit Claimed(operatorAddress, msg.sender, bnbAmount);
     }
 
+    function _queueTokenBUnbond(address operatorAddress, address delegator, uint256 tokenBAmount) internal {
+        uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
+        _tokenBUnbondRequests[operatorAddress][delegator][tail] =
+            TokenBUnbondRequest({ tokenBAmount: tokenBAmount, unlockTime: block.timestamp + unbondPeriod });
+        _tokenBUnbondTail[operatorAddress][delegator] = tail + 1;
+    }
+
+    function _claimTokenB(address operatorAddress, address delegator, uint256 requestNumber) internal {
+        if (stakeTokenB == address(0)) revert InvalidRequest();
+
+        uint256 head = _tokenBUnbondHead[operatorAddress][delegator];
+        uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
+        if (head >= tail) revert InvalidRequest();
+
+        uint256 requestCount = tail - head;
+        uint256 number = requestNumber == 0 || requestNumber > requestCount ? requestCount : requestNumber;
+
+        uint256 tokenBAmount;
+        while (number != 0) {
+            TokenBUnbondRequest memory request = _tokenBUnbondRequests[operatorAddress][delegator][head];
+            if (block.timestamp < request.unlockTime) {
+                break;
+            }
+
+            tokenBAmount += request.tokenBAmount;
+            delete _tokenBUnbondRequests[operatorAddress][delegator][head];
+            ++head;
+            --number;
+        }
+        if (tokenBAmount == 0) revert InvalidRequest();
+
+        _tokenBUnbondHead[operatorAddress][delegator] = head;
+        IERC20(stakeTokenB).safeTransfer(delegator, tokenBAmount);
+
+        emit TokenBClaimed(operatorAddress, delegator, tokenBAmount);
+    }
+
+    function _claimTokenBReward(address operatorAddress, address delegator) internal {
+        _settleTokenBReward(operatorAddress, delegator);
+        uint256 reward = _pendingTokenBReward[operatorAddress][delegator];
+        if (reward == 0) revert InvalidRequest();
+
+        _pendingTokenBReward[operatorAddress][delegator] = 0;
+        (bool success,) = payable(delegator).call{ value: reward, gas: transferGasLimit }("");
+        if (!success) revert TransferFailed();
+
+        emit TokenBRewardClaimed(operatorAddress, delegator, reward);
+    }
+
+    function _settleTokenBReward(address operatorAddress, address delegator) internal {
+        uint256 delegatedAmount = _delegatedTokenB[operatorAddress][delegator];
+        if (delegatedAmount == 0) {
+            _tokenBRewardDebt[operatorAddress][delegator] = 0;
+            return;
+        }
+
+        uint256 accumulated = (delegatedAmount * _accTokenBRewardPerShare[operatorAddress]) / TOKEN_B_REWARD_PRECISION;
+        uint256 debt = _tokenBRewardDebt[operatorAddress][delegator];
+        if (accumulated > debt) {
+            _pendingTokenBReward[operatorAddress][delegator] += accumulated - debt;
+        }
+        _tokenBRewardDebt[operatorAddress][delegator] = accumulated;
+    }
+
+    function _syncTokenBRewardDebt(address operatorAddress, address delegator) internal {
+        uint256 delegatedAmount = _delegatedTokenB[operatorAddress][delegator];
+        _tokenBRewardDebt[operatorAddress][delegator] =
+            (delegatedAmount * _accTokenBRewardPerShare[operatorAddress]) / TOKEN_B_REWARD_PRECISION;
+    }
+
+    function _distributeTokenBReward(address operatorAddress, uint256 reward, uint256 totalTokenB) internal {
+        _accTokenBRewardPerShare[operatorAddress] += (reward * TOKEN_B_REWARD_PRECISION) / totalTokenB;
+    }
+
+    function _claimInflationTopup(uint256 topupRequest) internal enableReceivingFund returns (uint256 topup) {
+        (bool ok, bytes memory data) =
+            SYSTEM_REWARD_ADDR.call(abi.encodeWithSignature("claimRewards(address,uint256)", address(this), topupRequest));
+        if (ok && data.length >= 32) {
+            topup = abi.decode(data, (uint256));
+        }
+    }
+
+    function _slashWithTokenBFirst(
+        address operatorAddress,
+        address creditContract,
+        uint256 slashAmount,
+        SlashType slashType
+    ) internal returns (uint256 bnbSlashAmount) {
+        uint256 remaining = slashAmount;
+
+        if (stakeTokenB != address(0)) {
+            uint256 selfTokenBAmount = _delegatedTokenB[operatorAddress][operatorAddress];
+            if (selfTokenBAmount != 0) {
+                _settleTokenBReward(operatorAddress, operatorAddress);
+                uint256 tokenBSlashAmount = selfTokenBAmount > remaining ? remaining : selfTokenBAmount;
+                _delegatedTokenB[operatorAddress][operatorAddress] = selfTokenBAmount - tokenBSlashAmount;
+                totalDelegatedTokenB[operatorAddress] -= tokenBSlashAmount;
+                _syncTokenBRewardDebt(operatorAddress, operatorAddress);
+                IERC20(stakeTokenB).safeTransfer(SYSTEM_REWARD_ADDR, tokenBSlashAmount);
+                emit TokenBSlashed(operatorAddress, tokenBSlashAmount, uint8(slashType));
+                remaining -= tokenBSlashAmount;
+            }
+        }
+
+        if (remaining != 0) {
+            bnbSlashAmount = IStakeCredit(creditContract).slash(remaining);
+        }
+    }
+
     function _bep410MsgSender() internal view returns (address) {
         if (agentToOperator[msg.sender] != address(0)) {
             return agentToOperator[msg.sender];
@@ -1293,5 +1737,44 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         if (maxNodeIDs == 0) {
             maxNodeIDs = INIT_MAX_NUMBER_NODE_ID;
         }
+    }
+
+    function _effectiveVotingPower(uint256 stakeA, uint256 stakeB) internal view returns (uint256) {
+        uint256 weightedA = (stakeA * stakeWeightA) / POWER_SCALE;
+        uint256 weightedB = (stakeB * stakeWeightB) / POWER_SCALE;
+
+        if (weightedA == 0) {
+            return 0;
+        }
+
+        if (ratioEnabled && minBtoARatioBps > 0 && stakeB * POWER_SCALE < stakeA * minBtoARatioBps) {
+            weightedB = 0;
+        }
+
+        uint256 maxBWeighted = (weightedA * maxBPowerRatioBps) / POWER_SCALE;
+        if (weightedB > maxBWeighted) {
+            weightedB = maxBWeighted;
+        }
+
+        return weightedA + weightedB;
+    }
+
+    function _currentInflationBps(uint256 dayIndex) internal view returns (uint256) {
+        if (dayIndex <= inflationStartDayIndex) {
+            return inflationRateInitialBps;
+        }
+
+        uint256 yearsElapsed = (dayIndex - inflationStartDayIndex) / 365;
+        uint256 current = inflationRateInitialBps;
+        for (uint256 i; i < yearsElapsed; ++i) {
+            current = (current * (POWER_SCALE - inflationDecayBpsPerYear)) / POWER_SCALE;
+            if (current <= inflationRateMinBps) {
+                return inflationRateMinBps;
+            }
+        }
+        if (current < inflationRateMinBps) {
+            return inflationRateMinBps;
+        }
+        return current;
     }
 }

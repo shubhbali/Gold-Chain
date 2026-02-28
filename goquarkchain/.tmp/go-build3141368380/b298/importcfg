@@ -1,0 +1,12 @@
+# import config
+packagefile encoding/xml=C:\gold\goquarkchain\.tmp\go-build3141368380\b299\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/huin/goupnp/httpu=C:\gold\goquarkchain\.tmp\go-build3141368380\b300\_pkg_.a
+packagefile github.com/huin/goupnp/scpd=C:\gold\goquarkchain\.tmp\go-build3141368380\b301\_pkg_.a
+packagefile github.com/huin/goupnp/soap=C:\gold\goquarkchain\.tmp\go-build3141368380\b302\_pkg_.a
+packagefile github.com/huin/goupnp/ssdp=C:\gold\goquarkchain\.tmp\go-build3141368380\b303\_pkg_.a
+packagefile golang.org/x/net/html/charset=C:\gold\goquarkchain\.tmp\go-build3141368380\b304\_pkg_.a
+packagefile net/http=C:\gold\goquarkchain\.tmp\go-build3141368380\b255\_pkg_.a
+packagefile net/url=C:\gold\goquarkchain\.tmp\go-build3141368380\b251\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

@@ -1,0 +1,8 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b159\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/core/state=C:\gold\goquarkchain\.tmp\go-build3141368380\b224\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/core/types=C:\gold\goquarkchain\.tmp\go-build3141368380\b192\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/params=C:\gold\goquarkchain\.tmp\go-build3141368380\b186\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/rpc=C:\gold\goquarkchain\.tmp\go-build3141368380\b225\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a

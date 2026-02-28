@@ -2,6 +2,7 @@ pragma solidity ^0.8.10;
 
 import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./utils/test_token/MiniToken.sol";
 
 import "./utils/Deployer.sol";
 
@@ -32,6 +33,13 @@ contract StakeHubTest is Deployer {
     event ValidatorSlashed(address indexed operatorAddress, uint256 jailUntil, uint256 slashAmount, uint8 slashType);
     event ValidatorUnjailed(address indexed operatorAddress);
     event Claimed(address indexed operatorAddress, address indexed delegator, uint256 bnbAmount);
+    event TokenBDelegated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBUndelegated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBSlashed(address indexed operatorAddress, uint256 tokenBAmount, uint8 slashType);
+    event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
+    event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
     event MigrateSuccess(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
     event MigrateFailed(
         address indexed operatorAddress, address indexed delegator, uint256 bnbAmount, StakeMigrationRespCode respCode
@@ -268,6 +276,154 @@ contract StakeHubTest is Deployer {
         stakeHub.redelegate(validator1, validator2, selfDelegation, false);
     }
 
+    function testDelegateTokenBAndUndelegateTokenB() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken tokenB = new MiniToken();
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
+
+        uint256 amount = 250 ether;
+        tokenB.transfer(delegator, amount);
+        vm.startPrank(delegator);
+        tokenB.approve(address(stakeHub), amount);
+
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit TokenBDelegated(validator, delegator, amount);
+        stakeHub.delegateTokenB(validator, amount);
+
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), amount, "wrong delegated tokenB amount");
+        assertEq(stakeHub.totalDelegatedTokenB(validator), amount, "wrong validator total tokenB amount");
+
+        uint256 undelegateAmt = 100 ether;
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit TokenBUndelegated(validator, delegator, undelegateAmt);
+        stakeHub.undelegateTokenB(validator, undelegateAmt);
+
+        assertEq(stakeHub.pendingTokenBUnbondRequest(validator, delegator), 1, "wrong pending unbond requests");
+        (uint256 pendingAmt, uint256 unlockTime) = stakeHub.tokenBUnbondRequest(validator, delegator, 0);
+        assertEq(pendingAmt, undelegateAmt, "wrong tokenB unbond amount");
+        assertEq(unlockTime, block.timestamp + stakeHub.unbondPeriod(), "wrong tokenB unlock time");
+
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        stakeHub.claimTokenB(validator, 0);
+
+        vm.warp(block.timestamp + stakeHub.unbondPeriod());
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit TokenBClaimed(validator, delegator, undelegateAmt);
+        stakeHub.claimTokenB(validator, 0);
+
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), amount - undelegateAmt, "wrong remaining tokenB");
+        assertEq(stakeHub.totalDelegatedTokenB(validator), amount - undelegateAmt, "wrong remaining total tokenB");
+        assertEq(stakeHub.pendingTokenBUnbondRequest(validator, delegator), 0, "wrong remaining tokenB requests");
+        vm.stopPrank();
+    }
+
+    function testElectionPower_UsesWeightedAndCappedTokenB() public {
+        (address validator,, address credit,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken tokenB = new MiniToken();
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+
+        uint256 delegatedTokenB = 3000 ether;
+        tokenB.transfer(delegator, delegatedTokenB);
+        vm.startPrank(delegator);
+        tokenB.approve(address(stakeHub), delegatedTokenB);
+        stakeHub.delegateTokenB(validator, delegatedTokenB);
+        vm.stopPrank();
+
+        (, uint256[] memory votingPowers,,) = stakeHub.getValidatorElectionInfo(0, 0);
+        uint256 stakeA = IStakeCredit(credit).totalPooledBNB();
+        uint256 weightedA = stakeA * stakeHub.stakeWeightA() / 10_000;
+        uint256 weightedB = delegatedTokenB * stakeHub.stakeWeightB() / 10_000;
+        uint256 maxB = weightedA * stakeHub.maxBPowerRatioBps() / 10_000;
+        if (weightedB > maxB) {
+            weightedB = maxB;
+        }
+        uint256 expected = weightedA + weightedB;
+
+        assertEq(votingPowers[0], expected, "wrong effective power");
+    }
+
+    function testElectionPower_RatioEnabledBelowThresholdRemovesTokenBPower() public {
+        (address validator,, address credit,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken tokenB = new MiniToken();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("ratioEnabled", hex"01");
+        vm.stopPrank();
+
+        // 100 tokenB against ~2001 tokenA is below the default 10% threshold.
+        uint256 delegatedTokenB = 100 ether;
+        tokenB.transfer(delegator, delegatedTokenB);
+        vm.startPrank(delegator);
+        tokenB.approve(address(stakeHub), delegatedTokenB);
+        stakeHub.delegateTokenB(validator, delegatedTokenB);
+        vm.stopPrank();
+
+        (, uint256[] memory votingPowers,,) = stakeHub.getValidatorElectionInfo(0, 0);
+        uint256 stakeA = IStakeCredit(credit).totalPooledBNB();
+        uint256 expected = stakeA * stakeHub.stakeWeightA() / 10_000;
+
+        assertEq(votingPowers[0], expected, "tokenB power should be removed below active ratio");
+    }
+
+    function testUpdateParam_RatioBoundsValidation() public {
+        vm.startPrank(GOV_HUB_ADDR);
+        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(999))));
+        stakeHub.updateParam("minBtoARatioBps", abi.encode(uint256(999)));
+
+        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(5001))));
+        stakeHub.updateParam("minBtoARatioBps", abi.encode(uint256(5001)));
+
+        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "maxBPowerRatioBps", abi.encode(uint256(5001))));
+        stakeHub.updateParam("maxBPowerRatioBps", abi.encode(uint256(5001)));
+        vm.stopPrank();
+    }
+
+    function testDowntimeSlash_TokenBFirstThenTokenA() public {
+        uint256 selfDelegation = 2000 ether;
+        (address validator,, address credit,) = _createValidator(selfDelegation);
+        _createValidator(selfDelegation); // create 2 validator to avoid empty jail
+        MiniToken tokenB = new MiniToken();
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+
+        uint256 slashAmt = stakeHub.downtimeSlashAmount();
+        uint256 tokenBStake = slashAmt + 1 ether;
+        tokenB.transfer(validator, tokenBStake);
+        vm.startPrank(validator);
+        tokenB.approve(address(stakeHub), tokenBStake);
+        stakeHub.delegateTokenB(validator, tokenBStake);
+        vm.stopPrank();
+
+        uint256 preValidatorBnbAmount =
+            IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(validator));
+        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
+        uint256 slashTime = stakeHub.downtimeJailTime();
+
+        vm.startPrank(SLASH_CONTRACT_ADDR);
+        vm.expectEmit(true, false, false, true, address(stakeHub));
+        emit TokenBSlashed(validator, slashAmt, 1);
+        vm.expectEmit(true, false, false, true, address(stakeHub));
+        emit ValidatorSlashed(validator, block.timestamp + slashTime, 0, 1);
+        stakeHub.downtimeSlash(consensusAddress);
+        vm.stopPrank();
+
+        uint256 curValidatorBnbAmount =
+            IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(validator));
+        assertApproxEqAbs(preValidatorBnbAmount, curValidatorBnbAmount, 1); // there may be 1 delta due to precision
+        assertEq(stakeHub.getDelegatedTokenB(validator, validator), 1 ether, "wrong remaining self tokenB");
+    }
+
     function testReceiveBNB() public {
         // send to stakeHub directly
         (bool success,) = address(stakeHub).call{ value: 1 ether }("");
@@ -339,6 +495,193 @@ contract StakeHubTest is Deployer {
         stakeHub.delegate{ value: delegation }(validator, false);
         uint256 newShares = IStakeCredit(credit).balanceOf(newDelegator);
         assertEq(newShares, expectedShares, "wrong new shares");
+    }
+
+    function testDistributeReward_TokenBRewardSplitAndClaim() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken tokenB = new MiniToken();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(2_000))); // 20%
+        vm.stopPrank();
+
+        uint256 tokenBAmount = 100 ether;
+        tokenB.transfer(delegator, tokenBAmount);
+        vm.startPrank(delegator);
+        tokenB.approve(address(stakeHub), tokenBAmount);
+        stakeHub.delegateTokenB(validator, tokenBAmount);
+        vm.stopPrank();
+
+        uint256 reward = 50 ether;
+        uint256 expectedTokenBReward = reward * 2_000 / 10_000;
+        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
+
+        vm.startPrank(VALIDATOR_CONTRACT_ADDR);
+        vm.expectEmit(true, false, false, true, address(stakeHub));
+        emit TokenBRewardDistributed(validator, expectedTokenBReward);
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit RewardDistributed(validator, reward);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        vm.stopPrank();
+
+        assertEq(
+            stakeHub.pendingTokenBReward(validator, delegator), expectedTokenBReward, "wrong pending tokenB reward"
+        );
+
+        uint256 balanceBefore = delegator.balance;
+        vm.prank(delegator);
+        stakeHub.claimTokenBReward(validator);
+        assertEq(delegator.balance - balanceBefore, expectedTokenBReward, "wrong claimed tokenB reward");
+        assertEq(stakeHub.pendingTokenBReward(validator, delegator), 0, "pending tokenB reward should be zero");
+    }
+
+    function testInflationDecayCurveAndTopup() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
+        uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        systemReward.updateParam("addOperator", abi.encodePacked(address(stakeHub)));
+        stakeHub.updateParam("inflationEnabled", hex"01");
+        stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
+        stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(1000))); // 10%
+        stakeHub.updateParam("inflationRateMinBps", abi.encode(uint256(100))); // 1%
+        stakeHub.updateParam("inflationDecayBpsPerYear", abi.encode(uint256(5000))); // 50% / year
+        vm.stopPrank();
+
+        assertEq(stakeHub.currentInflationBps(dayIndex), 1000, "wrong inflation bps at start");
+        assertEq(stakeHub.currentInflationBps(dayIndex + 365), 500, "wrong inflation bps after 1 year");
+        assertEq(stakeHub.currentInflationBps(dayIndex + 730), 250, "wrong inflation bps after 2 years");
+        assertEq(stakeHub.currentInflationBps(dayIndex + 1095), 125, "wrong inflation bps after 3 years");
+        assertEq(stakeHub.currentInflationBps(dayIndex + 1460), 100, "wrong inflation bps minimum bound");
+
+        vm.deal(address(systemReward), 100 ether);
+
+        uint256 reward = 10 ether;
+        uint256 expectedTopup = reward * 1000 / 10_000;
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
+        vm.startPrank(VALIDATOR_CONTRACT_ADDR);
+        vm.expectEmit(true, false, false, true, address(stakeHub));
+        emit InflationTopupApplied(validator, expectedTopup, 1000);
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit RewardDistributed(validator, reward + expectedTopup);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        vm.stopPrank();
+
+        assertEq(address(systemReward).balance, 100 ether - expectedTopup, "wrong system reward balance after topup");
+    }
+
+    function testUpdateParam_RewardAndInflationHardeningValidation() public {
+        vm.startPrank(GOV_HUB_ADDR);
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "tokenBRewardSplitBps", abi.encode(uint256(1000)))
+        );
+        stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(1000)));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationRateInitialBps", abi.encode(uint256(0)))
+        );
+        stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(0)));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationRateMinBps", abi.encode(uint256(0)))
+        );
+        stakeHub.updateParam("inflationRateMinBps", abi.encode(uint256(0)));
+        vm.stopPrank();
+    }
+
+    function testTokenBReward_MultiDelegatorProRataAndDebtAccounting() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        MiniToken tokenB = new MiniToken();
+        address delegator1 = _getNextUserAddress();
+        address delegator2 = _getNextUserAddress();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(2_000))); // 20%
+        vm.stopPrank();
+
+        tokenB.transfer(delegator1, 100 ether);
+        tokenB.transfer(delegator2, 300 ether);
+
+        vm.startPrank(delegator1);
+        tokenB.approve(address(stakeHub), 100 ether);
+        stakeHub.delegateTokenB(validator, 100 ether);
+        vm.stopPrank();
+
+        vm.startPrank(delegator2);
+        tokenB.approve(address(stakeHub), 300 ether);
+        stakeHub.delegateTokenB(validator, 300 ether);
+        vm.stopPrank();
+
+        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
+
+        uint256 d1PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator1);
+        uint256 d2PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator2);
+        assertGt(d1PendingRound1, 0, "d1 should have pending reward");
+        assertGt(d2PendingRound1, d1PendingRound1, "d2 pending should be greater due to higher stake");
+
+        uint256 d1BalanceBeforeClaim1 = delegator1.balance;
+        vm.prank(delegator1);
+        stakeHub.claimTokenBReward(validator);
+        assertEq(delegator1.balance - d1BalanceBeforeClaim1, d1PendingRound1, "wrong d1 claim 1");
+        assertEq(stakeHub.pendingTokenBReward(validator, delegator1), 0, "d1 pending should reset");
+
+        vm.prank(delegator1);
+        stakeHub.undelegateTokenB(validator, 50 ether);
+
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
+
+        uint256 d1PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator1);
+        uint256 d2PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator2);
+        assertGt(d1PendingRound2, 0, "d1 should accrue reward after undelegation");
+        assertGt(d2PendingRound2, d2PendingRound1, "d2 should continue accruing reward");
+        assertGt(d2PendingRound2, d1PendingRound2, "d2 pending should remain greater than d1");
+
+        uint256 d1BalanceBeforeClaim2 = delegator1.balance;
+        vm.prank(delegator1);
+        stakeHub.claimTokenBReward(validator);
+        assertEq(delegator1.balance - d1BalanceBeforeClaim2, d1PendingRound2, "wrong d1 claim 2");
+
+        uint256 d2BalanceBeforeClaim = delegator2.balance;
+        vm.prank(delegator2);
+        stakeHub.claimTokenBReward(validator);
+        assertEq(delegator2.balance - d2BalanceBeforeClaim, d2PendingRound2, "wrong d2 claim");
+    }
+
+    function testInflationTopupFailureDoesNotBlockDistributeReward() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
+        uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+
+        // Intentionally do not add StakeHub as SystemReward operator.
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("inflationEnabled", hex"01");
+        stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
+        stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(1000)));
+        stakeHub.updateParam("inflationRateMinBps", abi.encode(uint256(100)));
+        stakeHub.updateParam("inflationDecayBpsPerYear", abi.encode(uint256(5000)));
+        vm.stopPrank();
+
+        vm.deal(address(systemReward), 100 ether);
+        uint256 systemRewardBefore = address(systemReward).balance;
+
+        uint256 reward = 10 ether;
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
+        vm.expectEmit(true, true, false, true, address(stakeHub));
+        emit RewardDistributed(validator, reward);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
+
+        assertEq(address(systemReward).balance, systemRewardBefore, "topup should not be claimed without operator");
     }
 
     function testDowntimeSlash() public {

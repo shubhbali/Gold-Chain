@@ -1,0 +1,5 @@
+# import config
+packagefile internal/cpu=C:\gold\goquarkchain\.tmp\go-build3141368380\b011\_pkg_.a
+packagefile internal/goarch=C:\gold\goquarkchain\.tmp\go-build3141368380\b006\_pkg_.a
+packagefile internal/runtime/gc=C:\gold\goquarkchain\.tmp\go-build3141368380\b021\_pkg_.a
+packagefile internal/runtime/sys=C:\gold\goquarkchain\.tmp\go-build3141368380\b023\_pkg_.a

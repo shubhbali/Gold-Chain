@@ -1,0 +1,7 @@
+# import config
+packagefile crypto/internal/boring=C:\gold\goquarkchain\.tmp\go-build3141368380\b083\_pkg_.a
+packagefile crypto/internal/fips140/hmac=C:\gold\goquarkchain\.tmp\go-build3141368380\b090\_pkg_.a
+packagefile crypto/internal/fips140hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b145\_pkg_.a
+packagefile crypto/internal/fips140only=C:\gold\goquarkchain\.tmp\go-build3141368380\b104\_pkg_.a
+packagefile crypto/subtle=C:\gold\goquarkchain\.tmp\go-build3141368380\b106\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a

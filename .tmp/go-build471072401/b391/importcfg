@@ -1,0 +1,16 @@
+# import config
+packagefile errors=C:\gold\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile fmt=C:\gold\.gocache\20\207f6635331b9a1c4d35dd7629029b2e850226585f05c753c5eca3310391c2be-d
+packagefile github.com/QuarkChain/goquarkchain/account=C:\gold\.gocache\be\bec70037151357a32e26c8b09f571554c74a8bbf4295c57934bf5c95bdc63c28-d
+packagefile github.com/QuarkChain/goquarkchain/cluster/rpc=C:\gold\.gocache\ce\ce26a2b30898e39de274a564b6746dd0c4c5e50940842899d138b04fa14a03c2-d
+packagefile github.com/QuarkChain/goquarkchain/common=C:\gold\.gocache\8c\8cb4910182e7a80ed30bf9d5b26a57b16c4cf6bfb33adc2ae69321efa118c149-d
+packagefile github.com/QuarkChain/goquarkchain/core=C:\gold\.tmp\go-build471072401\b374\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\.gocache\8c\8c8253dd1f68703a7fac1948bb79a174954174beaeaabc3dfadf6106b5c884bf-d
+packagefile github.com/QuarkChain/goquarkchain/p2p=C:\gold\.gocache\2b\2b8a1fcc2b4f4264d6428125ba99c0b059bb2e2fd82870c502ca20072ca5f4bb-d
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\.gocache\62\62346fac565a68e745d89c18ced208bc512246a4383e6f3bd1fa90b1d26a3a68-d
+packagefile github.com/ethereum/go-ethereum/event=C:\gold\.gocache\af\af58eae57400edfbe7135f8bcf05efd54bea176232082ac00638feef6f472d62-d
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\.gocache\ea\eaa6f850e52052ce30b1c49dc565ed231310ef3162da6ddfbc951f6322ecb86c-d
+packagefile golang.org/x/sync/errgroup=C:\gold\.gocache\77\77c2490480ca603d19e7e8bf727875518d7c117650c20ed8e29ea48f68ed6c6c-d
+packagefile math/big=C:\gold\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d
+packagefile strings=C:\gold\.gocache\bb\bb220c3fe80d5e749c9382ac634507db68495a2af21b9a9fd847547eb08f02ef-d
+packagefile sync=C:\gold\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d

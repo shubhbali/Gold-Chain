@@ -1,0 +1,11 @@
+# import config
+packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
+packagefile crypto/tls=C:\gold\goquarkchain\.tmp\go-build3141368380\b226\_pkg_.a
+packagefile crypto/x509=C:\gold\goquarkchain\.tmp\go-build3141368380\b247\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/golang/protobuf/proto=C:\gold\goquarkchain\.tmp\go-build3141368380\b329\_pkg_.a
+packagefile google.golang.org/grpc/credentials/internal=C:\gold\goquarkchain\.tmp\go-build3141368380\b341\_pkg_.a
+packagefile io/ioutil=C:\gold\goquarkchain\.tmp\go-build3141368380\b163\_pkg_.a
+packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a

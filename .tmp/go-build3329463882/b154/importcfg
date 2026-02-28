@@ -1,0 +1,4 @@
+# import config
+packagefile internal/runtime/sys=C:\gold\.gocache\ee\eee038c8ee04bd1f7a6c508f4dbaf480f3ad8916df75c13e2030363c2ab6d235-d
+packagefile sync=C:\gold\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d
+packagefile sync/atomic=C:\gold\.gocache\fd\fd31b29cd9b0ba4eac4b67fa0c794d4a0bc0a1b18da9e1f1f1b720ea47a4fa5c-d

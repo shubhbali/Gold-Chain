@@ -1,0 +1,6 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile sync=C:\gold\goquarkchain\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d
+packagefile sync/atomic=C:\gold\goquarkchain\.gocache\fd\fd31b29cd9b0ba4eac4b67fa0c794d4a0bc0a1b18da9e1f1f1b720ea47a4fa5c-d
+packagefile syscall=C:\gold\goquarkchain\.gocache\3d\3dee3a62384f5da67deca0ac3869f9a7ec424dbb03002c1dec43353d54d2f81d-d
+packagefile unicode/utf16=C:\gold\goquarkchain\.gocache\50\50c28aba2fa0eb38f4fefaf03a2d2e3e04eff4645d357cd7f3a564681c80afb4-d

@@ -1,0 +1,8 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile crypto/internal/fips140=C:\gold\goquarkchain\.tmp\go-build3141368380\b086\_pkg_.a
+packagefile crypto/internal/fips140/check=C:\gold\goquarkchain\.tmp\go-build3141368380\b089\_pkg_.a
+packagefile crypto/internal/fips140/hmac=C:\gold\goquarkchain\.tmp\go-build3141368380\b090\_pkg_.a
+packagefile crypto/internal/fips140/sha256=C:\gold\goquarkchain\.tmp\go-build3141368380\b091\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a

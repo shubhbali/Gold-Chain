@@ -1,0 +1,6 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile internal/bytealg=C:\gold\goquarkchain\.tmp\go-build3141368380\b010\_pkg_.a
+packagefile internal/strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b031\_pkg_.a
+packagefile internal/stringslite=C:\gold\goquarkchain\.tmp\go-build3141368380\b033\_pkg_.a
+packagefile unicode/utf8=C:\gold\goquarkchain\.tmp\go-build3141368380\b049\_pkg_.a

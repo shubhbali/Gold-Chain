@@ -1,0 +1,8 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile internal/bytealg=C:\gold\goquarkchain\.tmp\go-build3141368380\b010\_pkg_.a
+packagefile internal/stringslite=C:\gold\goquarkchain\.tmp\go-build3141368380\b033\_pkg_.a
+packagefile internal/syscall/windows=C:\gold\goquarkchain\.tmp\go-build3141368380\b036\_pkg_.a
+packagefile io/fs=C:\gold\goquarkchain\.tmp\go-build3141368380\b050\_pkg_.a
+packagefile slices=C:\gold\goquarkchain\.tmp\go-build3141368380\b045\_pkg_.a
+packagefile syscall=C:\gold\goquarkchain\.tmp\go-build3141368380\b044\_pkg_.a

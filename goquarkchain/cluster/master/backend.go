@@ -20,6 +20,7 @@ import (
 	"github.com/QuarkChain/goquarkchain/consensus"
 	"github.com/QuarkChain/goquarkchain/consensus/doublesha256"
 	"github.com/QuarkChain/goquarkchain/consensus/ethash"
+	"github.com/QuarkChain/goquarkchain/consensus/posa"
 	"github.com/QuarkChain/goquarkchain/consensus/qkchash"
 	"github.com/QuarkChain/goquarkchain/consensus/simulate"
 	"github.com/QuarkChain/goquarkchain/core"
@@ -151,6 +152,12 @@ func createConsensusEngine(cfg *config.RootConfig, pubKey []byte, qkcHashXHeight
 		AdjustmentFactor:  cfg.DifficultyAdjustmentFactor,
 	}
 	switch cfg.ConsensusType {
+	case config.PoSA:
+		targetBlockTime := uint64(0)
+		if cfg.ConsensusConfig != nil {
+			targetBlockTime = uint64(cfg.ConsensusConfig.TargetBlockTime)
+		}
+		return posa.New(targetBlockTime, pubKey), nil
 	case config.PoWSimulate:
 		return simulate.New(&diffCalculator, cfg.ConsensusConfig.RemoteMine, pubKey, uint64(cfg.ConsensusConfig.TargetBlockTime)), nil
 	case config.PoWEthash:
@@ -749,28 +756,39 @@ func (s *QKCMasterBackend) GetStats() (map[string]interface{}, error) {
 		return nil, err
 	}
 	return map[string]interface{}{
-		"networkId":            s.clusterConfig.Quarkchain.NetworkID,
-		"chainSize":            s.clusterConfig.Quarkchain.ChainSize,
-		"shardServerCount":     s.ConnCount(),
-		"rootHeight":           s.rootBlockChain.CurrentBlock().Number(),
-		"rootDifficulty":       s.rootBlockChain.CurrentBlock().Difficulty(),
-		"rootCoinbaseAddress":  hexutil.Bytes(s.rootBlockChain.CurrentBlock().Coinbase().ToBytes()),
-		"rootTimestamp":        s.rootBlockChain.CurrentBlock().Time(),
-		"rootLastBlockTime":    rootLastBlockTime,
-		"txCount60s":           sumTxCount60s,
-		"blockCount60s":        sumBlockCount60,
-		"staleBlockCount60s":   sumStaleBlockCount60s,
-		"pendingTxCount":       sumPendingTxCount,
-		"totalTxCount":         sumTotalTxCount,
-		"syncing":              s.IsSyncing(),
-		"mining":               s.IsMining(),
-		"shards":               shards,
-		"peers":                peerForDisplay,
-		"minor_block_interval": s.artificialTxConfig.TargetMinorBlockTime,
-		"root_block_interval":  s.artificialTxConfig.TargetRootBlockTime,
-		"cpus":                 cc,
-		"txCountHistory":       txCountHistory,
-		"difficultyDivider":    s.clusterConfig.Quarkchain.Root.PoSWConfig.GetDiffDivider(s.rootBlockChain.CurrentBlock().Time()),
+		"networkId":              s.clusterConfig.Quarkchain.NetworkID,
+		"chainSize":              s.clusterConfig.Quarkchain.ChainSize,
+		"shardServerCount":       s.ConnCount(),
+		"rootHeight":             s.rootBlockChain.CurrentBlock().Number(),
+		"rootDifficulty":         s.rootBlockChain.CurrentBlock().Difficulty(),
+		"rootCoinbaseAddress":    hexutil.Bytes(s.rootBlockChain.CurrentBlock().Coinbase().ToBytes()),
+		"rootTimestamp":          s.rootBlockChain.CurrentBlock().Time(),
+		"rootLastBlockTime":      rootLastBlockTime,
+		"txCount60s":             sumTxCount60s,
+		"blockCount60s":          sumBlockCount60,
+		"staleBlockCount60s":     sumStaleBlockCount60s,
+		"pendingTxCount":         sumPendingTxCount,
+		"totalTxCount":           sumTotalTxCount,
+		"syncing":                s.IsSyncing(),
+		"mining":                 s.IsMining(),
+		"shards":                 shards,
+		"peers":                  peerForDisplay,
+		"minor_block_interval":   s.artificialTxConfig.TargetMinorBlockTime,
+		"root_block_interval":    s.artificialTxConfig.TargetRootBlockTime,
+		"cpus":                   cc,
+		"txCountHistory":         txCountHistory,
+		"difficultyDivider":      s.clusterConfig.Quarkchain.Root.PoSWConfig.GetDiffDivider(s.rootBlockChain.CurrentBlock().Time()),
+		"consensusType":          s.clusterConfig.Quarkchain.Root.ConsensusType,
+		"justifiedRootHeight":    s.rootBlockChain.JustifiedRootHeight(),
+		"finalizedRootHeight":    s.rootBlockChain.FinalizedRootHeight(),
+		"justifiedRootHash":      s.rootBlockChain.JustifiedRootHash().Hex(),
+		"finalizedRootHash":      s.rootBlockChain.FinalizedRootHash().Hex(),
+		"activeShards":           s.rootBlockChain.CurrentActiveShards(),
+		"pendingShardTarget":     s.rootBlockChain.PendingShardActivationTarget(),
+		"pendingShardPower":      s.rootBlockChain.PendingShardActivationVotedPower(),
+		"requiredValidatorPower": s.rootBlockChain.POSARequiredPower(),
+		"activeValidatorCount":   s.rootBlockChain.ActivePOSAValidatorCount(),
+		"bftStatus":              s.rootBlockChain.BFTStatus(),
 	}, nil
 }
 

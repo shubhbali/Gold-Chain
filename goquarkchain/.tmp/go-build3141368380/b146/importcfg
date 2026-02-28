@@ -1,0 +1,4 @@
+# import config
+packagefile crypto=C:\gold\goquarkchain\.tmp\go-build3141368380\b081\_pkg_.a
+packagefile crypto/internal/fips140/sha3=C:\gold\goquarkchain\.tmp\go-build3141368380\b095\_pkg_.a
+packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a

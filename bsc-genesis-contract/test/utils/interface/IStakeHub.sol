@@ -79,6 +79,9 @@ interface StakeHub {
     event Resumed();
     event RewardDistributeFailed(address indexed operatorAddress, bytes failReason);
     event RewardDistributed(address indexed operatorAddress, uint256 reward);
+    event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
+    event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
     event StakeCreditInitialized(address indexed operatorAddress, address indexed creditContract);
     event UnBlackListed(address indexed target);
     event Undelegated(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
@@ -112,6 +115,10 @@ interface StakeHub {
     function blackList(address) external view returns (bool);
     function claim(address operatorAddress, uint256 requestNumber) external;
     function claimBatch(address[] memory operatorAddresses, uint256[] memory requestNumbers) external;
+    function claimTokenB(address operatorAddress, uint256 requestNumber) external;
+    function claimTokenBBatch(address[] memory operatorAddresses, uint256[] memory requestNumbers) external;
+    function claimTokenBReward(address operatorAddress) external;
+    function claimTokenBRewardBatch(address[] calldata operatorAddresses) external;
     function consensusExpiration(address) external view returns (uint256);
     function consensusToOperator(address) external view returns (address);
     function createValidator(
@@ -168,7 +175,15 @@ interface StakeHub {
     function maliciousVoteSlash(bytes memory voteAddress) external;
     function maxElectedValidators() external view returns (uint256);
     function maxFelonyBetweenBreatheBlock() external view returns (uint256);
+    function maxBPowerRatioBps() external view returns (uint256);
+    function tokenBRewardSplitBps() external view returns (uint256);
+    function inflationEnabled() external view returns (bool);
+    function inflationStartDayIndex() external view returns (uint256);
+    function inflationRateInitialBps() external view returns (uint256);
+    function inflationRateMinBps() external view returns (uint256);
+    function inflationDecayBpsPerYear() external view returns (uint256);
     function minDelegationBNBChange() external view returns (uint256);
+    function minBtoARatioBps() external view returns (uint256);
     function minSelfDelegationBNB() external view returns (uint256);
     function numOfJailed() external view returns (uint256);
     function pause() external;
@@ -180,10 +195,26 @@ interface StakeHub {
     function transferGasLimit() external view returns (uint256);
     function unbondPeriod() external view returns (uint256);
     function undelegate(address operatorAddress, uint256 shares) external;
+    function undelegateTokenB(address operatorAddress, uint256 tokenBAmount) external;
     function unjail(address operatorAddress) external;
     function updateParam(string memory key, bytes memory value) external;
     function voteExpiration(bytes memory) external view returns (uint256);
     function voteToOperator(bytes memory) external view returns (address);
+    function stakeTokenB() external view returns (address);
+    function stakeWeightA() external view returns (uint256);
+    function stakeWeightB() external view returns (uint256);
+    function ratioEnabled() external view returns (bool);
+    function delegateTokenB(address operatorAddress, uint256 tokenBAmount) external;
+    function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function totalDelegatedTokenB(address operatorAddress) external view returns (uint256);
+    function tokenBUnbondRequest(address operatorAddress, address delegator, uint256 index)
+        external
+        view
+        returns (uint256 tokenBAmount, uint256 unlockTime);
+    function pendingTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256);
+    function claimableTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256);
+    function pendingTokenBReward(address operatorAddress, address delegator) external view returns (uint256);
+    function currentInflationBps(uint256 dayIndex) external view returns (uint256);
 
     function agentToOperator(address) external view returns (address);
     function updateAgent(address newAgent) external;

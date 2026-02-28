@@ -708,6 +708,114 @@ func (p *PrivateBlockChainAPI) GetStats() (map[string]interface{}, error) {
 	return p.b.GetStats()
 }
 
+func (p *PrivateBlockChainAPI) GetFinalityStatus() map[string]interface{} {
+	return p.b.GetFinalityStatus()
+}
+
+func (p *PrivateBlockChainAPI) ProposeNextShardActivation() error {
+	return p.b.ProposeNextShardActivation()
+}
+
+func (p *PrivateBlockChainAPI) VoteShardActivation(validatorID string) error {
+	return p.b.VoteShardActivation(validatorID)
+}
+
+func (p *PrivateBlockChainAPI) TryActivateShardExpansion() (hexutil.Uint, error) {
+	next, err := p.b.TryActivateShardExpansion()
+	if err != nil {
+		return 0, err
+	}
+	return hexutil.Uint(next), nil
+}
+
+func (p *PrivateBlockChainAPI) SubmitPOSAVote(validatorID string, targetHash common.Hash) error {
+	return p.b.SubmitPOSAVoteByValidator(validatorID, targetHash)
+}
+
+func (p *PrivateBlockChainAPI) SubmitSignedPOSAVote(targetHash common.Hash, targetNum hexutil.Uint64, signature hexutil.Bytes) error {
+	if len(signature) != 65 {
+		return errors.New("invalid signature length: must be 65")
+	}
+	var sig [65]byte
+	copy(sig[:], signature)
+	if err := normalizeRecoveryID(&sig); err != nil {
+		return err
+	}
+	return p.b.SubmitSignedPOSAVote(targetHash, uint64(targetNum), sig)
+}
+
+func (p *PrivateBlockChainAPI) VoteShardActivationSigned(target hexutil.Uint, signature hexutil.Bytes) error {
+	if len(signature) != 65 {
+		return errors.New("invalid signature length: must be 65")
+	}
+	var sig [65]byte
+	copy(sig[:], signature)
+	if err := normalizeRecoveryID(&sig); err != nil {
+		return err
+	}
+	return p.b.VoteShardActivationSigned(uint32(target), sig)
+}
+
+func (p *PrivateBlockChainAPI) GetPOSAVotedPower(targetHash common.Hash) hexutil.Uint64 {
+	return hexutil.Uint64(p.b.POSAVotedPower(targetHash))
+}
+
+func (p *PrivateBlockChainAPI) JailValidator(validatorID string) error {
+	return p.b.JailValidator(validatorID)
+}
+
+func (p *PrivateBlockChainAPI) UnjailValidator(validatorID string) error {
+	return p.b.UnjailValidator(validatorID)
+}
+
+func (p *PrivateBlockChainAPI) ExitValidator(validatorID string) error {
+	return p.b.ExitValidator(validatorID)
+}
+
+func (p *PrivateBlockChainAPI) GetValidatorStatus(validatorID string) map[string]interface{} {
+	return p.b.GetValidatorStatus(validatorID)
+}
+
+func (p *PrivateBlockChainAPI) SubmitBFTProposal(proposerID string, epoch hexutil.Uint64, round hexutil.Uint64, targetHash common.Hash) error {
+	return p.b.SubmitBFTProposal(proposerID, uint64(epoch), uint64(round), targetHash)
+}
+
+func (p *PrivateBlockChainAPI) SubmitSignedBFTProposal(epoch hexutil.Uint64, round hexutil.Uint64, targetHash common.Hash, signature hexutil.Bytes) error {
+	if len(signature) != 65 {
+		return errors.New("invalid signature length: must be 65")
+	}
+	var sig [65]byte
+	copy(sig[:], signature)
+	if err := normalizeRecoveryID(&sig); err != nil {
+		return err
+	}
+	return p.b.SubmitSignedBFTProposal(uint64(epoch), uint64(round), targetHash, sig)
+}
+
+func (p *PrivateBlockChainAPI) SubmitBFTVote(validatorID string, epoch hexutil.Uint64, round hexutil.Uint64, voteType string, targetHash common.Hash) error {
+	return p.b.SubmitBFTVote(validatorID, uint64(epoch), uint64(round), voteType, targetHash)
+}
+
+func (p *PrivateBlockChainAPI) SubmitSignedBFTVote(epoch hexutil.Uint64, round hexutil.Uint64, voteType string, targetHash common.Hash, signature hexutil.Bytes) error {
+	if len(signature) != 65 {
+		return errors.New("invalid signature length: must be 65")
+	}
+	var sig [65]byte
+	copy(sig[:], signature)
+	if err := normalizeRecoveryID(&sig); err != nil {
+		return err
+	}
+	return p.b.SubmitSignedBFTVote(uint64(epoch), uint64(round), voteType, targetHash, sig)
+}
+
+func (p *PrivateBlockChainAPI) GetBFTStatus() map[string]interface{} {
+	return p.b.GetBFTStatus()
+}
+
+func (p *PrivateBlockChainAPI) GetBFTEvidence() []map[string]interface{} {
+	return p.b.GetBFTEvidence()
+}
+
 func (p *PrivateBlockChainAPI) GetBlockCount() (map[string]interface{}, error) {
 	data, err := p.b.GetBlockCount()
 	if err != nil {
@@ -726,7 +834,7 @@ func (p *PrivateBlockChainAPI) GetBlockCount() (map[string]interface{}, error) {
 	}, nil
 }
 
-//TODO txGenerate implement
+// TODO txGenerate implement
 func (p *PrivateBlockChainAPI) CreateTransactions(args CreateTxArgs) error {
 	config := clusterCfg.Quarkchain
 	if err := args.setDefaults(config); err != nil {
@@ -744,7 +852,7 @@ func (p *PrivateBlockChainAPI) SetMining(flag bool) {
 	p.b.SetMining(flag)
 }
 
-//TODO ?? necessary?
+// TODO ?? necessary?
 func (p *PrivateBlockChainAPI) GetJrpcCalls() { panic("not implemented") }
 
 func (p *PrivateBlockChainAPI) GetKadRoutingTableSize() (hexutil.Uint, error) {
@@ -771,4 +879,19 @@ func NewPublicNetAPI(networkVersion uint) *PublicNetAPI {
 // Version returns the current ethereum protocol version.
 func (s *PublicNetAPI) Version() string {
 	return fmt.Sprintf("%d", s.networkVersion)
+}
+
+func normalizeRecoveryID(sig *[65]byte) error {
+	if sig == nil {
+		return errors.New("signature is nil")
+	}
+	switch sig[64] {
+	case 0, 1:
+		return nil
+	case 27, 28:
+		sig[64] -= 27
+		return nil
+	default:
+		return errors.New("invalid signature recovery id")
+	}
 }

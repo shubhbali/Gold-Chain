@@ -1,0 +1,6 @@
+# import config
+packagefile crypto/elliptic=C:\gold\goquarkchain\.gocache\bc\bc1813eadafc51c6185dfdf220fa52452d271f19e7ef22cef060eeb80e57d4cc-d
+packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
+packagefile math/big=C:\gold\goquarkchain\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d
+packagefile runtime/cgo=C:\gold\goquarkchain\.tmp\go-build3423880016\b154\_pkg_.a
+packagefile syscall=C:\gold\goquarkchain\.gocache\3d\3dee3a62384f5da67deca0ac3869f9a7ec424dbb03002c1dec43353d54d2f81d-d

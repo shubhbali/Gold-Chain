@@ -1,0 +1,4 @@
+# import config
+packagefile crypto/internal/fips140=C:\gold\goquarkchain\.tmp\go-build3141368380\b086\_pkg_.a
+packagefile crypto/internal/fips140/check=C:\gold\goquarkchain\.tmp\go-build3141368380\b089\_pkg_.a
+packagefile internal/godebug=C:\gold\goquarkchain\.tmp\go-build3141368380\b054\_pkg_.a

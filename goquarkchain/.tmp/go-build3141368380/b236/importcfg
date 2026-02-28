@@ -1,0 +1,13 @@
+# import config
+importmap golang.org/x/crypto/chacha20=vendor/golang.org/x/crypto/chacha20
+importmap golang.org/x/crypto/internal/alias=vendor/golang.org/x/crypto/internal/alias
+importmap golang.org/x/crypto/internal/poly1305=vendor/golang.org/x/crypto/internal/poly1305
+importmap golang.org/x/sys/cpu=vendor/golang.org/x/sys/cpu
+packagefile crypto/cipher=C:\gold\goquarkchain\.tmp\go-build3141368380\b084\_pkg_.a
+packagefile crypto/fips140=C:\gold\goquarkchain\.tmp\go-build3141368380\b105\_pkg_.a
+packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile vendor/golang.org/x/crypto/chacha20=C:\gold\goquarkchain\.tmp\go-build3141368380\b237\_pkg_.a
+packagefile vendor/golang.org/x/crypto/internal/alias=C:\gold\goquarkchain\.tmp\go-build3141368380\b238\_pkg_.a
+packagefile vendor/golang.org/x/crypto/internal/poly1305=C:\gold\goquarkchain\.tmp\go-build3141368380\b239\_pkg_.a
+packagefile vendor/golang.org/x/sys/cpu=C:\gold\goquarkchain\.tmp\go-build3141368380\b240\_pkg_.a

@@ -1,0 +1,10 @@
+# import config
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/golang/protobuf/proto=C:\gold\goquarkchain\.tmp\go-build3141368380\b329\_pkg_.a
+packagefile github.com/golang/protobuf/ptypes/any=C:\gold\goquarkchain\.tmp\go-build3141368380\b354\_pkg_.a
+packagefile github.com/golang/protobuf/ptypes/duration=C:\gold\goquarkchain\.tmp\go-build3141368380\b355\_pkg_.a
+packagefile github.com/golang/protobuf/ptypes/timestamp=C:\gold\goquarkchain\.tmp\go-build3141368380\b356\_pkg_.a
+packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
+packagefile strings=C:\gold\goquarkchain\.tmp\go-build3141368380\b071\_pkg_.a
+packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

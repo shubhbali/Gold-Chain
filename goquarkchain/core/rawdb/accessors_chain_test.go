@@ -140,6 +140,94 @@ func TestMinorBlockStorage(t *testing.T) {
 	}
 }
 
+func TestRootFinalityCheckpointStorage(t *testing.T) {
+	db := ethdb.NewMemDatabase()
+	justifiedHash := common.HexToHash("0x1234")
+	finalizedHash := common.HexToHash("0xabcd")
+
+	WriteJustifiedRootCheckpoint(db, 12, justifiedHash)
+	WriteFinalizedRootCheckpoint(db, 9, finalizedHash)
+
+	jHeight, jHash := ReadJustifiedRootCheckpoint(db)
+	if jHeight != 12 || jHash != justifiedHash {
+		t.Fatalf("justified checkpoint mismatch: got (%d, %s)", jHeight, jHash.Hex())
+	}
+	fHeight, fHash := ReadFinalizedRootCheckpoint(db)
+	if fHeight != 9 || fHash != finalizedHash {
+		t.Fatalf("finalized checkpoint mismatch: got (%d, %s)", fHeight, fHash.Hex())
+	}
+}
+
+func TestPOSAVoteAndValidatorStateStorage(t *testing.T) {
+	db := ethdb.NewMemDatabase()
+	votes := []PersistedPOSAVote{
+		{ValidatorID: "0xaaa", TargetHash: common.HexToHash("0x1").Hex(), TargetNum: 3, Power: 1},
+		{ValidatorID: "0xbbb", TargetHash: common.HexToHash("0x2").Hex(), TargetNum: 4, Power: 1},
+	}
+	WritePOSAVotes(db, votes)
+	readVotes := ReadPOSAVotes(db)
+	if len(readVotes) != len(votes) {
+		t.Fatalf("unexpected vote length: got %d want %d", len(readVotes), len(votes))
+	}
+
+	state := &PersistedPOSAValidatorState{
+		Jailed:     []string{"0xaaa"},
+		JailedTill: map[string]uint64{"0xaaa": 123},
+		Exited:     []string{"0xbbb"},
+		SlashCount: map[string]uint64{"0xaaa": 2},
+		Rewards:    map[string]uint64{"0xaaa": 3, "0xbbb": 5},
+	}
+	WritePOSAValidatorState(db, state)
+	readState := ReadPOSAValidatorState(db)
+	if readState == nil {
+		t.Fatalf("validator state should not be nil")
+	}
+	if len(readState.Jailed) != 1 || len(readState.Exited) != 1 {
+		t.Fatalf("unexpected validator state content")
+	}
+	if readState.JailedTill["0xaaa"] != 123 {
+		t.Fatalf("unexpected jailed_till value")
+	}
+	if readState.SlashCount["0xaaa"] != 2 || readState.Rewards["0xbbb"] != 5 {
+		t.Fatalf("unexpected validator state values")
+	}
+}
+
+func TestBFTStateAndEvidenceStorage(t *testing.T) {
+	db := ethdb.NewMemDatabase()
+	state := &PersistedBFTState{
+		CurrentEpoch: 2,
+		CurrentRound: 5,
+		LockedQC: &PersistedBFTQC{
+			Epoch:     2,
+			Round:     4,
+			VoteType:  "PRECOMMIT",
+			BlockHash: common.HexToHash("0x1111").Hex(),
+			Voters:    []string{"a", "b"},
+		},
+		HighQC: &PersistedBFTQC{
+			Epoch:     2,
+			Round:     5,
+			VoteType:  "PREVOTE",
+			BlockHash: common.HexToHash("0x2222").Hex(),
+			Voters:    []string{"a", "b", "c"},
+		},
+	}
+	WriteBFTState(db, state)
+	readState := ReadBFTState(db)
+	if readState == nil || readState.CurrentEpoch != 2 || readState.CurrentRound != 5 {
+		t.Fatalf("unexpected bft state")
+	}
+	evidence := []PersistedBFTEvidence{
+		{ValidatorID: "v1", Epoch: 2, Round: 3, VoteType: "PREVOTE", OldHash: common.HexToHash("0x1").Hex(), NewHash: common.HexToHash("0x2").Hex(), Timestamp: 10},
+	}
+	WriteBFTEvidence(db, evidence)
+	readEvidence := ReadBFTEvidence(db)
+	if len(readEvidence) != 1 || readEvidence[0].ValidatorID != "v1" {
+		t.Fatalf("unexpected bft evidence")
+	}
+}
+
 // Tests that canonical numbers can be mapped to hashes and retrieved.
 func TestCanonicalMappingStorage(t *testing.T) {
 	db := ethdb.NewMemDatabase()

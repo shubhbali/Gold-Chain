@@ -1,0 +1,21 @@
+# import config
+packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
+packagefile encoding/json=C:\gold\goquarkchain\.tmp\go-build3141368380\b109\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/account=C:\gold\goquarkchain\.tmp\go-build3141368380\b153\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/cluster/config=C:\gold\goquarkchain\.tmp\go-build3141368380\b183\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b156\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\goquarkchain\.tmp\go-build3141368380\b189\_pkg_.a
+packagefile github.com/QuarkChain/goquarkchain/params=C:\gold\goquarkchain\.tmp\go-build3141368380\b185\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/common=C:\gold\goquarkchain\.tmp\go-build3141368380\b159\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/crypto=C:\gold\goquarkchain\.tmp\go-build3141368380\b172\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/ethdb=C:\gold\goquarkchain\.tmp\go-build3141368380\b199\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/log=C:\gold\goquarkchain\.tmp\go-build3141368380\b164\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/rlp=C:\gold\goquarkchain\.tmp\go-build3141368380\b176\_pkg_.a
+packagefile github.com/ethereum/go-ethereum/trie=C:\gold\goquarkchain\.tmp\go-build3141368380\b193\_pkg_.a
+packagefile github.com/hashicorp/golang-lru=C:\gold\goquarkchain\.tmp\go-build3141368380\b215\_pkg_.a
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile math/big=C:\gold\goquarkchain\.tmp\go-build3141368380\b139\_pkg_.a
+packagefile sort=C:\gold\goquarkchain\.tmp\go-build3141368380\b115\_pkg_.a
+packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a

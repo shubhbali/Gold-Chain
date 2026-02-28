@@ -1,0 +1,6 @@
+# import config
+packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
+packagefile io/ioutil=C:\gold\goquarkchain\.tmp\go-build3141368380\b163\_pkg_.a
+packagefile log=C:\gold\goquarkchain\.tmp\go-build3141368380\b196\_pkg_.a
+packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a

@@ -1,0 +1,9 @@
+# import config
+packagefile cmp=C:\gold\goquarkchain\.tmp\go-build3141368380\b046\_pkg_.a
+packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
+packagefile internal/bytealg=C:\gold\goquarkchain\.tmp\go-build3141368380\b010\_pkg_.a
+packagefile internal/byteorder=C:\gold\goquarkchain\.tmp\go-build3141368380\b012\_pkg_.a
+packagefile math=C:\gold\goquarkchain\.tmp\go-build3141368380\b061\_pkg_.a
+packagefile math/bits=C:\gold\goquarkchain\.tmp\go-build3141368380\b032\_pkg_.a
+packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a
+packagefile unique=C:\gold\goquarkchain\.tmp\go-build3141368380\b171\_pkg_.a
