@@ -1,4 +1,0 @@
-# import config
-packagefile github.com/ethereum/go-ethereum/ethdb=C:\gold\goquarkchain\.tmp\go-build3141368380\b199\_pkg_.a
-packagefile github.com/ethereum/go-ethereum/log=C:\gold\goquarkchain\.tmp\go-build3141368380\b164\_pkg_.a
-packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a

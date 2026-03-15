@@ -1,4 +1,0 @@
-# import config
-packagefile internal/runtime/sys=C:\gold\goquarkchain\.tmp\go-build3141368380\b023\_pkg_.a
-packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
-packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a

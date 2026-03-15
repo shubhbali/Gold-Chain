@@ -1,9 +1,0 @@
-# import config
-packagefile bufio=C:\gold\goquarkchain\.tmp\go-build3141368380\b078\_pkg_.a
-packagefile compress/flate=C:\gold\goquarkchain\.tmp\go-build3141368380\b124\_pkg_.a
-packagefile encoding/binary=C:\gold\goquarkchain\.tmp\go-build3141368380\b108\_pkg_.a
-packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
-packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
-packagefile hash/crc32=C:\gold\goquarkchain\.tmp\go-build3141368380\b125\_pkg_.a
-packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a
-packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

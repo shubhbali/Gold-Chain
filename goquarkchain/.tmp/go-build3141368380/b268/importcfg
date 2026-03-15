@@ -1,8 +1,0 @@
-# import config
-packagefile context=C:\gold\goquarkchain\.tmp\go-build3141368380\b066\_pkg_.a
-packagefile crypto/tls=C:\gold\goquarkchain\.tmp\go-build3141368380\b226\_pkg_.a
-packagefile internal/nettrace=C:\gold\goquarkchain\.tmp\go-build3141368380\b168\_pkg_.a
-packagefile net=C:\gold\goquarkchain\.tmp\go-build3141368380\b166\_pkg_.a
-packagefile net/textproto=C:\gold\goquarkchain\.tmp\go-build3141368380\b262\_pkg_.a
-packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
-packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

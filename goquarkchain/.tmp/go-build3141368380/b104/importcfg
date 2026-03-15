@@ -1,8 +1,0 @@
-# import config
-packagefile crypto/fips140=C:\gold\goquarkchain\.tmp\go-build3141368380\b105\_pkg_.a
-packagefile crypto/internal/fips140/drbg=C:\gold\goquarkchain\.tmp\go-build3141368380\b100\_pkg_.a
-packagefile crypto/internal/fips140/sha256=C:\gold\goquarkchain\.tmp\go-build3141368380\b091\_pkg_.a
-packagefile crypto/internal/fips140/sha3=C:\gold\goquarkchain\.tmp\go-build3141368380\b095\_pkg_.a
-packagefile crypto/internal/fips140/sha512=C:\gold\goquarkchain\.tmp\go-build3141368380\b098\_pkg_.a
-packagefile hash=C:\gold\goquarkchain\.tmp\go-build3141368380\b082\_pkg_.a
-packagefile io=C:\gold\goquarkchain\.tmp\go-build3141368380\b051\_pkg_.a

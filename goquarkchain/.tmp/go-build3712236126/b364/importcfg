@@ -1,9 +1,0 @@
-# import config
-packagefile errors=C:\gold\goquarkchain\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
-packagefile fmt=C:\gold\goquarkchain\.gocache\20\207f6635331b9a1c4d35dd7629029b2e850226585f05c753c5eca3310391c2be-d
-packagefile internal/syscall/windows=C:\gold\goquarkchain\.gocache\c5\c5fe7575c5c9bfe1141ed35e858c87f1c59c15d93636a7e6a7c8d54b046d6c7f-d
-packagefile internal/syscall/windows/registry=C:\gold\goquarkchain\.gocache\f9\f904a5f24810f70ab3593af5f0c51168e9905c11f46aa55b869bc0c3da136237-d
-packagefile runtime=C:\gold\goquarkchain\.gocache\c6\c68c1df726da3f3e04dbf7af34addaa5367a09c425515a338069b4693cace785-d
-packagefile strconv=C:\gold\goquarkchain\.gocache\7a\7a7047a6d27ce084c219cc8e17245669b1e290c2d77594f6f19714bbb4a3dd8a-d
-packagefile sync=C:\gold\goquarkchain\.gocache\bb\bb53bbb36de59e3634eeaf4fb8557e03826eafb01e19f2985b2eae99952b3b5c-d
-packagefile syscall=C:\gold\goquarkchain\.gocache\3d\3dee3a62384f5da67deca0ac3869f9a7ec424dbb03002c1dec43353d54d2f81d-d

@@ -1,9 +1,0 @@
-# import config
-packagefile internal/abi=C:\gold\goquarkchain\.tmp\go-build3141368380\b005\_pkg_.a
-packagefile internal/goarch=C:\gold\goquarkchain\.tmp\go-build3141368380\b006\_pkg_.a
-packagefile internal/stringslite=C:\gold\goquarkchain\.tmp\go-build3141368380\b033\_pkg_.a
-packagefile internal/sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b041\_pkg_.a
-packagefile runtime=C:\gold\goquarkchain\.tmp\go-build3141368380\b009\_pkg_.a
-packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
-packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
-packagefile weak=C:\gold\goquarkchain\.tmp\go-build3141368380\b144\_pkg_.a

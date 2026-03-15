@@ -1,8 +1,0 @@
-# import config
-packagefile crypto/internal/constanttime=C:\gold\goquarkchain\.tmp\go-build3141368380\b097\_pkg_.a
-packagefile crypto/internal/fips140/check=C:\gold\goquarkchain\.tmp\go-build3141368380\b089\_pkg_.a
-packagefile crypto/internal/fips140/edwards25519/field=C:\gold\goquarkchain\.tmp\go-build3141368380\b134\_pkg_.a
-packagefile crypto/internal/fips140deps/byteorder=C:\gold\goquarkchain\.tmp\go-build3141368380\b092\_pkg_.a
-packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
-packagefile math/bits=C:\gold\goquarkchain\.tmp\go-build3141368380\b032\_pkg_.a
-packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a

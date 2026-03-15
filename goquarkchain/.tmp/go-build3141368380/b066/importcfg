@@ -1,6 +1,0 @@
-# import config
-packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
-packagefile internal/reflectlite=C:\gold\goquarkchain\.tmp\go-build3141368380\b004\_pkg_.a
-packagefile sync=C:\gold\goquarkchain\.tmp\go-build3141368380\b040\_pkg_.a
-packagefile sync/atomic=C:\gold\goquarkchain\.tmp\go-build3141368380\b042\_pkg_.a
-packagefile time=C:\gold\goquarkchain\.tmp\go-build3141368380\b053\_pkg_.a

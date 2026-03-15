@@ -1,5 +1,0 @@
-# import config
-packagefile crypto/internal/fips140/alias=C:\gold\goquarkchain\.tmp\go-build3141368380\b088\_pkg_.a
-packagefile crypto/internal/fips140only=C:\gold\goquarkchain\.tmp\go-build3141368380\b104\_pkg_.a
-packagefile errors=C:\gold\goquarkchain\.tmp\go-build3141368380\b003\_pkg_.a
-packagefile strconv=C:\gold\goquarkchain\.tmp\go-build3141368380\b062\_pkg_.a

@@ -1,7 +1,0 @@
-# import config
-packagefile os=C:\gold\goquarkchain\.tmp\go-build3141368380\b002\_pkg_.a
-packagefile reflect=C:\gold\goquarkchain\.tmp\go-build3141368380\b060\_pkg_.a
-packagefile testing=C:\gold\goquarkchain\.tmp\go-build3141368380\b064\_pkg_.a
-packagefile testing/internal/testdeps=C:\gold\goquarkchain\.tmp\go-build3141368380\b077\_pkg_.a
-packagefile runtime=C:\gold\goquarkchain\.tmp\go-build3141368380\b009\_pkg_.a
-packagefile github.com/QuarkChain/goquarkchain/core=C:\gold\goquarkchain\.tmp\go-build3141368380\b127\_pkg_.a

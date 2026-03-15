@@ -1,7 +1,0 @@
-# import config
-packagefile os=C:\gold\goquarkchain\.gocache\6d\6d65fcdbe43fb8ca927d4bfc1e00f60426edb008458e1510d70d946c4507d746-d
-packagefile reflect=C:\gold\goquarkchain\.gocache\6e\6e9ea49b6900b5d588bb3d00bf99797aad6a94b4d1304cc6754ca685bcdcba08-d
-packagefile testing=C:\gold\goquarkchain\.gocache\a2\a291aa064f65df813fe5f76c56aa89afbfff866095be5a22ee9bee39cf2d717c-d
-packagefile testing/internal/testdeps=C:\gold\goquarkchain\.gocache\e0\e0cce123cbc20e85222f25e824655dd884e68a4bdd5bb34207efad69e28efa5c-d
-packagefile runtime=C:\gold\goquarkchain\.gocache\c6\c68c1df726da3f3e04dbf7af34addaa5367a09c425515a338069b4693cace785-d
-packagefile github.com/QuarkChain/goquarkchain/cluster/master=C:\gold\goquarkchain\.tmp\go-build2962044637\b127\_pkg_.a

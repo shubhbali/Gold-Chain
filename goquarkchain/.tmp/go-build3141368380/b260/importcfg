@@ -1,7 +1,0 @@
-# import config
-packagefile bytes=C:\gold\goquarkchain\.tmp\go-build3141368380\b065\_pkg_.a
-packagefile container/list=C:\gold\goquarkchain\.tmp\go-build3141368380\b202\_pkg_.a
-packagefile fmt=C:\gold\goquarkchain\.tmp\go-build3141368380\b069\_pkg_.a
-packagefile log=C:\gold\goquarkchain\.tmp\go-build3141368380\b196\_pkg_.a
-packagefile sort=C:\gold\goquarkchain\.tmp\go-build3141368380\b115\_pkg_.a
-packagefile unicode/utf8=C:\gold\goquarkchain\.tmp\go-build3141368380\b049\_pkg_.a

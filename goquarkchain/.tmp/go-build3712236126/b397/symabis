@@ -1,4 +1,0 @@
-def golang.org/x/sys/windows.getprocaddress ABI0
-ref syscall.getprocaddress ABI0
-def golang.org/x/sys/windows.loadlibrary ABI0
-ref syscall.loadlibrary ABI0
