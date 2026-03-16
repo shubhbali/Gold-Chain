@@ -93,8 +93,8 @@ func TestEIP2200(t *testing.T) {
 		statedb.Finalise(true) // Push the state into the "original" slot
 
 		vmctx := BlockContext{
-			CanTransfer: func(StateDB, common.Address, *uint256.Int) bool { return true },
-			Transfer:    func(StateDB, common.Address, common.Address, *uint256.Int) {},
+			CanTransfer: func(StateDB, common.Address, *uint256.Int, uint64) bool { return true },
+			Transfer:    func(StateDB, common.Address, common.Address, *uint256.Int, uint64) {},
 		}
 		evm := NewEVM(vmctx, statedb, params.AllEthashProtocolChanges, Config{ExtraEips: []int{2200}})
 
@@ -143,8 +143,8 @@ func TestCreateGas(t *testing.T) {
 			statedb.SetCode(address, hexutil.MustDecode(tt.code), tracing.CodeChangeUnspecified)
 			statedb.Finalise(true)
 			vmctx := BlockContext{
-				CanTransfer: func(StateDB, common.Address, *uint256.Int) bool { return true },
-				Transfer:    func(StateDB, common.Address, common.Address, *uint256.Int) {},
+				CanTransfer: func(StateDB, common.Address, *uint256.Int, uint64) bool { return true },
+				Transfer:    func(StateDB, common.Address, common.Address, *uint256.Int, uint64) {},
 				BlockNumber: big.NewInt(0),
 			}
 			config := Config{}

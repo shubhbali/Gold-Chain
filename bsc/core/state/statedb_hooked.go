@@ -57,8 +57,16 @@ func (s *hookedStateDB) GetBalance(addr common.Address) *uint256.Int {
 	return s.inner.GetBalance(addr)
 }
 
+func (s *hookedStateDB) GetNativeTokenBalance(addr common.Address, tokenID uint64) *uint256.Int {
+	return s.inner.GetNativeTokenBalance(addr, tokenID)
+}
+
 func (s *hookedStateDB) SetBalance(addr common.Address, amount *uint256.Int, reason tracing.BalanceChangeReason) {
 	s.inner.SetBalance(addr, amount, reason)
+}
+
+func (s *hookedStateDB) SetNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int) {
+	s.inner.SetNativeTokenBalance(addr, tokenID, amount)
 }
 
 func (s *hookedStateDB) GetNonce(addr common.Address) uint64 {
@@ -195,6 +203,10 @@ func (s *hookedStateDB) AddBalance(addr common.Address, amount *uint256.Int, rea
 	return prev
 }
 
+func (s *hookedStateDB) AddNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int, reason tracing.BalanceChangeReason) {
+	s.inner.AddNativeTokenBalance(addr, tokenID, amount, reason)
+}
+
 func (s *hookedStateDB) SetNonce(address common.Address, nonce uint64, reason tracing.NonceChangeReason) {
 	prev := s.inner.GetNonce(address)
 	s.inner.SetNonce(address, nonce, reason)
@@ -203,6 +215,10 @@ func (s *hookedStateDB) SetNonce(address common.Address, nonce uint64, reason tr
 	} else if s.hooks.OnNonceChange != nil {
 		s.hooks.OnNonceChange(address, prev, nonce)
 	}
+}
+
+func (s *hookedStateDB) SubNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int, reason tracing.BalanceChangeReason) {
+	s.inner.SubNativeTokenBalance(addr, tokenID, amount, reason)
 }
 
 func (s *hookedStateDB) SetCode(address common.Address, code []byte, reason tracing.CodeChangeReason) []byte {

@@ -355,6 +355,18 @@ func (s *StateDB) GetBalance(addr common.Address) *uint256.Int {
 	return common.U2560
 }
 
+func (s *StateDB) GetNativeTokenBalance(addr common.Address, tokenID uint64) *uint256.Int {
+	if tokenID == types.DefaultNativeTokenID {
+		return new(uint256.Int).Set(s.GetBalance(addr))
+	}
+	slot := types.NativeTokenManagerBalanceSlot(addr, tokenID)
+	stateObject := s.getStateObject(types.GeneralNativeTokenManagerAddress)
+	if stateObject == nil {
+		return new(uint256.Int)
+	}
+	return new(uint256.Int).SetBytes(stateObject.GetState(slot).Bytes())
+}
+
 // GetNonce retrieves the nonce from the given address or 0 if object not found
 func (s *StateDB) GetNonce(addr common.Address) uint64 {
 	stateObject := s.getStateObject(addr)
@@ -451,7 +463,9 @@ func (s *StateDB) GetCodeHash(addr common.Address) common.Hash {
 func (s *StateDB) GetState(addr common.Address, hash common.Hash) common.Hash {
 	stateObject := s.getStateObject(addr)
 	if stateObject != nil {
-		s.blockAccessList.AddStorage(addr, hash, uint32(s.txIndex), false)
+		if s.blockAccessList != nil {
+			s.blockAccessList.AddStorage(addr, hash, uint32(s.txIndex), false)
+		}
 		return stateObject.GetState(hash)
 	}
 	return common.Hash{}
@@ -508,6 +522,19 @@ func (s *StateDB) AddBalance(addr common.Address, amount *uint256.Int, reason tr
 	return stateObject.AddBalance(amount)
 }
 
+func (s *StateDB) AddNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int, reason tracing.BalanceChangeReason) {
+	if amount == nil || amount.IsZero() {
+		return
+	}
+	if tokenID == types.DefaultNativeTokenID {
+		s.AddBalance(addr, amount, reason)
+		return
+	}
+	balance := s.GetNativeTokenBalance(addr, tokenID)
+	balance.Add(balance, amount)
+	s.SetNativeTokenBalance(addr, tokenID, balance)
+}
+
 // SubBalance subtracts amount from the account associated with addr.
 func (s *StateDB) SubBalance(addr common.Address, amount *uint256.Int, reason tracing.BalanceChangeReason) uint256.Int {
 	stateObject := s.getOrNewStateObject(addr)
@@ -520,10 +547,37 @@ func (s *StateDB) SubBalance(addr common.Address, amount *uint256.Int, reason tr
 	return stateObject.SetBalance(new(uint256.Int).Sub(stateObject.Balance(), amount))
 }
 
+func (s *StateDB) SubNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int, reason tracing.BalanceChangeReason) {
+	if amount == nil || amount.IsZero() {
+		return
+	}
+	if tokenID == types.DefaultNativeTokenID {
+		s.SubBalance(addr, amount, reason)
+		return
+	}
+	balance := s.GetNativeTokenBalance(addr, tokenID)
+	s.SetNativeTokenBalance(addr, tokenID, balance.Sub(balance, amount))
+}
+
 func (s *StateDB) SetBalance(addr common.Address, amount *uint256.Int, reason tracing.BalanceChangeReason) {
 	stateObject := s.getOrNewStateObject(addr)
 	if stateObject != nil {
 		stateObject.SetBalance(amount)
+	}
+}
+
+func (s *StateDB) SetNativeTokenBalance(addr common.Address, tokenID uint64, amount *uint256.Int) {
+	if tokenID == types.DefaultNativeTokenID {
+		s.SetBalance(addr, amount, tracing.BalanceChangeUnspecified)
+		return
+	}
+	slot := types.NativeTokenManagerBalanceSlot(addr, tokenID)
+	var encoded common.Hash
+	if amount != nil {
+		amount.WriteToSlice(encoded[:])
+	}
+	if stateObject := s.getOrNewStateObject(types.GeneralNativeTokenManagerAddress); stateObject != nil {
+		stateObject.SetState(slot, encoded)
 	}
 }
 

@@ -154,6 +154,8 @@ type Message struct {
 	GasPrice              *big.Int
 	GasFeeCap             *big.Int
 	GasTipCap             *big.Int
+	GasTokenID            uint64
+	ValueTokenID          uint64
 	Data                  []byte
 	AccessList            types.AccessList
 	BlobGasFeeCap         *big.Int
@@ -183,6 +185,8 @@ func TransactionToMessage(tx *types.Transaction, s types.Signer, baseFee *big.In
 		GasPrice:              new(big.Int).Set(tx.GasPrice()),
 		GasFeeCap:             new(big.Int).Set(tx.GasFeeCap()),
 		GasTipCap:             new(big.Int).Set(tx.GasTipCap()),
+		GasTokenID:            tx.GasTokenID(),
+		ValueTokenID:          tx.ValueTokenID(),
 		To:                    tx.To(),
 		Value:                 tx.Value(),
 		Data:                  tx.Data(),
@@ -267,14 +271,15 @@ func (st *stateTransition) to() common.Address {
 }
 
 func (st *stateTransition) buyGas() error {
-	mgval := new(big.Int).SetUint64(st.msg.GasLimit)
-	mgval.Mul(mgval, st.msg.GasPrice)
-	balanceCheck := new(big.Int).Set(mgval)
+	var err error
+
+	baseGasCost := new(big.Int).SetUint64(st.msg.GasLimit)
+	baseGasCost.Mul(baseGasCost, st.msg.GasPrice)
+	balanceCheck := new(big.Int).Set(baseGasCost)
 	if st.msg.GasFeeCap != nil {
 		balanceCheck.SetUint64(st.msg.GasLimit)
 		balanceCheck = balanceCheck.Mul(balanceCheck, st.msg.GasFeeCap)
 	}
-	balanceCheck.Add(balanceCheck, st.msg.Value)
 
 	if st.evm.ChainConfig().IsCancun(st.evm.Context.BlockNumber, st.evm.Context.Time) {
 		if blobGas := st.blobGasUsed(); blobGas > 0 {
@@ -285,15 +290,38 @@ func (st *stateTransition) buyGas() error {
 			// Pay for blobGasUsed * actual blob fee
 			blobFee := new(big.Int).SetUint64(blobGas)
 			blobFee.Mul(blobFee, st.evm.Context.BlobBaseFee)
-			mgval.Add(mgval, blobFee)
+			baseGasCost.Add(baseGasCost, blobFee)
 		}
 	}
-	balanceCheckU256, overflow := uint256.FromBig(balanceCheck)
-	if overflow {
-		return fmt.Errorf("%w: address %v required balance exceeds 256 bits", ErrInsufficientFunds, st.msg.From.Hex())
+
+	if st.msg.Value.Sign() > 0 && !isTransferTokenAllowed(st.state, st.msg.ValueTokenID) {
+		return fmt.Errorf("value token %d is not enabled", st.msg.ValueTokenID)
 	}
-	if have, want := st.state.GetBalance(st.msg.From), balanceCheckU256; have.Cmp(want) < 0 {
-		return fmt.Errorf("%w: address %v have %v want %v", ErrInsufficientFunds, st.msg.From.Hex(), have, want)
+	balanceCheck, err = nativeTokenGasCost(st.state, st.msg.GasTokenID, balanceCheck)
+	if err != nil {
+		return err
+	}
+	baseGasCost, err = nativeTokenGasCost(st.state, st.msg.GasTokenID, baseGasCost)
+	if err != nil {
+		return err
+	}
+	required := make(map[uint64]*big.Int, 2)
+	required[st.msg.GasTokenID] = balanceCheck
+	if st.msg.Value.Sign() > 0 {
+		if existing, ok := required[st.msg.ValueTokenID]; ok {
+			existing.Add(existing, st.msg.Value)
+		} else {
+			required[st.msg.ValueTokenID] = new(big.Int).Set(st.msg.Value)
+		}
+	}
+	for tokenID, wantBig := range required {
+		want, overflow := uint256.FromBig(wantBig)
+		if overflow {
+			return fmt.Errorf("%w: address %v required balance exceeds 256 bits", ErrInsufficientFunds, st.msg.From.Hex())
+		}
+		if have := st.state.GetNativeTokenBalance(st.msg.From, tokenID); have.Cmp(want) < 0 {
+			return fmt.Errorf("%w: address %v token %d have %v want %v", ErrInsufficientFunds, st.msg.From.Hex(), tokenID, have, want)
+		}
 	}
 	if err := st.gp.SubGas(st.msg.GasLimit); err != nil {
 		return err
@@ -305,8 +333,8 @@ func (st *stateTransition) buyGas() error {
 	st.gasRemaining = st.msg.GasLimit
 
 	st.initialGas = st.msg.GasLimit
-	mgvalU256, _ := uint256.FromBig(mgval)
-	st.state.SubBalance(st.msg.From, mgvalU256, tracing.BalanceDecreaseGasBuy)
+	mgvalU256, _ := uint256.FromBig(baseGasCost)
+	st.state.SubNativeTokenBalance(st.msg.From, st.msg.GasTokenID, mgvalU256, tracing.BalanceDecreaseGasBuy)
 	return nil
 }
 
@@ -490,7 +518,7 @@ func (st *stateTransition) execute() (*ExecutionResult, error) {
 	if overflow {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msg.From.Hex())
 	}
-	if !value.IsZero() && !st.evm.Context.CanTransfer(st.state, msg.From, value) {
+	if !value.IsZero() && !st.evm.Context.CanTransfer(st.state, msg.From, value, msg.ValueTokenID) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msg.From.Hex())
 	}
 
@@ -560,22 +588,33 @@ func (st *stateTransition) execute() (*ExecutionResult, error) {
 	if rules.IsLondon {
 		effectiveTip = new(big.Int).Sub(msg.GasPrice, st.evm.Context.BaseFee)
 	}
-	effectiveTipU256, _ := uint256.FromBig(effectiveTip)
-
-	fee := new(uint256.Int).SetUint64(st.gasUsed())
-	fee.Mul(fee, effectiveTipU256)
+	feeBig := new(big.Int).SetUint64(st.gasUsed())
+	feeBig.Mul(feeBig, effectiveTip)
+	feeBig, err = nativeTokenGasCost(st.state, msg.GasTokenID, feeBig)
+	if err != nil {
+		return nil, err
+	}
+	fee, _ := uint256.FromBig(feeBig)
 	// consensus engine is parlia
 	if st.evm.ChainConfig().IsInBSC() {
-		st.state.AddBalance(consensus.SystemAddress, fee, tracing.BalanceIncreaseRewardTransactionFee)
+		feeRecipient := consensus.SystemAddress
+		if msg.GasTokenID != types.DefaultNativeTokenID {
+			feeRecipient = st.evm.Context.Coinbase
+		}
+		st.state.AddNativeTokenBalance(feeRecipient, msg.GasTokenID, fee, tracing.BalanceIncreaseRewardTransactionFee)
 		// add extra blob fee reward
 		if rules.IsCancun {
 			blobFee := new(big.Int).SetUint64(st.blobGasUsed())
 			blobFee.Mul(blobFee, st.evm.Context.BlobBaseFee)
+			blobFee, err = nativeTokenGasCost(st.state, msg.GasTokenID, blobFee)
+			if err != nil {
+				return nil, err
+			}
 			blobFeeU256, _ := uint256.FromBig(blobFee)
-			st.state.AddBalance(consensus.SystemAddress, blobFeeU256, tracing.BalanceIncreaseRewardTransactionFee)
+			st.state.AddNativeTokenBalance(feeRecipient, msg.GasTokenID, blobFeeU256, tracing.BalanceIncreaseRewardTransactionFee)
 		}
 	} else {
-		st.state.AddBalance(st.evm.Context.Coinbase, fee, tracing.BalanceIncreaseRewardTransactionFee)
+		st.state.AddNativeTokenBalance(st.evm.Context.Coinbase, msg.GasTokenID, fee, tracing.BalanceIncreaseRewardTransactionFee)
 
 		// add the coinbase to the witness iff the fee is greater than 0
 		if rules.IsEIP4762 && fee.Sign() != 0 {
@@ -674,9 +713,13 @@ func (st *stateTransition) calcRefund() uint64 {
 // returnGas returns ETH for remaining gas,
 // exchanged at the original rate.
 func (st *stateTransition) returnGas() {
-	remaining := uint256.NewInt(st.gasRemaining)
-	remaining.Mul(remaining, uint256.MustFromBig(st.msg.GasPrice))
-	st.state.AddBalance(st.msg.From, remaining, tracing.BalanceIncreaseGasReturn)
+	remainingCost := new(big.Int).SetUint64(st.gasRemaining)
+	remainingCost.Mul(remainingCost, st.msg.GasPrice)
+	remainingCost, err := nativeTokenGasCost(st.state, st.msg.GasTokenID, remainingCost)
+	if err == nil {
+		remaining, _ := uint256.FromBig(remainingCost)
+		st.state.AddNativeTokenBalance(st.msg.From, st.msg.GasTokenID, remaining, tracing.BalanceIncreaseGasReturn)
+	}
 
 	if st.evm.Config.Tracer != nil && st.evm.Config.Tracer.OnGasChange != nil && st.gasRemaining > 0 {
 		st.evm.Config.Tracer.OnGasChange(st.gasRemaining, 0, tracing.GasChangeTxLeftOverReturned)

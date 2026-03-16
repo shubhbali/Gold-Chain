@@ -53,6 +53,8 @@ interface StakeHub {
     error ZeroShares();
     error InvalidAgent();
     error InvalidValidator();
+    error TokenBMigrationNotAvailable();
+    error InsufficientTokenBMigrationReserve();
 
     event BlackListed(address indexed target);
     event Claimed(address indexed operatorAddress, address indexed delegator, uint256 bnbAmount);
@@ -81,6 +83,16 @@ interface StakeHub {
     event RewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event LegacyTokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event LegacyTokenBMigrated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBMigrationActivated(
+        address indexed legacyToken,
+        address indexed newToken,
+        address indexed reserveVault,
+        uint256 cutoverVersion
+    );
+    event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
+    event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
     event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
     event StakeCreditInitialized(address indexed operatorAddress, address indexed creditContract);
     event UnBlackListed(address indexed target);
@@ -217,6 +229,20 @@ interface StakeHub {
     function currentInflationBps(uint256 dayIndex) external view returns (uint256);
 
     function agentToOperator(address) external view returns (address);
+    function legacyStakeTokenB() external view returns (address);
+    function tokenBCutoverVersion() external view returns (uint256);
+    function tokenBMigrationReserve() external view returns (uint256);
+    function totalLegacyDelegatedTokenB(address operatorAddress) external view returns (uint256);
+    function getLegacyDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function activateTokenBMigration(address newStakeTokenB, address reserveVault) external;
+    function depositTokenBMigrationReserve(uint256 amount) external;
+    function withdrawTokenBMigrationReserve(address recipient, uint256 amount) external;
+    function migrateLegacyTokenB(address operatorAddress) external;
+    function getTokenBDelegators(address operatorAddress, uint256 offset, uint256 limit)
+        external
+        view
+        returns (address[] memory delegators, uint256 totalLength);
+    function migrateLegacyTokenBDelegators(address operatorAddress, uint256 offset, uint256 limit) external;
     function updateAgent(address newAgent) external;
 
     // NodeID management functions

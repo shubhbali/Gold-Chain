@@ -174,7 +174,7 @@ func (q *queue) promoteExecutables(accounts []common.Address, gasLimit uint64, c
 		log.Trace("Removing old queued transactions", "count", len(forwards))
 
 		// Drop all transactions that are too costly (low balance or out of gas)
-		drops, _ := list.Filter(currentState.GetBalance(addr), gasLimit)
+		drops, _ := list.Filter(addr, currentState, gasLimit)
 		for _, tx := range drops {
 			dropped = append(dropped, tx.Hash())
 		}

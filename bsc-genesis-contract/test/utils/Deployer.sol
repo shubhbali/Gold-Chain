@@ -19,6 +19,7 @@ import "./interface/IBSCGovernor.sol";
 import "./interface/IGovToken.sol";
 import "./interface/IBSCTimelock.sol";
 import "./interface/ITokenRecoverPortal.sol";
+import "../../contracts/GeneralNativeTokenManager.sol";
 import "./RLPEncode.sol";
 import "./RLPDecode.sol";
 
@@ -42,7 +43,9 @@ contract Deployer is Test {
     address payable public constant GOVERNOR_ADDR = payable(0x0000000000000000000000000000000000002004);
     address public constant GOV_TOKEN_ADDR = payable(0x0000000000000000000000000000000000002005);
     address payable public constant TIMELOCK_ADDR = payable(0x0000000000000000000000000000000000002006);
+    address public constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = payable(0x0000000000000000000000000000000000002007);
     address public constant TOKEN_RECOVER_PORTAL_ADDR = payable(0x0000000000000000000000000000000000003000);
+    address payable public constant BLOCK_PRODUCER_ADDR = payable(0x000000000000000000000000000000000000FEE1);
 
     uint8 public constant BIND_CHANNELID = 0x01;
     uint8 public constant TRANSFER_IN_CHANNELID = 0x02;
@@ -153,8 +156,48 @@ contract Deployer is Test {
         vm.etch(GOV_TOKEN_ADDR, deployedCode);
         deployedCode = vm.getDeployedCode("BSCTimelock.sol:BSCTimelock");
         vm.etch(TIMELOCK_ADDR, deployedCode);
+        deployedCode = vm.getDeployedCode("GeneralNativeTokenManager.sol:GeneralNativeTokenManager");
+        vm.etch(GENERAL_NATIVE_TOKEN_MANAGER_ADDR, deployedCode);
         deployedCode = vm.getDeployedCode("TokenRecoverPortal.sol:TokenRecoverPortal");
         vm.etch(TOKEN_RECOVER_PORTAL_ADDR, deployedCode);
+
+        vm.coinbase(BLOCK_PRODUCER_ADDR);
+
+        bscValidatorSet.init();
+        slashIndicator.init();
+        lightClient.init();
+        tokenHub.init();
+        incentivize.init();
+        relayerHub.init();
+        crossChain.init();
+        GeneralNativeTokenManager(GENERAL_NATIVE_TOKEN_MANAGER_ADDR).initialize();
+
+        vm.startPrank(block.coinbase);
+        govToken.initialize();
+        stakeHub.initialize();
+        timelock.initialize();
+        governor.initialize();
+        tokenRecoverPortal.initialize();
+        vm.stopPrank();
+
+        vm.prank(LIGHT_CLIENT_ADDR);
+        systemReward.claimRewards(payable(address(0)), 0);
+        vm.store(address(governor), bytes32(uint256(405)), bytes32(uint256(806400)));
+        vm.store(address(governor), bytes32(uint256(655)), bytes32(uint256(115200)));
+        vm.store(address(governor), bytes32(uint256(706)), bytes32(uint256(1)));
+        vm.deal(TOKEN_HUB_ADDR, 1000 ether);
+
+        // Seed the slash contract with the mainnet-like governance values used by the tests.
+        vm.startPrank(address(TIMELOCK_ADDR));
+        govHub.updateParam("addOperator", abi.encodePacked(address(slashIndicator)), address(systemReward));
+        govHub.updateParam("felonyThreshold", abi.encode(uint256(600)), address(slashIndicator));
+        govHub.updateParam("misdemeanorThreshold", abi.encode(uint256(200)), address(slashIndicator));
+        vm.stopPrank();
+
+        // Advance through enough blocks so local blockhash-based slash tests have recent history.
+        for (uint256 i; i < 64; ++i) {
+            vm.roll(block.number + 1);
+        }
 
         relayer = payable(0xb005741528b86F5952469d80A8614591E3c5B632); // whitelabel relayer on mainnet
         vm.label(relayer, "relayer");

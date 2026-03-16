@@ -95,6 +95,8 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     error ExceedsMaxNodeIDs();
     // @notice signature: 0x440bc78e
     error DuplicateNodeID();
+    error TokenBMigrationNotAvailable();
+    error InsufficientTokenBMigrationReserve();
 
     /*----------------- storage -----------------*/
     uint8 private _receiveFundStatus;
@@ -188,6 +190,18 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     mapping(address => mapping(address => uint256)) private _tokenBUnbondHead;
     // validator operator => delegator => queue tail (exclusive)
     mapping(address => mapping(address => uint256)) private _tokenBUnbondTail;
+    address public legacyStakeTokenB;
+    address public legacyTokenBReserveVault;
+    uint256 public tokenBCutoverVersion;
+    uint256 public tokenBMigrationReserve;
+    // validator operator => total delegated legacy token B amount
+    mapping(address => uint256) public totalLegacyDelegatedTokenB;
+    // validator operator => delegator => migration version
+    mapping(address => mapping(address => uint256)) private _tokenBDelegationVersion;
+    // validator operator => delegator => unbond request sequence => migration version
+    mapping(address => mapping(address => mapping(uint256 => uint256))) private _tokenBUnbondRequestVersion;
+    // validator operator => current token B delegators
+    mapping(address => EnumerableSet.AddressSet) private _tokenBDelegators;
 
     /*----------------- structs and events -----------------*/
     struct StakeMigrationPackage {
@@ -281,6 +295,16 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     event TokenBSlashed(address indexed operatorAddress, uint256 tokenBAmount, uint8 slashType);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event LegacyTokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event LegacyTokenBMigrated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
+    event TokenBMigrationActivated(
+        address indexed legacyToken,
+        address indexed newToken,
+        address indexed reserveVault,
+        uint256 cutoverVersion
+    );
+    event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
+    event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
     event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
     event AgentChanged(address indexed operatorAddress, address indexed oldAgent, address indexed newAgent);
 
@@ -617,10 +641,15 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
         if (stakeTokenB == address(0) || tokenBAmount == 0) revert InvalidRequest();
 
+        _migrateLegacyTokenBPosition(operatorAddress, msg.sender);
         _settleTokenBReward(operatorAddress, msg.sender);
         IERC20(stakeTokenB).safeTransferFrom(msg.sender, address(this), tokenBAmount);
+        if (_delegatedTokenB[operatorAddress][msg.sender] == 0) {
+            _tokenBDelegators[operatorAddress].add(msg.sender);
+        }
         _delegatedTokenB[operatorAddress][msg.sender] += tokenBAmount;
         totalDelegatedTokenB[operatorAddress] += tokenBAmount;
+        _tokenBDelegationVersion[operatorAddress][msg.sender] = tokenBCutoverVersion;
         _syncTokenBRewardDebt(operatorAddress, msg.sender);
 
         emit TokenBDelegated(operatorAddress, msg.sender, tokenBAmount);
@@ -635,14 +664,19 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         address operatorAddress,
         uint256 tokenBAmount
     ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        _migrateLegacyTokenBPosition(operatorAddress, msg.sender);
         uint256 delegatedAmount = _delegatedTokenB[operatorAddress][msg.sender];
         if (tokenBAmount == 0 || tokenBAmount > delegatedAmount) revert InvalidRequest();
 
         _settleTokenBReward(operatorAddress, msg.sender);
-        _delegatedTokenB[operatorAddress][msg.sender] = delegatedAmount - tokenBAmount;
+        uint256 remainingAmount = delegatedAmount - tokenBAmount;
+        _delegatedTokenB[operatorAddress][msg.sender] = remainingAmount;
         totalDelegatedTokenB[operatorAddress] -= tokenBAmount;
         _syncTokenBRewardDebt(operatorAddress, msg.sender);
         _queueTokenBUnbond(operatorAddress, msg.sender, tokenBAmount);
+        if (remainingAmount == 0) {
+            _tokenBDelegators[operatorAddress].remove(msg.sender);
+        }
 
         emit TokenBUndelegated(operatorAddress, msg.sender, tokenBAmount);
     }
@@ -774,6 +808,94 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         for (uint256 i; i < operatorAddresses.length; ++i) {
             if (!_validatorSet.contains(operatorAddresses[i])) revert ValidatorNotExisted();
             _claimTokenBReward(operatorAddresses[i], msg.sender);
+        }
+    }
+
+    /**
+     * @notice Activates token B migration by freezing the current token as legacy and switching to a new token.
+     * @param newStakeTokenB the new token B address used for active staking
+     * @param reserveVault the vault that will hold legacy token B after migration
+     */
+    function activateTokenBMigration(address newStakeTokenB, address reserveVault) external onlyGov {
+        address currentStakeTokenB = stakeTokenB;
+        if (currentStakeTokenB == address(0) || newStakeTokenB == address(0) || reserveVault == address(0)) {
+            revert InvalidRequest();
+        }
+        if (legacyStakeTokenB != address(0) || newStakeTokenB == currentStakeTokenB) revert InvalidRequest();
+
+        legacyStakeTokenB = currentStakeTokenB;
+        stakeTokenB = newStakeTokenB;
+        legacyTokenBReserveVault = reserveVault;
+        tokenBCutoverVersion += 1;
+
+        uint256 validatorCount = _validatorSet.length();
+        for (uint256 i; i < validatorCount; ++i) {
+            address validator = _validatorSet.at(i);
+            totalLegacyDelegatedTokenB[validator] = totalDelegatedTokenB[validator];
+        }
+
+        emit TokenBMigrationActivated(currentStakeTokenB, newStakeTokenB, reserveVault, tokenBCutoverVersion);
+    }
+
+    /**
+     * @notice Adds active token B reserves used to back migrated legacy staking positions.
+     * @param amount amount of active token B to add
+     */
+    function depositTokenBMigrationReserve(uint256 amount) external whenNotPaused {
+        if (legacyStakeTokenB == address(0) || stakeTokenB == address(0) || amount == 0) revert InvalidRequest();
+
+        IERC20(stakeTokenB).safeTransferFrom(msg.sender, address(this), amount);
+        tokenBMigrationReserve += amount;
+
+        emit TokenBMigrationReserveFunded(msg.sender, amount);
+    }
+
+    /**
+     * @notice Withdraws unused active token B migration reserve.
+     * @param recipient recipient address
+     * @param amount amount to withdraw
+     */
+    function withdrawTokenBMigrationReserve(address recipient, uint256 amount) external onlyGov {
+        if (recipient == address(0) || amount == 0 || amount > tokenBMigrationReserve) revert InvalidRequest();
+
+        tokenBMigrationReserve -= amount;
+        IERC20(stakeTokenB).safeTransfer(recipient, amount);
+
+        emit TokenBMigrationReserveWithdrawn(recipient, amount);
+    }
+
+    /**
+     * @notice Migrates the caller's delegated legacy token B position to the active token B.
+     * @param operatorAddress validator operator address
+     */
+    function migrateLegacyTokenB(
+        address operatorAddress
+    ) external whenNotPaused notInBlackList validatorExist(operatorAddress) {
+        _migrateLegacyTokenBPosition(operatorAddress, msg.sender);
+    }
+
+    /**
+     * @notice Migrates a slice of token B delegators for a validator.
+     * @param operatorAddress validator operator address
+     * @param offset start offset
+     * @param limit max number of delegators to migrate, 0 means all remaining
+     */
+    function migrateLegacyTokenBDelegators(
+        address operatorAddress,
+        uint256 offset,
+        uint256 limit
+    ) external whenNotPaused validatorExist(operatorAddress) {
+        if (tokenBCutoverVersion == 0) revert TokenBMigrationNotAvailable();
+
+        uint256 totalLength = _tokenBDelegators[operatorAddress].length();
+        if (offset >= totalLength) {
+            return;
+        }
+
+        limit = limit == 0 ? totalLength : limit;
+        uint256 count = (totalLength - offset) > limit ? limit : (totalLength - offset);
+        for (uint256 i; i < count; ++i) {
+            _migrateLegacyTokenBPosition(operatorAddress, _tokenBDelegators[operatorAddress].at(offset + i));
         }
     }
 
@@ -1018,7 +1140,7 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         } else if (key.compareStrings("stakeTokenB")) {
             if (value.length != 20) revert InvalidValue(key, value);
             address newStakeTokenB = value.bytesToAddress(20);
-            if (newStakeTokenB == address(0)) revert InvalidValue(key, value);
+            if (newStakeTokenB == address(0) || legacyStakeTokenB != address(0)) revert InvalidValue(key, value);
             stakeTokenB = newStakeTokenB;
         } else if (key.compareStrings("stakeWeightA")) {
             if (value.length != 32) revert InvalidValue(key, value);
@@ -1299,6 +1421,34 @@ contract StakeHub is SystemV2, Initializable, Protectable {
      */
     function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256) {
         return _delegatedTokenB[operatorAddress][delegator];
+    }
+
+    /**
+     * @notice Returns remaining delegated legacy token B amount for a validator/delegator pair.
+     */
+    function getLegacyDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256) {
+        return _legacyDelegatedTokenBAmount(operatorAddress, delegator);
+    }
+
+    /**
+     * @notice Returns token B delegators for a validator.
+     */
+    function getTokenBDelegators(
+        address operatorAddress,
+        uint256 offset,
+        uint256 limit
+    ) external view returns (address[] memory delegators, uint256 totalLength) {
+        totalLength = _tokenBDelegators[operatorAddress].length();
+        if (offset >= totalLength) {
+            return (delegators, totalLength);
+        }
+
+        limit = limit == 0 ? totalLength : limit;
+        uint256 count = (totalLength - offset) > limit ? limit : (totalLength - offset);
+        delegators = new address[](count);
+        for (uint256 i; i < count; ++i) {
+            delegators[i] = _tokenBDelegators[operatorAddress].at(offset + i);
+        }
     }
 
     /**
@@ -1612,11 +1762,13 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
         _tokenBUnbondRequests[operatorAddress][delegator][tail] =
             TokenBUnbondRequest({ tokenBAmount: tokenBAmount, unlockTime: block.timestamp + unbondPeriod });
+        _tokenBUnbondRequestVersion[operatorAddress][delegator][tail] = tokenBCutoverVersion;
         _tokenBUnbondTail[operatorAddress][delegator] = tail + 1;
     }
 
     function _claimTokenB(address operatorAddress, address delegator, uint256 requestNumber) internal {
         if (stakeTokenB == address(0)) revert InvalidRequest();
+        _migrateLegacyTokenBPosition(operatorAddress, delegator);
 
         uint256 head = _tokenBUnbondHead[operatorAddress][delegator];
         uint256 tail = _tokenBUnbondTail[operatorAddress][delegator];
@@ -1625,27 +1777,42 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         uint256 requestCount = tail - head;
         uint256 number = requestNumber == 0 || requestNumber > requestCount ? requestCount : requestNumber;
 
-        uint256 tokenBAmount;
+        uint256 activeTokenBAmount;
+        uint256 legacyTokenBAmount;
         while (number != 0) {
             TokenBUnbondRequest memory request = _tokenBUnbondRequests[operatorAddress][delegator][head];
             if (block.timestamp < request.unlockTime) {
                 break;
             }
 
-            tokenBAmount += request.tokenBAmount;
+            uint256 requestVersion = _tokenBUnbondRequestVersion[operatorAddress][delegator][head];
+            if (tokenBCutoverVersion != 0 && requestVersion < tokenBCutoverVersion) {
+                legacyTokenBAmount += request.tokenBAmount;
+            } else {
+                activeTokenBAmount += request.tokenBAmount;
+            }
             delete _tokenBUnbondRequests[operatorAddress][delegator][head];
+            delete _tokenBUnbondRequestVersion[operatorAddress][delegator][head];
             ++head;
             --number;
         }
-        if (tokenBAmount == 0) revert InvalidRequest();
+        if (activeTokenBAmount == 0 && legacyTokenBAmount == 0) revert InvalidRequest();
 
         _tokenBUnbondHead[operatorAddress][delegator] = head;
-        IERC20(stakeTokenB).safeTransfer(delegator, tokenBAmount);
+        if (activeTokenBAmount != 0) {
+            IERC20(stakeTokenB).safeTransfer(delegator, activeTokenBAmount);
+        }
+        if (legacyTokenBAmount != 0) {
+            address legacyToken = legacyStakeTokenB == address(0) ? stakeTokenB : legacyStakeTokenB;
+            IERC20(legacyToken).safeTransfer(delegator, legacyTokenBAmount);
+            emit LegacyTokenBClaimed(operatorAddress, delegator, legacyTokenBAmount);
+        }
 
-        emit TokenBClaimed(operatorAddress, delegator, tokenBAmount);
+        emit TokenBClaimed(operatorAddress, delegator, activeTokenBAmount + legacyTokenBAmount);
     }
 
     function _claimTokenBReward(address operatorAddress, address delegator) internal {
+        _migrateLegacyTokenBPosition(operatorAddress, delegator);
         _settleTokenBReward(operatorAddress, delegator);
         uint256 reward = _pendingTokenBReward[operatorAddress][delegator];
         if (reward == 0) revert InvalidRequest();
@@ -1699,6 +1866,7 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         uint256 remaining = slashAmount;
 
         if (stakeTokenB != address(0)) {
+            _migrateLegacyTokenBPosition(operatorAddress, operatorAddress);
             uint256 selfTokenBAmount = _delegatedTokenB[operatorAddress][operatorAddress];
             if (selfTokenBAmount != 0) {
                 _settleTokenBReward(operatorAddress, operatorAddress);
@@ -1706,6 +1874,9 @@ contract StakeHub is SystemV2, Initializable, Protectable {
                 _delegatedTokenB[operatorAddress][operatorAddress] = selfTokenBAmount - tokenBSlashAmount;
                 totalDelegatedTokenB[operatorAddress] -= tokenBSlashAmount;
                 _syncTokenBRewardDebt(operatorAddress, operatorAddress);
+                if (_delegatedTokenB[operatorAddress][operatorAddress] == 0) {
+                    _tokenBDelegators[operatorAddress].remove(operatorAddress);
+                }
                 IERC20(stakeTokenB).safeTransfer(SYSTEM_REWARD_ADDR, tokenBSlashAmount);
                 emit TokenBSlashed(operatorAddress, tokenBSlashAmount, uint8(slashType));
                 remaining -= tokenBSlashAmount;
@@ -1715,6 +1886,42 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         if (remaining != 0) {
             bnbSlashAmount = IStakeCredit(creditContract).slash(remaining);
         }
+    }
+
+    function _legacyDelegatedTokenBAmount(address operatorAddress, address delegator) internal view returns (uint256) {
+        if (tokenBCutoverVersion == 0 || _tokenBDelegationVersion[operatorAddress][delegator] >= tokenBCutoverVersion) {
+            return 0;
+        }
+        return _delegatedTokenB[operatorAddress][delegator];
+    }
+
+    function _migrateLegacyTokenBPosition(address operatorAddress, address delegator) internal {
+        uint256 currentVersion = tokenBCutoverVersion;
+        if (currentVersion == 0) {
+            return;
+        }
+
+        if (_tokenBDelegationVersion[operatorAddress][delegator] >= currentVersion) {
+            return;
+        }
+
+        uint256 legacyAmount = _delegatedTokenB[operatorAddress][delegator];
+        _tokenBDelegationVersion[operatorAddress][delegator] = currentVersion;
+        if (legacyAmount == 0) {
+            return;
+        }
+        if (legacyStakeTokenB == address(0) || legacyTokenBReserveVault == address(0)) {
+            revert TokenBMigrationNotAvailable();
+        }
+        if (tokenBMigrationReserve < legacyAmount) {
+            revert InsufficientTokenBMigrationReserve();
+        }
+
+        tokenBMigrationReserve -= legacyAmount;
+        totalLegacyDelegatedTokenB[operatorAddress] -= legacyAmount;
+        IERC20(legacyStakeTokenB).safeTransfer(legacyTokenBReserveVault, legacyAmount);
+
+        emit LegacyTokenBMigrated(operatorAddress, delegator, legacyAmount);
     }
 
     function _bep410MsgSender() internal view returns (address) {

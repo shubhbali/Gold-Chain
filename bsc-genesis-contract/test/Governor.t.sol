@@ -30,6 +30,12 @@ contract GovernorTest is Deployer {
         vm.mockCall(address(0x66), bytes(""), hex"01");
     }
 
+    function testGovernanceMetadataUsesGilt() public {
+        assertEq(govToken.name(), "Gold Chain GILT");
+        assertEq(govToken.symbol(), "GILT");
+        assertEq(governor.name(), "GoldChainGovernor");
+    }
+
     function testDelegateVote() public {
         address delegator = _getNextUserAddress();
         (address validator,, address credit,) = _createValidator(2000 ether);

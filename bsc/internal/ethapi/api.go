@@ -1547,6 +1547,8 @@ type RPCTransaction struct {
 	GasFeeCap           *hexutil.Big                 `json:"maxFeePerGas,omitempty"`
 	GasTipCap           *hexutil.Big                 `json:"maxPriorityFeePerGas,omitempty"`
 	MaxFeePerBlobGas    *hexutil.Big                 `json:"maxFeePerBlobGas,omitempty"`
+	GasTokenID          *hexutil.Uint64              `json:"gasTokenId,omitempty"`
+	ValueTokenID        *hexutil.Uint64              `json:"valueTokenId,omitempty"`
 	Hash                common.Hash                  `json:"hash"`
 	Input               hexutil.Bytes                `json:"input"`
 	Nonce               hexutil.Uint64               `json:"nonce"`
@@ -1584,6 +1586,14 @@ func newRPCTransaction(tx *types.Transaction, blockHash common.Hash, blockNumber
 		R:        (*hexutil.Big)(r),
 		S:        (*hexutil.Big)(s),
 	}
+	if tx.GasTokenID() != types.DefaultNativeTokenID {
+		gasTokenID := hexutil.Uint64(tx.GasTokenID())
+		result.GasTokenID = &gasTokenID
+	}
+	if tx.ValueTokenID() != types.DefaultNativeTokenID {
+		valueTokenID := hexutil.Uint64(tx.ValueTokenID())
+		result.ValueTokenID = &valueTokenID
+	}
 	if blockHash != (common.Hash{}) {
 		result.BlockHash = &blockHash
 		result.BlockNumber = (*hexutil.Big)(new(big.Int).SetUint64(blockNumber))
@@ -1615,6 +1625,20 @@ func newRPCTransaction(tx *types.Transaction, blockHash common.Hash, blockNumber
 		// if the transaction has been mined, compute the effective gas price
 		if baseFee != nil && blockHash != (common.Hash{}) {
 			// price = min(gasTipCap + baseFee, gasFeeCap)
+			result.GasPrice = (*hexutil.Big)(effectiveGasPrice(tx, baseFee))
+		} else {
+			result.GasPrice = (*hexutil.Big)(tx.GasFeeCap())
+		}
+
+	case types.NativeTokenTxType:
+		al := tx.AccessList()
+		yparity := hexutil.Uint64(v.Sign())
+		result.Accesses = &al
+		result.ChainID = (*hexutil.Big)(tx.ChainId())
+		result.YParity = &yparity
+		result.GasFeeCap = (*hexutil.Big)(tx.GasFeeCap())
+		result.GasTipCap = (*hexutil.Big)(tx.GasTipCap())
+		if baseFee != nil && blockHash != (common.Hash{}) {
 			result.GasPrice = (*hexutil.Big)(effectiveGasPrice(tx, baseFee))
 		} else {
 			result.GasPrice = (*hexutil.Big)(tx.GasFeeCap())

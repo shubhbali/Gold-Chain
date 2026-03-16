@@ -115,6 +115,7 @@ var (
 		common.HexToAddress(systemcontracts.GovernorContract):           true,
 		common.HexToAddress(systemcontracts.GovTokenContract):           true,
 		common.HexToAddress(systemcontracts.TimelockContract):           true,
+		common.HexToAddress(systemcontracts.GeneralNativeTokenManager):  true,
 		common.HexToAddress(systemcontracts.TokenRecoverPortalContract): true,
 	}
 )

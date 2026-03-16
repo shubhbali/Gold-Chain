@@ -309,7 +309,7 @@ func New(config Config, chain BlockChain) *LegacyPool {
 // pool, specifically, whether it is a Legacy, AccessList or Dynamic transaction.
 func (pool *LegacyPool) Filter(tx *types.Transaction) bool {
 	switch tx.Type() {
-	case types.LegacyTxType, types.AccessListTxType, types.DynamicFeeTxType, types.SetCodeTxType:
+	case types.LegacyTxType, types.AccessListTxType, types.DynamicFeeTxType, types.NativeTokenTxType, types.SetCodeTxType:
 		return true
 	default:
 		return false
@@ -620,6 +620,7 @@ func (pool *LegacyPool) ValidateTxBasics(tx *types.Transaction) error {
 			1<<types.LegacyTxType |
 			1<<types.AccessListTxType |
 			1<<types.DynamicFeeTxType |
+			1<<types.NativeTokenTxType |
 			1<<types.SetCodeTxType,
 		MaxSize: txMaxSize,
 		MinTip:  pool.gasTip.Load().ToBig(),
@@ -647,16 +648,16 @@ func (pool *LegacyPool) validateTx(tx *types.Transaction) error {
 
 		FirstNonceGap:    nil, // Pool allows arbitrary arrival order, don't invalidate nonce gaps
 		UsedAndLeftSlots: nil, // Pool has own mechanism to limit the number of transactions
-		ExistingExpenditure: func(addr common.Address) *big.Int {
+		ExistingExpenditure: func(addr common.Address) map[uint64]*big.Int {
 			if list := pool.pending[addr]; list != nil {
-				return list.totalcost.ToBig()
+				return copyCostMap(list.totalcost)
 			}
-			return new(big.Int)
+			return make(map[uint64]*big.Int)
 		},
-		ExistingCost: func(addr common.Address, nonce uint64) *big.Int {
+		ExistingCost: func(addr common.Address, nonce uint64) map[uint64]*big.Int {
 			if list := pool.pending[addr]; list != nil {
 				if tx := list.txs.Get(nonce); tx != nil {
-					return tx.Cost()
+					return tx.CostByToken()
 				}
 			}
 			return nil
@@ -1645,7 +1646,7 @@ func (pool *LegacyPool) demoteUnexecutables() {
 			log.Trace("Removed old pending transaction", "hash", hash)
 		}
 		// Drop all transactions that are too costly (low balance or out of gas), and queue any invalids back for later
-		drops, invalids := list.Filter(pool.currentState.GetBalance(addr), gasLimit)
+		drops, invalids := list.Filter(addr, pool.currentState, gasLimit)
 		for _, tx := range drops {
 			hash := tx.Hash()
 			pool.all.Remove(hash)

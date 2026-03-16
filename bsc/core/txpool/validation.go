@@ -80,6 +80,9 @@ func ValidateTransaction(tx *types.Transaction, head *types.Header, signer types
 	if !rules.IsLondon && tx.Type() == types.DynamicFeeTxType {
 		return fmt.Errorf("%w: type %d rejected, pool not yet in London", core.ErrTxTypeNotSupported, tx.Type())
 	}
+	if !rules.IsLondon && tx.Type() == types.NativeTokenTxType {
+		return fmt.Errorf("%w: type %d rejected, pool not yet in London", core.ErrTxTypeNotSupported, tx.Type())
+	}
 	if !rules.IsCancun && tx.Type() == types.BlobTxType {
 		return fmt.Errorf("%w: type %d rejected, pool not yet in Cancun", core.ErrTxTypeNotSupported, tx.Type())
 	}
@@ -234,11 +237,11 @@ type ValidationOptionsWithState struct {
 
 	// ExistingExpenditure is a mandatory callback to retrieve the cumulative
 	// cost of the already pooled transactions to check for overdrafts.
-	ExistingExpenditure func(addr common.Address) *big.Int
+	ExistingExpenditure func(addr common.Address) map[uint64]*big.Int
 
 	// ExistingCost is a mandatory callback to retrieve an already pooled
 	// transaction's cost with the given nonce to check for overdrafts.
-	ExistingCost func(addr common.Address, nonce uint64) *big.Int
+	ExistingCost func(addr common.Address, nonce uint64) map[uint64]*big.Int
 }
 
 // ValidateTransactionWithState is a helper method to check whether a transaction
@@ -265,26 +268,22 @@ func ValidateTransactionWithState(tx *types.Transaction, signer types.Signer, op
 		}
 	}
 	// Ensure the transactor has enough funds to cover the transaction costs
-	var (
-		balance = opts.State.GetBalance(from).ToBig()
-		cost    = tx.Cost()
-	)
-	if balance.Cmp(cost) < 0 {
-		return fmt.Errorf("%w: balance %v, tx cost %v, overshot %v", core.ErrInsufficientFunds, balance, cost, new(big.Int).Sub(cost, balance))
+	cost := tx.CostByToken()
+	if tokenID, balance, required, ok := firstTokenShortfall(opts.State, from, cost); ok {
+		return fmt.Errorf("%w: token %d balance %v, tx cost %v, overshot %v", core.ErrInsufficientFunds, tokenID, balance, required, new(big.Int).Sub(required, balance))
 	}
 	// Ensure the transactor has enough funds to cover for replacements or nonce
 	// expansions without overdrafts
 	spent := opts.ExistingExpenditure(from)
 	if prev := opts.ExistingCost(from, tx.Nonce()); prev != nil {
-		bump := new(big.Int).Sub(cost, prev)
-		need := new(big.Int).Add(spent, bump)
-		if balance.Cmp(need) < 0 {
-			return fmt.Errorf("%w: balance %v, queued cost %v, tx bumped %v, overshot %v", core.ErrInsufficientFunds, balance, spent, bump, new(big.Int).Sub(need, balance))
+		need := addTokenCosts(spent, subTokenCosts(cost, prev))
+		if tokenID, balance, required, ok := firstTokenShortfall(opts.State, from, need); ok {
+			return fmt.Errorf("%w: token %d balance %v, queued cost %v, tx bumped total %v, overshot %v", core.ErrInsufficientFunds, tokenID, balance, spent[tokenID], required, new(big.Int).Sub(required, balance))
 		}
 	} else {
-		need := new(big.Int).Add(spent, cost)
-		if balance.Cmp(need) < 0 {
-			return fmt.Errorf("%w: balance %v, queued cost %v, tx cost %v, overshot %v", core.ErrInsufficientFunds, balance, spent, cost, new(big.Int).Sub(need, balance))
+		need := addTokenCosts(spent, cost)
+		if tokenID, balance, required, ok := firstTokenShortfall(opts.State, from, need); ok {
+			return fmt.Errorf("%w: token %d balance %v, queued cost %v, tx cost %v, overshot %v", core.ErrInsufficientFunds, tokenID, balance, spent[tokenID], required, new(big.Int).Sub(required, balance))
 		}
 		// Transaction takes a new nonce value out of the pool. Ensure it doesn't
 		// overflow the number of permitted transactions from a single account
@@ -296,4 +295,57 @@ func ValidateTransactionWithState(tx *types.Transaction, signer types.Signer, op
 		}
 	}
 	return nil
+}
+
+func addTokenCosts(left, right map[uint64]*big.Int) map[uint64]*big.Int {
+	sum := copyTokenCosts(left)
+	for tokenID, amount := range right {
+		if amount == nil || amount.Sign() == 0 {
+			continue
+		}
+		if _, ok := sum[tokenID]; !ok {
+			sum[tokenID] = new(big.Int)
+		}
+		sum[tokenID].Add(sum[tokenID], amount)
+	}
+	return sum
+}
+
+func subTokenCosts(left, right map[uint64]*big.Int) map[uint64]*big.Int {
+	diff := copyTokenCosts(left)
+	for tokenID, amount := range right {
+		if amount == nil || amount.Sign() == 0 {
+			continue
+		}
+		if _, ok := diff[tokenID]; !ok {
+			diff[tokenID] = new(big.Int)
+		}
+		diff[tokenID].Sub(diff[tokenID], amount)
+	}
+	return diff
+}
+
+func copyTokenCosts(input map[uint64]*big.Int) map[uint64]*big.Int {
+	output := make(map[uint64]*big.Int, len(input))
+	for tokenID, amount := range input {
+		if amount == nil {
+			output[tokenID] = new(big.Int)
+			continue
+		}
+		output[tokenID] = new(big.Int).Set(amount)
+	}
+	return output
+}
+
+func firstTokenShortfall(st *state.StateDB, addr common.Address, required map[uint64]*big.Int) (uint64, *big.Int, *big.Int, bool) {
+	for tokenID, amount := range required {
+		if amount == nil || amount.Sign() <= 0 {
+			continue
+		}
+		balance := st.GetNativeTokenBalance(addr, tokenID).ToBig()
+		if balance.Cmp(amount) < 0 {
+			return tokenID, balance, amount, true
+		}
+	}
+	return 0, nil, nil, false
 }

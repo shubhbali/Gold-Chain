@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/holiman/uint256"
 )
@@ -299,9 +300,8 @@ type list struct {
 	strict bool       // Whether nonces are strictly continuous or not
 	txs    *SortedMap // Heap indexed sorted hash map of the transactions
 
-	costcap   *uint256.Int // Price of the highest costing transaction (reset only if exceeds balance)
-	gascap    uint64       // Gas limit of the highest spending transaction (reset only if exceeds block limit)
-	totalcost *uint256.Int // Total cost of all transactions in the list
+	gascap    uint64               // Gas limit of the highest spending transaction (reset only if exceeds block limit)
+	totalcost map[uint64]*big.Int // Total cost of all transactions in the list
 }
 
 // newList creates a new transaction list for maintaining nonce-indexable fast,
@@ -310,8 +310,7 @@ func newList(strict bool) *list {
 	return &list{
 		strict:    strict,
 		txs:       NewSortedMap(),
-		costcap:   new(uint256.Int),
-		totalcost: new(uint256.Int),
+		totalcost: make(map[uint64]*big.Int),
 	}
 }
 
@@ -351,15 +350,7 @@ func (l *list) Add(tx *types.Transaction, priceBump uint64) (bool, *types.Transa
 		}
 	}
 	// Add new tx cost to totalcost
-	cost, overflow := uint256.FromBig(tx.Cost())
-	if overflow {
-		return false, nil
-	}
-	total, overflow := new(uint256.Int).AddOverflow(l.totalcost, cost)
-	if overflow {
-		return false, nil
-	}
-	l.totalcost = total
+	l.addTotalCost(tx.CostByToken())
 
 	// Old is being replaced, subtract old cost
 	if old != nil {
@@ -368,9 +359,6 @@ func (l *list) Add(tx *types.Transaction, priceBump uint64) (bool, *types.Transa
 
 	// Otherwise overwrite the old transaction with the current one
 	l.txs.Put(tx)
-	if l.costcap.Cmp(cost) < 0 {
-		l.costcap = cost
-	}
 	if gas := tx.Gas(); l.gascap < gas {
 		l.gascap = gas
 	}
@@ -395,32 +383,46 @@ func (l *list) Forward(threshold uint64) types.Transactions {
 // a point in calculating all the costs or if the balance covers all. If the threshold
 // is lower than the costgas cap, the caps will be reset to a new high after removing
 // the newly invalidated transactions.
-func (l *list) Filter(costLimit *uint256.Int, gasLimit uint64) (types.Transactions, types.Transactions) {
-	// If all transactions are below the threshold, short circuit
-	if l.costcap.Cmp(costLimit) <= 0 && l.gascap <= gasLimit {
+func (l *list) Filter(addr common.Address, statedb *state.StateDB, gasLimit uint64) (types.Transactions, types.Transactions) {
+	if l.gascap <= gasLimit && !hasTokenShortfall(addr, statedb, l.totalcost) {
 		return nil, nil
 	}
-	l.costcap = new(uint256.Int).Set(costLimit) // Lower the caps to the thresholds
 	l.gascap = gasLimit
 
-	// Filter out all the transactions above the account's funds
-	removed := l.txs.Filter(func(tx *types.Transaction) bool {
-		return tx.Gas() > gasLimit || tx.Cost().Cmp(costLimit.ToBig()) > 0
-	})
-
+	var (
+		removed  types.Transactions
+		invalids types.Transactions
+		running  = make(map[uint64]*big.Int)
+		failedAt = uint64(math.MaxUint64)
+	)
+	for _, tx := range l.txs.Flatten() {
+		if tx.Gas() > gasLimit {
+			removed = append(removed, tx)
+			failedAt = tx.Nonce()
+			if l.strict {
+				break
+			}
+			continue
+		}
+		next := addCostMaps(running, tx.CostByToken())
+		if hasTokenShortfall(addr, statedb, next) {
+			removed = append(removed, tx)
+			failedAt = tx.Nonce()
+			if l.strict {
+				break
+			}
+			continue
+		}
+		running = next
+	}
 	if len(removed) == 0 {
 		return nil, nil
 	}
-	var invalids types.Transactions
-	// If the list was strict, filter anything above the lowest nonce
+	for _, tx := range removed {
+		l.txs.Remove(tx.Nonce())
+	}
 	if l.strict {
-		lowest := uint64(math.MaxUint64)
-		for _, tx := range removed {
-			if nonce := tx.Nonce(); lowest > nonce {
-				lowest = nonce
-			}
-		}
-		invalids = l.txs.filter(func(tx *types.Transaction) bool { return tx.Nonce() > lowest })
+		invalids = l.txs.filter(func(tx *types.Transaction) bool { return tx.Nonce() > failedAt })
 	}
 	// Reset total cost
 	l.subTotalCost(removed)
@@ -496,11 +498,56 @@ func (l *list) LastElement() *types.Transaction {
 // total cost of all transactions.
 func (l *list) subTotalCost(txs []*types.Transaction) {
 	for _, tx := range txs {
-		_, underflow := l.totalcost.SubOverflow(l.totalcost, uint256.MustFromBig(tx.Cost()))
-		if underflow {
-			panic("totalcost underflow")
+		for tokenID, amount := range tx.CostByToken() {
+			if current, ok := l.totalcost[tokenID]; ok {
+				current.Sub(current, amount)
+				if current.Sign() <= 0 {
+					delete(l.totalcost, tokenID)
+				}
+			}
 		}
 	}
+}
+
+func (l *list) addTotalCost(cost map[uint64]*big.Int) {
+	l.totalcost = addCostMaps(l.totalcost, cost)
+}
+
+func addCostMaps(left, right map[uint64]*big.Int) map[uint64]*big.Int {
+	sum := copyCostMap(left)
+	for tokenID, amount := range right {
+		if amount == nil || amount.Sign() == 0 {
+			continue
+		}
+		if _, ok := sum[tokenID]; !ok {
+			sum[tokenID] = new(big.Int)
+		}
+		sum[tokenID].Add(sum[tokenID], amount)
+	}
+	return sum
+}
+
+func copyCostMap(input map[uint64]*big.Int) map[uint64]*big.Int {
+	output := make(map[uint64]*big.Int, len(input))
+	for tokenID, amount := range input {
+		output[tokenID] = new(big.Int).Set(amount)
+	}
+	return output
+}
+
+func hasTokenShortfall(addr common.Address, statedb *state.StateDB, required map[uint64]*big.Int) bool {
+	if statedb == nil {
+		return false
+	}
+	for tokenID, amount := range required {
+		if amount == nil || amount.Sign() <= 0 {
+			continue
+		}
+		if statedb.GetNativeTokenBalance(addr, tokenID).ToBig().Cmp(amount) < 0 {
+			return true
+		}
+	}
+	return false
 }
 
 // priceHeap is a heap.Interface implementation over transactions for retrieving

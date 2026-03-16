@@ -46,6 +46,8 @@ type TransactionArgs struct {
 	GasPrice             *hexutil.Big    `json:"gasPrice"`
 	MaxFeePerGas         *hexutil.Big    `json:"maxFeePerGas"`
 	MaxPriorityFeePerGas *hexutil.Big    `json:"maxPriorityFeePerGas"`
+	GasTokenID           *hexutil.Uint64 `json:"gasTokenId,omitempty"`
+	ValueTokenID         *hexutil.Uint64 `json:"valueTokenId,omitempty"`
 	Value                *hexutil.Big    `json:"value"`
 	Nonce                *hexutil.Uint64 `json:"nonce"`
 
@@ -150,6 +152,8 @@ func (args *TransactionArgs) setDefaults(ctx context.Context, b Backend, config 
 			GasPrice:             args.GasPrice,
 			MaxFeePerGas:         args.MaxFeePerGas,
 			MaxPriorityFeePerGas: args.MaxPriorityFeePerGas,
+			GasTokenID:           args.GasTokenID,
+			ValueTokenID:         args.ValueTokenID,
 			Value:                args.Value,
 			Data:                 (*hexutil.Bytes)(&data),
 			AccessList:           args.AccessList,
@@ -482,6 +486,8 @@ func (args *TransactionArgs) ToMessage(baseFee *big.Int, skipNonceCheck bool) *c
 		From:                  args.from(),
 		To:                    args.To,
 		Value:                 (*big.Int)(args.Value),
+		GasTokenID:            nativeTokenIDFromArg(args.GasTokenID),
+		ValueTokenID:          nativeTokenIDFromArg(args.ValueTokenID),
 		Nonce:                 uint64(*args.Nonce),
 		GasLimit:              uint64(*args.Gas),
 		GasPrice:              gasPrice,
@@ -506,17 +512,44 @@ func (args *TransactionArgs) ToTransaction(defaultType int) *types.Transaction {
 		usedType = types.SetCodeTxType
 	case args.BlobHashes != nil || defaultType == types.BlobTxType:
 		usedType = types.BlobTxType
+	case args.GasTokenID != nil || args.ValueTokenID != nil || defaultType == int(types.NativeTokenTxType):
+		usedType = int(types.NativeTokenTxType)
 	case args.MaxFeePerGas != nil || defaultType == types.DynamicFeeTxType:
 		usedType = types.DynamicFeeTxType
 	case args.AccessList != nil || defaultType == types.AccessListTxType:
 		usedType = types.AccessListTxType
 	}
 	// Make it possible to default to newer tx, but use legacy if gasprice is provided
-	if args.GasPrice != nil {
+	if args.GasPrice != nil && usedType != int(types.NativeTokenTxType) {
 		usedType = types.LegacyTxType
 	}
 	var data types.TxData
 	switch usedType {
+	case int(types.NativeTokenTxType):
+		al := types.AccessList{}
+		if args.AccessList != nil {
+			al = *args.AccessList
+		}
+		gasFeeCap := (*big.Int)(args.MaxFeePerGas)
+		gasTipCap := (*big.Int)(args.MaxPriorityFeePerGas)
+		if args.GasPrice != nil {
+			gasFeeCap = (*big.Int)(args.GasPrice)
+			gasTipCap = (*big.Int)(args.GasPrice)
+		}
+		data = &types.NativeTokenTx{
+			To:           args.To,
+			ChainID:      (*big.Int)(args.ChainID),
+			Nonce:        uint64(*args.Nonce),
+			Gas:          uint64(*args.Gas),
+			GasFeeCap:    gasFeeCap,
+			GasTipCap:    gasTipCap,
+			GasTokenID:   nativeTokenIDFromArg(args.GasTokenID),
+			ValueTokenID: nativeTokenIDFromArg(args.ValueTokenID),
+			Value:        (*big.Int)(args.Value),
+			Data:         args.data(),
+			AccessList:   al,
+		}
+
 	case types.SetCodeTxType:
 		al := types.AccessList{}
 		if args.AccessList != nil {
@@ -610,4 +643,11 @@ func (args *TransactionArgs) ToTransaction(defaultType int) *types.Transaction {
 // IsEIP4844 returns an indicator if the args contains EIP4844 fields.
 func (args *TransactionArgs) IsEIP4844() bool {
 	return args.BlobHashes != nil || args.BlobFeeCap != nil
+}
+
+func nativeTokenIDFromArg(tokenID *hexutil.Uint64) uint64 {
+	if tokenID == nil {
+		return types.DefaultNativeTokenID
+	}
+	return uint64(*tokenID)
 }

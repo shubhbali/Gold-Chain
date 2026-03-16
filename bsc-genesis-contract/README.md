@@ -101,6 +101,18 @@ cp .env.example .env
 ts-node scripts/bep171-unlock-bot.ts 
 ```
 
+## Gold Migration Helpers
+
+Plain-English runbook:
+
+- `GOLD_MIGRATION_RUNBOOK.md`
+
+RPC scripts:
+
+- `node scripts/activate-gold-migration.js`
+- `node scripts/check-gold-migration-state.js`
+- `node scripts/swap-legacy-gold.js`
+
 ## License
 
 The library is licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0),

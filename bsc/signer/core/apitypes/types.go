@@ -90,6 +90,8 @@ type SendTxArgs struct {
 	GasPrice             *hexutil.Big             `json:"gasPrice"`
 	MaxFeePerGas         *hexutil.Big             `json:"maxFeePerGas"`
 	MaxPriorityFeePerGas *hexutil.Big             `json:"maxPriorityFeePerGas"`
+	GasTokenID           *hexutil.Uint64          `json:"gasTokenId,omitempty"`
+	ValueTokenID         *hexutil.Uint64          `json:"valueTokenId,omitempty"`
 	Value                hexutil.Big              `json:"value"`
 	Nonce                hexutil.Uint64           `json:"nonce"`
 
@@ -174,6 +176,30 @@ func (args *SendTxArgs) ToTransaction() (*types.Transaction, error) {
 			data.(*types.BlobTx).Sidecar = types.NewBlobTxSidecar(version, args.Blobs, args.Commitments, args.Proofs)
 		}
 
+	case args.GasTokenID != nil || args.ValueTokenID != nil:
+		al := types.AccessList{}
+		if args.AccessList != nil {
+			al = *args.AccessList
+		}
+		gasFeeCap := (*big.Int)(args.MaxFeePerGas)
+		gasTipCap := (*big.Int)(args.MaxPriorityFeePerGas)
+		if args.GasPrice != nil {
+			gasFeeCap = (*big.Int)(args.GasPrice)
+			gasTipCap = (*big.Int)(args.GasPrice)
+		}
+		data = &types.NativeTokenTx{
+			To:           to,
+			ChainID:      (*big.Int)(args.ChainID),
+			Nonce:        uint64(args.Nonce),
+			Gas:          uint64(args.Gas),
+			GasFeeCap:    gasFeeCap,
+			GasTipCap:    gasTipCap,
+			GasTokenID:   nativeTokenIDFromArg(args.GasTokenID),
+			ValueTokenID: nativeTokenIDFromArg(args.ValueTokenID),
+			Value:        (*big.Int)(&args.Value),
+			Data:         args.data(),
+			AccessList:   al,
+		}
 	case args.MaxFeePerGas != nil:
 		al := types.AccessList{}
 		if args.AccessList != nil {
@@ -213,6 +239,13 @@ func (args *SendTxArgs) ToTransaction() (*types.Transaction, error) {
 	}
 
 	return types.NewTx(data), nil
+}
+
+func nativeTokenIDFromArg(tokenID *hexutil.Uint64) uint64 {
+	if tokenID == nil {
+		return types.DefaultNativeTokenID
+	}
+	return uint64(*tokenID)
 }
 
 // validateTxSidecar validates blob data, if present

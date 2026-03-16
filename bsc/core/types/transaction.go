@@ -87,6 +87,8 @@ type TxData interface {
 	value() *big.Int
 	nonce() uint64
 	to() *common.Address
+	gasTokenID() uint64
+	valueTokenID() uint64
 
 	rawSignatureValues() (v, r, s *big.Int)
 	setSignatureValues(chainID, v, r, s *big.Int)
@@ -212,6 +214,8 @@ func (tx *Transaction) decodeTyped(b []byte) (TxData, error) {
 		inner = new(BlobTx)
 	case SetCodeTxType:
 		inner = new(SetCodeTx)
+	case NativeTokenTxType:
+		inner = new(NativeTokenTx)
 	default:
 		return nil, ErrTxTypeNotSupported
 	}
@@ -306,6 +310,12 @@ func (tx *Transaction) GasFeeCap() *big.Int { return new(big.Int).Set(tx.inner.g
 // Value returns the ether amount of the transaction.
 func (tx *Transaction) Value() *big.Int { return new(big.Int).Set(tx.inner.value()) }
 
+// GasTokenID returns the token used to pay gas.
+func (tx *Transaction) GasTokenID() uint64 { return tx.inner.gasTokenID() }
+
+// ValueTokenID returns the token moved by the transaction value field.
+func (tx *Transaction) ValueTokenID() uint64 { return tx.inner.valueTokenID() }
+
 // Nonce returns the sender account nonce of the transaction.
 func (tx *Transaction) Nonce() uint64 { return tx.inner.nonce() }
 
@@ -323,6 +333,28 @@ func (tx *Transaction) Cost() *big.Int {
 	}
 	total.Add(total, tx.Value())
 	return total
+}
+
+// CostByToken returns the transaction spend split by token.
+func (tx *Transaction) CostByToken() map[uint64]*big.Int {
+	costs := make(map[uint64]*big.Int, 2)
+	addTokenCost(costs, tx.GasTokenID(), new(big.Int).Mul(tx.GasPrice(), new(big.Int).SetUint64(tx.Gas())))
+	if tx.Type() == BlobTxType {
+		addTokenCost(costs, tx.GasTokenID(), new(big.Int).Mul(tx.BlobGasFeeCap(), new(big.Int).SetUint64(tx.BlobGas())))
+	}
+	addTokenCost(costs, tx.ValueTokenID(), tx.Value())
+	return costs
+}
+
+func addTokenCost(costs map[uint64]*big.Int, tokenID uint64, amount *big.Int) {
+	if amount == nil || amount.Sign() == 0 {
+		return
+	}
+	if existing, ok := costs[tokenID]; ok {
+		existing.Add(existing, amount)
+		return
+	}
+	costs[tokenID] = new(big.Int).Set(amount)
 }
 
 // RawSignatureValues returns the V, R, S signature values of the transaction.

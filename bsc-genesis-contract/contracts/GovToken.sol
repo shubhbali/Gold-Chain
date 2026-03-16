@@ -18,8 +18,8 @@ contract GovToken is
     ERC20VotesUpgradeable
 {
     /*----------------- constants -----------------*/
-    string private constant NAME = "BSC Governance Token";
-    string private constant SYMBOL = "govBNB";
+    string private constant NAME = "Gold Chain GILT";
+    string private constant SYMBOL = "GILT";
 
     /*----------------- errors -----------------*/
     // @notice signature: 0x8cd22d19
@@ -43,7 +43,7 @@ contract GovToken is
 
     /*----------------- external functions -----------------*/
     /**
-     * @dev Sync the account's govBNB amount to the actual BNB value of the StakingCredit he holds
+     * @dev Sync the account's governance GILT amount to the actual staked GILT value of the StakeCredit he holds
      * @param stakeCredit the stakeCredit Token contract
      * @param account the account to sync gov tokens to
      */
@@ -52,7 +52,7 @@ contract GovToken is
     }
 
     /**
-     * @dev Batch sync the account's govBNB amount to the actual BNB value of the StakingCredit he holds
+     * @dev Batch sync the account's governance GILT amount to the actual staked GILT value of the StakeCredit he holds
      * @param stakeCredits the stakeCredit Token contracts
      * @param account the account to sync gov tokens to
      */
@@ -64,7 +64,7 @@ contract GovToken is
     }
 
     /**
-     * @dev delegate govBNB votes to delegatee
+     * @dev Delegate governance GILT votes to a delegatee.
      * @param delegator the delegator
      * @param delegatee the delegatee
      */
@@ -84,16 +84,16 @@ contract GovToken is
 
     /*----------------- internal functions -----------------*/
     function _sync(address stakeCredit, address account) internal {
-        uint256 latestBNBAmount = IStakeCredit(stakeCredit).getPooledBNB(account);
+        uint256 latestGiltAmount = IStakeCredit(stakeCredit).getPooledBNB(account);
         uint256 _mintedAmount = mintedMap[stakeCredit][account];
 
-        if (_mintedAmount < latestBNBAmount) {
-            uint256 _needMint = latestBNBAmount - _mintedAmount;
-            mintedMap[stakeCredit][account] = latestBNBAmount;
+        if (_mintedAmount < latestGiltAmount) {
+            uint256 _needMint = latestGiltAmount - _mintedAmount;
+            mintedMap[stakeCredit][account] = latestGiltAmount;
             _mint(account, _needMint);
-        } else if (_mintedAmount > latestBNBAmount) {
-            uint256 _needBurn = _mintedAmount - latestBNBAmount;
-            mintedMap[stakeCredit][account] = latestBNBAmount;
+        } else if (_mintedAmount > latestGiltAmount) {
+            uint256 _needBurn = _mintedAmount - latestGiltAmount;
+            mintedMap[stakeCredit][account] = latestGiltAmount;
             _burn(account, _needBurn);
         }
     }

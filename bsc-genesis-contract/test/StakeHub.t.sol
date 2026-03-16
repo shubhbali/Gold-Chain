@@ -3,6 +3,8 @@ pragma solidity ^0.8.10;
 import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./utils/test_token/MiniToken.sol";
+import "../contracts/LegacyGoldReserveVault.sol";
+import "../contracts/PhysicalGoldToken.sol";
 
 import "./utils/Deployer.sol";
 
@@ -320,6 +322,86 @@ contract StakeHubTest is Deployer {
         assertEq(stakeHub.totalDelegatedTokenB(validator), amount - undelegateAmt, "wrong remaining total tokenB");
         assertEq(stakeHub.pendingTokenBUnbondRequest(validator, delegator), 0, "wrong remaining tokenB requests");
         vm.stopPrank();
+    }
+
+    function testTokenBMigration_AutoConvertsStakedLegacyPosition() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken oldGold = new MiniToken();
+        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
+        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
+        vm.stopPrank();
+
+        uint256 amount = 250 ether;
+        oldGold.transfer(delegator, amount);
+        vm.startPrank(delegator);
+        oldGold.approve(address(stakeHub), amount);
+        stakeHub.delegateTokenB(validator, amount);
+        vm.stopPrank();
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), amount, "wrong snapped legacy amount");
+
+        newGold.mint(address(this), amount);
+        newGold.approve(address(stakeHub), amount);
+        stakeHub.depositTokenBMigrationReserve(amount);
+
+        vm.prank(delegator);
+        stakeHub.undelegateTokenB(validator, 100 ether);
+
+        assertEq(oldGold.balanceOf(address(reserveVault)), amount, "legacy gold should move to reserve");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 0, "legacy validator stake should be cleared");
+        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "legacy delegator stake should be cleared");
+
+        vm.warp(block.timestamp + stakeHub.unbondPeriod());
+        uint256 newGoldBefore = newGold.balanceOf(delegator);
+        vm.prank(delegator);
+        stakeHub.claimTokenB(validator, 0);
+        assertEq(newGold.balanceOf(delegator) - newGoldBefore, 100 ether, "claim should pay new gold");
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 150 ether, "remaining stake should stay intact");
+    }
+
+    function testTokenBMigration_LegacyUnbondClaimsStayLegacy() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        MiniToken oldGold = new MiniToken();
+        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
+        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
+        vm.stopPrank();
+
+        uint256 amount = 250 ether;
+        oldGold.transfer(delegator, amount);
+        vm.startPrank(delegator);
+        oldGold.approve(address(stakeHub), amount);
+        stakeHub.delegateTokenB(validator, amount);
+        stakeHub.undelegateTokenB(validator, 100 ether);
+        vm.stopPrank();
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        newGold.mint(address(this), 150 ether);
+        newGold.approve(address(stakeHub), 150 ether);
+        stakeHub.depositTokenBMigrationReserve(150 ether);
+
+        vm.warp(block.timestamp + stakeHub.unbondPeriod());
+        uint256 oldGoldBefore = oldGold.balanceOf(delegator);
+        vm.prank(delegator);
+        stakeHub.claimTokenB(validator, 0);
+
+        assertEq(oldGold.balanceOf(delegator) - oldGoldBefore, 100 ether, "legacy unbond should still pay old gold");
+        assertEq(oldGold.balanceOf(address(reserveVault)), 150 ether, "only remaining staked legacy gold should move");
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 150 ether, "remaining stake should stay intact");
+        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "remaining stake should be converted");
     }
 
     function testElectionPower_UsesWeightedAndCappedTokenB() public {

@@ -1396,16 +1396,16 @@ func (p *BlobPool) validateTx(tx *types.Transaction) error {
 			}
 			return have, maxTxsPerAccount - have
 		},
-		ExistingExpenditure: func(addr common.Address) *big.Int {
+		ExistingExpenditure: func(addr common.Address) map[uint64]*big.Int {
 			if spent := p.spent[addr]; spent != nil {
-				return spent.ToBig()
+				return map[uint64]*big.Int{types.DefaultNativeTokenID: spent.ToBig()}
 			}
-			return new(big.Int)
+			return make(map[uint64]*big.Int)
 		},
-		ExistingCost: func(addr common.Address, nonce uint64) *big.Int {
+		ExistingCost: func(addr common.Address, nonce uint64) map[uint64]*big.Int {
 			next := p.state.GetNonce(addr)
 			if uint64(len(p.index[addr])) > nonce-next {
-				return p.index[addr][int(nonce-next)].costCap.ToBig()
+				return map[uint64]*big.Int{types.DefaultNativeTokenID: p.index[addr][int(nonce-next)].costCap.ToBig()}
 			}
 			return nil
 		},

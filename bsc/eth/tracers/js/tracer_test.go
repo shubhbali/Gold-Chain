@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/opcodeCompiler/compiler"
 	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/eth/tracers"
@@ -40,6 +41,14 @@ type dummyStatedb struct {
 
 func (*dummyStatedb) GetRefund() uint64                           { return 1337 }
 func (*dummyStatedb) GetBalance(addr common.Address) *uint256.Int { return new(uint256.Int) }
+func (*dummyStatedb) GetNativeTokenBalance(common.Address, uint64) *uint256.Int {
+	return new(uint256.Int)
+}
+func (*dummyStatedb) SetNativeTokenBalance(common.Address, uint64, *uint256.Int) {}
+func (*dummyStatedb) AddNativeTokenBalance(common.Address, uint64, *uint256.Int, tracing.BalanceChangeReason) {
+}
+func (*dummyStatedb) SubNativeTokenBalance(common.Address, uint64, *uint256.Int, tracing.BalanceChangeReason) {
+}
 
 type vmContext struct {
 	blockCtx vm.BlockContext
