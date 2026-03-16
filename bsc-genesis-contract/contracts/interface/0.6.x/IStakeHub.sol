@@ -11,4 +11,5 @@ interface IStakeHub {
     function getValidatorVoteAddress(address validator) external view returns (bytes memory);
     function maxElectedValidators() external view returns (uint256);
     function distributeReward(address validator) external payable;
+    function recordInflationMint(uint256 amount) external;
 }

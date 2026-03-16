@@ -2040,10 +2040,10 @@ func (p *Parlia) distributeIncoming(val common.Address, state vm.StateDB, header
 
 	doDistributeSysReward := !p.chainConfig.IsKepler(header.Number, header.Time) &&
 		state.GetBalance(common.HexToAddress(systemcontracts.SystemRewardContract)).Cmp(maxSystemBalance) < 0
-	if doDistributeSysReward {
-		balance := state.GetBalance(consensus.SystemAddress)
-		rewards := new(uint256.Int)
-		rewards = rewards.Rsh(balance, systemRewardPercent)
+		if doDistributeSysReward {
+			balance := state.GetBalance(consensus.SystemAddress)
+			rewards := new(uint256.Int)
+			rewards = rewards.Rsh(balance, systemRewardPercent)
 		if rewards.Cmp(common.U2560) > 0 {
 			state.SetBalance(consensus.SystemAddress, balance.Sub(balance, rewards), tracing.BalanceChangeUnspecified)
 			state.AddBalance(coinbase, rewards, tracing.BalanceChangeUnspecified)
@@ -2051,12 +2051,16 @@ func (p *Parlia) distributeIncoming(val common.Address, state vm.StateDB, header
 			if err != nil {
 				return err
 			}
-			log.Trace("distribute to system reward pool", "block hash", header.Hash(), "amount", rewards)
+				log.Trace("distribute to system reward pool", "block hash", header.Hash(), "amount", rewards)
+			}
 		}
-	}
 
-	balance := state.GetBalance(consensus.SystemAddress)
-	if balance.Cmp(common.U2560) <= 0 {
+		if err := p.distributeInflation(val, state, header, chain, txs, receipts, receivedTxs, usedGas, mining, tracer); err != nil {
+			return err
+		}
+
+		balance := state.GetBalance(consensus.SystemAddress)
+		if balance.Cmp(common.U2560) <= 0 {
 		return nil
 	}
 

@@ -93,6 +93,7 @@ interface BSCValidatorSet {
     function currentValidatorSetMap(address) external view returns (uint256);
     function currentVoteAddrFullSet(uint256) external view returns (bytes memory);
     function deposit(address valAddr) external payable;
+    function depositInflation(address valAddr) external payable;
     function distributeFinalityReward(address[] memory valAddrs, uint256[] memory weights) external;
     function enterMaintenance() external;
     function exitMaintenance() external;

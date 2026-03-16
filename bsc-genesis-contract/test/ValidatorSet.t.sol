@@ -10,9 +10,11 @@ contract ValidatorSetTest is Deployer {
     event RewardDistributed(address indexed operatorAddress, uint256 reward);
     event deprecatedDeposit(address indexed validator, uint256 amount);
     event validatorDeposit(address indexed validator, uint256 amount);
+    event inflationRewardDeposit(address indexed validator, uint256 amount);
     event failReasonWithStr(string message);
     event finalityRewardDeposit(address indexed validator, uint256 amount);
     event deprecatedFinalityRewardDeposit(address indexed validator, uint256 amount);
+    event deprecatedInflationRewardDeposit(address indexed validator, uint256 amount);
     event unsupportedPackage(uint64 indexed packageSequence, uint8 indexed channelId, bytes payload);
 
     uint256 public totalInComing;
@@ -123,6 +125,24 @@ contract ValidatorSetTest is Deployer {
         value = bytes(hex"0000000000000000000000000000000000000000000000000000000000000400"); // 1024
         _updateParamByGovHub(key, value, address(bscValidatorSet));
         assertEq(bscValidatorSet.systemRewardBaseRatio(), 1024);
+    }
+
+    function testDepositInflationBypassesFeeSkims() public {
+        uint256 amount = 1 ether;
+        uint256 systemRewardBefore = address(systemReward).balance;
+        uint256 burnBefore = address(0x000000000000000000000000000000000000dEaD).balance;
+
+        vm.startPrank(coinbase);
+        vm.expectEmit(true, false, false, true, address(bscValidatorSet));
+        emit inflationRewardDeposit(validator0, amount);
+        bscValidatorSet.depositInflation{ value: amount }(validator0);
+        vm.stopPrank();
+
+        assertEq(bscValidatorSet.getIncoming(validator0), amount, "inflation should be credited in full");
+        assertEq(bscValidatorSet.totalInComing(), totalInComing + amount, "wrong total incoming after inflation");
+        assertEq(address(systemReward).balance, systemRewardBefore, "inflation should not fund system reward");
+        assertEq(address(0x000000000000000000000000000000000000dEaD).balance, burnBefore, "inflation should not burn");
+        assertEq(stakeHub.inflationMintedAmount(), amount, "wrong minted inflation amount");
     }
 
     function testValidateSetChange() public {

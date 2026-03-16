@@ -172,6 +172,9 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     uint256 public inflationRateInitialBps;
     uint256 public inflationRateMinBps;
     uint256 public inflationDecayBpsPerYear;
+    uint256 public inflationBaseSupply;
+    uint256 public inflationMintedAmount;
+    uint256 public inflationLastMintTimestamp;
 
     // validator operator => delegator => token B amount
     mapping(address => mapping(address => uint256)) private _delegatedTokenB;
@@ -305,7 +308,7 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     );
     event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
     event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
-    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
+    event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
     event AgentChanged(address indexed operatorAddress, address indexed oldAgent, address indexed newAgent);
 
     // Events for adding and removing NodeIDs.
@@ -363,6 +366,7 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         inflationRateInitialBps = 1_000; // 10%
         inflationRateMinBps = 150; // 1.5%
         inflationDecayBpsPerYear = 1_500; // 15% yearly decay
+        inflationLastMintTimestamp = block.timestamp;
         // Different address will be set depending on the environment
         __Protectable_init_unchained(0x08E68Ec70FA3b629784fDB28887e206ce8561E08);
     }
@@ -936,19 +940,6 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         }
 
         uint256 totalReward = msg.value;
-        if (inflationEnabled && msg.value != 0) {
-            uint256 currentBps = _currentInflationBps(block.timestamp / BREATHE_BLOCK_INTERVAL);
-            if (currentBps != 0) {
-                uint256 topupRequest = (msg.value * currentBps) / POWER_SCALE;
-                if (topupRequest != 0) {
-                    uint256 topup = _claimInflationTopup(topupRequest);
-                    if (topup != 0) {
-                        totalReward += topup;
-                        emit InflationTopupApplied(operatorAddress, topup, currentBps);
-                    }
-                }
-            }
-        }
 
         uint256 tokenBReward;
         uint256 totalTokenB = totalDelegatedTokenB[operatorAddress];
@@ -967,6 +958,20 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         emit RewardDistributed(operatorAddress, totalReward);
 
         IGovToken(GOV_TOKEN_ADDR).sync(valInfo.creditContract, operatorAddress);
+    }
+
+    function recordInflationMint(
+        uint256 amount
+    ) external onlyValidatorContract {
+        if (amount == 0) {
+            return;
+        }
+
+        inflationMintedAmount += amount;
+        inflationLastMintTimestamp = block.timestamp;
+
+        uint256 inflationBps = _currentInflationBps(block.timestamp / BREATHE_BLOCK_INTERVAL);
+        emit InflationMintRecorded(amount, inflationBps, inflationMintedAmount, inflationBaseSupply + inflationMintedAmount);
     }
 
     /**
@@ -1177,10 +1182,16 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         } else if (key.compareStrings("inflationEnabled")) {
             if (value.length != 1) revert InvalidValue(key, value);
             if (uint8(value[0]) > 1) revert InvalidValue(key, value);
-            inflationEnabled = uint8(value[0]) == 1;
+            bool enableInflation = uint8(value[0]) == 1;
+            if (enableInflation && inflationBaseSupply == 0) revert InvalidValue(key, value);
+            inflationEnabled = enableInflation;
+            if (enableInflation) {
+                inflationLastMintTimestamp = block.timestamp;
+            }
         } else if (key.compareStrings("inflationStartDayIndex")) {
             if (value.length != 32) revert InvalidValue(key, value);
             inflationStartDayIndex = value.bytesToUint256(32);
+            inflationLastMintTimestamp = block.timestamp;
         } else if (key.compareStrings("inflationRateInitialBps")) {
             if (value.length != 32) revert InvalidValue(key, value);
             uint256 newInflationRateInitialBps = value.bytesToUint256(32);
@@ -1203,6 +1214,12 @@ contract StakeHub is SystemV2, Initializable, Protectable {
             uint256 newInflationDecayBpsPerYear = value.bytesToUint256(32);
             if (newInflationDecayBpsPerYear > POWER_SCALE) revert InvalidValue(key, value);
             inflationDecayBpsPerYear = newInflationDecayBpsPerYear;
+        } else if (key.compareStrings("inflationBaseSupply")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            uint256 newInflationBaseSupply = value.bytesToUint256(32);
+            if (newInflationBaseSupply == 0) revert InvalidValue(key, value);
+            inflationBaseSupply = newInflationBaseSupply;
+            inflationLastMintTimestamp = block.timestamp;
         } else {
             revert UnknownParam(key, value);
         }
@@ -1520,6 +1537,10 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         uint256 dayIndex
     ) external view returns (uint256) {
         return _currentInflationBps(dayIndex);
+    }
+
+    function inflationEffectiveSupply() external view returns (uint256) {
+        return inflationBaseSupply + inflationMintedAmount;
     }
 
     /**
@@ -1847,14 +1868,6 @@ contract StakeHub is SystemV2, Initializable, Protectable {
 
     function _distributeTokenBReward(address operatorAddress, uint256 reward, uint256 totalTokenB) internal {
         _accTokenBRewardPerShare[operatorAddress] += (reward * TOKEN_B_REWARD_PRECISION) / totalTokenB;
-    }
-
-    function _claimInflationTopup(uint256 topupRequest) internal enableReceivingFund returns (uint256 topup) {
-        (bool ok, bytes memory data) =
-            SYSTEM_REWARD_ADDR.call(abi.encodeWithSignature("claimRewards(address,uint256)", address(this), topupRequest));
-        if (ok && data.length >= 32) {
-            topup = abi.decode(data, (uint256));
-        }
     }
 
     function _slashWithTokenBFirst(

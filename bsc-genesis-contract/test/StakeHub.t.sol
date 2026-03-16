@@ -41,7 +41,7 @@ contract StakeHubTest is Deployer {
     event TokenBSlashed(address indexed operatorAddress, uint256 tokenBAmount, uint8 slashType);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
-    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
+    event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
     event MigrateSuccess(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
     event MigrateFailed(
         address indexed operatorAddress, address indexed delegator, uint256 bnbAmount, StakeMigrationRespCode respCode
@@ -620,13 +620,12 @@ contract StakeHubTest is Deployer {
         assertEq(stakeHub.pendingTokenBReward(validator, delegator), 0, "pending tokenB reward should be zero");
     }
 
-    function testInflationDecayCurveAndTopup() public {
+    function testInflationDecayCurveAndMintRecording() public {
         (address validator,,,) = _createValidator(2000 ether);
-        address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
 
         vm.startPrank(GOV_HUB_ADDR);
-        systemReward.updateParam("addOperator", abi.encodePacked(address(stakeHub)));
+        stakeHub.updateParam("inflationBaseSupply", abi.encode(uint256(1_000 ether)));
         stakeHub.updateParam("inflationEnabled", hex"01");
         stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
         stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(1000))); // 10%
@@ -640,20 +639,16 @@ contract StakeHubTest is Deployer {
         assertEq(stakeHub.currentInflationBps(dayIndex + 1095), 125, "wrong inflation bps after 3 years");
         assertEq(stakeHub.currentInflationBps(dayIndex + 1460), 100, "wrong inflation bps minimum bound");
 
-        vm.deal(address(systemReward), 100 ether);
-
-        uint256 reward = 10 ether;
-        uint256 expectedTopup = reward * 1000 / 10_000;
-        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
+        uint256 mintedAmount = 3 ether;
         vm.startPrank(VALIDATOR_CONTRACT_ADDR);
-        vm.expectEmit(true, false, false, true, address(stakeHub));
-        emit InflationTopupApplied(validator, expectedTopup, 1000);
-        vm.expectEmit(true, true, false, true, address(stakeHub));
-        emit RewardDistributed(validator, reward + expectedTopup);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        vm.expectEmit(false, false, false, true, address(stakeHub));
+        emit InflationMintRecorded(mintedAmount, 1000, mintedAmount, 1_003 ether);
+        stakeHub.recordInflationMint(mintedAmount);
         vm.stopPrank();
 
-        assertEq(address(systemReward).balance, 100 ether - expectedTopup, "wrong system reward balance after topup");
+        assertEq(stakeHub.inflationMintedAmount(), mintedAmount, "wrong minted inflation amount");
+        assertEq(stakeHub.inflationEffectiveSupply(), 1_003 ether, "wrong effective inflation supply");
+        assertEq(stakeHub.inflationLastMintTimestamp(), block.timestamp, "wrong last mint timestamp");
     }
 
     function testUpdateParam_RewardAndInflationHardeningValidation() public {
@@ -664,6 +659,11 @@ contract StakeHubTest is Deployer {
         stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(1000)));
 
         vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationEnabled", hex"01")
+        );
+        stakeHub.updateParam("inflationEnabled", hex"01");
+
+        vm.expectRevert(
             abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationRateInitialBps", abi.encode(uint256(0)))
         );
         stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(0)));
@@ -672,6 +672,11 @@ contract StakeHubTest is Deployer {
             abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationRateMinBps", abi.encode(uint256(0)))
         );
         stakeHub.updateParam("inflationRateMinBps", abi.encode(uint256(0)));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationBaseSupply", abi.encode(uint256(0)))
+        );
+        stakeHub.updateParam("inflationBaseSupply", abi.encode(uint256(0)));
         vm.stopPrank();
     }
 
@@ -739,13 +744,13 @@ contract StakeHubTest is Deployer {
         assertEq(delegator2.balance - d2BalanceBeforeClaim, d2PendingRound2, "wrong d2 claim");
     }
 
-    function testInflationTopupFailureDoesNotBlockDistributeReward() public {
+    function testInflationEnabledDoesNotPullSystemRewardDuringDistributeReward() public {
         (address validator,,,) = _createValidator(2000 ether);
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
 
-        // Intentionally do not add StakeHub as SystemReward operator.
         vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("inflationBaseSupply", abi.encode(uint256(1_000 ether)));
         stakeHub.updateParam("inflationEnabled", hex"01");
         stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
         stakeHub.updateParam("inflationRateInitialBps", abi.encode(uint256(1000)));
@@ -763,7 +768,7 @@ contract StakeHubTest is Deployer {
         vm.prank(VALIDATOR_CONTRACT_ADDR);
         stakeHub.distributeReward{ value: reward }(consensusAddress);
 
-        assertEq(address(systemReward).balance, systemRewardBefore, "topup should not be claimed without operator");
+        assertEq(address(systemReward).balance, systemRewardBefore, "system reward pool should not be touched");
     }
 
     function testDowntimeSlash() public {

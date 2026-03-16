@@ -140,6 +140,8 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     event validatorExitMaintenance(address indexed validator);
     event finalityRewardDeposit(address indexed validator, uint256 amount);
     event deprecatedFinalityRewardDeposit(address indexed validator, uint256 amount);
+    event inflationRewardDeposit(address indexed validator, uint256 amount);
+    event deprecatedInflationRewardDeposit(address indexed validator, uint256 amount);
 
     event validatorJailed(address indexed validator);  // @dev deprecated
     event validatorEmptyJailed(address indexed validator);  // @dev deprecated
@@ -299,6 +301,24 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
             // get incoming from deprecated validator;
             emit deprecatedDeposit(valAddr, value);
         }
+    }
+
+    function depositInflation(address valAddr) external payable onlyCoinbase onlyInit noEmptyDeposit onlyZeroGasPrice {
+        uint256 index = currentValidatorSetMap[valAddr];
+        if (index > 0) {
+            Validator storage validator = currentValidatorSet[index - 1];
+            if (validator.jailed) {
+                emit deprecatedInflationRewardDeposit(valAddr, msg.value);
+            } else {
+                totalInComing = totalInComing.add(msg.value);
+                validator.incoming = validator.incoming.add(msg.value);
+                emit inflationRewardDeposit(valAddr, msg.value);
+            }
+        } else {
+            emit deprecatedInflationRewardDeposit(valAddr, msg.value);
+        }
+
+        IStakeHub(STAKE_HUB_ADDR).recordInflationMint(msg.value);
     }
 
     function distributeFinalityReward(

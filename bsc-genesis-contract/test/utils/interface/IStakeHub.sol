@@ -93,7 +93,7 @@ interface StakeHub {
     );
     event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
     event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
-    event InflationTopupApplied(address indexed operatorAddress, uint256 topup, uint256 inflationBps);
+    event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
     event StakeCreditInitialized(address indexed operatorAddress, address indexed creditContract);
     event UnBlackListed(address indexed target);
     event Undelegated(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
@@ -194,6 +194,9 @@ interface StakeHub {
     function inflationRateInitialBps() external view returns (uint256);
     function inflationRateMinBps() external view returns (uint256);
     function inflationDecayBpsPerYear() external view returns (uint256);
+    function inflationBaseSupply() external view returns (uint256);
+    function inflationMintedAmount() external view returns (uint256);
+    function inflationLastMintTimestamp() external view returns (uint256);
     function minDelegationBNBChange() external view returns (uint256);
     function minBtoARatioBps() external view returns (uint256);
     function minSelfDelegationBNB() external view returns (uint256);
@@ -227,6 +230,8 @@ interface StakeHub {
     function claimableTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256);
     function pendingTokenBReward(address operatorAddress, address delegator) external view returns (uint256);
     function currentInflationBps(uint256 dayIndex) external view returns (uint256);
+    function inflationEffectiveSupply() external view returns (uint256);
+    function recordInflationMint(uint256 amount) external;
 
     function agentToOperator(address) external view returns (address);
     function legacyStakeTokenB() external view returns (address);
