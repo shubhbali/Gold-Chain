@@ -11,11 +11,17 @@ interface IStakeHub {
     function legacyStakeTokenB() external view returns (address);
     function tokenBCutoverVersion() external view returns (uint256);
     function tokenBMigrationReserve() external view returns (uint256);
+    function tokenBMigrationProposalId() external view returns (uint256);
+    function pendingTokenBMigrationStakeTokenB() external view returns (address);
+    function pendingTokenBMigrationReserveVault() external view returns (address);
+    function pendingTokenBMigrationApprovalCount() external view returns (uint256);
+    function pendingTokenBMigrationRequiredApprovals() external view returns (uint256);
     function totalDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function totalLegacyDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
     function getLegacyDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
     function activateTokenBMigration(address newStakeTokenB, address reserveVault) external;
+    function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) external view returns (bool);
     function depositTokenBMigrationReserve(uint256 amount) external;
     function migrateLegacyTokenB(address operatorAddress) external;
 }

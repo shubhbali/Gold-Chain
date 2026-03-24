@@ -41,6 +41,17 @@ contract StakeHubTest is Deployer {
     event TokenBSlashed(address indexed operatorAddress, uint256 tokenBAmount, uint8 slashType);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
+    event TokenBMigrationProposed(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        address indexed legacyToken,
+        address newToken,
+        address reserveVault,
+        uint256 requiredApprovals
+    );
+    event TokenBMigrationApproved(
+        uint256 indexed proposalId, address indexed operatorAddress, uint256 approvalCount, uint256 requiredApprovals
+    );
     event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
     event MigrateSuccess(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
     event MigrateFailed(
@@ -59,6 +70,19 @@ contract StakeHubTest is Deployer {
 
     function setUp() public {
         vm.mockCall(address(0x66), bytes(""), hex"01");
+    }
+
+    function _setActiveValidators(address[] memory operators, uint64[] memory votingPowers) internal {
+        address[] memory consensusAddrs = new address[](operators.length);
+        bytes[] memory voteAddrs = new bytes[](operators.length);
+        for (uint256 i; i < operators.length; ++i) {
+            consensusAddrs[i] = stakeHub.getValidatorConsensusAddress(operators[i]);
+            voteAddrs[i] = stakeHub.getValidatorVoteAddress(operators[i]);
+        }
+
+        vm.prank(block.coinbase);
+        vm.txGasPrice(0);
+        bscValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
     }
 
     function testCreateValidator() public {
@@ -326,6 +350,11 @@ contract StakeHubTest is Deployer {
 
     function testTokenBMigration_AutoConvertsStakedLegacyPosition() public {
         (address validator,,,) = _createValidator(2000 ether);
+        address[] memory activeValidators = new address[](1);
+        activeValidators[0] = validator;
+        uint64[] memory activeVotingPowers = new uint64[](1);
+        activeVotingPowers[0] = 2001 * 1e8;
+        _setActiveValidators(activeValidators, activeVotingPowers);
         address delegator = _getNextUserAddress();
         MiniToken oldGold = new MiniToken();
         PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
@@ -343,7 +372,7 @@ contract StakeHubTest is Deployer {
         stakeHub.delegateTokenB(validator, amount);
         vm.stopPrank();
 
-        vm.prank(GOV_HUB_ADDR);
+        vm.prank(validator);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
         assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), amount, "wrong snapped legacy amount");
 
@@ -368,6 +397,11 @@ contract StakeHubTest is Deployer {
 
     function testTokenBMigration_LegacyUnbondClaimsStayLegacy() public {
         (address validator,,,) = _createValidator(2000 ether);
+        address[] memory activeValidators = new address[](1);
+        activeValidators[0] = validator;
+        uint64[] memory activeVotingPowers = new uint64[](1);
+        activeVotingPowers[0] = 2001 * 1e8;
+        _setActiveValidators(activeValidators, activeVotingPowers);
         address delegator = _getNextUserAddress();
         MiniToken oldGold = new MiniToken();
         PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
@@ -386,7 +420,7 @@ contract StakeHubTest is Deployer {
         stakeHub.undelegateTokenB(validator, 100 ether);
         vm.stopPrank();
 
-        vm.prank(GOV_HUB_ADDR);
+        vm.prank(validator);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
 
         newGold.mint(address(this), 150 ether);
@@ -404,19 +438,69 @@ contract StakeHubTest is Deployer {
         assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "remaining stake should be converted");
     }
 
-    function testUpdateParam_ActivateTokenBMigration() public {
+    function testTokenBMigration_RequiresValidatorApprovals() public {
         MiniToken oldGold = new MiniToken();
+        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        address validator1;
+        address validator2;
+        address validator3;
+        uint64[] memory activeVotingPowers = new uint64[](3);
+        address[] memory activeValidators = new address[](3);
+
+        (validator1,,,) = _createValidator(2000 ether);
+        (validator2,,,) = _createValidator(2000 ether);
+        (validator3,,,) = _createValidator(2000 ether);
+        activeValidators[0] = validator1;
+        activeValidators[1] = validator2;
+        activeValidators[2] = validator3;
+        activeVotingPowers[0] = 2001 * 1e8;
+        activeVotingPowers[1] = 2003 * 1e8;
+        activeVotingPowers[2] = 2005 * 1e8;
+        _setActiveValidators(activeValidators, activeVotingPowers);
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
+
+        vm.prank(validator1);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        uint256 proposalId = stakeHub.tokenBMigrationProposalId();
+        assertEq(stakeHub.pendingTokenBMigrationApprovalCount(), 1, "wrong approval count");
+        assertEq(stakeHub.pendingTokenBMigrationRequiredApprovals(), 2, "wrong required approvals");
+        assertEq(stakeHub.pendingTokenBMigrationStakeTokenB(), address(newGold), "wrong pending token");
+        assertTrue(stakeHub.hasApprovedTokenBMigration(proposalId, validator1), "validator1 approval missing");
+        assertEq(stakeHub.stakeTokenB(), address(oldGold), "migration should not execute with one approval");
+
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        vm.prank(validator1);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        vm.prank(validator2);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        assertEq(stakeHub.legacyStakeTokenB(), address(oldGold), "wrong legacy token");
+        assertEq(stakeHub.stakeTokenB(), address(newGold), "wrong active token");
+        assertEq(stakeHub.pendingTokenBMigrationStakeTokenB(), address(0), "pending token should clear");
+        assertEq(stakeHub.pendingTokenBMigrationApprovalCount(), 0, "pending approvals should clear");
+    }
+
+    function testUpdateParam_StakeTokenBIsLaunchOnlyAndMigrationGovernanceDisabled() public {
+        MiniToken oldGold = new MiniToken();
+        MiniToken anotherGold = new MiniToken();
         PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
         LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
 
         vm.prank(GOV_HUB_ADDR);
         stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
 
+        vm.expectRevert();
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(anotherGold)));
+
+        vm.expectRevert();
         vm.prank(GOV_HUB_ADDR);
         stakeHub.updateParam("activateTokenBMigration", abi.encode(address(newGold), address(reserveVault)));
-
-        assertEq(stakeHub.legacyStakeTokenB(), address(oldGold), "wrong legacy token");
-        assertEq(stakeHub.stakeTokenB(), address(newGold), "wrong active token");
     }
 
     function testElectionPower_UsesWeightedAndCappedTokenB() public {

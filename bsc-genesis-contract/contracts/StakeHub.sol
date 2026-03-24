@@ -199,6 +199,11 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     address public legacyTokenBReserveVault;
     uint256 public tokenBCutoverVersion;
     uint256 public tokenBMigrationReserve;
+    uint256 public tokenBMigrationProposalId;
+    address public pendingTokenBMigrationStakeTokenB;
+    address public pendingTokenBMigrationReserveVault;
+    uint256 public pendingTokenBMigrationApprovalCount;
+    uint256 public pendingTokenBMigrationRequiredApprovals;
     // validator operator => total delegated legacy token B amount
     mapping(address => uint256) public totalLegacyDelegatedTokenB;
     // validator operator => delegator => migration version
@@ -207,6 +212,8 @@ contract StakeHub is SystemV2, Initializable, Protectable {
     mapping(address => mapping(address => mapping(uint256 => uint256))) private _tokenBUnbondRequestVersion;
     // validator operator => current token B delegators
     mapping(address => EnumerableSet.AddressSet) private _tokenBDelegators;
+    // migration proposal id => validator operator => approved
+    mapping(uint256 => mapping(address => bool)) private _tokenBMigrationApprovals;
 
     /*----------------- structs and events -----------------*/
     struct StakeMigrationPackage {
@@ -308,6 +315,17 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         address indexed reserveVault,
         uint256 cutoverVersion
     );
+    event TokenBMigrationProposed(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        address indexed legacyToken,
+        address newToken,
+        address reserveVault,
+        uint256 requiredApprovals
+    );
+    event TokenBMigrationApproved(
+        uint256 indexed proposalId, address indexed operatorAddress, uint256 approvalCount, uint256 requiredApprovals
+    );
     event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
     event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
     event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
@@ -335,6 +353,11 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         _receiveFundStatus = _ENABLE;
         _;
         _receiveFundStatus = _DISABLE;
+    }
+
+    modifier onlyCurrentValidatorOperator() {
+        if (!_isCurrentValidatorOperator(msg.sender)) revert InvalidValidator();
+        _;
     }
 
     receive() external payable {
@@ -822,8 +845,44 @@ contract StakeHub is SystemV2, Initializable, Protectable {
      * @param newStakeTokenB the new token B address used for active staking
      * @param reserveVault the vault that will hold legacy token B after migration
      */
-    function activateTokenBMigration(address newStakeTokenB, address reserveVault) external onlyGov {
-        _activateTokenBMigration(newStakeTokenB, reserveVault);
+    function activateTokenBMigration(
+        address newStakeTokenB,
+        address reserveVault
+    ) external whenNotPaused onlyCurrentValidatorOperator {
+        address currentStakeTokenB = stakeTokenB;
+        if (currentStakeTokenB == address(0) || newStakeTokenB == address(0) || reserveVault == address(0)) {
+            revert InvalidRequest();
+        }
+        if (legacyStakeTokenB != address(0) || newStakeTokenB == currentStakeTokenB) revert InvalidRequest();
+
+        if (pendingTokenBMigrationStakeTokenB != newStakeTokenB || pendingTokenBMigrationReserveVault != reserveVault) {
+            tokenBMigrationProposalId += 1;
+            pendingTokenBMigrationStakeTokenB = newStakeTokenB;
+            pendingTokenBMigrationReserveVault = reserveVault;
+            pendingTokenBMigrationApprovalCount = 0;
+            pendingTokenBMigrationRequiredApprovals = _requiredMigrationApprovals(_currentMigrationValidatorCount());
+            if (pendingTokenBMigrationRequiredApprovals == 0) revert InvalidRequest();
+
+            emit TokenBMigrationProposed(
+                tokenBMigrationProposalId,
+                msg.sender,
+                currentStakeTokenB,
+                newStakeTokenB,
+                reserveVault,
+                pendingTokenBMigrationRequiredApprovals
+            );
+        }
+
+        _approveTokenBMigrationProposal(tokenBMigrationProposalId, msg.sender);
+
+        if (pendingTokenBMigrationApprovalCount < pendingTokenBMigrationRequiredApprovals) {
+            return;
+        }
+
+        address approvedStakeTokenB = pendingTokenBMigrationStakeTokenB;
+        address approvedReserveVault = pendingTokenBMigrationReserveVault;
+        _clearPendingTokenBMigrationProposal();
+        _activateTokenBMigration(approvedStakeTokenB, approvedReserveVault);
     }
 
     function _activateTokenBMigration(address newStakeTokenB, address reserveVault) internal {
@@ -872,6 +931,13 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         IERC20(stakeTokenB).safeTransfer(recipient, amount);
 
         emit TokenBMigrationReserveWithdrawn(recipient, amount);
+    }
+
+    function hasApprovedTokenBMigration(
+        uint256 proposalId,
+        address operatorAddress
+    ) external view returns (bool) {
+        return _tokenBMigrationApprovals[proposalId][operatorAddress];
     }
 
     /**
@@ -1151,12 +1217,12 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         } else if (key.compareStrings("stakeTokenB")) {
             if (value.length != 20) revert InvalidValue(key, value);
             address newStakeTokenB = value.bytesToAddress(20);
-            if (newStakeTokenB == address(0) || legacyStakeTokenB != address(0)) revert InvalidValue(key, value);
+            if (newStakeTokenB == address(0) || stakeTokenB != address(0) || legacyStakeTokenB != address(0)) {
+                revert InvalidValue(key, value);
+            }
             stakeTokenB = newStakeTokenB;
         } else if (key.compareStrings("activateTokenBMigration")) {
-            if (value.length != 64) revert InvalidValue(key, value);
-            (address newStakeTokenB, address reserveVault) = abi.decode(value, (address, address));
-            _activateTokenBMigration(newStakeTokenB, reserveVault);
+            revert InvalidValue(key, value);
         } else if (key.compareStrings("stakeWeightA")) {
             if (value.length != 32) revert InvalidValue(key, value);
             uint256 newStakeWeightA = value.bytesToUint256(32);
@@ -1945,6 +2011,46 @@ contract StakeHub is SystemV2, Initializable, Protectable {
         IERC20(legacyStakeTokenB).safeTransfer(legacyTokenBReserveVault, legacyAmount);
 
         emit LegacyTokenBMigrated(operatorAddress, delegator, legacyAmount);
+    }
+
+    function _approveTokenBMigrationProposal(uint256 proposalId, address operatorAddress) internal {
+        if (_tokenBMigrationApprovals[proposalId][operatorAddress]) revert InvalidRequest();
+
+        _tokenBMigrationApprovals[proposalId][operatorAddress] = true;
+        pendingTokenBMigrationApprovalCount += 1;
+
+        emit TokenBMigrationApproved(
+            proposalId, operatorAddress, pendingTokenBMigrationApprovalCount, pendingTokenBMigrationRequiredApprovals
+        );
+    }
+
+    function _clearPendingTokenBMigrationProposal() internal {
+        pendingTokenBMigrationStakeTokenB = address(0);
+        pendingTokenBMigrationReserveVault = address(0);
+        pendingTokenBMigrationApprovalCount = 0;
+        pendingTokenBMigrationRequiredApprovals = 0;
+    }
+
+    function _isCurrentValidatorOperator(address operatorAddress) internal view returns (bool) {
+        if (!_validatorSet.contains(operatorAddress)) {
+            return false;
+        }
+
+        address consensusAddress = _validators[operatorAddress].consensusAddress;
+        if (consensusAddress == address(0)) {
+            return false;
+        }
+
+        return IBSCValidatorSet(VALIDATOR_CONTRACT_ADDR).isCurrentValidator(consensusAddress);
+    }
+
+    function _currentMigrationValidatorCount() internal view returns (uint256) {
+        (address[] memory consensusAddrs,) = IBSCValidatorSet(VALIDATOR_CONTRACT_ADDR).getMiningValidators();
+        return consensusAddrs.length;
+    }
+
+    function _requiredMigrationApprovals(uint256 activeValidatorCount) internal pure returns (uint256) {
+        return (activeValidatorCount * 2 + 2) / 3;
     }
 
     function _bep410MsgSender() internal view returns (address) {

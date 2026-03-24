@@ -7,6 +7,12 @@ const stakeHubAbi = [
   'function legacyStakeTokenB() view returns (address)',
   'function tokenBCutoverVersion() view returns (uint256)',
   'function tokenBMigrationReserve() view returns (uint256)',
+  'function tokenBMigrationProposalId() view returns (uint256)',
+  'function pendingTokenBMigrationStakeTokenB() view returns (address)',
+  'function pendingTokenBMigrationReserveVault() view returns (address)',
+  'function pendingTokenBMigrationApprovalCount() view returns (uint256)',
+  'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
+  'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
   'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
   'function depositTokenBMigrationReserve(uint256 amount)',
 ];
@@ -39,12 +45,14 @@ async function main() {
   const beforeActive = await stakeHub.stakeTokenB();
   const beforeLegacy = await stakeHub.legacyStakeTokenB();
   const beforeVersion = await stakeHub.tokenBCutoverVersion();
+  const beforeProposalId = await stakeHub.tokenBMigrationProposalId();
 
   console.log('before');
   console.log({
     activeGold: beforeActive,
     legacyGold: beforeLegacy,
     cutoverVersion: beforeVersion.toString(),
+    proposalId: beforeProposalId.toString(),
   });
 
   if (beforeLegacy === ethers.ZeroAddress) {
@@ -71,6 +79,7 @@ async function main() {
   const afterActive = await stakeHub.stakeTokenB();
   const afterLegacy = await stakeHub.legacyStakeTokenB();
   const afterVersion = await stakeHub.tokenBCutoverVersion();
+  const afterProposalId = await stakeHub.tokenBMigrationProposalId();
   const reserve = await stakeHub.tokenBMigrationReserve();
 
   console.log('after');
@@ -78,6 +87,12 @@ async function main() {
     activeGold: afterActive,
     legacyGold: afterLegacy,
     cutoverVersion: afterVersion.toString(),
+    proposalId: afterProposalId.toString(),
+    pendingStakeTokenB: await stakeHub.pendingTokenBMigrationStakeTokenB(),
+    pendingReserveVault: await stakeHub.pendingTokenBMigrationReserveVault(),
+    pendingApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
+    pendingRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
+    walletApprovedCurrentProposal: await stakeHub.hasApprovedTokenBMigration(afterProposalId, wallet.address),
     migrationReserve: reserve.toString(),
   });
 }

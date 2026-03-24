@@ -32,11 +32,16 @@ const stakeHubAbi = [
   'function delegateTokenB(address operatorAddress, uint256 tokenBAmount)',
   'function undelegateTokenB(address operatorAddress, uint256 tokenBAmount)',
   'function claimTokenB(address operatorAddress, uint256 requestNumber)',
+  'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
   'function depositTokenBMigrationReserve(uint256 amount)',
   'function getValidatorElectionInfo(uint256 offset, uint256 limit) view returns (address[] memory consensusAddresses, uint256[] memory votingPowers, bytes[] memory voteAddresses, uint256 totalLength)',
   'function getDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
   'function getLegacyDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
+  'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
   'function legacyStakeTokenB() view returns (address)',
+  'function pendingTokenBMigrationApprovalCount() view returns (uint256)',
+  'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
+  'function tokenBMigrationProposalId() view returns (uint256)',
   'function ratioEnabled() view returns (bool)',
   'function stakeTokenB() view returns (address)',
   'function tokenBMigrationReserve() view returns (uint256)',
@@ -258,12 +263,8 @@ async function main() {
   const afterElection = await stakeHub.getValidatorElectionInfo(0, 0);
   const powerAfterRatio = afterElection[1][0];
 
-  console.error('governance: activate migration');
-  await governStakeHubUpdate(
-    'activateTokenBMigration',
-    ethers.AbiCoder.defaultAbiCoder().encode(['address', 'address'], [await newGold.getAddress(), await reserveVault.getAddress()]),
-    'Activate GOLD migration',
-  );
+  console.error('validator approval: activate migration');
+  await (await stakeHub.connect(validatorWallet).activateTokenBMigration(await newGold.getAddress(), await reserveVault.getAddress())).wait();
 
   console.error('funding migration reserve');
   await (await newGoldAsOwner.approve(STAKE_HUB, ethers.parseEther('300'))).wait();
@@ -301,6 +302,10 @@ async function main() {
     ratioEnabled: await stakeHub.ratioEnabled(),
     powerBeforeRatio: powerBeforeRatio.toString(),
     powerAfterRatio: powerAfterRatio.toString(),
+    migrationProposalId: (await stakeHub.tokenBMigrationProposalId()).toString(),
+    migrationApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
+    migrationRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
+    validatorApprovedMigration: await stakeHub.hasApprovedTokenBMigration(await stakeHub.tokenBMigrationProposalId(), validatorAddress),
     migrationReserve: (await stakeHub.tokenBMigrationReserve()).toString(),
     delegatorRemainingStake: (await stakeHub.getDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
     delegatorLegacyStake: (await stakeHub.getLegacyDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
