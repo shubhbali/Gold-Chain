@@ -225,6 +225,7 @@ func newModernSigner(chainID *big.Int, fork forks.Fork) Signer {
 	if fork >= forks.London {
 		s.txtypes.set(DynamicFeeTxType)
 		s.txtypes.set(NativeTokenTxType)
+		s.txtypes.set(StateSyncTxType)
 	}
 	if fork >= forks.Cancun {
 		s.txtypes.set(BlobTxType)
@@ -256,6 +257,9 @@ func (s *modernSigner) Sender(tx *Transaction) (common.Address, error) {
 	tt := tx.Type()
 	if !s.supportsType(tt) {
 		return common.Address{}, ErrTxTypeNotSupported
+	}
+	if tt == StateSyncTxType {
+		return common.Address{}, nil
 	}
 	if tt == LegacyTxType {
 		return s.legacy.Sender(tx)

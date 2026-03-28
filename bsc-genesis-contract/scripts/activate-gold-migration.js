@@ -6,7 +6,7 @@ const stakeHubAbi = [
   'function stakeTokenB() view returns (address)',
   'function legacyStakeTokenB() view returns (address)',
   'function tokenBCutoverVersion() view returns (uint256)',
-  'function tokenBMigrationReserve() view returns (uint256)',
+  'function tokenBMigrationReserveById(uint256 tokenId) view returns (uint256)',
   'function tokenBMigrationProposalId() view returns (uint256)',
   'function pendingTokenBMigrationStakeTokenB() view returns (address)',
   'function pendingTokenBMigrationReserveVault() view returns (address)',
@@ -14,13 +14,13 @@ const stakeHubAbi = [
   'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
   'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
   'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
-  'function depositTokenBMigrationReserve(uint256 amount)',
+  'function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount)',
 ];
 
-const erc20Abi = [
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function allowance(address owner, address spender) view returns (uint256)',
-  'function balanceOf(address account) view returns (uint256)',
+const erc1155Abi = [
+  'function setApprovalForAll(address operator, bool approved)',
+  'function isApprovedForAll(address owner, address operator) view returns (bool)',
+  'function balanceOf(address account, uint256 id) view returns (uint256)',
 ];
 
 function required(name) {
@@ -38,9 +38,10 @@ async function main() {
   const newGoldAddress = required('NEW_GOLD_ADDRESS');
   const reserveVaultAddress = required('RESERVE_VAULT_ADDRESS');
   const reserveWei = process.env.MIGRATION_RESERVE_WEI || '0';
+  const tokenId = BigInt(required('TOKEN_ID'));
 
   const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, stakeHubAbi, wallet);
-  const newGold = new ethers.Contract(newGoldAddress, erc20Abi, wallet);
+  const newGold = new ethers.Contract(newGoldAddress, erc1155Abi, wallet);
 
   const beforeActive = await stakeHub.stakeTokenB();
   const beforeLegacy = await stakeHub.legacyStakeTokenB();
@@ -64,14 +65,14 @@ async function main() {
   }
 
   if (reserveWei !== '0') {
-    const allowance = await newGold.allowance(wallet.address, STAKE_HUB_ADDRESS);
-    if (allowance < reserveWei) {
-      const approveTx = await newGold.approve(STAKE_HUB_ADDRESS, reserveWei);
+    const approved = await newGold.isApprovedForAll(wallet.address, STAKE_HUB_ADDRESS);
+    if (!approved) {
+      const approveTx = await newGold.setApprovalForAll(STAKE_HUB_ADDRESS, true);
       console.log(`approve tx: ${approveTx.hash}`);
       await approveTx.wait();
     }
 
-    const depositTx = await stakeHub.depositTokenBMigrationReserve(reserveWei);
+    const depositTx = await stakeHub.depositTokenBMigrationReserve1155(tokenId, reserveWei);
     console.log(`deposit tx: ${depositTx.hash}`);
     await depositTx.wait();
   }
@@ -80,7 +81,7 @@ async function main() {
   const afterLegacy = await stakeHub.legacyStakeTokenB();
   const afterVersion = await stakeHub.tokenBCutoverVersion();
   const afterProposalId = await stakeHub.tokenBMigrationProposalId();
-  const reserve = await stakeHub.tokenBMigrationReserve();
+  const reserve = await stakeHub.tokenBMigrationReserveById(tokenId);
 
   console.log('after');
   console.log({
@@ -93,6 +94,7 @@ async function main() {
     pendingApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
     pendingRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
     walletApprovedCurrentProposal: await stakeHub.hasApprovedTokenBMigration(afterProposalId, wallet.address),
+    tokenId: tokenId.toString(),
     migrationReserve: reserve.toString(),
   });
 }

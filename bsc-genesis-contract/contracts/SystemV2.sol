@@ -21,6 +21,7 @@ contract SystemV2 {
     address internal constant TIMELOCK_ADDR = 0x0000000000000000000000000000000000002006;
     address internal constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000002007;
     address internal constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
+    address internal constant NATIVE_GILT_BRIDGE_ADDR = 0x0000000000000000000000000000000000003002;
 
     /*----------------- errors -----------------*/
     // @notice signature: 0x97b88354

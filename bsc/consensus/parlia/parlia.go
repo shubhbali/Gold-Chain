@@ -117,6 +117,7 @@ var (
 		common.HexToAddress(systemcontracts.TimelockContract):           true,
 		common.HexToAddress(systemcontracts.GeneralNativeTokenManager):  true,
 		common.HexToAddress(systemcontracts.TokenRecoverPortalContract): true,
+		common.HexToAddress(systemcontracts.NativeGiltBridgeContract):   true,
 	}
 )
 
@@ -272,6 +273,8 @@ type Parlia struct {
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
+
+	bridge BridgeConfig
 }
 
 // New creates a Parlia consensus engine.
@@ -280,6 +283,7 @@ func New(
 	db ethdb.Database,
 	ethAPI *ethapi.BlockChainAPI,
 	genesisHash common.Hash,
+	bridgeConfig BridgeConfig,
 ) *Parlia {
 	// get parlia config
 	parliaConfig := chainConfig.Parlia
@@ -316,6 +320,7 @@ func New(
 		slashABI:                   sABI,
 		stakeHubABI:                stABI,
 		signer:                     types.LatestSigner(chainConfig),
+		bridge:                     bridgeConfig,
 	}
 
 	return c
@@ -1495,6 +1500,10 @@ func (p *Parlia) Finalize(chain consensus.ChainHeaderReader, header *types.Heade
 		}
 	}
 
+	if err := p.commitStateSyncs(state, header, cx, txs, receipts, systemTxs, false, tracer); err != nil {
+		return err
+	}
+
 	if len(*systemTxs) > 0 {
 		return errors.New("the length of systemTxs do not match")
 	}
@@ -1581,6 +1590,10 @@ func (p *Parlia) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *
 				return nil, nil, err
 			}
 		}
+	}
+
+	if err := p.commitStateSyncs(state, header, cx, &body.Transactions, &receipts, nil, true, tracer); err != nil {
+		return nil, nil, err
 	}
 
 	// should not happen. Once happen, stop the node is better than broadcast the block
@@ -2040,10 +2053,10 @@ func (p *Parlia) distributeIncoming(val common.Address, state vm.StateDB, header
 
 	doDistributeSysReward := !p.chainConfig.IsKepler(header.Number, header.Time) &&
 		state.GetBalance(common.HexToAddress(systemcontracts.SystemRewardContract)).Cmp(maxSystemBalance) < 0
-		if doDistributeSysReward {
-			balance := state.GetBalance(consensus.SystemAddress)
-			rewards := new(uint256.Int)
-			rewards = rewards.Rsh(balance, systemRewardPercent)
+	if doDistributeSysReward {
+		balance := state.GetBalance(consensus.SystemAddress)
+		rewards := new(uint256.Int)
+		rewards = rewards.Rsh(balance, systemRewardPercent)
 		if rewards.Cmp(common.U2560) > 0 {
 			state.SetBalance(consensus.SystemAddress, balance.Sub(balance, rewards), tracing.BalanceChangeUnspecified)
 			state.AddBalance(coinbase, rewards, tracing.BalanceChangeUnspecified)
@@ -2051,16 +2064,16 @@ func (p *Parlia) distributeIncoming(val common.Address, state vm.StateDB, header
 			if err != nil {
 				return err
 			}
-				log.Trace("distribute to system reward pool", "block hash", header.Hash(), "amount", rewards)
-			}
+			log.Trace("distribute to system reward pool", "block hash", header.Hash(), "amount", rewards)
 		}
+	}
 
-		if err := p.distributeInflation(val, state, header, chain, txs, receipts, receivedTxs, usedGas, mining, tracer); err != nil {
-			return err
-		}
+	if err := p.distributeInflation(val, state, header, chain, txs, receipts, receivedTxs, usedGas, mining, tracer); err != nil {
+		return err
+	}
 
-		balance := state.GetBalance(consensus.SystemAddress)
-		if balance.Cmp(common.U2560) <= 0 {
+	balance := state.GetBalance(consensus.SystemAddress)
+	if balance.Cmp(common.U2560) <= 0 {
 		return nil
 	}
 

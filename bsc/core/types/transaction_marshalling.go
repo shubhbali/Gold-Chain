@@ -154,6 +154,9 @@ func (tx *Transaction) MarshalJSON() ([]byte, error) {
 		yparity := itx.V.Uint64()
 		enc.YParity = (*hexutil.Uint64)(&yparity)
 
+	case *StateSyncTx:
+		// State sync transactions are synthetic system transactions.
+
 	case *BlobTx:
 		enc.ChainID = (*hexutil.Big)(itx.ChainID.ToBig())
 		enc.Nonce = (*hexutil.Uint64)(&itx.Nonce)
@@ -429,6 +432,10 @@ func (tx *Transaction) UnmarshalJSON(input []byte) error {
 				return err
 			}
 		}
+
+	case StateSyncTxType:
+		var itx StateSyncTx
+		inner = &itx
 
 	case BlobTxType:
 		var itx BlobTx

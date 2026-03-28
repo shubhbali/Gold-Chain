@@ -20,7 +20,9 @@ const legacyUnbondWallet = new ethers.Wallet(walletsData[4].private_key, provide
 const validatorWallet = blockProducerWallet;
 
 const validatorAddress = validatorWallet.address;
-const blsPubkey = process.env.BLS_PUBKEY || '0x82106fca090df4d75d8a0e40e71fe47619ce9a9d5425063e734e40dca8a1f536443ea556a68e715496c8753c1be83f02';
+const blsPubkey =
+  process.env.BLS_PUBKEY ||
+  '0x82106fca090df4d75d8a0e40e71fe47619ce9a9d5425063e734e40dca8a1f536443ea556a68e715496c8753c1be83f02';
 const blsDatadir = process.env.BLS_DATADIR || path.resolve(__dirname, '../../.live-roughnet/validator1/bls');
 const blsPassword = process.env.BLS_PASSWORD_FILE || path.resolve(__dirname, '../../.live-roughnet/bls-pass.txt');
 const gethBinary = process.env.GETH_BINARY || path.resolve(__dirname, '../../.tmp/geth');
@@ -29,22 +31,24 @@ const stakeHubAbi = [
   'function LOCK_AMOUNT() view returns (uint256)',
   'function createValidator(address consensusAddress, bytes voteAddress, bytes blsProof, (uint64 rate, uint64 maxRate, uint64 maxChangeRate) commission, (string moniker, string identity, string website, string details) description) payable',
   'function delegate(address operatorAddress, bool delegateVotePower) payable',
-  'function delegateTokenB(address operatorAddress, uint256 tokenBAmount)',
-  'function undelegateTokenB(address operatorAddress, uint256 tokenBAmount)',
+  'function delegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount)',
+  'function undelegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount)',
   'function claimTokenB(address operatorAddress, uint256 requestNumber)',
   'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
-  'function depositTokenBMigrationReserve(uint256 amount)',
+  'function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount)',
   'function getValidatorElectionInfo(uint256 offset, uint256 limit) view returns (address[] memory consensusAddresses, uint256[] memory votingPowers, bytes[] memory voteAddresses, uint256 totalLength)',
   'function getDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
+  'function getDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId) view returns (uint256)',
   'function getLegacyDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
+  'function getLegacyDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId) view returns (uint256)',
   'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
   'function legacyStakeTokenB() view returns (address)',
   'function pendingTokenBMigrationApprovalCount() view returns (uint256)',
   'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
   'function tokenBMigrationProposalId() view returns (uint256)',
+  'function tokenBMigrationReserveById(uint256 tokenId) view returns (uint256)',
   'function ratioEnabled() view returns (bool)',
   'function stakeTokenB() view returns (address)',
-  'function tokenBMigrationReserve() view returns (uint256)',
   'function unbondPeriod() view returns (uint256)',
 ];
 
@@ -59,7 +63,6 @@ const governorAbi = [
   'function proposalDeadline(uint256 proposalId) view returns (uint256)',
   'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) returns (uint256)',
   'function queue(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) returns (uint256)',
-  'function state(uint256 proposalId) view returns (uint8)',
 ];
 
 const govTokenAbi = [
@@ -68,13 +71,15 @@ const govTokenAbi = [
   'function totalSupply() view returns (uint256)',
 ];
 
-const erc20Abi = [
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function balanceOf(address account) view returns (uint256)',
-  'function mint(address account, uint256 amount)',
+const erc1155Abi = [
+  'function PAXG_TOKEN_ID() view returns (uint256)',
+  'function XAUT_TOKEN_ID() view returns (uint256)',
+  'function setApprovalForAll(address operator, bool approved)',
+  'function balanceOf(address account, uint256 id) view returns (uint256)',
+  'function mint(address account, uint256 tokenId, uint256 amount)',
 ];
 
-const physicalGoldArtifact = require('../out/PhysicalGoldToken.sol/PhysicalGoldToken.json');
+const physicalGoldArtifact = require('../out/PhysicalGold1155.sol/PhysicalGold1155.json');
 const reserveVaultArtifact = require('../out/LegacyGoldReserveVault.sol/LegacyGoldReserveVault.json');
 
 const stakeHub = new ethers.Contract(STAKE_HUB, stakeHubAbi, provider);
@@ -155,15 +160,17 @@ async function main() {
   );
 
   console.error('deploying gold contracts');
-  const oldGold = await goldFactory.deploy('Legacy Gold', 'LGOLD');
+  const oldGold = await goldFactory.deploy('ipfs://legacy/{id}.json');
   await oldGold.waitForDeployment();
-  const newGold = await goldFactory.deploy('Physical Gold', 'PGOLD');
+  const newGold = await goldFactory.deploy('ipfs://gold/{id}.json');
   await newGold.waitForDeployment();
   const reserveVault = await reserveFactory.deploy();
   await reserveVault.waitForDeployment();
 
-  const oldGoldToken = new ethers.Contract(await oldGold.getAddress(), erc20Abi, tokenOwnerWallet);
-  const newGoldToken = new ethers.Contract(await newGold.getAddress(), erc20Abi, tokenOwnerWallet);
+  const oldGoldToken = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, tokenOwnerWallet);
+  const newGoldToken = new ethers.Contract(await newGold.getAddress(), erc1155Abi, tokenOwnerWallet);
+  const paxgTokenId = await oldGoldToken.PAXG_TOKEN_ID();
+  const xautTokenId = await oldGoldToken.XAUT_TOKEN_ID();
 
   console.error('creating live stakehub validator');
   const lockAmount = await stakeHub.LOCK_AMOUNT();
@@ -225,94 +232,130 @@ async function main() {
   const selfDelegateTx = await govToken.connect(governanceWallet).delegate(governanceWallet.address);
   await selfDelegateTx.wait();
 
-  console.error('governance: set stakeTokenB');
-  await governStakeHubUpdate(
-    'stakeTokenB',
-    ethers.getBytes(await oldGold.getAddress()),
-    'Set old GOLD as live staking token',
-  );
+  console.error('governance: set legacy gold');
+  await governStakeHubUpdate('stakeTokenB', ethers.getBytes(await oldGold.getAddress()), 'Set legacy GOLD');
 
   console.error('minting old and new gold');
-  await (await oldGoldToken.mint(delegatorWallet.address, ethers.parseEther('100'))).wait();
-  await (await oldGoldToken.mint(legacyUnbondWallet.address, ethers.parseEther('150'))).wait();
-  await (await newGoldToken.mint(tokenOwnerWallet.address, ethers.parseEther('500'))).wait();
+  await (await oldGoldToken.mint(delegatorWallet.address, paxgTokenId, ethers.parseEther('100'))).wait();
+  await (await oldGoldToken.mint(legacyUnbondWallet.address, paxgTokenId, ethers.parseEther('150'))).wait();
+  await (await oldGoldToken.mint(legacyUnbondWallet.address, xautTokenId, ethers.parseEther('50'))).wait();
+  await (await newGoldToken.mint(tokenOwnerWallet.address, paxgTokenId, ethers.parseEther('300'))).wait();
+  await (await newGoldToken.mint(tokenOwnerWallet.address, xautTokenId, ethers.parseEther('100'))).wait();
 
-  const oldGoldAsDelegator = new ethers.Contract(await oldGold.getAddress(), erc20Abi, delegatorWallet);
-  const oldGoldAsLegacyUnbond = new ethers.Contract(await oldGold.getAddress(), erc20Abi, legacyUnbondWallet);
-  const newGoldAsOwner = new ethers.Contract(await newGold.getAddress(), erc20Abi, tokenOwnerWallet);
+  const oldGoldAsDelegator = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, delegatorWallet);
+  const oldGoldAsLegacyUnbond = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, legacyUnbondWallet);
+  const newGoldAsOwner = new ethers.Contract(await newGold.getAddress(), erc1155Abi, tokenOwnerWallet);
 
   console.error('staking old gold');
-  await (await oldGoldAsDelegator.approve(STAKE_HUB, ethers.parseEther('100'))).wait();
-  await (await stakeHub.connect(delegatorWallet).delegateTokenB(validatorAddress, ethers.parseEther('100'))).wait();
+  await (await oldGoldAsDelegator.setApprovalForAll(STAKE_HUB, true)).wait();
+  await (
+    await stakeHub.connect(delegatorWallet).delegateTokenB1155(validatorAddress, paxgTokenId, ethers.parseEther('100'))
+  ).wait();
 
   console.error('creating legacy unbond position');
-  await (await oldGoldAsLegacyUnbond.approve(STAKE_HUB, ethers.parseEther('150'))).wait();
-  await (await stakeHub.connect(legacyUnbondWallet).delegateTokenB(validatorAddress, ethers.parseEther('150'))).wait();
-  await (await stakeHub.connect(legacyUnbondWallet).undelegateTokenB(validatorAddress, ethers.parseEther('50'))).wait();
+  await (await oldGoldAsLegacyUnbond.setApprovalForAll(STAKE_HUB, true)).wait();
+  await (
+    await stakeHub
+      .connect(legacyUnbondWallet)
+      .delegateTokenB1155(validatorAddress, paxgTokenId, ethers.parseEther('150'))
+  ).wait();
+  await (
+    await stakeHub
+      .connect(legacyUnbondWallet)
+      .delegateTokenB1155(validatorAddress, xautTokenId, ethers.parseEther('50'))
+  ).wait();
+  await (
+    await stakeHub
+      .connect(legacyUnbondWallet)
+      .undelegateTokenB1155(validatorAddress, xautTokenId, ethers.parseEther('50'))
+  ).wait();
 
   const beforeElection = await stakeHub.getValidatorElectionInfo(0, 0);
   const powerBeforeRatio = beforeElection[1][0];
 
   console.error('governance: enable ratio');
-  await governStakeHubUpdate(
-    'ratioEnabled',
-    '0x01',
-    'Enable live gold ratio enforcement',
-  );
+  await governStakeHubUpdate('ratioEnabled', '0x01', 'Enable live gold ratio enforcement');
 
   const afterElection = await stakeHub.getValidatorElectionInfo(0, 0);
   const powerAfterRatio = afterElection[1][0];
 
   console.error('validator approval: activate migration');
-  await (await stakeHub.connect(validatorWallet).activateTokenBMigration(await newGold.getAddress(), await reserveVault.getAddress())).wait();
+  await (
+    await stakeHub.connect(validatorWallet).activateTokenBMigration(await newGold.getAddress(), await reserveVault.getAddress())
+  ).wait();
 
   console.error('funding migration reserve');
-  await (await newGoldAsOwner.approve(STAKE_HUB, ethers.parseEther('300'))).wait();
-  await (await stakeHub.connect(tokenOwnerWallet).depositTokenBMigrationReserve(ethers.parseEther('300'))).wait();
+  await (await newGoldAsOwner.setApprovalForAll(STAKE_HUB, true)).wait();
+  await (
+    await stakeHub.connect(tokenOwnerWallet).depositTokenBMigrationReserve1155(paxgTokenId, ethers.parseEther('300'))
+  ).wait();
+  await (
+    await stakeHub.connect(tokenOwnerWallet).depositTokenBMigrationReserve1155(xautTokenId, ethers.parseEther('100'))
+  ).wait();
 
   console.error('post-cutover undelegate and live claims');
-  await (await stakeHub.connect(delegatorWallet).undelegateTokenB(validatorAddress, ethers.parseEther('40'))).wait();
+  await (
+    await stakeHub.connect(delegatorWallet).undelegateTokenB1155(validatorAddress, paxgTokenId, ethers.parseEther('40'))
+  ).wait();
 
   const unbondPeriod = Number(await stakeHub.unbondPeriod());
   await waitForSeconds(unbondPeriod + 5);
 
-  const newGoldAsDelegator = new ethers.Contract(await newGold.getAddress(), erc20Abi, delegatorWallet);
-  const oldGoldAsLegacyClaimer = new ethers.Contract(await oldGold.getAddress(), erc20Abi, legacyUnbondWallet);
+  const newGoldAsDelegator = new ethers.Contract(await newGold.getAddress(), erc1155Abi, delegatorWallet);
+  const oldGoldAsLegacyClaimer = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, legacyUnbondWallet);
 
-  const newGoldBeforeClaim = await newGoldAsDelegator.balanceOf(delegatorWallet.address);
+  const newGoldBeforeClaim = await newGoldAsDelegator.balanceOf(delegatorWallet.address, paxgTokenId);
   await (await stakeHub.connect(delegatorWallet).claimTokenB(validatorAddress, 0)).wait();
-  const newGoldAfterClaim = await newGoldAsDelegator.balanceOf(delegatorWallet.address);
+  const newGoldAfterClaim = await newGoldAsDelegator.balanceOf(delegatorWallet.address, paxgTokenId);
 
-  const oldGoldBeforeClaim = await oldGoldAsLegacyClaimer.balanceOf(legacyUnbondWallet.address);
+  const oldGoldBeforeClaim = await oldGoldAsLegacyClaimer.balanceOf(legacyUnbondWallet.address, xautTokenId);
   await (await stakeHub.connect(legacyUnbondWallet).claimTokenB(validatorAddress, 0)).wait();
-  const oldGoldAfterClaim = await oldGoldAsLegacyClaimer.balanceOf(legacyUnbondWallet.address);
+  const oldGoldAfterClaim = await oldGoldAsLegacyClaimer.balanceOf(legacyUnbondWallet.address, xautTokenId);
 
-  const reserveOldGold = await oldGoldToken.balanceOf(await reserveVault.getAddress());
+  const reserveOldPaxg = await oldGoldToken.balanceOf(await reserveVault.getAddress(), paxgTokenId);
+  const reserveOldXaut = await oldGoldToken.balanceOf(await reserveVault.getAddress(), xautTokenId);
 
-  console.log(JSON.stringify({
-    oldGold: await oldGold.getAddress(),
-    newGold: await newGold.getAddress(),
-    reserveVault: await reserveVault.getAddress(),
-    blockProducer: blockProducerWallet.address,
-    validatorOperator: validatorAddress,
-    govVotes: (await govToken.getVotes(governanceWallet.address)).toString(),
-    govSupply: (await govToken.totalSupply()).toString(),
-    stakeTokenB: await stakeHub.stakeTokenB(),
-    legacyStakeTokenB: await stakeHub.legacyStakeTokenB(),
-    ratioEnabled: await stakeHub.ratioEnabled(),
-    powerBeforeRatio: powerBeforeRatio.toString(),
-    powerAfterRatio: powerAfterRatio.toString(),
-    migrationProposalId: (await stakeHub.tokenBMigrationProposalId()).toString(),
-    migrationApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
-    migrationRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
-    validatorApprovedMigration: await stakeHub.hasApprovedTokenBMigration(await stakeHub.tokenBMigrationProposalId(), validatorAddress),
-    migrationReserve: (await stakeHub.tokenBMigrationReserve()).toString(),
-    delegatorRemainingStake: (await stakeHub.getDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
-    delegatorLegacyStake: (await stakeHub.getLegacyDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
-    newGoldClaimed: (newGoldAfterClaim - newGoldBeforeClaim).toString(),
-    legacyOldGoldClaimed: (oldGoldAfterClaim - oldGoldBeforeClaim).toString(),
-    reserveOldGold: reserveOldGold.toString(),
-  }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        oldGold: await oldGold.getAddress(),
+        newGold: await newGold.getAddress(),
+        reserveVault: await reserveVault.getAddress(),
+        blockProducer: blockProducerWallet.address,
+        validatorOperator: validatorAddress,
+        govVotes: (await govToken.getVotes(governanceWallet.address)).toString(),
+        govSupply: (await govToken.totalSupply()).toString(),
+        stakeTokenB: await stakeHub.stakeTokenB(),
+        legacyStakeTokenB: await stakeHub.legacyStakeTokenB(),
+        ratioEnabled: await stakeHub.ratioEnabled(),
+        powerBeforeRatio: powerBeforeRatio.toString(),
+        powerAfterRatio: powerAfterRatio.toString(),
+        migrationProposalId: (await stakeHub.tokenBMigrationProposalId()).toString(),
+        migrationApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
+        migrationRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
+        validatorApprovedMigration: await stakeHub.hasApprovedTokenBMigration(
+          await stakeHub.tokenBMigrationProposalId(),
+          validatorAddress,
+        ),
+        migrationReservePaxg: (await stakeHub.tokenBMigrationReserveById(paxgTokenId)).toString(),
+        migrationReserveXaut: (await stakeHub.tokenBMigrationReserveById(xautTokenId)).toString(),
+        delegatorRemainingStake: (await stakeHub.getDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
+        delegatorRemainingPaxgStake: (
+          await stakeHub.getDelegatedTokenBById(validatorAddress, delegatorWallet.address, paxgTokenId)
+        ).toString(),
+        delegatorLegacyStake: (await stakeHub.getLegacyDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
+        legacyUnbondWalletLegacyXautStake: (
+          await stakeHub.getLegacyDelegatedTokenBById(validatorAddress, legacyUnbondWallet.address, xautTokenId)
+        ).toString(),
+        newGoldClaimed: (newGoldAfterClaim - newGoldBeforeClaim).toString(),
+        legacyOldGoldClaimed: (oldGoldAfterClaim - oldGoldBeforeClaim).toString(),
+        reserveOldPaxg: reserveOldPaxg.toString(),
+        reserveOldXaut: reserveOldXaut.toString(),
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main().catch((err) => {

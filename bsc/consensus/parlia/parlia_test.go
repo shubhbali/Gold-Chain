@@ -678,7 +678,7 @@ func TestParlia_applyTransactionTracing(t *testing.T) {
 		})
 	})
 
-	engine := New(params.ParliaTestChainConfig, db, nil, genesisBlock.Hash())
+	engine := New(params.ParliaTestChainConfig, db, nil, genesisBlock.Hash(), BridgeConfig{})
 
 	stateDatabase := state.NewDatabase(trieDB, nil)
 	stateDB, err := state.New(genesisBlock.Root(), stateDatabase)

@@ -27,6 +27,8 @@ contract System {
     address public constant TIMELOCK_ADDR = 0x0000000000000000000000000000000000002006;
     address public constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000002007;
     address public constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
+    address public constant STATE_RECEIVER_ADDR = 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE;
+    address public constant NATIVE_GILT_BRIDGE_ADDR = 0x0000000000000000000000000000000000003002;
 
     modifier onlyCoinbase() {
         require(msg.sender == block.coinbase, "the message sender must be the block producer");
@@ -100,6 +102,11 @@ contract System {
 
     modifier onlyTokenRecoverPortal() {
         require(msg.sender == TOKEN_RECOVER_PORTAL_ADDR, "the msg sender must be token recover portal");
+        _;
+    }
+
+    modifier onlySystem() {
+        require(msg.sender == STATE_RECEIVER_ADDR, "the msg sender must be system");
         _;
     }
 

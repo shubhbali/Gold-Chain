@@ -1,0 +1,25 @@
+# Apple OS files
+.DS_Store
+
+# ignore build
+build
+logs
+*.log
+
+# IDE
+.idea
+.vscode
+.dccache
+.idea*
+
+# Local heimdall data
+./data
+
+# Migration testdata and files
+cmd/heimdalld/cmd/testdata/dump-genesis-mainnet.json
+cmd/heimdalld/cmd/testdata/migrated_dump-genesis-mainnet.json
+cmd/heimdalld/cmd/testdata/dump-genesis-amoy.json
+cmd/heimdalld/cmd/testdata/migrated_dump-genesis-amoy.json
+migration/networks
+
+coverage.out

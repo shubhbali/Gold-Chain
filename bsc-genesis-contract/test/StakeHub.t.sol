@@ -1,10 +1,8 @@
 pragma solidity ^0.8.10;
 
-import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./utils/test_token/MiniToken.sol";
 import "../contracts/LegacyGoldReserveVault.sol";
-import "../contracts/PhysicalGoldToken.sol";
+import "../contracts/PhysicalGold1155.sol";
 
 import "./utils/Deployer.sol";
 
@@ -22,7 +20,7 @@ contract StakeHubTest is Deployer {
     // Add NodeID related events and errors
     event NodeIDAdded(address indexed validator, bytes32 nodeID);
     event NodeIDRemoved(address indexed validator, bytes32 nodeID);
-    
+
     error ExceedsMaxNodeIDs();
     error DuplicateNodeID();
     error InvalidNodeID();
@@ -52,7 +50,9 @@ contract StakeHubTest is Deployer {
     event TokenBMigrationApproved(
         uint256 indexed proposalId, address indexed operatorAddress, uint256 approvalCount, uint256 requiredApprovals
     );
-    event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
+    event InflationMintRecorded(
+        uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply
+    );
     event MigrateSuccess(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
     event MigrateFailed(
         address indexed operatorAddress, address indexed delegator, uint256 bnbAmount, StakeMigrationRespCode respCode
@@ -66,7 +66,7 @@ contract StakeHubTest is Deployer {
         VALIDATOR_JAILED
     }
 
-    receive() external payable { }
+    receive() external payable {}
 
     function setUp() public {
         vm.mockCall(address(0x66), bytes(""), hex"01");
@@ -85,6 +85,37 @@ contract StakeHubTest is Deployer {
         bscValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
     }
 
+    function _configureGold1155(PhysicalGold1155 gold) internal {
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
+        stakeHub.updateParam("stakeTokenBSecondaryId", abi.encode(uint256(2)));
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(gold)));
+        vm.stopPrank();
+    }
+
+    function _configureGold1155WithUnbond(PhysicalGold1155 gold, uint256 unbondPeriod_) internal {
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
+        stakeHub.updateParam("stakeTokenBSecondaryId", abi.encode(uint256(2)));
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(gold)));
+        stakeHub.updateParam("unbondPeriod", abi.encode(unbondPeriod_));
+        vm.stopPrank();
+    }
+
+    function _mintAndDelegateGold(
+        PhysicalGold1155 gold,
+        address validator,
+        address delegator,
+        uint256 tokenId,
+        uint256 amount
+    ) internal {
+        gold.mint(delegator, tokenId, amount);
+        vm.startPrank(delegator);
+        gold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.delegateTokenB1155(validator, tokenId, amount);
+        vm.stopPrank();
+    }
+
     function testCreateValidator() public {
         // create validator success
         (address validator,,,) = _createValidator(2000 ether);
@@ -97,7 +128,7 @@ contract StakeHubTest is Deployer {
         // create failed with duplicate consensus address
         uint256 delegation = 2000 ether;
         uint256 toLock = stakeHub.LOCK_AMOUNT();
-        StakeHub.Commission memory commission = StakeHub.Commission({ rate: 10, maxRate: 100, maxChangeRate: 5 });
+        StakeHub.Commission memory commission = StakeHub.Commission({rate: 10, maxRate: 100, maxChangeRate: 5});
         StakeHub.Description memory description = StakeHub.Description({
             moniker: string.concat("T", vm.toString(uint24(uint160(operatorAddress)))),
             identity: vm.toString(operatorAddress),
@@ -110,21 +141,21 @@ contract StakeHubTest is Deployer {
         bytes memory blsProof = new bytes(96);
 
         vm.expectRevert(StakeHub.DuplicateConsensusAddress.selector);
-        stakeHub.createValidator{ value: delegation + toLock }(
+        stakeHub.createValidator{value: delegation + toLock}(
             consensusAddress, blsPubKey, blsProof, commission, description
         );
 
         // create failed with duplicate vote address
         consensusAddress = address(uint160(uint256(keccak256(blsPubKey))));
         vm.expectRevert(StakeHub.DuplicateVoteAddress.selector);
-        stakeHub.createValidator{ value: delegation + toLock }(
+        stakeHub.createValidator{value: delegation + toLock}(
             consensusAddress, voteAddress, blsProof, commission, description
         );
 
         // create failed with duplicate moniker
         description = stakeHub.getValidatorDescription(validator);
         vm.expectRevert(StakeHub.DuplicateMoniker.selector);
-        stakeHub.createValidator{ value: delegation + toLock }(
+        stakeHub.createValidator{value: delegation + toLock}(
             consensusAddress, blsPubKey, blsProof, commission, description
         );
     }
@@ -192,11 +223,11 @@ contract StakeHubTest is Deployer {
 
         // failed with too small delegation amount
         vm.expectRevert(StakeHub.DelegationAmountTooSmall.selector);
-        stakeHub.delegate{ value: 1 }(validator, false);
+        stakeHub.delegate{value: 1}(validator, false);
 
         // success case
         uint256 bnbAmount = 100 ether;
-        stakeHub.delegate{ value: bnbAmount }(validator, false);
+        stakeHub.delegate{value: bnbAmount}(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
         assertEq(shares, bnbAmount);
         uint256 pooledBNB = IStakeCredit(credit).getPooledBNBByShares(shares);
@@ -211,7 +242,7 @@ contract StakeHubTest is Deployer {
         vm.startPrank(delegator);
 
         uint256 bnbAmount = 100 ether;
-        stakeHub.delegate{ value: bnbAmount }(validator, false);
+        stakeHub.delegate{value: bnbAmount}(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
 
         // failed with not enough shares
@@ -256,7 +287,7 @@ contract StakeHubTest is Deployer {
         assertEq(_totalPooledBNB, toLock, "wrong total pooled BNB");
 
         // 2. delegate again
-        stakeHub.delegate{ value: selfDelegation }(validator, false);
+        stakeHub.delegate{value: selfDelegation}(validator, false);
         _totalShares = IStakeCredit(credit).totalSupply();
         assertEq(_totalShares, selfDelegation + toLock, "wrong total shares");
         _totalPooledBNB = IStakeCredit(credit).totalPooledBNB();
@@ -272,7 +303,7 @@ contract StakeHubTest is Deployer {
         vm.startPrank(delegator);
 
         uint256 bnbAmount = 100 ether;
-        stakeHub.delegate{ value: bnbAmount }(validator1, false);
+        stakeHub.delegate{value: bnbAmount}(validator1, false);
         uint256 oldShares = IStakeCredit(credit1).balanceOf(delegator);
 
         // failed with too small redelegation amount
@@ -302,24 +333,22 @@ contract StakeHubTest is Deployer {
         stakeHub.redelegate(validator1, validator2, selfDelegation, false);
     }
 
-    function testDelegateTokenBAndUndelegateTokenB() public {
+    function testDelegateGold1155AndUndelegateGold1155() public {
         (address validator,,,) = _createValidator(2000 ether);
         address delegator = _getNextUserAddress();
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
+        _configureGold1155WithUnbond(gold, 7 days);
 
         uint256 amount = 250 ether;
-        tokenB.transfer(delegator, amount);
-        vm.startPrank(delegator);
-        tokenB.approve(address(stakeHub), amount);
+        gold.mint(delegator, paxgTokenId, amount);
 
+        vm.startPrank(delegator);
+        gold.setApprovalForAll(address(stakeHub), true);
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit TokenBDelegated(validator, delegator, amount);
-        stakeHub.delegateTokenB(validator, amount);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, amount);
 
         assertEq(stakeHub.getDelegatedTokenB(validator, delegator), amount, "wrong delegated tokenB amount");
         assertEq(stakeHub.totalDelegatedTokenB(validator), amount, "wrong validator total tokenB amount");
@@ -327,7 +356,7 @@ contract StakeHubTest is Deployer {
         uint256 undelegateAmt = 100 ether;
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit TokenBUndelegated(validator, delegator, undelegateAmt);
-        stakeHub.undelegateTokenB(validator, undelegateAmt);
+        stakeHub.undelegateTokenB1155(validator, paxgTokenId, undelegateAmt);
 
         assertEq(stakeHub.pendingTokenBUnbondRequest(validator, delegator), 1, "wrong pending unbond requests");
         (uint256 pendingAmt, uint256 unlockTime) = stakeHub.tokenBUnbondRequest(validator, delegator, 0);
@@ -348,7 +377,60 @@ contract StakeHubTest is Deployer {
         vm.stopPrank();
     }
 
-    function testTokenBMigration_AutoConvertsStakedLegacyPosition() public {
+    function testDelegateMixedGold1155AndUndelegateGold1155() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
+        uint256 xautTokenId = gold.XAUT_TOKEN_ID();
+
+        _configureGold1155WithUnbond(gold, 7 days);
+
+        gold.mint(delegator, paxgTokenId, 200 ether);
+        gold.mint(delegator, xautTokenId, 50 ether);
+
+        vm.startPrank(delegator);
+        gold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, 200 ether);
+        stakeHub.delegateTokenB1155(validator, xautTokenId, 50 ether);
+        vm.stopPrank();
+
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 250 ether, "wrong total delegated tokenB amount");
+        assertEq(
+            stakeHub.getDelegatedTokenBById(validator, delegator, paxgTokenId),
+            200 ether,
+            "wrong delegated PAXG-backed amount"
+        );
+        assertEq(
+            stakeHub.getDelegatedTokenBById(validator, delegator, xautTokenId),
+            50 ether,
+            "wrong delegated XAUT-backed amount"
+        );
+
+        vm.prank(delegator);
+        stakeHub.undelegateTokenB1155(validator, xautTokenId, 20 ether);
+
+        assertEq(stakeHub.pendingTokenBUnbondRequest(validator, delegator), 1, "wrong pending ERC1155 unbond requests");
+        (uint256 tokenId, uint256 pendingAmt, uint256 unlockTime) =
+            stakeHub.tokenB1155UnbondRequest(validator, delegator, 0);
+        assertEq(tokenId, xautTokenId, "wrong token id");
+        assertEq(pendingAmt, 20 ether, "wrong token amount");
+        assertEq(unlockTime, block.timestamp + stakeHub.unbondPeriod(), "wrong unlock time");
+
+        vm.warp(block.timestamp + stakeHub.unbondPeriod());
+        uint256 xautBefore = gold.balanceOf(delegator, xautTokenId);
+        vm.prank(delegator);
+        stakeHub.claimTokenB(validator, 0);
+        assertEq(gold.balanceOf(delegator, xautTokenId) - xautBefore, 20 ether, "wrong XAUT claim amount");
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 230 ether, "wrong remaining aggregate amount");
+        assertEq(
+            stakeHub.getDelegatedTokenBById(validator, delegator, xautTokenId),
+            30 ether,
+            "wrong remaining XAUT-backed amount"
+        );
+    }
+
+    function testTokenBMigration1155_AutoConvertsStakedLegacyPosition() public {
         (address validator,,,) = _createValidator(2000 ether);
         address[] memory activeValidators = new address[](1);
         activeValidators[0] = validator;
@@ -356,46 +438,65 @@ contract StakeHubTest is Deployer {
         activeVotingPowers[0] = 2001 * 1e8;
         _setActiveValidators(activeValidators, activeVotingPowers);
         address delegator = _getNextUserAddress();
-        MiniToken oldGold = new MiniToken();
-        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json");
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json");
         LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        address reserveFunder = _getNextUserAddress();
+        uint256 paxgTokenId = oldGold.PAXG_TOKEN_ID();
+        uint256 xautTokenId = oldGold.XAUT_TOKEN_ID();
 
-        vm.startPrank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
-        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
-        vm.stopPrank();
+        _configureGold1155WithUnbond(oldGold, 7 days);
 
-        uint256 amount = 250 ether;
-        oldGold.transfer(delegator, amount);
+        oldGold.mint(delegator, paxgTokenId, 150 ether);
+        oldGold.mint(delegator, xautTokenId, 100 ether);
         vm.startPrank(delegator);
-        oldGold.approve(address(stakeHub), amount);
-        stakeHub.delegateTokenB(validator, amount);
+        oldGold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, 150 ether);
+        stakeHub.delegateTokenB1155(validator, xautTokenId, 100 ether);
         vm.stopPrank();
 
         vm.prank(validator);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
-        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), amount, "wrong snapped legacy amount");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 250 ether, "wrong snapped legacy amount");
 
-        newGold.mint(address(this), amount);
-        newGold.approve(address(stakeHub), amount);
-        stakeHub.depositTokenBMigrationReserve(amount);
+        newGold.mint(reserveFunder, paxgTokenId, 150 ether);
+        newGold.mint(reserveFunder, xautTokenId, 100 ether);
+        vm.startPrank(reserveFunder);
+        newGold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.depositTokenBMigrationReserve1155(paxgTokenId, 150 ether);
+        stakeHub.depositTokenBMigrationReserve1155(xautTokenId, 100 ether);
+        vm.stopPrank();
 
         vm.prank(delegator);
-        stakeHub.undelegateTokenB(validator, 100 ether);
+        stakeHub.undelegateTokenB1155(validator, paxgTokenId, 100 ether);
 
-        assertEq(oldGold.balanceOf(address(reserveVault)), amount, "legacy gold should move to reserve");
+        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), 150 ether, "legacy PAXG should move");
+        assertEq(oldGold.balanceOf(address(reserveVault), xautTokenId), 100 ether, "legacy XAUT should move");
         assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 0, "legacy validator stake should be cleared");
-        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "legacy delegator stake should be cleared");
+        assertEq(
+            stakeHub.getLegacyDelegatedTokenBById(validator, delegator, paxgTokenId),
+            0,
+            "legacy PAXG stake should be cleared"
+        );
+        assertEq(
+            stakeHub.getLegacyDelegatedTokenBById(validator, delegator, xautTokenId),
+            0,
+            "legacy XAUT stake should be cleared"
+        );
 
         vm.warp(block.timestamp + stakeHub.unbondPeriod());
-        uint256 newGoldBefore = newGold.balanceOf(delegator);
+        uint256 newGoldBefore = newGold.balanceOf(delegator, paxgTokenId);
         vm.prank(delegator);
         stakeHub.claimTokenB(validator, 0);
-        assertEq(newGold.balanceOf(delegator) - newGoldBefore, 100 ether, "claim should pay new gold");
+        assertEq(
+            newGold.balanceOf(delegator, paxgTokenId) - newGoldBefore,
+            100 ether,
+            "claim should pay new PAXG-backed gold"
+        );
         assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 150 ether, "remaining stake should stay intact");
     }
 
-    function testTokenBMigration_LegacyUnbondClaimsStayLegacy() public {
+    function testTokenBMigration1155_LegacyUnbondClaimsStayLegacy() public {
         (address validator,,,) = _createValidator(2000 ether);
         address[] memory activeValidators = new address[](1);
         activeValidators[0] = validator;
@@ -403,44 +504,55 @@ contract StakeHubTest is Deployer {
         activeVotingPowers[0] = 2001 * 1e8;
         _setActiveValidators(activeValidators, activeVotingPowers);
         address delegator = _getNextUserAddress();
-        MiniToken oldGold = new MiniToken();
-        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json");
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json");
         LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        address reserveFunder = _getNextUserAddress();
+        uint256 paxgTokenId = oldGold.PAXG_TOKEN_ID();
+        uint256 xautTokenId = oldGold.XAUT_TOKEN_ID();
 
-        vm.startPrank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
-        stakeHub.updateParam("unbondPeriod", abi.encode(uint256(7 days)));
-        vm.stopPrank();
+        _configureGold1155WithUnbond(oldGold, 7 days);
 
-        uint256 amount = 250 ether;
-        oldGold.transfer(delegator, amount);
+        oldGold.mint(delegator, paxgTokenId, 150 ether);
+        oldGold.mint(delegator, xautTokenId, 100 ether);
         vm.startPrank(delegator);
-        oldGold.approve(address(stakeHub), amount);
-        stakeHub.delegateTokenB(validator, amount);
-        stakeHub.undelegateTokenB(validator, 100 ether);
+        oldGold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, 150 ether);
+        stakeHub.delegateTokenB1155(validator, xautTokenId, 100 ether);
+        stakeHub.undelegateTokenB1155(validator, xautTokenId, 40 ether);
         vm.stopPrank();
 
         vm.prank(validator);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
 
-        newGold.mint(address(this), 150 ether);
-        newGold.approve(address(stakeHub), 150 ether);
-        stakeHub.depositTokenBMigrationReserve(150 ether);
+        newGold.mint(reserveFunder, paxgTokenId, 150 ether);
+        newGold.mint(reserveFunder, xautTokenId, 60 ether);
+        vm.startPrank(reserveFunder);
+        newGold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.depositTokenBMigrationReserve1155(paxgTokenId, 150 ether);
+        stakeHub.depositTokenBMigrationReserve1155(xautTokenId, 60 ether);
+        vm.stopPrank();
 
         vm.warp(block.timestamp + stakeHub.unbondPeriod());
-        uint256 oldGoldBefore = oldGold.balanceOf(delegator);
+        uint256 oldGoldBefore = oldGold.balanceOf(delegator, xautTokenId);
         vm.prank(delegator);
         stakeHub.claimTokenB(validator, 0);
 
-        assertEq(oldGold.balanceOf(delegator) - oldGoldBefore, 100 ether, "legacy unbond should still pay old gold");
-        assertEq(oldGold.balanceOf(address(reserveVault)), 150 ether, "only remaining staked legacy gold should move");
-        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 150 ether, "remaining stake should stay intact");
-        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "remaining stake should be converted");
+        assertEq(
+            oldGold.balanceOf(delegator, xautTokenId) - oldGoldBefore, 40 ether, "legacy XAUT unbond should stay legacy"
+        );
+        assertEq(
+            oldGold.balanceOf(address(reserveVault), paxgTokenId), 150 ether, "remaining PAXG should move to reserve"
+        );
+        assertEq(
+            oldGold.balanceOf(address(reserveVault), xautTokenId), 60 ether, "remaining XAUT should move to reserve"
+        );
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 210 ether, "remaining stake should stay intact");
     }
 
     function testTokenBMigration_RequiresValidatorApprovals() public {
-        MiniToken oldGold = new MiniToken();
-        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json");
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json");
         LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
         address validator1;
         address validator2;
@@ -459,8 +571,7 @@ contract StakeHubTest is Deployer {
         activeVotingPowers[2] = 2005 * 1e8;
         _setActiveValidators(activeValidators, activeVotingPowers);
 
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
+        _configureGold1155(oldGold);
 
         vm.prank(validator1);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
@@ -486,13 +597,12 @@ contract StakeHubTest is Deployer {
     }
 
     function testUpdateParam_StakeTokenBIsLaunchOnlyAndMigrationGovernanceDisabled() public {
-        MiniToken oldGold = new MiniToken();
-        MiniToken anotherGold = new MiniToken();
-        PhysicalGoldToken newGold = new PhysicalGoldToken("Physical Gold", "PGOLD");
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json");
+        PhysicalGold1155 anotherGold = new PhysicalGold1155("ipfs://another/{id}.json");
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json");
         LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
 
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(oldGold)));
+        _configureGold1155(oldGold);
 
         vm.expectRevert();
         vm.prank(GOV_HUB_ADDR);
@@ -506,17 +616,13 @@ contract StakeHubTest is Deployer {
     function testElectionPower_UsesWeightedAndCappedTokenB() public {
         (address validator,, address credit,) = _createValidator(2000 ether);
         address delegator = _getNextUserAddress();
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        _configureGold1155(gold);
 
         uint256 delegatedTokenB = 3000 ether;
-        tokenB.transfer(delegator, delegatedTokenB);
-        vm.startPrank(delegator);
-        tokenB.approve(address(stakeHub), delegatedTokenB);
-        stakeHub.delegateTokenB(validator, delegatedTokenB);
-        vm.stopPrank();
+        _mintAndDelegateGold(gold, validator, delegator, paxgTokenId, delegatedTokenB);
 
         (, uint256[] memory votingPowers,,) = stakeHub.getValidatorElectionInfo(0, 0);
         uint256 stakeA = IStakeCredit(credit).totalPooledBNB();
@@ -534,20 +640,19 @@ contract StakeHubTest is Deployer {
     function testElectionPower_RatioEnabledBelowThresholdRemovesTokenBPower() public {
         (address validator,, address credit,) = _createValidator(2000 ether);
         address delegator = _getNextUserAddress();
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
         vm.startPrank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
+        stakeHub.updateParam("stakeTokenBSecondaryId", abi.encode(uint256(2)));
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(gold)));
         stakeHub.updateParam("ratioEnabled", hex"01");
         vm.stopPrank();
 
         // 100 tokenB against ~2001 tokenA is below the default 10% threshold.
         uint256 delegatedTokenB = 100 ether;
-        tokenB.transfer(delegator, delegatedTokenB);
-        vm.startPrank(delegator);
-        tokenB.approve(address(stakeHub), delegatedTokenB);
-        stakeHub.delegateTokenB(validator, delegatedTokenB);
-        vm.stopPrank();
+        _mintAndDelegateGold(gold, validator, delegator, paxgTokenId, delegatedTokenB);
 
         (, uint256[] memory votingPowers,,) = stakeHub.getValidatorElectionInfo(0, 0);
         uint256 stakeA = IStakeCredit(credit).totalPooledBNB();
@@ -558,13 +663,19 @@ contract StakeHubTest is Deployer {
 
     function testUpdateParam_RatioBoundsValidation() public {
         vm.startPrank(GOV_HUB_ADDR);
-        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(999))));
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(999)))
+        );
         stakeHub.updateParam("minBtoARatioBps", abi.encode(uint256(999)));
 
-        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(5001))));
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "minBtoARatioBps", abi.encode(uint256(5001)))
+        );
         stakeHub.updateParam("minBtoARatioBps", abi.encode(uint256(5001)));
 
-        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "maxBPowerRatioBps", abi.encode(uint256(5001))));
+        vm.expectRevert(
+            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "maxBPowerRatioBps", abi.encode(uint256(5001)))
+        );
         stakeHub.updateParam("maxBPowerRatioBps", abi.encode(uint256(5001)));
         vm.stopPrank();
     }
@@ -573,18 +684,14 @@ contract StakeHubTest is Deployer {
         uint256 selfDelegation = 2000 ether;
         (address validator,, address credit,) = _createValidator(selfDelegation);
         _createValidator(selfDelegation); // create 2 validator to avoid empty jail
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
-        vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        _configureGold1155(gold);
 
         uint256 slashAmt = stakeHub.downtimeSlashAmount();
         uint256 tokenBStake = slashAmt + 1 ether;
-        tokenB.transfer(validator, tokenBStake);
-        vm.startPrank(validator);
-        tokenB.approve(address(stakeHub), tokenBStake);
-        stakeHub.delegateTokenB(validator, tokenBStake);
-        vm.stopPrank();
+        _mintAndDelegateGold(gold, validator, validator, paxgTokenId, tokenBStake);
 
         uint256 preValidatorBnbAmount =
             IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(validator));
@@ -607,22 +714,22 @@ contract StakeHubTest is Deployer {
 
     function testReceiveBNB() public {
         // send to stakeHub directly
-        (bool success,) = address(stakeHub).call{ value: 1 ether }("");
+        (bool success,) = address(stakeHub).call{value: 1 ether}("");
         assertTrue(!success);
-        (success,) = address(stakeHub).call{ value: 1 ether }(hex"12");
+        (success,) = address(stakeHub).call{value: 1 ether}(hex"12");
         assertTrue(!success);
 
         // send to credit contract directly
         (,, address credit,) = _createValidator(2000 ether);
-        (success,) = credit.call{ value: 1 ether }("");
+        (success,) = credit.call{value: 1 ether}("");
         assertTrue(!success);
-        (success,) = credit.call{ value: 1 ether }(hex"12");
+        (success,) = credit.call{value: 1 ether}(hex"12");
         assertTrue(!success);
 
         // send to credit contract by stakeHub
         vm.deal(address(stakeHub), 1 ether);
         vm.prank(address(stakeHub));
-        (success,) = credit.call{ value: 1 ether }("");
+        (success,) = credit.call{value: 1 ether}("");
         assertTrue(success);
     }
 
@@ -634,7 +741,7 @@ contract StakeHubTest is Deployer {
         // 1. delegate 100 BNB and get 100 * 1e18 shares
         uint256 delegation = 100 ether;
         vm.prank(delegator);
-        stakeHub.delegate{ value: delegation }(validator, false);
+        stakeHub.delegate{value: delegation}(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
         assertEq(shares, delegation);
 
@@ -645,7 +752,7 @@ contract StakeHubTest is Deployer {
         emit RewardDistributed(validator, reward);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
 
         // 3. check shares
         // reward: 100 ether
@@ -673,7 +780,7 @@ contract StakeHubTest is Deployer {
         uint256 expectedShares = 100 ether * uint256(2001095460947794084238) / uint256(2096245121370775821038);
         address newDelegator = _getNextUserAddress();
         vm.prank(newDelegator);
-        stakeHub.delegate{ value: delegation }(validator, false);
+        stakeHub.delegate{value: delegation}(validator, false);
         uint256 newShares = IStakeCredit(credit).balanceOf(newDelegator);
         assertEq(newShares, expectedShares, "wrong new shares");
     }
@@ -681,19 +788,18 @@ contract StakeHubTest is Deployer {
     function testDistributeReward_TokenBRewardSplitAndClaim() public {
         (address validator,,,) = _createValidator(2000 ether);
         address delegator = _getNextUserAddress();
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
         vm.startPrank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
+        stakeHub.updateParam("stakeTokenBSecondaryId", abi.encode(uint256(2)));
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(gold)));
         stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(2_000))); // 20%
         vm.stopPrank();
 
         uint256 tokenBAmount = 100 ether;
-        tokenB.transfer(delegator, tokenBAmount);
-        vm.startPrank(delegator);
-        tokenB.approve(address(stakeHub), tokenBAmount);
-        stakeHub.delegateTokenB(validator, tokenBAmount);
-        vm.stopPrank();
+        _mintAndDelegateGold(gold, validator, delegator, paxgTokenId, tokenBAmount);
 
         uint256 reward = 50 ether;
         uint256 expectedTokenBReward = reward * 2_000 / 10_000;
@@ -705,7 +811,7 @@ contract StakeHubTest is Deployer {
         emit TokenBRewardDistributed(validator, expectedTokenBReward);
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit RewardDistributed(validator, reward);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
         vm.stopPrank();
 
         assertEq(
@@ -720,7 +826,7 @@ contract StakeHubTest is Deployer {
     }
 
     function testInflationDecayCurveAndMintRecording() public {
-        (address validator,,,) = _createValidator(2000 ether);
+        _createValidator(2000 ether);
         uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
 
         vm.startPrank(GOV_HUB_ADDR);
@@ -757,9 +863,7 @@ contract StakeHubTest is Deployer {
         );
         stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(1000)));
 
-        vm.expectRevert(
-            abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationEnabled", hex"01")
-        );
+        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationEnabled", hex"01"));
         stakeHub.updateParam("inflationEnabled", hex"01");
 
         vm.expectRevert(
@@ -781,32 +885,26 @@ contract StakeHubTest is Deployer {
 
     function testTokenBReward_MultiDelegatorProRataAndDebtAccounting() public {
         (address validator,,,) = _createValidator(2000 ether);
-        MiniToken tokenB = new MiniToken();
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json");
         address delegator1 = _getNextUserAddress();
         address delegator2 = _getNextUserAddress();
+        uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
+        uint256 xautTokenId = gold.XAUT_TOKEN_ID();
 
         vm.startPrank(GOV_HUB_ADDR);
-        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(tokenB)));
+        stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
+        stakeHub.updateParam("stakeTokenBSecondaryId", abi.encode(uint256(2)));
+        stakeHub.updateParam("stakeTokenB", abi.encodePacked(address(gold)));
         stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(2_000))); // 20%
         vm.stopPrank();
 
-        tokenB.transfer(delegator1, 100 ether);
-        tokenB.transfer(delegator2, 300 ether);
-
-        vm.startPrank(delegator1);
-        tokenB.approve(address(stakeHub), 100 ether);
-        stakeHub.delegateTokenB(validator, 100 ether);
-        vm.stopPrank();
-
-        vm.startPrank(delegator2);
-        tokenB.approve(address(stakeHub), 300 ether);
-        stakeHub.delegateTokenB(validator, 300 ether);
-        vm.stopPrank();
+        _mintAndDelegateGold(gold, validator, delegator1, paxgTokenId, 100 ether);
+        _mintAndDelegateGold(gold, validator, delegator2, xautTokenId, 300 ether);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
+        stakeHub.distributeReward{value: 100 ether}(consensusAddress);
 
         uint256 d1PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator1);
         uint256 d2PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator2);
@@ -820,11 +918,11 @@ contract StakeHubTest is Deployer {
         assertEq(stakeHub.pendingTokenBReward(validator, delegator1), 0, "d1 pending should reset");
 
         vm.prank(delegator1);
-        stakeHub.undelegateTokenB(validator, 50 ether);
+        stakeHub.undelegateTokenB1155(validator, paxgTokenId, 50 ether);
 
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
+        stakeHub.distributeReward{value: 100 ether}(consensusAddress);
 
         uint256 d1PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator1);
         uint256 d2PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator2);
@@ -865,7 +963,7 @@ contract StakeHubTest is Deployer {
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit RewardDistributed(validator, reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
 
         assertEq(address(systemReward).balance, systemRewardBefore, "system reward pool should not be touched");
     }
@@ -880,12 +978,12 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{ value: 100 ether }(validator, false);
+        stakeHub.delegate{value: 100 ether}(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(delegator));
@@ -933,12 +1031,12 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{ value: 100 ether }(validator, false);
+        stakeHub.delegate{value: 100 ether}(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(delegator));
@@ -965,13 +1063,13 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{ value: 100 ether }(validator, false);
+        stakeHub.delegate{value: 100 ether}(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         bytes memory voteAddr = stakeHub.getValidatorVoteAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{ value: reward }(consensusAddress);
+        stakeHub.distributeReward{value: reward}(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledBNBByShares(IStakeCredit(credit).balanceOf(delegator));
@@ -1073,73 +1171,73 @@ contract StakeHubTest is Deployer {
         cAddresses[55] = 0x69C77a677C40C7FBeA129d4b171a39B7A8DDaBfA;
 
         vAddresses[0] =
-            hex"977cf58294f7239d515e15b24cfeb82494056cf691eaf729b165f32c9757c429dba5051155903067e56ebe3698678e91";
+        hex"977cf58294f7239d515e15b24cfeb82494056cf691eaf729b165f32c9757c429dba5051155903067e56ebe3698678e91";
         vAddresses[1] =
-            hex"81db0422a5fd08e40db1fc2368d2245e4b18b1d0b85c921aaaafd2e341760e29fc613edd39f71254614e2055c3287a51";
+        hex"81db0422a5fd08e40db1fc2368d2245e4b18b1d0b85c921aaaafd2e341760e29fc613edd39f71254614e2055c3287a51";
         vAddresses[2] =
-            hex"8a923564c6ffd37fb2fe9f118ef88092e8762c7addb526ab7eb1e772baef85181f892c731be0c1891a50e6b06262c816";
+        hex"8a923564c6ffd37fb2fe9f118ef88092e8762c7addb526ab7eb1e772baef85181f892c731be0c1891a50e6b06262c816";
         vAddresses[3] =
-            hex"b84f83ff2df44193496793b847f64e9d6db1b3953682bb95edd096eb1e69bbd357c200992ca78050d0cbe180cfaa018e";
+        hex"b84f83ff2df44193496793b847f64e9d6db1b3953682bb95edd096eb1e69bbd357c200992ca78050d0cbe180cfaa018e";
         vAddresses[4] =
-            hex"b0de8472be0308918c8bdb369bf5a67525210daffa053c52224c1d2ef4f5b38e4ecfcd06a1cc51c39c3a7dccfcb6b507";
+        hex"b0de8472be0308918c8bdb369bf5a67525210daffa053c52224c1d2ef4f5b38e4ecfcd06a1cc51c39c3a7dccfcb6b507";
         vAddresses[5] =
-            hex"ae7bc6faa3f0cc3e6093b633fd7ee4f86970926958d0b7ec80437f936acf212b78f0cd095f4565fff144fd458d233a5b";
+        hex"ae7bc6faa3f0cc3e6093b633fd7ee4f86970926958d0b7ec80437f936acf212b78f0cd095f4565fff144fd458d233a5b";
         vAddresses[6] =
-            hex"84248a459464eec1a21e7fc7b71a053d9644e9bb8da4853b8f872cd7c1d6b324bf1922829830646ceadfb658d3de009a";
+        hex"84248a459464eec1a21e7fc7b71a053d9644e9bb8da4853b8f872cd7c1d6b324bf1922829830646ceadfb658d3de009a";
         vAddresses[7] =
-            hex"a8a257074e82b881cfa06ef3eb4efeca060c2531359abd0eab8af1e3edfa2025fca464ac9c3fd123f6c24a0d78869485";
+        hex"a8a257074e82b881cfa06ef3eb4efeca060c2531359abd0eab8af1e3edfa2025fca464ac9c3fd123f6c24a0d78869485";
         vAddresses[8] =
-            hex"98cbf822e4bc29f1701ac0350a3d042cd0756e9f74822c6481773ceb000641c51b870a996fe0f6a844510b1061f38cd0";
+        hex"98cbf822e4bc29f1701ac0350a3d042cd0756e9f74822c6481773ceb000641c51b870a996fe0f6a844510b1061f38cd0";
         vAddresses[9] =
-            hex"b772e180fbf38a051c97dabc8aaa0126a233a9e828cdafcc7422c4bb1f4030a56ba364c54103f26bad91508b5220b741";
+        hex"b772e180fbf38a051c97dabc8aaa0126a233a9e828cdafcc7422c4bb1f4030a56ba364c54103f26bad91508b5220b741";
         vAddresses[10] =
-            hex"956c470ddff48cb49300200b5f83497f3a3ccb3aeb83c5edd9818569038e61d197184f4aa6939ea5e9911e3e98ac6d21";
+        hex"956c470ddff48cb49300200b5f83497f3a3ccb3aeb83c5edd9818569038e61d197184f4aa6939ea5e9911e3e98ac6d21";
         vAddresses[11] =
-            hex"8a80967d39e406a0a9642d41e9007a27fc1150a267d143a9f786cd2b5eecbdcc4036273705225b956d5e2f8f5eb95d25";
+        hex"8a80967d39e406a0a9642d41e9007a27fc1150a267d143a9f786cd2b5eecbdcc4036273705225b956d5e2f8f5eb95d25";
         vAddresses[12] =
-            hex"b3a3d4feb825ae9702711566df5dbf38e82add4dd1b573b95d2466fa6501ccb81e9d26a352b96150ccbf7b697fd0a419";
+        hex"b3a3d4feb825ae9702711566df5dbf38e82add4dd1b573b95d2466fa6501ccb81e9d26a352b96150ccbf7b697fd0a419";
         vAddresses[13] =
-            hex"b2d4c6283c44a1c7bd503aaba7666e9f0c830e0ff016c1c750a5e48757a713d0836b1cabfd5c281b1de3b77d1c192183";
+        hex"b2d4c6283c44a1c7bd503aaba7666e9f0c830e0ff016c1c750a5e48757a713d0836b1cabfd5c281b1de3b77d1c192183";
         vAddresses[14] =
-            hex"93c1f7f6929d1fe2a17b4e14614ef9fc5bdc713d6631d675403fbeefac55611bf612700b1b65f4744861b80b0f7d6ab0";
+        hex"93c1f7f6929d1fe2a17b4e14614ef9fc5bdc713d6631d675403fbeefac55611bf612700b1b65f4744861b80b0f7d6ab0";
         vAddresses[15] =
-            hex"8a60f82a7bcf74b4cb053b9bfe83d0ed02a84ebb10865dfdd8e26e7535c43a1cccd268e860f502216b379dfc9971d358";
+        hex"8a60f82a7bcf74b4cb053b9bfe83d0ed02a84ebb10865dfdd8e26e7535c43a1cccd268e860f502216b379dfc9971d358";
         vAddresses[16] =
-            hex"939e8fb41b682372335be8070199ad3e8621d1743bcac4cc9d8f0f6e10f41e56461385c8eb5daac804fe3f2bca6ce739";
+        hex"939e8fb41b682372335be8070199ad3e8621d1743bcac4cc9d8f0f6e10f41e56461385c8eb5daac804fe3f2bca6ce739";
         vAddresses[17] =
-            hex"96a26afa1295da81418593bd12814463d9f6e45c36a0e47eb4cd3e5b6af29c41e2a3a5636430155a466e216585af3ba7";
+        hex"96a26afa1295da81418593bd12814463d9f6e45c36a0e47eb4cd3e5b6af29c41e2a3a5636430155a466e216585af3ba7";
         vAddresses[18] =
-            hex"b1f2c71577def3144fabeb75a8a1c8cb5b51d1d1b4a05eec67988b8685008baa17459ec425dbaebc852f496dc92196cd";
+        hex"b1f2c71577def3144fabeb75a8a1c8cb5b51d1d1b4a05eec67988b8685008baa17459ec425dbaebc852f496dc92196cd";
         vAddresses[19] =
-            hex"b659ad0fbd9f515893fdd740b29ba0772dbde9b4635921dd91bd2963a0fc855e31f6338f45b211c4e9dedb7f2eb09de7";
+        hex"b659ad0fbd9f515893fdd740b29ba0772dbde9b4635921dd91bd2963a0fc855e31f6338f45b211c4e9dedb7f2eb09de7";
         vAddresses[20] =
-            hex"8819ec5ec3e97e1f03bbb4bb6055c7a5feac8f4f259df58349a32bb5cb377e2cb1f362b77f1dd398cfd3e9dba46138c3";
+        hex"8819ec5ec3e97e1f03bbb4bb6055c7a5feac8f4f259df58349a32bb5cb377e2cb1f362b77f1dd398cfd3e9dba46138c3";
         vAddresses[21] =
-            hex"b313f9cba57c63a84edb4079140e6dbd7829e5023c9532fce57e9fe602400a2953f4bf7dab66cca16e97be95d4de7044";
+        hex"b313f9cba57c63a84edb4079140e6dbd7829e5023c9532fce57e9fe602400a2953f4bf7dab66cca16e97be95d4de7044";
         vAddresses[22] =
-            hex"b64abe25614c9cfd32e456b4d521f29c8357f4af4606978296c9be93494072ac05fa86e3d27cc8d66e65000f8ba33fbb";
+        hex"b64abe25614c9cfd32e456b4d521f29c8357f4af4606978296c9be93494072ac05fa86e3d27cc8d66e65000f8ba33fbb";
         vAddresses[23] =
-            hex"b0bec348681af766751cb839576e9c515a09c8bffa30a46296ccc56612490eb480d03bf948e10005bbcc0421f90b3d4e";
+        hex"b0bec348681af766751cb839576e9c515a09c8bffa30a46296ccc56612490eb480d03bf948e10005bbcc0421f90b3d4e";
         vAddresses[24] =
-            hex"b0245c33bc556cfeb013cd3643b30dbdef6df61a0be3ba00cae104b3c587083852e28f8911689c7033f7021a8a1774c9";
+        hex"b0245c33bc556cfeb013cd3643b30dbdef6df61a0be3ba00cae104b3c587083852e28f8911689c7033f7021a8a1774c9";
         vAddresses[25] =
-            hex"a7f3e2c0b4b16ad183c473bafe30a36e39fa4a143657e229cd23c77f8fbc8e4e4e241695dd3d248d1e51521eee661914";
+        hex"a7f3e2c0b4b16ad183c473bafe30a36e39fa4a143657e229cd23c77f8fbc8e4e4e241695dd3d248d1e51521eee661914";
         vAddresses[26] =
-            hex"8fdf49777b22f927d460fa3fcdd7f2ba0cf200634a3dfb5197d7359f2f88aaf496ef8c93a065de0f376d164ff2b6db9a";
+        hex"8fdf49777b22f927d460fa3fcdd7f2ba0cf200634a3dfb5197d7359f2f88aaf496ef8c93a065de0f376d164ff2b6db9a";
         vAddresses[27] =
-            hex"8ab17a9148339ef40aed8c177379c4db0bb5efc6f5c57a5d1a6b58b84d4b562e227196c79bda9a136830ed0c09f37813";
+        hex"8ab17a9148339ef40aed8c177379c4db0bb5efc6f5c57a5d1a6b58b84d4b562e227196c79bda9a136830ed0c09f37813";
         vAddresses[28] =
-            hex"8dd20979bd63c14df617a6939c3a334798149151577dd3f1fadb2bd1c1b496bf84c25c879da5f0f9dfdb88c6dd17b1e6";
+        hex"8dd20979bd63c14df617a6939c3a334798149151577dd3f1fadb2bd1c1b496bf84c25c879da5f0f9dfdb88c6dd17b1e6";
         vAddresses[29] =
-            hex"b679cbab0276ac30ff5f198e5e1dedf6b84959129f70fe7a07fcdf13444ba45b5dbaa7b1f650adf8b0acbecd04e2675b";
+        hex"b679cbab0276ac30ff5f198e5e1dedf6b84959129f70fe7a07fcdf13444ba45b5dbaa7b1f650adf8b0acbecd04e2675b";
         vAddresses[30] =
-            hex"8974616fe8ab950a3cded19b1d16ff49c97bf5af65154b3b097d5523eb213f3d35fc5c57e7276c7f2d83be87ebfdcdf9";
+        hex"8974616fe8ab950a3cded19b1d16ff49c97bf5af65154b3b097d5523eb213f3d35fc5c57e7276c7f2d83be87ebfdcdf9";
         vAddresses[31] =
-            hex"ab764a39ff81dad720d5691b852898041a3842e09ecbac8025812d51b32223d8420e6ae51a01582220a10f7722de67c1";
+        hex"ab764a39ff81dad720d5691b852898041a3842e09ecbac8025812d51b32223d8420e6ae51a01582220a10f7722de67c1";
         vAddresses[32] =
-            hex"9025b6715c8eaabac0bfccdb2f25d651c9b69b0a184011a4a486b0b2080319d2396e7ca337f2abdf01548b2de1b3ba06";
+        hex"9025b6715c8eaabac0bfccdb2f25d651c9b69b0a184011a4a486b0b2080319d2396e7ca337f2abdf01548b2de1b3ba06";
         vAddresses[33] =
-            hex"b2317f59d86abfaf690850223d90e9e7593d91a29331dfc2f84d5adecc75fc39ecab4632c1b4400a3dd1e1298835bcca";
+        hex"b2317f59d86abfaf690850223d90e9e7593d91a29331dfc2f84d5adecc75fc39ecab4632c1b4400a3dd1e1298835bcca";
 
         bytes memory cBz = abi.encode(cAddresses);
         bytes memory vBz = abi.encode(vAddresses);
@@ -1240,48 +1338,48 @@ contract StakeHubTest is Deployer {
     }
 
     function testGetNodeIDs() public {
-         // Set maxNodeIDs through governance
-         uint256 currentMaxNodeIDs = stakeHub.maxNodeIDs();
-         if (currentMaxNodeIDs != 5) {
-             vm.prank(GOV_HUB_ADDR);
-             stakeHub.updateParam("maxNodeIDs", abi.encode(uint256(5)));
-         }
- 
-         // Create two validators
-         (address validator1,,,) = _createValidator(2000 ether);
-         (address validator2,,,) = _createValidator(2000 ether);
- 
-         // Add NodeIDs to validator1
-         bytes32[] memory nodeIDs1 = new bytes32[](2);
-         nodeIDs1[0] = bytes32(0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
-         nodeIDs1[1] = bytes32(0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890);
-         vm.startPrank(validator1);
-         stakeHub.addNodeIDs(nodeIDs1);
-         vm.stopPrank();
- 
-         // Add NodeIDs to validator2
-         bytes32[] memory nodeIDs2 = new bytes32[](2);
-         nodeIDs2[0] = bytes32(0x1111111111111111111111111111111111111111111111111111111111111111);
-         nodeIDs2[1] = bytes32(0x2222222222222222222222222222222222222222222222222222222222222222);
-         vm.startPrank(validator2);
-         stakeHub.addNodeIDs(nodeIDs2);
-         vm.stopPrank();
- 
-         // Test getNodeIDs with both validators
-         address[] memory validatorsToQuery = new address[](2);
-         validatorsToQuery[0] = validator1;
-         validatorsToQuery[1] = validator2;
- 
-         (address[] memory consensusAddresses, bytes32[][] memory result) = stakeHub.getNodeIDs(validatorsToQuery);
-         assertEq(result.length, 2, "Should return results for both validators");
-         assertEq(consensusAddresses.length, 2, "Should return consensus addresses for both validators");
-         assertEq(result[0].length, 2, "Validator1 should have 2 NodeIDs");
-         assertEq(result[1].length, 2, "Validator2 should have 2 NodeIDs");
-         assertEq(result[0][0], nodeIDs1[0], "First NodeID of validator1 should match");
-         assertEq(result[0][1], nodeIDs1[1], "Second NodeID of validator1 should match");
-         assertEq(result[1][0], nodeIDs2[0], "First NodeID of validator2 should match");
-         assertEq(result[1][1], nodeIDs2[1], "Second NodeID of validator2 should match");
-     }
+        // Set maxNodeIDs through governance
+        uint256 currentMaxNodeIDs = stakeHub.maxNodeIDs();
+        if (currentMaxNodeIDs != 5) {
+            vm.prank(GOV_HUB_ADDR);
+            stakeHub.updateParam("maxNodeIDs", abi.encode(uint256(5)));
+        }
+
+        // Create two validators
+        (address validator1,,,) = _createValidator(2000 ether);
+        (address validator2,,,) = _createValidator(2000 ether);
+
+        // Add NodeIDs to validator1
+        bytes32[] memory nodeIDs1 = new bytes32[](2);
+        nodeIDs1[0] = bytes32(0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
+        nodeIDs1[1] = bytes32(0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890);
+        vm.startPrank(validator1);
+        stakeHub.addNodeIDs(nodeIDs1);
+        vm.stopPrank();
+
+        // Add NodeIDs to validator2
+        bytes32[] memory nodeIDs2 = new bytes32[](2);
+        nodeIDs2[0] = bytes32(0x1111111111111111111111111111111111111111111111111111111111111111);
+        nodeIDs2[1] = bytes32(0x2222222222222222222222222222222222222222222222222222222222222222);
+        vm.startPrank(validator2);
+        stakeHub.addNodeIDs(nodeIDs2);
+        vm.stopPrank();
+
+        // Test getNodeIDs with both validators
+        address[] memory validatorsToQuery = new address[](2);
+        validatorsToQuery[0] = validator1;
+        validatorsToQuery[1] = validator2;
+
+        (address[] memory consensusAddresses, bytes32[][] memory result) = stakeHub.getNodeIDs(validatorsToQuery);
+        assertEq(result.length, 2, "Should return results for both validators");
+        assertEq(consensusAddresses.length, 2, "Should return consensus addresses for both validators");
+        assertEq(result[0].length, 2, "Validator1 should have 2 NodeIDs");
+        assertEq(result[1].length, 2, "Validator2 should have 2 NodeIDs");
+        assertEq(result[0][0], nodeIDs1[0], "First NodeID of validator1 should match");
+        assertEq(result[0][1], nodeIDs1[1], "Second NodeID of validator1 should match");
+        assertEq(result[1][0], nodeIDs2[0], "First NodeID of validator2 should match");
+        assertEq(result[1][1], nodeIDs2[1], "Second NodeID of validator2 should match");
+    }
 
     function testRemoveNodeIDs() public {
         // Set maxNodeIDs through governance
@@ -1319,7 +1417,7 @@ contract StakeHubTest is Deployer {
         address[] memory validatorsToQuery = new address[](1);
         validatorsToQuery[0] = validator;
         (, bytes32[][] memory result) = stakeHub.getNodeIDs(validatorsToQuery);
-        
+
         assertEq(result[0].length, 1, "Should have 1 remaining NodeID");
         assertEq(result[0][0], initialNodeIDs[1], "Remaining NodeID should match");
 
@@ -1372,7 +1470,7 @@ contract StakeHubTest is Deployer {
         address[] memory validatorsToQuery = new address[](1);
         validatorsToQuery[0] = validator;
         (, bytes32[][] memory result) = stakeHub.getNodeIDs(validatorsToQuery);
-        
+
         assertEq(result[0].length, 5, "Should have 5 NodeIDs");
         assertEq(result[0][0], initialNodeIDs[0], "First NodeID should match");
         assertEq(result[0][1], initialNodeIDs[1], "Second NodeID should match");

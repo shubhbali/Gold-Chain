@@ -20,6 +20,7 @@ import "./interface/IGovToken.sol";
 import "./interface/IBSCTimelock.sol";
 import "./interface/ITokenRecoverPortal.sol";
 import "../../contracts/GeneralNativeTokenManager.sol";
+import "../../contracts/NativeGiltBridge.sol";
 import "./RLPEncode.sol";
 import "./RLPDecode.sol";
 
@@ -45,6 +46,7 @@ contract Deployer is Test {
     address payable public constant TIMELOCK_ADDR = payable(0x0000000000000000000000000000000000002006);
     address public constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = payable(0x0000000000000000000000000000000000002007);
     address public constant TOKEN_RECOVER_PORTAL_ADDR = payable(0x0000000000000000000000000000000000003000);
+    address public constant NATIVE_GILT_BRIDGE_ADDR = payable(0x0000000000000000000000000000000000003002);
     address payable public constant BLOCK_PRODUCER_ADDR = payable(0x000000000000000000000000000000000000FEE1);
 
     uint8 public constant BIND_CHANNELID = 0x01;
@@ -75,6 +77,7 @@ contract Deployer is Test {
     GovToken public govToken;
     BSCTimelock public timelock;
     TokenRecoverPortal public tokenRecoverPortal;
+    NativeGiltBridge public nativeGiltBridge;
 
     address payable public relayer;
 
@@ -160,6 +163,8 @@ contract Deployer is Test {
         vm.etch(GENERAL_NATIVE_TOKEN_MANAGER_ADDR, deployedCode);
         deployedCode = vm.getDeployedCode("TokenRecoverPortal.sol:TokenRecoverPortal");
         vm.etch(TOKEN_RECOVER_PORTAL_ADDR, deployedCode);
+        deployedCode = vm.getDeployedCode("NativeGiltBridge.sol:NativeGiltBridge");
+        vm.etch(NATIVE_GILT_BRIDGE_ADDR, deployedCode);
 
         vm.coinbase(BLOCK_PRODUCER_ADDR);
 
@@ -179,6 +184,8 @@ contract Deployer is Test {
         governor.initialize();
         tokenRecoverPortal.initialize();
         vm.stopPrank();
+
+        nativeGiltBridge = NativeGiltBridge(NATIVE_GILT_BRIDGE_ADDR);
 
         vm.prank(LIGHT_CLIENT_ADDR);
         systemReward.claimRewards(payable(address(0)), 0);

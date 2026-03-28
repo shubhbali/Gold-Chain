@@ -241,6 +241,9 @@ type Config struct {
 	TxSyncDefaultTimeout time.Duration `toml:",omitempty"`
 	TxSyncMaxTimeout     time.Duration `toml:",omitempty"`
 
+	// Polygon-style bridge wiring for Gold Chain.
+	Bridge parlia.BridgeConfig `toml:",omitempty"`
+
 	// blob setting
 	BlobExtraReserve uint64
 
@@ -259,9 +262,13 @@ type Config struct {
 // CreateConsensusEngine creates a consensus engine for the given chain config.
 // Clique is allowed for now to live standalone, but ethash is forbidden and can
 // only exist on already merged networks.
-func CreateConsensusEngine(config *params.ChainConfig, db ethdb.Database, ee *ethapi.BlockChainAPI, genesisHash common.Hash) (consensus.Engine, error) {
+func CreateConsensusEngine(nodeConfig *Config, config *params.ChainConfig, db ethdb.Database, ee *ethapi.BlockChainAPI, genesisHash common.Hash) (consensus.Engine, error) {
 	if config.IsInBSC() {
-		return parlia.New(config, db, ee, genesisHash), nil
+		var bridgeConfig parlia.BridgeConfig
+		if nodeConfig != nil {
+			bridgeConfig = nodeConfig.Bridge
+		}
+		return parlia.New(config, db, ee, genesisHash, bridgeConfig), nil
 	}
 	if config.TerminalTotalDifficulty == nil {
 		log.Error("Geth only supports PoS networks. Please transition legacy networks using Geth v1.13.x.")

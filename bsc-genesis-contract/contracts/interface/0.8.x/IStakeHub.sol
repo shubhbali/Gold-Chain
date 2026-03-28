@@ -9,8 +9,11 @@ interface IStakeHub {
     function transferGasLimit() external view returns (uint256);
     function stakeTokenB() external view returns (address);
     function legacyStakeTokenB() external view returns (address);
+    function stakeTokenBPrimaryId() external view returns (uint256);
+    function stakeTokenBSecondaryId() external view returns (uint256);
     function tokenBCutoverVersion() external view returns (uint256);
     function tokenBMigrationReserve() external view returns (uint256);
+    function tokenBMigrationReserveById(uint256 tokenId) external view returns (uint256);
     function tokenBMigrationProposalId() external view returns (uint256);
     function pendingTokenBMigrationStakeTokenB() external view returns (address);
     function pendingTokenBMigrationReserveVault() external view returns (address);
@@ -19,9 +22,24 @@ interface IStakeHub {
     function totalDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function totalLegacyDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function getDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId)
+        external
+        view
+        returns (uint256);
     function getLegacyDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function getLegacyDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId)
+        external
+        view
+        returns (uint256);
     function activateTokenBMigration(address newStakeTokenB, address reserveVault) external;
     function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) external view returns (bool);
-    function depositTokenBMigrationReserve(uint256 amount) external;
+    function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount) external;
+    function withdrawTokenBMigrationReserve1155(address recipient, uint256 tokenId, uint256 amount) external;
+    function delegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount) external;
+    function undelegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount) external;
+    function tokenB1155UnbondRequest(address operatorAddress, address delegator, uint256 index)
+        external
+        view
+        returns (uint256 tokenId, uint256 tokenBAmount, uint256 unlockTime);
     function migrateLegacyTokenB(address operatorAddress) external;
 }

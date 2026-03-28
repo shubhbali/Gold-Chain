@@ -1,0 +1,17 @@
+node_modules/
+build/
+contracts/BorValidatorSet.sol
+
+pids
+logs
+genesis.json
+
+.idea
+
+/out
+/target
+/cache
+/coverage
+lcov.info
+.env
+.password

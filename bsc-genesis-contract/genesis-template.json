@@ -129,6 +129,14 @@
     "0x0000000000000000000000000000000000003000": {
       "balance": "0x0",
       "code": "{{tokenRecoverPortal}}"
+    },
+    "0x0000000000000000000000000000000000003001": {
+      "balance": "0x0",
+      "code": "{{stateReceiver}}"
+    },
+    "0x0000000000000000000000000000000000003002": {
+      "balance": "0x0",
+      "code": "{{nativeGiltBridge}}"
     }{% for v in initHolders %},
     "{{ v.address.replace('0x', '') }}": {
       "balance": "0x{{ v.balance }}"

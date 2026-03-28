@@ -86,14 +86,13 @@ interface StakeHub {
     event LegacyTokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
     event LegacyTokenBMigrated(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
     event TokenBMigrationActivated(
-        address indexed legacyToken,
-        address indexed newToken,
-        address indexed reserveVault,
-        uint256 cutoverVersion
+        address indexed legacyToken, address indexed newToken, address indexed reserveVault, uint256 cutoverVersion
     );
     event TokenBMigrationReserveFunded(address indexed sender, uint256 amount);
     event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
-    event InflationMintRecorded(uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply);
+    event InflationMintRecorded(
+        uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply
+    );
     event StakeCreditInitialized(address indexed operatorAddress, address indexed creditContract);
     event UnBlackListed(address indexed target);
     event Undelegated(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 bnbAmount);
@@ -160,10 +159,7 @@ interface StakeHub {
     function getValidatorConsensusAddress(address operatorAddress) external view returns (address consensusAddress);
     function getValidatorCreditContract(address operatorAddress) external view returns (address creditContract);
     function getValidatorDescription(address operatorAddress) external view returns (Description memory);
-    function getValidatorElectionInfo(
-        uint256 offset,
-        uint256 limit
-    )
+    function getValidatorElectionInfo(uint256 offset, uint256 limit)
         external
         view
         returns (
@@ -175,10 +171,10 @@ interface StakeHub {
     function getValidatorRewardRecord(address operatorAddress, uint256 index) external view returns (uint256);
     function getValidatorTotalPooledBNBRecord(address operatorAddress, uint256 index) external view returns (uint256);
     function getValidatorVoteAddress(address operatorAddress) external view returns (bytes memory voteAddress);
-    function getValidators(
-        uint256 offset,
-        uint256 limit
-    ) external view returns (address[] memory operatorAddrs, address[] memory creditAddrs, uint256 totalLength);
+    function getValidators(uint256 offset, uint256 limit)
+        external
+        view
+        returns (address[] memory operatorAddrs, address[] memory creditAddrs, uint256 totalLength);
     function handleAckPackage(uint8 channelId, bytes memory msgBytes) external;
     function handleFailAckPackage(uint8 channelId, bytes memory msgBytes) external;
     function handleSynPackage(uint8, bytes memory msgBytes) external returns (bytes memory);
@@ -210,7 +206,7 @@ interface StakeHub {
     function transferGasLimit() external view returns (uint256);
     function unbondPeriod() external view returns (uint256);
     function undelegate(address operatorAddress, uint256 shares) external;
-    function undelegateTokenB(address operatorAddress, uint256 tokenBAmount) external;
+    function undelegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount) external;
     function unjail(address operatorAddress) external;
     function updateParam(string memory key, bytes memory value) external;
     function voteExpiration(bytes memory) external view returns (uint256);
@@ -219,13 +215,21 @@ interface StakeHub {
     function stakeWeightA() external view returns (uint256);
     function stakeWeightB() external view returns (uint256);
     function ratioEnabled() external view returns (bool);
-    function delegateTokenB(address operatorAddress, uint256 tokenBAmount) external;
+    function delegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount) external;
     function getDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function getDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId)
+        external
+        view
+        returns (uint256);
     function totalDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function tokenBUnbondRequest(address operatorAddress, address delegator, uint256 index)
         external
         view
         returns (uint256 tokenBAmount, uint256 unlockTime);
+    function tokenB1155UnbondRequest(address operatorAddress, address delegator, uint256 index)
+        external
+        view
+        returns (uint256 tokenId, uint256 tokenBAmount, uint256 unlockTime);
     function pendingTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256);
     function claimableTokenBUnbondRequest(address operatorAddress, address delegator) external view returns (uint256);
     function pendingTokenBReward(address operatorAddress, address delegator) external view returns (uint256);
@@ -235,8 +239,11 @@ interface StakeHub {
 
     function agentToOperator(address) external view returns (address);
     function legacyStakeTokenB() external view returns (address);
+    function stakeTokenBPrimaryId() external view returns (uint256);
+    function stakeTokenBSecondaryId() external view returns (uint256);
     function tokenBCutoverVersion() external view returns (uint256);
     function tokenBMigrationReserve() external view returns (uint256);
+    function tokenBMigrationReserveById(uint256 tokenId) external view returns (uint256);
     function tokenBMigrationProposalId() external view returns (uint256);
     function pendingTokenBMigrationStakeTokenB() external view returns (address);
     function pendingTokenBMigrationReserveVault() external view returns (address);
@@ -244,10 +251,14 @@ interface StakeHub {
     function pendingTokenBMigrationRequiredApprovals() external view returns (uint256);
     function totalLegacyDelegatedTokenB(address operatorAddress) external view returns (uint256);
     function getLegacyDelegatedTokenB(address operatorAddress, address delegator) external view returns (uint256);
+    function getLegacyDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId)
+        external
+        view
+        returns (uint256);
     function activateTokenBMigration(address newStakeTokenB, address reserveVault) external;
     function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) external view returns (bool);
-    function depositTokenBMigrationReserve(uint256 amount) external;
-    function withdrawTokenBMigrationReserve(address recipient, uint256 amount) external;
+    function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount) external;
+    function withdrawTokenBMigrationReserve1155(address recipient, uint256 tokenId, uint256 amount) external;
     function migrateLegacyTokenB(address operatorAddress) external;
     function getTokenBDelegators(address operatorAddress, uint256 offset, uint256 limit)
         external
@@ -259,6 +270,9 @@ interface StakeHub {
     // NodeID management functions
     function addNodeIDs(bytes32[] calldata newNodeIDs) external;
     function removeNodeIDs(bytes32[] calldata targetNodeIDs) external;
-    function getNodeIDs(address[] calldata validatorsToQuery) external view returns (address[] memory consensusAddresses, bytes32[][] memory nodeIDsList);
+    function getNodeIDs(address[] calldata validatorsToQuery)
+        external
+        view
+        returns (address[] memory consensusAddresses, bytes32[][] memory nodeIDsList);
     function maxNodeIDs() external view returns (uint256);
 }

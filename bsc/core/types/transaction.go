@@ -210,12 +210,14 @@ func (tx *Transaction) decodeTyped(b []byte) (TxData, error) {
 		inner = new(AccessListTx)
 	case DynamicFeeTxType:
 		inner = new(DynamicFeeTx)
+	case NativeTokenTxType:
+		inner = new(NativeTokenTx)
 	case BlobTxType:
 		inner = new(BlobTx)
 	case SetCodeTxType:
 		inner = new(SetCodeTx)
-	case NativeTokenTxType:
-		inner = new(NativeTokenTx)
+	case StateSyncTxType:
+		inner = new(StateSyncTx)
 	default:
 		return nil, ErrTxTypeNotSupported
 	}

@@ -121,6 +121,10 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 	systemTxs := make([]*types.Transaction, 0, 2)
 
 	for i, tx := range block.Transactions() {
+		if tx.Type() == types.StateSyncTxType {
+			systemTxs = append(systemTxs, tx)
+			continue
+		}
 		if isPoSA {
 			if isSystemTx, err := posa.IsSystemTransaction(tx, block.Header()); err != nil {
 				bloomProcessors.Close()
@@ -221,6 +225,12 @@ func ApplyTransactionWithEVM(msg *Message, gp *GasPool, statedb *state.StateDB, 
 	// Apply the transaction to the current state (included in the env).
 	result, err = ApplyMessage(evm, msg, gp)
 	if err != nil {
+		return nil, err
+	}
+	if err := ApplyNativeGiltBridgeLogEffects(
+		statedb,
+		statedb.GetLogs(tx.Hash(), blockNumber.Uint64(), blockHash, blockTime),
+	); err != nil {
 		return nil, err
 	}
 	// Update the state with pending changes.

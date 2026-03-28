@@ -78,6 +78,9 @@ func (p *statePrefetcher) Prefetch(transactions types.Transactions, header *type
 			if interrupt != nil && interrupt.Load() {
 				return nil
 			}
+			if tx.Type() == types.StateSyncTxType {
+				return nil
+			}
 			// Preload the touched accounts and storage slots in advance
 			sender, err := types.Sender(signer, tx)
 			if err != nil {
@@ -301,6 +304,9 @@ func (p *statePrefetcher) PrefetchMining(txs TransactionsByPriceAndNonce, header
 			for {
 				select {
 				case tx := <-startCh:
+					if tx.Type() == types.StateSyncTxType {
+						continue
+					}
 					// Preload the touched accounts and storage slots in advance
 					sender, err := types.Sender(signer, tx)
 					if err == nil {

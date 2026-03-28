@@ -118,6 +118,26 @@ var (
 		Usage:    "Enable 5000 blocks limit for range query",
 		Category: flags.APICategory,
 	}
+	BridgeHeimdallURLFlag = &cli.StringFlag{
+		Name:     "bridge.heimdall",
+		Usage:    "Heimdall API base URL for Polygon-style bridge state syncs",
+		Category: flags.EthCategory,
+	}
+	BridgeStateReceiverFlag = &cli.StringFlag{
+		Name:     "bridge.state-receiver",
+		Usage:    "Override StateReceiver contract address for Polygon-style bridge state syncs",
+		Category: flags.EthCategory,
+	}
+	BridgeStateSyncTimeoutFlag = &cli.DurationFlag{
+		Name:     "bridge.state-sync-timeout",
+		Usage:    "HTTP timeout for fetching Polygon-style bridge state sync events",
+		Category: flags.EthCategory,
+	}
+	BridgeStateSyncDelayFlag = &cli.DurationFlag{
+		Name:     "bridge.state-sync-delay",
+		Usage:    "Delay before Gold Chain consumes Polygon-style bridge state sync events",
+		Category: flags.EthCategory,
+	}
 	RemoteDBFlag = &cli.StringFlag{
 		Name:     "remotedb",
 		Usage:    "URL for remote database",
@@ -2088,6 +2108,18 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	setBlobPool(ctx, &cfg.BlobPool)
 	setMiner(ctx, &cfg.Miner)
 	setRequiredBlocks(ctx, cfg)
+	if ctx.IsSet(BridgeHeimdallURLFlag.Name) {
+		cfg.Bridge.HeimdallURL = ctx.String(BridgeHeimdallURLFlag.Name)
+	}
+	if ctx.IsSet(BridgeStateReceiverFlag.Name) {
+		cfg.Bridge.StateReceiverContract = ctx.String(BridgeStateReceiverFlag.Name)
+	}
+	if ctx.IsSet(BridgeStateSyncTimeoutFlag.Name) {
+		cfg.Bridge.StateSyncTimeout = ctx.Duration(BridgeStateSyncTimeoutFlag.Name)
+	}
+	if ctx.IsSet(BridgeStateSyncDelayFlag.Name) {
+		cfg.Bridge.StateSyncDelay = ctx.Duration(BridgeStateSyncDelayFlag.Name)
+	}
 
 	// Cap the cache allowance and tune the garbage collector
 	mem, err := gopsutil.VirtualMemory()
@@ -2879,7 +2911,7 @@ func MakeChain(ctx *cli.Context, stack *node.Node, readonly bool) (*core.BlockCh
 	if err != nil {
 		Fatalf("%v", err)
 	}
-	engine, err := ethconfig.CreateConsensusEngine(config, chainDb, nil, genesisHash)
+	engine, err := ethconfig.CreateConsensusEngine(&ethconfig.Defaults, config, chainDb, nil, genesisHash)
 	if err != nil {
 		Fatalf("%v", err)
 	}
