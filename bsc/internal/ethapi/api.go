@@ -1537,6 +1537,23 @@ func (api *BlockChainAPI) rpcMarshalBlock(ctx context.Context, b *types.Block, i
 	return fields, nil
 }
 
+// GetTdByNumber returns the total difficulty for a block number using the legacy Polygon/Bor RPC shape.
+func (api *BlockChainAPI) GetTdByNumber(ctx context.Context, blockNr rpc.BlockNumber) map[string]interface{} {
+	header, err := api.b.HeaderByNumber(ctx, blockNr)
+	if err != nil || header == nil {
+		return nil
+	}
+	td := api.b.GetTdByNumber(ctx, blockNr)
+	if td == nil {
+		return nil
+	}
+
+	resp := make(map[string]interface{}, 2)
+	resp["blockNumber"] = hexutil.EncodeUint64(header.Number.Uint64())
+	resp["totalDifficulty"] = hexutil.EncodeBig(td)
+	return resp
+}
+
 // RPCTransaction represents a transaction that will serialize to the RPC representation of a transaction
 type RPCTransaction struct {
 	BlockHash           *common.Hash                 `json:"blockHash"`

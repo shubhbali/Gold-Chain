@@ -1,10 +1,14 @@
 package keeper_test
 
 import (
+	"math/big"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/golang/mock/gomock"
 
+	"github.com/0xPolygon/heimdall-v2/contracts/statesender"
+	chainmanagertypes "github.com/0xPolygon/heimdall-v2/x/chainmanager/types"
 	"github.com/0xPolygon/heimdall-v2/x/clerk/types"
 )
 
@@ -168,4 +172,35 @@ func (s *KeeperTestSuite) TestGetRecordListWithTime_Pagination() {
 			}
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestGetLatestRecordIdReflectsRootCounterNotPersistence() {
+	ctx, queryClient, require := s.ctx, s.queryClient, s.Require()
+
+	params := chainmanagertypes.NewParams(6, 10, chainmanagertypes.ChainParams{
+		BorChainId:           "714",
+		HeimdallChainId:      "heimdall-1",
+		PolTokenAddress:      "0x0000000000000000000000000000000000000011",
+		StakingManagerAddress:"0x0000000000000000000000000000000000000012",
+		SlashManagerAddress:  "0x0000000000000000000000000000000000000013",
+		RootChainAddress:     "0x0000000000000000000000000000000000000014",
+		StakingInfoAddress:   "0x0000000000000000000000000000000000000015",
+		StateSenderAddress:   "0x0000000000000000000000000000000000000016",
+		StateReceiverAddress: "0x0000000000000000000000000000000000000017",
+		ValidatorSetAddress:  "0x0000000000000000000000000000000000000018",
+	})
+	s.chainKeeper.EXPECT().GetParams(gomock.Any()).Return(params, nil).Times(1)
+
+	stateSender := &statesender.Statesender{}
+	s.contractCaller.On("GetStateSenderInstance", params.ChainParams.StateSenderAddress).Return(stateSender, nil).Once()
+	s.contractCaller.On("CurrentStateCounter", stateSender).Return(big.NewInt(12)).Once()
+
+	res, err := queryClient.GetLatestRecordId(ctx, &types.LatestRecordIdRequest{})
+	require.NoError(err)
+	require.Equal(uint64(12), res.LatestRecordId)
+	require.False(res.IsProcessedByHeimdall)
+
+	s.contractCaller.AssertExpectations(s.T())
+	s.contractCaller.ExpectedCalls = nil
+	s.contractCaller.Calls = nil
 }

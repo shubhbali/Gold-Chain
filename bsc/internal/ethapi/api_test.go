@@ -612,6 +612,14 @@ func (b testBackend) GetTd(ctx context.Context, hash common.Hash) *big.Int {
 	}
 	return big.NewInt(1)
 }
+
+func (b testBackend) GetTdByNumber(ctx context.Context, blockNr rpc.BlockNumber) *big.Int {
+	if header, err := b.HeaderByNumber(ctx, blockNr); header != nil && err == nil {
+		return big.NewInt(int64(header.Number.Uint64() + 1))
+	}
+	return nil
+}
+
 func (b testBackend) GetEVM(ctx context.Context, state *state.StateDB, header *types.Header, vmConfig *vm.Config, blockContext *vm.BlockContext) *vm.EVM {
 	if vmConfig == nil {
 		vmConfig = b.chain.GetVMConfig()
@@ -4199,6 +4207,27 @@ func TestEstimateGasWithMovePrecompile(t *testing.T) {
 	}
 	if gas != 21366 {
 		t.Fatalf("mismatched gas: %d, want 21366", gas)
+	}
+}
+
+func TestGetTdByNumber(t *testing.T) {
+	genesis := &core.Genesis{
+		Config:  params.AllDevChainProtocolChanges,
+		Alloc:   types.GenesisAlloc{},
+		BaseFee: big.NewInt(params.InitialBaseFee),
+	}
+	backend := newTestBackend(t, 1, genesis, beacon.New(ethash.NewFaker()), nil)
+	api := NewBlockChainAPI(backend)
+
+	result := api.GetTdByNumber(context.Background(), rpc.BlockNumber(1))
+	if result == nil {
+		t.Fatal("expected total difficulty response")
+	}
+	if got := result["blockNumber"]; got != "0x1" {
+		t.Fatalf("unexpected block number: %v", got)
+	}
+	if got := result["totalDifficulty"]; got != "0x2" {
+		t.Fatalf("unexpected total difficulty: %v", got)
 	}
 }
 

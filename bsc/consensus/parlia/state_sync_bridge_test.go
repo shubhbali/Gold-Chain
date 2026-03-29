@@ -71,3 +71,64 @@ func TestFetchStateSyncEventsDecodesQuotedNumericFields(t *testing.T) {
 		t.Fatalf("wrong event data bytes: got %x want 010203", event.Data)
 	}
 }
+
+func TestFetchStateSyncEventsSkipsRecordsAtOrAfterCutoff(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{
+			"event_records": [
+				{
+					"id": "7",
+					"contract": "0x41e094035f04c4e960a42253b6f3cc33a77cc11c",
+					"data": "AQID",
+					"tx_hash": "0xfcdb42c266b287cd4c40c7291d0e8a460e2352192cd1530e7e78cac5ebd3b3d0",
+					"log_index": "745",
+					"bor_chain_id": "714",
+					"record_time": "2026-03-29T02:16:54Z"
+				},
+				{
+					"id": "8",
+					"contract": "0x41e094035f04c4e960a42253b6f3cc33a77cc11c",
+					"data": "AQID",
+					"tx_hash": "0x1cdb42c266b287cd4c40c7291d0e8a460e2352192cd1530e7e78cac5ebd3b3d0",
+					"log_index": "746",
+					"bor_chain_id": "714",
+					"record_time": "2026-03-29T02:16:55Z"
+				},
+				{
+					"id": "9",
+					"contract": "0x41e094035f04c4e960a42253b6f3cc33a77cc11c",
+					"data": "AQID",
+					"tx_hash": "0x2cdb42c266b287cd4c40c7291d0e8a460e2352192cd1530e7e78cac5ebd3b3d0",
+					"log_index": "747",
+					"bor_chain_id": "714",
+					"record_time": "2026-03-29T02:16:56Z"
+				}
+			]
+		}`))
+	}))
+	defer server.Close()
+
+	engine := &Parlia{
+		bridge: BridgeConfig{
+			HeimdallURL:      server.URL,
+			StateSyncTimeout: 5 * time.Second,
+		},
+	}
+
+	cutoff, err := time.Parse(time.RFC3339, "2026-03-29T02:16:55Z")
+	if err != nil {
+		t.Fatalf("parse cutoff time: %v", err)
+	}
+
+	events, err := engine.fetchStateSyncEvents(context.Background(), 7, cutoff)
+	if err != nil {
+		t.Fatalf("fetchStateSyncEvents returned error: %v", err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("wrong event count: got %d want 1", len(events))
+	}
+	if events[0].ID != 7 {
+		t.Fatalf("wrong surviving event id: got %d want 7", events[0].ID)
+	}
+}

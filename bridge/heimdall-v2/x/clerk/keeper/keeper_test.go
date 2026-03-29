@@ -39,6 +39,8 @@ type KeeperTestSuite struct {
 	ctx            sdk.Context
 	keeper         clerkKeeper.Keeper
 	chainId        string
+	ctrl           *gomock.Controller
+	chainKeeper    *testutil.MockChainKeeper
 	msgServer      types.MsgServer
 	sideMsgCfg     sidetxs.SideTxConfigurator
 	queryClient    types.QueryClient
@@ -57,7 +59,6 @@ func (s *KeeperTestSuite) SetupTest() {
 	ctx := testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: cmttime.Now()})
 	encCfg := moduletestutil.MakeTestEncodingConfig()
 	ctrl := gomock.NewController(s.T())
-	defer ctrl.Finish()
 	chainKeeper := testutil.NewMockChainKeeper(ctrl)
 	s.contractCaller = mocks.IContractCaller{}
 
@@ -72,6 +73,8 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.keeper = keeper
 
 	s.chainId = "15001"
+	s.ctrl = ctrl
+	s.chainKeeper = chainKeeper
 
 	clerkGenesis := types.DefaultGenesisState()
 
@@ -85,6 +88,12 @@ func (s *KeeperTestSuite) SetupTest() {
 
 	s.sideMsgCfg = sidetxs.NewSideTxConfigurator()
 	types.RegisterSideMsgServer(s.sideMsgCfg, clerkKeeper.NewSideMsgServerImpl(keeper))
+}
+
+func (s *KeeperTestSuite) TearDownTest() {
+	if s.ctrl != nil {
+		s.ctrl.Finish()
+	}
 }
 
 func (s *KeeperTestSuite) TestHasGetSetEventRecord() {

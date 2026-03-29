@@ -1969,12 +1969,21 @@ func (p *Parlia) SealHash(header *types.Header) (hash common.Hash) {
 
 // APIs implements consensus.Engine, returning the user facing RPC API to query snapshot.
 func (p *Parlia) APIs(chain consensus.ChainHeaderReader) []rpc.API {
-	return []rpc.API{{
-		Namespace: "parlia",
-		Version:   "1.0",
-		Service:   &API{chain: chain, parlia: p},
-		Public:    false,
-	}}
+	service := &API{chain: chain, parlia: p}
+	return []rpc.API{
+		{
+			Namespace: "parlia",
+			Version:   "1.0",
+			Service:   service,
+			Public:    false,
+		},
+		{
+			Namespace: "bor",
+			Version:   "1.0",
+			Service:   service,
+			Public:    false,
+		},
+	}
 }
 
 // Close implements consensus.Engine. It's a noop for parlia as there are no background threads.

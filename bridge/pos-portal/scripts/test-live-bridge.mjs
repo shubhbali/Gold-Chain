@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ethers } from 'ethers';
 import {
+  DEFAULT_HEIMDALL_URL,
   CHECKPOINT_ACCOUNT_HASH,
   DEFAULT_SEPOLIA_RPC,
   GOLD_CHAIN_ID,
@@ -9,20 +10,28 @@ import {
   REPO_ROOT,
   ROOT_ETHER_ADDRESS,
   STATE_RECEIVER_ADDRESS,
+  addressEq,
   buildCheckpointData,
   buildExitPayload,
   checkpointSignature,
   childRpcFor,
   contractAt,
+  errorContains,
   findCheckpointCursor,
   loadAddressBook,
+  readBridgeProgress,
   rpcProviderFor,
   readArtifact,
   readJson,
   saveAddressBook,
   sleep,
+  submitGoldMapping,
+  submitStandardMapping,
+  waitForChildStateId,
   waitForCondition,
+  waitForHeimdallRecord,
   waitForMined,
+  waitForRpc,
 } from './live-bridge-common.mjs';
 
 const walletFile = path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json');
@@ -78,10 +87,6 @@ function assertEq(actual, expected, label) {
   }
 }
 
-function addressEq(a, b) {
-  return a.toLowerCase() === b.toLowerCase();
-}
-
 function feePaid(receipt) {
   const gasPrice = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
   return receipt.gasUsed * gasPrice;
@@ -111,17 +116,13 @@ async function waitTokenAllowance(token, owner, spender, expected, label) {
   );
 }
 
-async function waitForBridgeCatchup(rootStateSender, childStateReceiver) {
+async function waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl) {
   const targetId = await rootStateSender.counter();
-  await waitForCondition(
-    async () => {
-      const lastStateId = await childStateReceiver.lastStateId();
-      return lastStateId >= targetId ? lastStateId : null;
-    },
-    `bridge catch-up to state id ${targetId}`,
-    BRIDGE_WAIT_TIMEOUT_MS,
-    5000,
-  );
+  console.log(`Waiting for Heimdall to persist state sync ${targetId.toString()}`);
+  await waitForHeimdallRecord(heimdallUrl, targetId, BRIDGE_WAIT_TIMEOUT_MS, 5000);
+  console.log(`Waiting for child chain to apply state sync ${targetId.toString()}`);
+  await waitForChildStateId(childStateReceiver, targetId, BRIDGE_WAIT_TIMEOUT_MS, 5000);
+  return readBridgeProgress(rootStateSender, childStateReceiver, heimdallUrl);
 }
 
 function findLogIndex(receipt, emitter, topic0 = null) {
@@ -160,36 +161,6 @@ async function ensureSepoliaEth(deployer, user) {
     to: user.address,
     value: SEP_FUND_AMOUNT,
   });
-  await waitForMined(tx);
-}
-
-async function submitGoldMapping(rootChainManager, childChainManager, rootToken, childToken, tokenId, tokenType) {
-  const rootMapped = await rootChainManager.rootToChildToken(rootToken);
-  const childMapped = await childChainManager.rootToChildToken(rootToken);
-
-  if (addressEq(rootMapped, childToken) && addressEq(childMapped, childToken)) {
-    return;
-  }
-
-  if (rootMapped !== ethers.ZeroAddress) {
-    await waitTx(rootChainManager.cleanMapToken(rootToken, rootMapped));
-  }
-
-  const tx = await rootChainManager.mapGoldToken(rootToken, childToken, tokenId, tokenType);
-  await waitForMined(tx);
-}
-
-async function submitStandardMapping(rootChainManager, childChainManager, rootToken, childToken, tokenType) {
-  const rootMapped = await rootChainManager.rootToChildToken(rootToken);
-  const childMapped = await childChainManager.rootToChildToken(rootToken);
-
-  if (addressEq(rootMapped, childToken) && addressEq(childMapped, childToken)) {
-    return;
-  }
-
-  const tx = rootMapped !== ethers.ZeroAddress
-    ? await rootChainManager.remapToken(rootToken, childToken, tokenType)
-    : await rootChainManager.mapToken(rootToken, childToken, tokenType);
   await waitForMined(tx);
 }
 
@@ -527,6 +498,7 @@ async function exitNativeEthDeposit(context, state) {
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
   const roughnetRpc = process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
+  const heimdallUrl = process.env.HEIMDALL_URL || DEFAULT_HEIMDALL_URL;
   const rawPrivateKey =
     process.env.PRIVATE_KEY || fs.readFileSync(path.join(REPO_ROOT, '.live-roughnet', 'validator-ecdsa.key'), 'utf8').trim();
   const deployerKey = rawPrivateKey.startsWith('0x') ? rawPrivateKey : `0x${rawPrivateKey}`;
@@ -572,6 +544,8 @@ async function main() {
   const wrappedGiltType = await wrappedGiltPredicate.TOKEN_TYPE();
   const scaledErc1155Type = await scaledErc1155Predicate.TOKEN_TYPE();
 
+  await waitForRpc(sepoliaProvider, 'Sepolia');
+  await waitForRpc(roughnetProvider, 'roughnet');
   await ensureSepoliaEth(deployer, sepoliaUser);
 
   const rootPaxgAddress = await rootPaxg.getAddress();
@@ -585,7 +559,10 @@ async function main() {
   const childWethAddress = await childWeth.getAddress();
 
   console.log('Waiting for bridge catch-up before starting a fresh live run');
-  await waitForBridgeCatchup(rootStateSender, childStateReceiver);
+  const preRunProgress = await waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl);
+  console.log(
+    `Bridge ready at root=${preRunProgress.rootStateId.toString()} heimdall=${preRunProgress.heimdallRecordCount.toString()} child=${preRunProgress.childStateId.toString()}`,
+  );
 
   console.log('Submitting root mappings for all live routes');
   await submitGoldMapping(rootChainManager, childChainManager, rootPaxgAddress, childGoldAddress, 1, scaledErc1155Type);
@@ -599,6 +576,12 @@ async function main() {
     wrappedGiltAddress,
     NATIVE_GILT_BRIDGE_ADDRESS,
     wrappedGiltType,
+  );
+
+  console.log('Waiting for mapping state syncs to persist and land on the child chain');
+  const postMappingProgress = await waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl);
+  console.log(
+    `Mappings landed at root=${postMappingProgress.rootStateId.toString()} heimdall=${postMappingProgress.heimdallRecordCount.toString()} child=${postMappingProgress.childStateId.toString()}`,
   );
 
   console.log('Waiting for all child mappings');

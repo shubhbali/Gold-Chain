@@ -10,6 +10,7 @@ import {
   GOV_TOKEN_ADDRESS,
   NATIVE_GILT_BRIDGE_ADDRESS,
   REPO_ROOT,
+  ROOT_ETHER_ADDRESS,
   STATE_RECEIVER_ADDRESS,
   STAKE_HUB_ADDRESS,
   ZERO_ADDRESS,
@@ -23,6 +24,8 @@ import {
   role,
   saveAddressBook,
   sleep,
+  submitGoldMapping,
+  submitStandardMapping,
   waitForMined,
 } from './live-bridge-common.mjs';
 
@@ -123,9 +126,11 @@ const governorAbi = [
   'function castVote(uint256 proposalId, uint8 support) returns (uint256)',
   'function execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) payable returns (uint256)',
   'function hashProposal(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) view returns (uint256)',
+  'function latestProposalIds(address proposer) view returns (uint256)',
   'function proposalDeadline(uint256 proposalId) view returns (uint256)',
   'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) returns (uint256)',
   'function queue(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) returns (uint256)',
+  'function state(uint256 proposalId) view returns (uint8)',
 ];
 const govTokenAbi = ['function delegate(address delegatee)', 'function totalSupply() view returns (uint256)'];
 const stakeHubAbi = ['function stakeTokenB() view returns (address)'];
@@ -643,6 +648,56 @@ async function main() {
 
   await waitTx(rootChainManager.setChildChainManagerAddress(await childChainManager.getAddress()));
   await waitTx(stateSender.register(await rootChainManager.getAddress(), await childChainManager.getAddress()));
+
+  console.log('Submitting root mappings for the current child bridge manager');
+  const scaledErc1155Type = await scaledErc1155Predicate.TOKEN_TYPE();
+  const erc20Type = await erc20Predicate.TOKEN_TYPE();
+  const etherType = await etherPredicate.TOKEN_TYPE();
+  const wrappedGiltType = await wrappedGiltPredicate.TOKEN_TYPE();
+  await submitGoldMapping(
+    rootChainManager,
+    childChainManager,
+    await rootPaxg.getAddress(),
+    await childGold.getAddress(),
+    1,
+    scaledErc1155Type,
+  );
+  await submitGoldMapping(
+    rootChainManager,
+    childChainManager,
+    await rootXaut.getAddress(),
+    await childGold.getAddress(),
+    2,
+    scaledErc1155Type,
+  );
+  await submitStandardMapping(
+    rootChainManager,
+    childChainManager,
+    await rootUsdc.getAddress(),
+    await childUsdc.getAddress(),
+    erc20Type,
+  );
+  await submitStandardMapping(
+    rootChainManager,
+    childChainManager,
+    await rootUsdt.getAddress(),
+    await childUsdt.getAddress(),
+    erc20Type,
+  );
+  await submitStandardMapping(
+    rootChainManager,
+    childChainManager,
+    ROOT_ETHER_ADDRESS,
+    await childWeth.getAddress(),
+    etherType,
+  );
+  await submitStandardMapping(
+    rootChainManager,
+    childChainManager,
+    await wrappedGilt.getAddress(),
+    NATIVE_GILT_BRIDGE_ADDRESS,
+    wrappedGiltType,
+  );
 
   const addressBook = {
     meta: {

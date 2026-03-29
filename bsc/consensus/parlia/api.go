@@ -48,6 +48,34 @@ func (api *API) GetSnapshotAtHash(hash common.Hash) (*Snapshot, error) {
 	return api.parlia.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 }
 
+// GetAuthor retrieves the author for a block using the Bor-compatible RPC shape Heimdall expects.
+func (api *API) GetAuthor(blockNrOrHash *rpc.BlockNumberOrHash) (*common.Address, error) {
+	var header *types.Header
+
+	if blockNrOrHash == nil {
+		header = api.chain.CurrentHeader()
+	} else if blockNr, ok := blockNrOrHash.Number(); ok {
+		if blockNr == rpc.LatestBlockNumber {
+			header = api.chain.CurrentHeader()
+		} else {
+			header = api.chain.GetHeaderByNumber(uint64(blockNr.Int64()))
+		}
+	} else if blockHash, ok := blockNrOrHash.Hash(); ok {
+		header = api.chain.GetHeaderByHash(blockHash)
+	}
+
+	if header == nil {
+		return nil, errUnknownBlock
+	}
+
+	author, err := api.parlia.Author(header)
+	if err != nil {
+		return nil, err
+	}
+
+	return &author, nil
+}
+
 // GetValidators retrieves the list of validators at the specified block.
 func (api *API) GetValidators(number *rpc.BlockNumber) ([]common.Address, error) {
 	header := api.getHeader(number)

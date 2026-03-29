@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 export const REPO_ROOT = path.resolve(__dirname, '../../..');
 export const ADDRESS_BOOK_PATH = path.join(REPO_ROOT, '.live-roughnet', 'live-bridge-addresses.json');
 export const DEFAULT_SEPOLIA_RPC = 'https://sepolia.drpc.org';
+export const DEFAULT_HEIMDALL_URL = 'http://127.0.0.1:1317';
 
 export const ROOT_ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const STATE_RECEIVER_ADDRESS = '0x0000000000000000000000000000000000003001';
@@ -25,6 +26,20 @@ export const GOV_TOKEN_ADDRESS = '0x0000000000000000000000000000000000002005';
 export const GOLD_CHAIN_ID = 714;
 export const ZERO_ADDRESS = ethers.ZeroAddress;
 export const CHECKPOINT_ACCOUNT_HASH = ethers.keccak256(ethers.toUtf8Bytes('gold-chain-roughnet'));
+
+export function addressEq(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+
+export function errorContains(error, needle) {
+  const parts = [
+    error?.message,
+    error?.shortMessage,
+    error?.reason,
+    error?.info?.error?.message,
+  ].filter(Boolean);
+  return parts.some((part) => String(part).includes(needle));
+}
 
 export function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -61,9 +76,25 @@ function rpcUrlForProvider(provider) {
   return provider?._getConnection?.().url || provider?.connection?.url || null;
 }
 
+async function withTimeout(promise, label, timeoutMs = 15000) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
 async function receiptProvidersFor(txResponse) {
   const providers = [txResponse.provider].filter(Boolean);
-  const network = await txResponse.provider.getNetwork();
+  const network = await withTimeout(txResponse.provider.getNetwork(), 'getNetwork');
   if (network.chainId !== 11155111n) {
     return providers;
   }
@@ -103,14 +134,17 @@ export async function waitForMined(txResponse, confirmations = 1, timeoutMs = 30
     let sawReceipt = false;
     for (const provider of providers) {
       try {
-        const receipt = await provider.getTransactionReceipt(txResponse.hash);
+        const receipt = await withTimeout(
+          provider.getTransactionReceipt(txResponse.hash),
+          `getTransactionReceipt ${txResponse.hash}`,
+        );
         if (!receipt) {
           continue;
         }
 
         sawReceipt = true;
         if (confirmations > 1) {
-          const latestBlock = await provider.getBlockNumber();
+          const latestBlock = await withTimeout(provider.getBlockNumber(), 'getBlockNumber');
           if (latestBlock < receipt.blockNumber + confirmations - 1) {
             continue;
           }
@@ -133,6 +167,11 @@ export async function waitForMined(txResponse, confirmations = 1, timeoutMs = 30
   }
 
   throw new Error(`Timed out waiting for transaction ${txResponse.hash}`);
+}
+
+async function waitTx(txPromise) {
+  const tx = await txPromise;
+  return waitForMined(tx);
 }
 
 export async function deployContract(signer, artifact, args = []) {
@@ -168,6 +207,173 @@ export async function waitForCondition(fn, label, timeoutMs = 900000, intervalMs
 
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function rpcRequest(url, method, params = [], label = method) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) {
+    throw new Error(`${label} returned HTTP ${response.status}`);
+  }
+  const payload = await response.json();
+  if (payload.error) {
+    throw new Error(`${label} failed: ${payload.error.message || JSON.stringify(payload.error)}`);
+  }
+  return payload.result;
+}
+
+export async function waitForRpc(provider, label, timeoutMs = 300000, intervalMs = 3000) {
+  const url = rpcUrlForProvider(provider);
+  if (!url) {
+    throw new Error(`${label} RPC URL is missing`);
+  }
+  return waitForCondition(
+    async () => {
+      try {
+        await rpcRequest(url, 'eth_blockNumber', [], `${label} eth_blockNumber`);
+        return true;
+      } catch (_) {
+        return null;
+      }
+    },
+    `${label} RPC`,
+    timeoutMs,
+    intervalMs,
+  );
+}
+
+async function fetchJson(url, label) {
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) {
+    throw new Error(`${label} returned HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function readHeimdallLatestRecord(heimdallUrl = DEFAULT_HEIMDALL_URL) {
+  const url = new URL('/clerk/event-records/latest-id', heimdallUrl);
+  const payload = await fetchJson(url, 'heimdall latest record');
+  return {
+    latestRecordId: BigInt(payload.latest_record_id),
+    isProcessedByHeimdall: Boolean(payload.is_processed_by_heimdall),
+  };
+}
+
+export async function readHeimdallRecordCount(heimdallUrl = DEFAULT_HEIMDALL_URL) {
+  const url = new URL('/clerk/event-records/count', heimdallUrl);
+  const payload = await fetchJson(url, 'heimdall record count');
+  return BigInt(payload.count);
+}
+
+export async function readHeimdallRecord(heimdallUrl, recordId) {
+  const url = new URL(`/clerk/event-records/${recordId.toString()}`, heimdallUrl);
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`heimdall record ${recordId.toString()} returned HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function waitForHeimdallRecord(heimdallUrl, recordId, timeoutMs = 900000, intervalMs = 5000) {
+  return waitForCondition(
+    async () => {
+      const record = await readHeimdallRecord(heimdallUrl, recordId);
+      return record ? record : null;
+    },
+    `heimdall record ${recordId.toString()}`,
+    timeoutMs,
+    intervalMs,
+  );
+}
+
+export async function submitGoldMapping(
+  rootChainManager,
+  childChainManager,
+  rootToken,
+  childToken,
+  tokenId,
+  tokenType,
+) {
+  const rootMapped = await rootChainManager.rootToChildToken(rootToken);
+  const childMapped = await childChainManager.rootToChildToken(rootToken);
+
+  if (addressEq(rootMapped, childToken) && addressEq(childMapped, childToken)) {
+    return;
+  }
+
+  if (rootMapped !== ethers.ZeroAddress) {
+    await waitTx(rootChainManager.cleanMapToken(rootToken, rootMapped));
+  }
+
+  try {
+    await waitTx(rootChainManager.mapGoldToken(rootToken, childToken, tokenId, tokenType));
+  } catch (error) {
+    if (!errorContains(error, 'ALREADY_MAPPED')) {
+      throw error;
+    }
+
+    await waitTx(rootChainManager.cleanMapToken(rootToken, childToken));
+    await waitTx(rootChainManager.mapGoldToken(rootToken, childToken, tokenId, tokenType));
+  }
+}
+
+export async function submitStandardMapping(rootChainManager, childChainManager, rootToken, childToken, tokenType) {
+  const rootMapped = await rootChainManager.rootToChildToken(rootToken);
+  const childMapped = await childChainManager.rootToChildToken(rootToken);
+
+  if (addressEq(rootMapped, childToken) && addressEq(childMapped, childToken)) {
+    return;
+  }
+
+  await waitTx(
+    rootMapped !== ethers.ZeroAddress
+      ? rootChainManager.remapToken(rootToken, childToken, tokenType)
+      : rootChainManager.mapToken(rootToken, childToken, tokenType),
+  );
+}
+
+export async function waitForChildStateId(stateReceiver, targetId, timeoutMs = 900000, intervalMs = 5000) {
+  return waitForCondition(
+    async () => {
+      const lastStateId = await stateReceiver.lastStateId();
+      return lastStateId >= targetId ? lastStateId : null;
+    },
+    `child state id ${targetId.toString()}`,
+    timeoutMs,
+    intervalMs,
+  );
+}
+
+export async function readBridgeProgress(rootStateSender, childStateReceiver, heimdallUrl = DEFAULT_HEIMDALL_URL) {
+  const [rootStateId, childStateId, heimdallLatest, heimdallCount] = await Promise.all([
+    rootStateSender.counter(),
+    childStateReceiver.lastStateId(),
+    readHeimdallLatestRecord(heimdallUrl),
+    readHeimdallRecordCount(heimdallUrl),
+  ]);
+  return {
+    rootStateId,
+    childStateId,
+    heimdallLatestRecordId: heimdallLatest.latestRecordId,
+    heimdallLatestProcessed: heimdallLatest.isProcessedByHeimdall,
+    heimdallRecordCount: heimdallCount,
+  };
 }
 
 export function publicKeyBytes(privateKey) {
