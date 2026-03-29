@@ -120,6 +120,11 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
         _;
     }
 
+    modifier ensureInit() {
+        _bootstrapInit();
+        _;
+    }
+
     modifier oncePerBlock() {
         require(block.number > previousHeight, "can not do this twice in one block");
         _;
@@ -155,6 +160,13 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
 
     /*----------------- init -----------------*/
     function init() external onlyNotInit {
+        _bootstrapInit();
+    }
+
+    function _bootstrapInit() private {
+        if (alreadyInit) {
+            return;
+        }
         (ValidatorSetPackage memory validatorSetPkg, bool valid) =
             decodeValidatorSet(INIT_VALIDATORSET_BYTES);
         require(valid, "failed to parse init validatorSet");
@@ -174,13 +186,19 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
         alreadyInit = true;
     }
 
+    function _getBootstrapValidatorSet() private pure returns (ValidatorSetPackage memory validatorSetPkg) {
+        bool valid;
+        (validatorSetPkg, valid) = decodeValidatorSet(INIT_VALIDATORSET_BYTES);
+        require(valid, "failed to parse init validatorSet");
+    }
+
     receive() external payable { }
 
     /*----------------- Cross Chain App Implement -----------------*/
     function handleSynPackage(
         uint8,
         bytes calldata msgBytes
-    ) external override onlyInit onlyCrossChainContract initValidatorExtraSet returns (bytes memory responsePayload) {
+    ) external override ensureInit onlyCrossChainContract initValidatorExtraSet returns (bytes memory responsePayload) {
         revert("deprecated");
     }
 
@@ -252,7 +270,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
      *
      * @param valAddr The validator address who produced the current block
      */
-    function deposit(address valAddr) external payable onlyCoinbase onlyInit noEmptyDeposit onlyZeroGasPrice {
+    function deposit(address valAddr) external payable onlyCoinbase ensureInit noEmptyDeposit onlyZeroGasPrice {
         uint256 value = msg.value;
         uint256 index = currentValidatorSetMap[valAddr];
 
@@ -302,7 +320,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
         }
     }
 
-    function depositInflation(address valAddr) external payable onlyCoinbase onlyInit noEmptyDeposit onlyZeroGasPrice {
+    function depositInflation(address valAddr) external payable onlyCoinbase ensureInit noEmptyDeposit onlyZeroGasPrice {
         uint256 index = currentValidatorSetMap[valAddr];
         if (index > 0) {
             Validator storage validator = currentValidatorSet[index - 1];
@@ -323,7 +341,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     function distributeFinalityReward(
         address[] calldata valAddrs,
         uint256[] calldata weights
-    ) external onlyCoinbase oncePerBlock onlyZeroGasPrice onlyInit {
+    ) external onlyCoinbase oncePerBlock onlyZeroGasPrice ensureInit {
         uint256 totalValue;
         uint256 balanceOfSystemReward = address(SYSTEM_REWARD_ADDR).balance;
         if (balanceOfSystemReward > MAX_SYSTEM_REWARD_BALANCE) {
@@ -376,6 +394,15 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
      * @notice Return the vote address and consensus address of the validators in `currentValidatorSet` that are not jailed
      */
     function getLivingValidators() external view override returns (address[] memory, bytes[] memory) {
+        if (!alreadyInit && currentValidatorSet.length == 0) {
+            ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
+            address[] memory consensusAddrs = new address[](validatorSetPkg.validatorSet.length);
+            for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
+                consensusAddrs[i] = validatorSetPkg.validatorSet[i].consensusAddress;
+            }
+            return (consensusAddrs, validatorSetPkg.voteAddrs);
+        }
+
         uint256 n = currentValidatorSet.length;
         uint256 living;
         for (uint256 i; i < n; ++i) {
@@ -459,6 +486,15 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
      * @notice Return the consensus address of the validators in `currentValidatorSet` that are not jailed and not maintaining
      */
     function getValidators() public view returns (address[] memory) {
+        if (!alreadyInit && currentValidatorSet.length == 0) {
+            ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
+            address[] memory consensusAddrs = new address[](validatorSetPkg.validatorSet.length);
+            for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
+                consensusAddrs[i] = validatorSetPkg.validatorSet[i].consensusAddress;
+            }
+            return consensusAddrs;
+        }
+
         uint256 n = currentValidatorSet.length;
         uint256 valid = 0;
         for (uint256 i; i < n; ++i) {
@@ -511,6 +547,16 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
      * Will return false if the validator is not in `currentValidatorSet`
      */
     function isCurrentValidator(address validator) external view override returns (bool) {
+        if (!alreadyInit && currentValidatorSet.length == 0) {
+            ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
+            for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
+                if (validatorSetPkg.validatorSet[i].consensusAddress == validator) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         uint256 index = currentValidatorSetMap[validator];
         if (index <= 0) {
             return false;
@@ -629,7 +675,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     }
 
     /*----------------- Param update -----------------*/
-    function updateParam(string calldata key, bytes calldata value) external override onlyInit onlyGov {
+    function updateParam(string calldata key, bytes calldata value) external override ensureInit onlyGov {
         if (Memory.compareStrings(key, "burnRatio")) {
             require(value.length == 32, "length of burnRatio mismatch");
             uint256 newBurnRatio = BytesToTypes.bytesToUint256(32, value);
@@ -817,6 +863,12 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     }
 
     function getVoteAddresses(address[] memory validators) internal view returns (bytes[] memory) {
+        if (!alreadyInit && currentValidatorSet.length == 0) {
+            ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
+            require(validators.length == validatorSetPkg.voteAddrs.length, "bootstrap validators mismatch");
+            return validatorSetPkg.voteAddrs;
+        }
+
         uint256 n = currentValidatorSet.length;
         uint256 length = validators.length;
         bytes[] memory voteAddrs = new bytes[](length);

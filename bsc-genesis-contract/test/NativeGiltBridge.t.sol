@@ -19,6 +19,20 @@ contract NativeGiltBridgeTest is Deployer {
         assertEq(nativeGiltBridge.childChainManager(), address(0x1234));
     }
 
+    function testGovHubCanUpdateChildChainManagerParam() public {
+        bytes memory value = abi.encodePacked(address(0x5678));
+
+        vm.expectRevert();
+        nativeGiltBridge.updateParam("childChainManager", value);
+
+        vm.expectEmit(true, false, false, true);
+        emit ChildChainManagerUpdated(address(0x5678));
+        vm.prank(GOV_HUB_ADDR);
+        nativeGiltBridge.updateParam("childChainManager", value);
+
+        assertEq(nativeGiltBridge.childChainManager(), address(0x5678));
+    }
+
     function testDepositRequiresConfiguredChildChainManager() public {
         vm.prank(GOVERNOR_ADDR);
         nativeGiltBridge.setChildChainManager(address(0x1234));

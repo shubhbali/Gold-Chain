@@ -44,11 +44,11 @@ type heimdallRecordListResponse struct {
 }
 
 type heimdallEventRecord struct {
-	ID         uint64    `json:"id"`
+	ID         uint64    `json:"id,string"`
 	Contract   string    `json:"contract"`
 	Data       []byte    `json:"data"`
 	TxHash     string    `json:"tx_hash"`
-	LogIndex   uint64    `json:"log_index"`
+	LogIndex   uint64    `json:"log_index,string"`
 	BorChainID string    `json:"bor_chain_id"`
 	RecordTime time.Time `json:"record_time"`
 }
@@ -87,8 +87,33 @@ func (p *Parlia) bridgeStateSyncDelay() time.Duration {
 	return 0
 }
 
-func (p *Parlia) bridgeLastStateID(state vm.StateDB) uint64 {
-	return state.GetState(p.bridgeStateReceiver(), common.Hash{}).Big().Uint64()
+func (p *Parlia) bridgeLastStateID(state vm.StateDB, header *types.Header, chain core.ChainContext, tracer *tracing.Hooks) (uint64, error) {
+	stateReceiverABI, err := abi.JSON(strings.NewReader(stateReceiverABIJSON))
+	if err != nil {
+		return 0, err
+	}
+	data, err := stateReceiverABI.Pack("lastStateId")
+	if err != nil {
+		return 0, err
+	}
+	blockContext := core.NewEVMBlockContext(header, chain, nil)
+	evm := vm.NewEVM(blockContext, state, p.chainConfig, vm.Config{Tracer: tracer})
+	ret, _, err := evm.StaticCall(consensus.SystemAddress, p.bridgeStateReceiver(), data, math.MaxUint64/2)
+	if err != nil {
+		return 0, err
+	}
+	values, err := stateReceiverABI.Unpack("lastStateId", ret)
+	if err != nil {
+		return 0, err
+	}
+	if len(values) != 1 {
+		return 0, fmt.Errorf("unexpected lastStateId return count: %d", len(values))
+	}
+	lastStateID, ok := values[0].(*big.Int)
+	if !ok {
+		return 0, fmt.Errorf("unexpected lastStateId return type: %T", values[0])
+	}
+	return lastStateID.Uint64(), nil
 }
 
 func (p *Parlia) stateSyncURL(fromID uint64, to time.Time) (*url.URL, error) {
@@ -197,7 +222,10 @@ func (p *Parlia) commitStateSyncs(
 		return nil
 	}
 
-	lastStateID := p.bridgeLastStateID(state)
+	lastStateID, err := p.bridgeLastStateID(state, header, chain, tracer)
+	if err != nil {
+		return err
+	}
 	cutoff := time.Unix(int64(header.Time), 0).Add(-p.bridgeStateSyncDelay())
 	ctx, cancel := context.WithTimeout(context.Background(), p.bridgeStateSyncTimeout())
 	defer cancel()

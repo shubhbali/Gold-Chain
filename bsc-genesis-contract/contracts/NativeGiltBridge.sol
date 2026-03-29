@@ -2,8 +2,12 @@
 pragma solidity 0.8.17;
 
 import "./SystemV2.sol";
+import "./lib/0.8.x/Utils.sol";
 
 contract NativeGiltBridge is SystemV2 {
+    using Utils for bytes;
+    using Utils for string;
+
     address public childChainManager;
 
     event ChildChainManagerUpdated(address indexed childChainManager);
@@ -16,7 +20,20 @@ contract NativeGiltBridge is SystemV2 {
     error OnlyChildChainManager();
     error InsufficientBalance();
 
+    function updateParam(string calldata key, bytes calldata value) external onlyGov {
+        if (key.compareStrings("childChainManager")) {
+            if (value.length != 20) revert InvalidValue(key, value);
+            _setChildChainManager(value.bytesToAddress(20));
+        } else {
+            revert UnknownParam(key, value);
+        }
+    }
+
     function setChildChainManager(address newChildChainManager) external onlyGovernor {
+        _setChildChainManager(newChildChainManager);
+    }
+
+    function _setChildChainManager(address newChildChainManager) internal {
         if (newChildChainManager == address(0)) revert InvalidChildChainManager();
         childChainManager = newChildChainManager;
         emit ChildChainManagerUpdated(newChildChainManager);

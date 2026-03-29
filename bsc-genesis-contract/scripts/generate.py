@@ -246,8 +246,8 @@ def generate_validator_set(init_validator_set_bytes, init_burn_ratio):
             )
         replace(
             contract,
-            r"handleSynPackage\(\s*uint8,\s*bytes calldata msgBytes\s*\) external override onlyInit onlyCrossChainContract initValidatorExtraSet",
-            "handleSynPackage(uint8, bytes calldata msgBytes) external override onlyInit initValidatorExtraSet"
+            r"handleSynPackage\(\s*uint8,\s*bytes calldata msgBytes\s*\) external override (?:onlyInit|ensureInit) onlyCrossChainContract initValidatorExtraSet",
+            "handleSynPackage(uint8, bytes calldata msgBytes) external override ensureInit initValidatorExtraSet"
         )
 
 

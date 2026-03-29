@@ -1450,7 +1450,9 @@ LOOP:
 		}
 	}
 
-	w.commit(bestWork, w.fullTaskHook, start)
+	if err := w.commit(bestWork, w.fullTaskHook, start); err != nil {
+		log.Error("Failed to commit sealing work", "number", bestWork.header.Number.Uint64(), "err", err)
+	}
 
 	// Swap out the old work with the new one, terminating any leftover
 	// prefetcher processes in the mean time and starting a new one.

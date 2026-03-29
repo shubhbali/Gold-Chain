@@ -162,14 +162,6 @@ func (bl *BaseListener) StartPolling(ctx context.Context, pollInterval time.Dura
 				}
 			}
 
-			// if an error occurred and finalized was requested, fall back to the latest block
-			if err != nil && number != nil {
-				header, err = bl.chainClient.HeaderByNumber(ctx, nil)
-				if err == nil && header != nil {
-					bHeader = &blockHeader{header: header, isFinalized: false}
-				}
-			}
-
 			if err != nil {
 				bl.Logger.Error("BaseListener: error in fetching block header while polling", "err", err)
 			}

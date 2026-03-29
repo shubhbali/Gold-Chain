@@ -11,10 +11,27 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, Ownable {
 
     string public name;
     string public symbol;
+    address public bridgeDepositor;
+    uint256 public bridgeScaleNumerator = 1000;
+    uint256 public bridgeScaleDenominator = 1;
+
+    event BridgeConfigUpdated(address indexed bridgeDepositor, uint256 scaleNumerator, uint256 scaleDenominator);
 
     constructor(string memory uri_) ERC1155(uri_) {
         name = "Physical Gold";
         symbol = "PGOLD";
+    }
+
+    function setBridgeConfig(address newBridgeDepositor, uint256 newScaleNumerator, uint256 newScaleDenominator)
+        external
+        onlyOwner
+    {
+        require(newBridgeDepositor != address(0), "invalid bridge depositor");
+        require(newScaleNumerator != 0 && newScaleDenominator != 0, "invalid bridge ratio");
+        bridgeDepositor = newBridgeDepositor;
+        bridgeScaleNumerator = newScaleNumerator;
+        bridgeScaleDenominator = newScaleDenominator;
+        emit BridgeConfigUpdated(newBridgeDepositor, newScaleNumerator, newScaleDenominator);
     }
 
     function mint(address account, uint256 tokenId, uint256 amount) external onlyOwner {
@@ -37,6 +54,28 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, Ownable {
 
     function burnBatch(address account, uint256[] calldata tokenIds, uint256[] calldata amounts) external onlyOwner {
         _burnBatch(account, tokenIds, amounts);
+    }
+
+    function deposit(address account, bytes calldata depositData) external {
+        require(msg.sender == bridgeDepositor, "only bridge depositor");
+        require(account != address(0), "invalid account");
+
+        (uint256 tokenId, uint256 rootAmount) = abi.decode(depositData, (uint256, uint256));
+        require(_isSupportedTokenId(tokenId), "unsupported token id");
+        require(rootAmount != 0, "invalid amount");
+
+        uint256 scaledAmount = rootAmount * bridgeScaleNumerator;
+        require(scaledAmount % bridgeScaleDenominator == 0, "non exact deposit");
+        _mint(account, tokenId, scaledAmount / bridgeScaleDenominator, "");
+    }
+
+    function withdrawSingle(uint256 tokenId, uint256 amount) external {
+        require(_isSupportedTokenId(tokenId), "unsupported token id");
+        require(amount != 0, "invalid amount");
+
+        uint256 scaledAmount = amount * bridgeScaleDenominator;
+        require(scaledAmount % bridgeScaleNumerator == 0, "non exact withdraw");
+        _burn(msg.sender, tokenId, amount);
     }
 
     function _isSupportedTokenId(uint256 tokenId) internal pure returns (bool) {
