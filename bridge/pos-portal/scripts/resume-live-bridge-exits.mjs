@@ -2,17 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { ethers } from 'ethers';
 import {
-  CHECKPOINT_ACCOUNT_HASH,
   DEFAULT_SEPOLIA_RPC,
-  GOLD_CHAIN_ID,
   NATIVE_GILT_BRIDGE_ADDRESS,
   REPO_ROOT,
-  buildCheckpointData,
-  buildExitPayload,
-  checkpointSignature,
+  createCheckpointBuilder,
   childRpcFor,
   contractAt,
-  findCheckpointCursor,
   loadAddressBook,
   rpcProviderFor,
   waitForMined,
@@ -21,7 +16,6 @@ import {
 
 const walletFile = path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json');
 const stateSenderAbi = ['function counter() view returns (uint256)'];
-const abi = ethers.AbiCoder.defaultAbiCoder();
 const ROOT_EXIT_GAS_LIMIT = 4_000_000n;
 
 const portalArtifacts = {
@@ -85,96 +79,6 @@ function findLogIndex(receipt, emitter, topic0 = null) {
   });
 }
 
-function newHeaderBlockId(rootChain, receipt) {
-  for (const log of receipt.logs) {
-    try {
-      const parsed = rootChain.interface.parseLog(log);
-      if (parsed?.name === 'NewHeaderBlock') {
-        return parsed.args.headerBlockId;
-      }
-    } catch (_) {
-      // ignore unrelated logs
-    }
-  }
-  throw new Error('NewHeaderBlock not found');
-}
-
-function checkpointBuilder(rootChain, proposerPrivateKey, proposerAddress, childWeb3, roughnetProvider) {
-  let offsetBlock = null;
-  let lastActualEndBlock = null;
-  let logicalStart = null;
-  let logicalEnd = null;
-  let currentHeaderBlock = null;
-  let cursorPromise = null;
-
-  async function ensureCursor() {
-    if (offsetBlock != null && lastActualEndBlock != null) {
-      return;
-    }
-    if (!cursorPromise) {
-      cursorPromise = findCheckpointCursor(rootChain, roughnetProvider);
-    }
-    const cursor = await cursorPromise;
-    if (cursor) {
-      offsetBlock = cursor.offsetBlock;
-      lastActualEndBlock = cursor.lastActualEndBlock;
-      logicalStart = cursor.logicalStart;
-      logicalEnd = cursor.logicalEnd;
-      currentHeaderBlock = BigInt(cursor.currentHeaderBlock);
-    }
-  }
-
-  return async (txHash, logIndex) => {
-    await ensureCursor();
-    const receipt = await childWeb3.eth.getTransactionReceipt(txHash);
-    const actualEndBlock = Number(receipt.blockNumber);
-
-    if (
-      offsetBlock != null &&
-      currentHeaderBlock != null &&
-      logicalStart != null &&
-      logicalEnd != null
-    ) {
-      const currentWindowStart = offsetBlock + logicalStart;
-      const currentWindowEnd = offsetBlock + logicalEnd;
-      if (actualEndBlock >= currentWindowStart && actualEndBlock <= currentWindowEnd) {
-        const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, currentWindowStart);
-        return buildExitPayload(currentHeaderBlock, checkpointData, logIndex);
-      }
-    }
-
-    if (offsetBlock == null) {
-      offsetBlock = actualEndBlock;
-      lastActualEndBlock = actualEndBlock - 1;
-    }
-
-    const actualStartBlock = lastActualEndBlock + 1;
-    const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, actualStartBlock);
-    const data = abi.encode(
-      ['address', 'uint256', 'uint256', 'bytes32', 'bytes32', 'uint256'],
-      [
-        proposerAddress,
-        BigInt(checkpointData.startBlock),
-        BigInt(checkpointData.endBlock),
-        checkpointData.headerRoot,
-        CHECKPOINT_ACCOUNT_HASH,
-        BigInt(GOLD_CHAIN_ID),
-      ],
-    );
-
-    const sigs = checkpointSignature(proposerPrivateKey, data);
-    const submitTx = await rootChain.submitCheckpoint(data, sigs);
-    const submitReceipt = await waitForMined(submitTx);
-    const headerNumber = newHeaderBlockId(rootChain, submitReceipt);
-
-    lastActualEndBlock = checkpointData.actualEndBlock;
-    logicalStart = checkpointData.startBlock;
-    logicalEnd = checkpointData.endBlock;
-    currentHeaderBlock = BigInt(headerNumber);
-    return buildExitPayload(headerNumber, checkpointData, logIndex);
-  };
-}
-
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
   const roughnetRpc = process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
@@ -206,7 +110,14 @@ async function main() {
   const rootStateSender = new ethers.Contract(addressBook.root.stateSender, stateSenderAbi, sepoliaProvider);
 
   const childWeb3 = childRpcFor(roughnetProvider);
-  const checkpointExitData = checkpointBuilder(rootChain, deployer.privateKey, deployer.address, childWeb3, roughnetProvider);
+  const checkpointExitData = createCheckpointBuilder({
+    rootChain,
+    proposerPrivateKey: deployer.privateKey,
+    proposerAddress: deployer.address,
+    childWeb3,
+    roughnetProvider,
+    addressBook,
+  });
 
   const results = [];
 

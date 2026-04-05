@@ -3,21 +3,15 @@ import path from 'path';
 import { ethers } from 'ethers';
 import {
   DEFAULT_HEIMDALL_URL,
-  CHECKPOINT_ACCOUNT_HASH,
   DEFAULT_SEPOLIA_RPC,
-  GOLD_CHAIN_ID,
   NATIVE_GILT_BRIDGE_ADDRESS,
   REPO_ROOT,
   ROOT_ETHER_ADDRESS,
   STATE_RECEIVER_ADDRESS,
   addressEq,
-  buildCheckpointData,
-  buildExitPayload,
-  checkpointSignature,
+  createCheckpointBuilder,
   childRpcFor,
   contractAt,
-  errorContains,
-  findCheckpointCursor,
   loadAddressBook,
   readBridgeProgress,
   rpcProviderFor,
@@ -25,8 +19,6 @@ import {
   readJson,
   saveAddressBook,
   sleep,
-  submitGoldMapping,
-  submitStandardMapping,
   waitForChildStateId,
   waitForCondition,
   waitForHeimdallRecord,
@@ -69,7 +61,6 @@ const chainArtifacts = {
 const stateSenderAbi = ['function counter() view returns (uint256)'];
 const stateReceiverAbi = ['function lastStateId() view returns (uint256)'];
 
-const abi = ethers.AbiCoder.defaultAbiCoder();
 const MIN_SEPOLIA_TEST_ETH = ethers.parseEther('0.01');
 const SEP_FUND_AMOUNT = ethers.parseEther('0.01');
 const ROOT_DEPOSIT_GAS_LIMIT = 1_000_000n;
@@ -138,20 +129,6 @@ function findLogIndex(receipt, emitter, topic0 = null) {
   });
 }
 
-function newHeaderBlockId(rootChain, receipt) {
-  for (const log of receipt.logs) {
-    try {
-      const parsed = rootChain.interface.parseLog(log);
-      if (parsed?.name === 'NewHeaderBlock') {
-        return parsed.args.headerBlockId;
-      }
-    } catch (_) {
-      // ignore unrelated logs
-    }
-  }
-  throw new Error('NewHeaderBlock not found');
-}
-
 async function ensureSepoliaEth(deployer, user) {
   const balance = await deployer.provider.getBalance(user.address);
   if (balance >= MIN_SEPOLIA_TEST_ETH) {
@@ -164,71 +141,17 @@ async function ensureSepoliaEth(deployer, user) {
   await waitForMined(tx);
 }
 
-async function waitForChildMapping(childChainManager, rootToken, childToken, label) {
-  await waitForCondition(
-    async () => {
-      const childMapped = await childChainManager.rootToChildToken(rootToken);
-      return addressEq(childMapped, childToken) ? childMapped : null;
-    },
-    `${label} child mapping`,
-    BRIDGE_WAIT_TIMEOUT_MS,
-    5000,
-  );
-}
-
-function checkpointBuilder(rootChain, proposerPrivateKey, proposerAddress, childWeb3, roughnetProvider) {
-  let offsetBlock = null;
-  let lastActualEndBlock = null;
-  let cursorPromise = null;
-
-  async function ensureCursor() {
-    if (offsetBlock != null && lastActualEndBlock != null) {
-      return;
-    }
-    if (!cursorPromise) {
-      cursorPromise = findCheckpointCursor(rootChain, roughnetProvider);
-    }
-    const cursor = await cursorPromise;
-    if (cursor) {
-      offsetBlock = cursor.offsetBlock;
-      lastActualEndBlock = cursor.lastActualEndBlock;
-    }
+async function assertRouteMapping(rootChainManager, childChainManager, rootToken, childToken, label) {
+  const [rootMapped, childMapped] = await Promise.all([
+    rootChainManager.rootToChildToken(rootToken),
+    childChainManager.rootToChildToken(rootToken),
+  ]);
+  if (!addressEq(rootMapped, childToken)) {
+    throw new Error(`${label} root mapping mismatch: ${rootMapped} != ${childToken}`);
   }
-
-  return async (txHash, logIndex) => {
-    await ensureCursor();
-    const receipt = await childWeb3.eth.getTransactionReceipt(txHash);
-    const actualEndBlock = Number(receipt.blockNumber);
-
-    if (offsetBlock == null) {
-      offsetBlock = actualEndBlock;
-      lastActualEndBlock = actualEndBlock - 1;
-    }
-
-    const actualStartBlock = lastActualEndBlock + 1;
-    const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, actualStartBlock);
-
-    const data = abi.encode(
-      ['address', 'uint256', 'uint256', 'bytes32', 'bytes32', 'uint256'],
-      [
-        proposerAddress,
-        BigInt(checkpointData.startBlock),
-        BigInt(checkpointData.endBlock),
-        checkpointData.headerRoot,
-        CHECKPOINT_ACCOUNT_HASH,
-        BigInt(GOLD_CHAIN_ID),
-      ],
-    );
-
-    const sigs = checkpointSignature(proposerPrivateKey, data);
-    const submitTx = await rootChain.submitCheckpoint(data, sigs);
-    const submitReceipt = await waitForMined(submitTx);
-    const headerNumber = newHeaderBlockId(rootChain, submitReceipt);
-
-    lastActualEndBlock = checkpointData.actualEndBlock;
-
-    return buildExitPayload(headerNumber, checkpointData, logIndex);
-  };
+  if (!addressEq(childMapped, childToken)) {
+    throw new Error(`${label} child mapping mismatch: ${childMapped} != ${childToken}`);
+  }
 }
 
 async function submitGoldDeposit(context, route) {
@@ -537,12 +460,14 @@ async function main() {
   const childStateReceiver = new ethers.Contract(STATE_RECEIVER_ADDRESS, stateReceiverAbi, roughnetProvider);
 
   const childWeb3 = childRpcFor(roughnetProvider);
-  const checkpointExitData = checkpointBuilder(rootChain, deployer.privateKey, deployer.address, childWeb3, roughnetProvider);
-
-  const erc20Type = await erc20Predicate.TOKEN_TYPE();
-  const etherType = await etherPredicate.TOKEN_TYPE();
-  const wrappedGiltType = await wrappedGiltPredicate.TOKEN_TYPE();
-  const scaledErc1155Type = await scaledErc1155Predicate.TOKEN_TYPE();
+  const checkpointExitData = createCheckpointBuilder({
+    rootChain,
+    proposerPrivateKey: deployer.privateKey,
+    proposerAddress: deployer.address,
+    childWeb3,
+    roughnetProvider,
+    addressBook,
+  });
 
   await waitForRpc(sepoliaProvider, 'Sepolia');
   await waitForRpc(roughnetProvider, 'roughnet');
@@ -564,34 +489,14 @@ async function main() {
     `Bridge ready at root=${preRunProgress.rootStateId.toString()} heimdall=${preRunProgress.heimdallRecordCount.toString()} child=${preRunProgress.childStateId.toString()}`,
   );
 
-  console.log('Submitting root mappings for all live routes');
-  await submitGoldMapping(rootChainManager, childChainManager, rootPaxgAddress, childGoldAddress, 1, scaledErc1155Type);
-  await submitGoldMapping(rootChainManager, childChainManager, rootXautAddress, childGoldAddress, 2, scaledErc1155Type);
-  await submitStandardMapping(rootChainManager, childChainManager, rootUsdcAddress, childUsdcAddress, erc20Type);
-  await submitStandardMapping(rootChainManager, childChainManager, rootUsdtAddress, childUsdtAddress, erc20Type);
-  await submitStandardMapping(rootChainManager, childChainManager, ROOT_ETHER_ADDRESS, childWethAddress, etherType);
-  await submitStandardMapping(
-    rootChainManager,
-    childChainManager,
-    wrappedGiltAddress,
-    NATIVE_GILT_BRIDGE_ADDRESS,
-    wrappedGiltType,
-  );
-
-  console.log('Waiting for mapping state syncs to persist and land on the child chain');
-  const postMappingProgress = await waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl);
-  console.log(
-    `Mappings landed at root=${postMappingProgress.rootStateId.toString()} heimdall=${postMappingProgress.heimdallRecordCount.toString()} child=${postMappingProgress.childStateId.toString()}`,
-  );
-
-  console.log('Waiting for all child mappings');
+  console.log('Verifying root and child mappings without mutating live bridge state');
   await Promise.all([
-    waitForChildMapping(childChainManager, rootPaxgAddress, childGoldAddress, 'PAXG'),
-    waitForChildMapping(childChainManager, rootXautAddress, childGoldAddress, 'XAUT'),
-    waitForChildMapping(childChainManager, rootUsdcAddress, childUsdcAddress, 'USDC'),
-    waitForChildMapping(childChainManager, rootUsdtAddress, childUsdtAddress, 'USDT'),
-    waitForChildMapping(childChainManager, ROOT_ETHER_ADDRESS, childWethAddress, 'raw ETH'),
-    waitForChildMapping(childChainManager, wrappedGiltAddress, NATIVE_GILT_BRIDGE_ADDRESS, 'GILT'),
+    assertRouteMapping(rootChainManager, childChainManager, rootPaxgAddress, childGoldAddress, 'PAXG'),
+    assertRouteMapping(rootChainManager, childChainManager, rootXautAddress, childGoldAddress, 'XAUT'),
+    assertRouteMapping(rootChainManager, childChainManager, rootUsdcAddress, childUsdcAddress, 'USDC'),
+    assertRouteMapping(rootChainManager, childChainManager, rootUsdtAddress, childUsdtAddress, 'USDT'),
+    assertRouteMapping(rootChainManager, childChainManager, ROOT_ETHER_ADDRESS, childWethAddress, 'raw ETH'),
+    assertRouteMapping(rootChainManager, childChainManager, wrappedGiltAddress, NATIVE_GILT_BRIDGE_ADDRESS, 'GILT'),
   ]);
 
   const context = {

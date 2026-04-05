@@ -37,6 +37,8 @@ const gethBinary = path.join(REPO_ROOT, '.tmp', 'geth');
 const blsPubkey =
   process.env.BLS_PUBKEY ||
   '0x82106fca090df4d75d8a0e40e71fe47619ce9a9d5425063e734e40dca8a1f536443ea556a68e715496c8753c1be83f02';
+const DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('HEIMDALL_MAIN_CHAIN_TX_CONFIRMATIONS', 6);
+const DEFAULT_BOR_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('HEIMDALL_BOR_CHAIN_TX_CONFIRMATIONS', 10);
 
 const rootArtifacts = {
   governance: readArtifact('bridge/pos-contracts/artifacts/contracts/common/governance/Governance.sol/Governance.json'),
@@ -128,11 +130,18 @@ const governorAbi = [
   'function hashProposal(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) view returns (uint256)',
   'function latestProposalIds(address proposer) view returns (uint256)',
   'function proposalDeadline(uint256 proposalId) view returns (uint256)',
+  'function proposalThreshold() view returns (uint256)',
   'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) returns (uint256)',
   'function queue(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) returns (uint256)',
   'function state(uint256 proposalId) view returns (uint8)',
 ];
-const govTokenAbi = ['function delegate(address delegatee)', 'function totalSupply() view returns (uint256)'];
+const govTokenAbi = [
+  'function balanceOf(address account) view returns (uint256)',
+  'function delegate(address delegatee)',
+  'function delegates(address account) view returns (address)',
+  'function getVotes(address account) view returns (uint256)',
+  'function totalSupply() view returns (uint256)',
+];
 const stakeHubAbi = ['function stakeTokenB() view returns (address)'];
 const liveStakeHubAbi = [
   'function LOCK_AMOUNT() view returns (uint256)',
@@ -149,9 +158,49 @@ function contractKey(name) {
   return ethers.keccak256(ethers.toUtf8Bytes(name));
 }
 
+function parsePositiveIntegerEnv(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) {
+    return fallback;
+  }
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return parsed;
+}
+
 async function waitTx(txPromise) {
   const tx = await txPromise;
   return waitForMined(tx);
+}
+
+async function waitForBlockAdvance(provider, startBlock) {
+  while ((await provider.getBlockNumber()) <= startBlock) {
+    await sleep(1500);
+  }
+}
+
+async function ensureDelegatedProposalVotes(provider, tokenOwnerWallet, delegatee, requiredVotes) {
+  const govTokenReader = new ethers.Contract(GOV_TOKEN_ADDRESS, govTokenAbi, provider);
+  const govTokenWriter = govTokenReader.connect(tokenOwnerWallet);
+  const ownerAddress = await tokenOwnerWallet.getAddress();
+  const currentDelegate = await govTokenReader.delegates(ownerAddress);
+
+  if (currentDelegate.toLowerCase() !== delegatee.toLowerCase()) {
+    const startBlock = await provider.getBlockNumber();
+    await waitTx(govTokenWriter.delegate(delegatee));
+    await waitForBlockAdvance(provider, startBlock);
+  }
+
+  const votes = await govTokenReader.getVotes(delegatee);
+  if (votes < requiredVotes) {
+    throw new Error(
+      `Proposer votes too low for ${delegatee}: have ${votes.toString()} need ${requiredVotes.toString()}`,
+    );
+  }
+
+  return votes;
 }
 
 async function deployProxyInitialized(adminSigner, implArtifact, proxyArtifact, initArgs) {
@@ -305,9 +354,9 @@ async function deployStakeManager(sepoliaSigner, sepoliaWallet, governance, regi
 async function governUpdateParam(provider, key, valueBytes, target, description, governanceWallet, fallbackProposalWallet = governanceWallet) {
   const govHub = new ethers.Contract(GOV_HUB_ADDRESS, govHubAbi, governanceWallet);
   const governor = new ethers.Contract(GOVERNOR_ADDRESS, governorAbi, provider);
-  const govToken = new ethers.Contract(GOV_TOKEN_ADDRESS, govTokenAbi, governanceWallet);
   const governanceAddress = await governanceWallet.getAddress();
   const fallbackAddress = await fallbackProposalWallet.getAddress();
+  const proposalThreshold = await governor.proposalThreshold();
 
   const resolveLiveProposal = async (account) => {
     const latestProposalId = await governor.latestProposalIds(account);
@@ -334,12 +383,11 @@ async function governUpdateParam(provider, key, valueBytes, target, description,
       );
     }
 
-    await waitTx(govToken.delegate(fallbackAddress));
     proposalWallet = fallbackProposalWallet;
     proposalAddress = fallbackAddress;
-  } else {
-    await waitTx(govToken.delegate(governanceAddress));
   }
+
+  await ensureDelegatedProposalVotes(provider, governanceWallet, proposalAddress, proposalThreshold);
 
   const proposalGovernor = governor.connect(proposalWallet);
 
@@ -370,7 +418,8 @@ async function governUpdateParam(provider, key, valueBytes, target, description,
 async function ensureLiveGovernanceReadiness(provider, validatorWallet, governanceWallet) {
   const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, liveStakeHubAbi, provider);
   const govToken = new ethers.Contract(GOV_TOKEN_ADDRESS, govTokenAbi, provider);
-  const proposeThresholdSupply = ethers.parseEther('10000000');
+  const governor = new ethers.Contract(GOVERNOR_ADDRESS, governorAbi, provider);
+  const proposeStartSupplyThreshold = ethers.parseEther('10000000');
   const validatorAddress = await validatorWallet.getAddress();
   const governanceAddress = await governanceWallet.getAddress();
 
@@ -419,16 +468,22 @@ async function ensureLiveGovernanceReadiness(provider, validatorWallet, governan
     await waitForMined(createValidatorTx);
   }
 
+  const proposalThreshold = await governor.proposalThreshold();
   const govSupply = await govToken.totalSupply();
-  if (govSupply < proposeThresholdSupply) {
+  const governanceBalance = await govToken.balanceOf(governanceAddress);
+  const supplyShortfall = govSupply < proposeStartSupplyThreshold ? proposeStartSupplyThreshold - govSupply : 0n;
+  const balanceShortfall = governanceBalance < proposalThreshold ? proposalThreshold - governanceBalance : 0n;
+  const requiredStake = supplyShortfall > balanceShortfall ? supplyShortfall : balanceShortfall;
+
+  if (requiredStake > 0n) {
     const nativeStakeTx = await stakeHub.connect(governanceWallet).delegate(validatorAddress, false, {
-      value: proposeThresholdSupply,
+      value: requiredStake,
       gasLimit: 1_500_000,
     });
     await waitForMined(nativeStakeTx);
   }
 
-  await waitTx(govToken.connect(governanceWallet).delegate(governanceAddress));
+  await ensureDelegatedProposalVotes(provider, governanceWallet, governanceAddress, proposalThreshold);
 }
 
 async function main() {
@@ -813,8 +868,12 @@ async function main() {
     state_receiver_address: STATE_RECEIVER_ADDRESS,
     validator_set_address: '0x0000000000000000000000000000000000001000',
   };
-  heimdallGenesis.app_state.chainmanager.params.main_chain_tx_confirmations = '1';
-  heimdallGenesis.app_state.chainmanager.params.bor_chain_tx_confirmations = '1';
+  heimdallGenesis.app_state.chainmanager.params.main_chain_tx_confirmations = String(
+    DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS,
+  );
+  heimdallGenesis.app_state.chainmanager.params.bor_chain_tx_confirmations = String(
+    DEFAULT_BOR_CHAIN_TX_CONFIRMATIONS,
+  );
   fs.writeFileSync(heimdallGenesisPath, `${JSON.stringify(heimdallGenesis, null, 2)}\n`);
 
   saveAddressBook(addressBook);

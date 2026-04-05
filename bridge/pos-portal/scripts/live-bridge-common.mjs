@@ -193,6 +193,44 @@ export function loadAddressBook() {
   return readJson(ADDRESS_BOOK_PATH);
 }
 
+function readStoredCheckpointCursor(addressBook) {
+  const cursor = addressBook?.runtime?.checkpointCursor;
+  if (
+    !cursor ||
+    cursor.currentHeaderBlock == null ||
+    cursor.offsetBlock == null ||
+    cursor.lastActualEndBlock == null ||
+    cursor.logicalStart == null ||
+    cursor.logicalEnd == null
+  ) {
+    return null;
+  }
+
+  return {
+    currentHeaderBlock: String(cursor.currentHeaderBlock),
+    offsetBlock: Number(cursor.offsetBlock),
+    lastActualEndBlock: Number(cursor.lastActualEndBlock),
+    logicalStart: Number(cursor.logicalStart),
+    logicalEnd: Number(cursor.logicalEnd),
+  };
+}
+
+function writeStoredCheckpointCursor(addressBook, cursor) {
+  if (!addressBook || !cursor) {
+    return;
+  }
+
+  addressBook.runtime ||= {};
+  addressBook.runtime.checkpointCursor = {
+    currentHeaderBlock: String(cursor.currentHeaderBlock),
+    offsetBlock: Number(cursor.offsetBlock),
+    lastActualEndBlock: Number(cursor.lastActualEndBlock),
+    logicalStart: Number(cursor.logicalStart),
+    logicalEnd: Number(cursor.logicalEnd),
+  };
+  saveAddressBook(addressBook);
+}
+
 export async function waitForCondition(fn, label, timeoutMs = 900000, intervalMs = 5000) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < timeoutMs) {
@@ -482,12 +520,23 @@ async function checkpointWindowRoot(provider, actualStart, actualEnd, logicalSta
   return ethers.hexlify(tree.getRoot()).toLowerCase();
 }
 
-export async function findCheckpointCursor(rootChain, provider, searchBack = 2000) {
+async function readRootCheckpointWindow(rootChain) {
   const currentHeaderBlock = await rootChain.currentHeaderBlock();
   const headerBlock = await rootChain.headerBlocks(currentHeaderBlock);
   const headerRoot = String(headerBlock[0]).toLowerCase();
   const logicalStart = Number(headerBlock[1]);
   const logicalEnd = Number(headerBlock[2]);
+
+  return {
+    currentHeaderBlock,
+    headerRoot,
+    logicalStart,
+    logicalEnd,
+  };
+}
+
+export async function findCheckpointCursor(rootChain, provider, searchChunk = 2000) {
+  const { currentHeaderBlock, headerRoot, logicalStart, logicalEnd } = await readRootCheckpointWindow(rootChain);
 
   if (headerRoot === ethers.ZeroHash.toLowerCase() && logicalStart === 0 && logicalEnd === 0) {
     return null;
@@ -495,25 +544,167 @@ export async function findCheckpointCursor(rootChain, provider, searchBack = 200
 
   const span = logicalEnd - logicalStart + 1;
   const actualLatest = await provider.getBlockNumber();
-  const minActualEnd = Math.max(span - 1, actualLatest - searchBack);
+  const earliestActualEnd = span - 1;
 
-  for (let actualEnd = actualLatest; actualEnd >= minActualEnd; actualEnd -= 1) {
-    const actualStart = actualEnd - span + 1;
-    const computedRoot = await checkpointWindowRoot(provider, actualStart, actualEnd, logicalStart);
-    if (computedRoot === headerRoot) {
-      return {
-        currentHeaderBlock: currentHeaderBlock.toString(),
-        offsetBlock: actualStart - logicalStart,
-        lastActualEndBlock: actualEnd,
-        logicalStart,
-        logicalEnd,
-      };
+  for (let chunkEnd = actualLatest; chunkEnd >= earliestActualEnd; chunkEnd -= searchChunk) {
+    const chunkStart = Math.max(earliestActualEnd, chunkEnd - searchChunk + 1);
+    for (let actualEnd = chunkEnd; actualEnd >= chunkStart; actualEnd -= 1) {
+      const actualStart = actualEnd - span + 1;
+      const computedRoot = await checkpointWindowRoot(provider, actualStart, actualEnd, logicalStart);
+      if (computedRoot === headerRoot) {
+        return {
+          currentHeaderBlock: currentHeaderBlock.toString(),
+          offsetBlock: actualStart - logicalStart,
+          lastActualEndBlock: actualEnd,
+          logicalStart,
+          logicalEnd,
+        };
+      }
     }
   }
 
   throw new Error(
     `Unable to align root checkpoint ${currentHeaderBlock.toString()} (${logicalStart}-${logicalEnd}) with child chain`,
   );
+}
+
+export function createCheckpointBuilder({
+  rootChain,
+  proposerPrivateKey,
+  proposerAddress,
+  childWeb3,
+  roughnetProvider,
+  addressBook = null,
+}) {
+  let offsetBlock = null;
+  let lastActualEndBlock = null;
+  let logicalStart = null;
+  let logicalEnd = null;
+  let currentHeaderBlock = null;
+  let cursorPromise = null;
+
+  const persistCursor = () => {
+    if (
+      offsetBlock == null ||
+      lastActualEndBlock == null ||
+      logicalStart == null ||
+      logicalEnd == null ||
+      currentHeaderBlock == null
+    ) {
+      return;
+    }
+
+    writeStoredCheckpointCursor(addressBook, {
+      currentHeaderBlock: currentHeaderBlock.toString(),
+      offsetBlock,
+      lastActualEndBlock,
+      logicalStart,
+      logicalEnd,
+    });
+  };
+
+  async function ensureCursor() {
+    if (offsetBlock != null && lastActualEndBlock != null) {
+      return;
+    }
+
+    const storedCursor = readStoredCheckpointCursor(addressBook);
+    if (storedCursor) {
+      const liveWindow = await readRootCheckpointWindow(rootChain);
+      if (
+        storedCursor.currentHeaderBlock === liveWindow.currentHeaderBlock.toString() &&
+        storedCursor.logicalStart === liveWindow.logicalStart &&
+        storedCursor.logicalEnd === liveWindow.logicalEnd
+      ) {
+        offsetBlock = storedCursor.offsetBlock;
+        lastActualEndBlock = storedCursor.lastActualEndBlock;
+        logicalStart = storedCursor.logicalStart;
+        logicalEnd = storedCursor.logicalEnd;
+        currentHeaderBlock = BigInt(storedCursor.currentHeaderBlock);
+        return;
+      }
+    }
+
+    if (!cursorPromise) {
+      cursorPromise = findCheckpointCursor(rootChain, roughnetProvider);
+    }
+    const cursor = await cursorPromise;
+    if (cursor) {
+      offsetBlock = cursor.offsetBlock;
+      lastActualEndBlock = cursor.lastActualEndBlock;
+      logicalStart = cursor.logicalStart;
+      logicalEnd = cursor.logicalEnd;
+      currentHeaderBlock = BigInt(cursor.currentHeaderBlock);
+      persistCursor();
+    }
+  }
+
+  return async (txHash, logIndex) => {
+    await ensureCursor();
+    const receipt = await childWeb3.eth.getTransactionReceipt(txHash);
+    const actualEndBlock = Number(receipt.blockNumber);
+
+    if (
+      offsetBlock != null &&
+      currentHeaderBlock != null &&
+      logicalStart != null &&
+      logicalEnd != null
+    ) {
+      const currentWindowStart = offsetBlock + logicalStart;
+      const currentWindowEnd = offsetBlock + logicalEnd;
+      if (actualEndBlock >= currentWindowStart && actualEndBlock <= currentWindowEnd) {
+        const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, currentWindowStart);
+        return buildExitPayload(currentHeaderBlock, checkpointData, logIndex);
+      }
+    }
+
+    if (offsetBlock == null) {
+      offsetBlock = actualEndBlock;
+      lastActualEndBlock = actualEndBlock - 1;
+    }
+
+    const actualStartBlock = lastActualEndBlock + 1;
+    const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, actualStartBlock);
+    const data = ethers.AbiCoder.defaultAbiCoder().encode(
+      ['address', 'uint256', 'uint256', 'bytes32', 'bytes32', 'uint256'],
+      [
+        proposerAddress,
+        BigInt(checkpointData.startBlock),
+        BigInt(checkpointData.endBlock),
+        checkpointData.headerRoot,
+        CHECKPOINT_ACCOUNT_HASH,
+        BigInt(GOLD_CHAIN_ID),
+      ],
+    );
+
+    const sigs = checkpointSignature(proposerPrivateKey, data);
+    const submitTx = await rootChain.submitCheckpoint(data, sigs);
+    const submitReceipt = await waitForMined(submitTx);
+
+    let headerNumber = null;
+    for (const log of submitReceipt.logs) {
+      try {
+        const parsed = rootChain.interface.parseLog(log);
+        if (parsed?.name === 'NewHeaderBlock') {
+          headerNumber = parsed.args.headerBlockId;
+          break;
+        }
+      } catch (_) {
+        // ignore unrelated logs
+      }
+    }
+    if (headerNumber == null) {
+      throw new Error('NewHeaderBlock not found');
+    }
+
+    lastActualEndBlock = checkpointData.actualEndBlock;
+    logicalStart = checkpointData.startBlock;
+    logicalEnd = checkpointData.endBlock;
+    currentHeaderBlock = BigInt(headerNumber);
+    persistCursor();
+
+    return buildExitPayload(headerNumber, checkpointData, logIndex);
+  };
 }
 
 export function web3For(url) {
