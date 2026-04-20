@@ -12,7 +12,7 @@ import {
   meson,
   stargate,
   mayan,
-} from '@bnb-chain/canonical-bridge-widget'
+} from '@gilt-chain/canonical-bridge-widget'
 import { useEffect, useState } from 'react'
 
 import axios from 'axios'
@@ -144,7 +144,7 @@ export function useTransferConfig(supportedChains: IChainConfig[]): ICustomizedB
 
               137: ['cUSDCv3'],
               42161: ['cUSDCv3'],
-              43114: ['BNB'],
+              43114: ['GILT'],
               7565164: [
                 'So11111111111111111111111111111111111111112',
                 'FmqVMWXBESyu4g6FT1uz1GABKdJ4j6wbuuLFwPJtqpmu',

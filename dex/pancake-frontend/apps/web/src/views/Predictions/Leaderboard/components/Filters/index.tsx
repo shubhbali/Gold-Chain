@@ -64,8 +64,8 @@ const Filters: React.FC<React.PropsWithChildren<FiltersProps>> = ({
 
   const orderByOptions = useMemo(() => {
     const isOldPrediction =
-      (pickedChainId === ChainId.BSC && betTokenSymbol === PredictionSupportedSymbol.BNB) ||
-      (pickedChainId === ChainId.BSC && betTokenSymbol === PredictionSupportedSymbol.CAKE)
+      (pickedChainId === ChainId.GILT && betTokenSymbol === PredictionSupportedSymbol.GILT) ||
+      (pickedChainId === ChainId.GILT && betTokenSymbol === PredictionSupportedSymbol.CAKE)
     const netAmount = isOldPrediction ? `net${betTokenSymbol}` : 'netAmount'
     const totalAmount = isOldPrediction ? `total${betTokenSymbol}` : 'totalAmount'
 

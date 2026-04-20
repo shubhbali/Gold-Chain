@@ -3,7 +3,7 @@ export interface operations {
     parameters: {
       query?: {
         address: Address
-        network: 'bsc' | 'bsc-testnet' | 'ethereum'
+        network: 'gilt' | 'gilt-testnet' | 'ethereum'
       }
       header?: never
       path?: never

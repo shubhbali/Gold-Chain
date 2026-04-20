@@ -22,7 +22,7 @@ const Leaderboard = () => {
   const filters = useGetLeaderboardFilters()
   const leaderboardLoadingState = useGetLeaderboardLoadingState()
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
-  const [pickedChainId, setPickedChainId] = useState<ChainId>(ChainId.BSC)
+  const [pickedChainId, setPickedChainId] = useState<ChainId>(ChainId.GILT)
   const [pickedTokenSymbol, setPickedTokenSymbol] = useState<PredictionSupportedSymbol | null>(null)
 
   const predictionConfigs = usePredictionConfigs(pickedChainId)

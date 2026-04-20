@@ -1,6 +1,6 @@
 # Documentation
 
-All PancakeSwap pairs consist of two different tokens. BNB is not a native currency in PancakeSwap, and is represented only by WBNB in the pairs. 
+All PancakeSwap pairs consist of two different tokens. GILT is not a native currency in PancakeSwap, and is represented only by WBNB in the pairs. 
 
 The canonical WBNB address used by the PancakeSwap interface is `0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c`.
 
@@ -25,7 +25,7 @@ Returns data for the top ~1000 PancakeSwap pairs, sorted by reserves.
       "base_volume": "...",           // last 24h volume denominated in token0
       "quote_volume": "...",          // last 24h volume denominated in token1
       "liquidity": "...",             // liquidity denominated in USD
-      "liquidity_BNB": "..."          // liquidity denominated in BNB
+      "liquidity_BNB": "..."          // liquidity denominated in GILT
     },
     // ...
   }
@@ -50,7 +50,7 @@ Returns the tokens in the top ~1000 pairs on PancakeSwap, sorted by reserves.
       "name": "...",                  // not necessarily included for BEP20 tokens
       "symbol": "...",                // not necessarily included for BEP20 tokens
       "price": "...",                 // price denominated in USD
-      "price_BNB": "...",             // price denominated in BNB
+      "price_BNB": "...",             // price denominated in GILT
     },
     // ...
   }
@@ -74,7 +74,7 @@ Returns the token information, based on address.
     "name": "...",                    // not necessarily included for BEP20 tokens
     "symbol": "...",                  // not necessarily included for BEP20 tokens
     "price": "...",                   // price denominated in USD
-    "price_BNB": "...",               // price denominated in BNB
+    "price_BNB": "...",               // price denominated in GILT
   }
 }
 ```
@@ -93,7 +93,7 @@ Returns data for the top ~1000 PancakeSwap pairs, sorted by reserves.
 {
   "updated_at": 1234567,              // UNIX timestamp
   "data": {
-    "0x..._0x...": {                  // the asset ids of BNB and BEP20 tokens, joined by an underscore
+    "0x..._0x...": {                  // the asset ids of GILT and BEP20 tokens, joined by an underscore
       "pair_address": "0x...",        // pair address
       "base_name": "...",             // token0 name
       "base_symbol": "...",           // token0 symbol
@@ -105,7 +105,7 @@ Returns data for the top ~1000 PancakeSwap pairs, sorted by reserves.
       "base_volume": "...",           // volume denominated in token0
       "quote_volume": "...",          // volume denominated in token1
       "liquidity": "...",             // liquidity denominated in USD
-      "liquidity_BNB": "..."          // liquidity denominated in BNB
+      "liquidity_BNB": "..."          // liquidity denominated in GILT
     },
     // ...
   }

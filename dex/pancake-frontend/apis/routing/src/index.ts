@@ -16,7 +16,7 @@ const router = Router()
 const CACHE_TIME = {
   [ChainId.ETHEREUM]: 10,
   [ChainId.GOERLI]: 10,
-  [ChainId.BSC]: 2,
+  [ChainId.GILT]: 2,
   [ChainId.BSC_TESTNET]: 2,
 }
 

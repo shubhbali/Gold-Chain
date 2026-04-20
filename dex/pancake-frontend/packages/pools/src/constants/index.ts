@@ -5,8 +5,8 @@ export * from './boostedPools'
 export * from './contracts'
 export * from './supportedChains'
 
-// BNB Chain Fermi hard fork reduces block time from 0.75s to 0.45s
-export const BSC_BLOCK_TIME = AVERAGE_CHAIN_BLOCK_TIMES[ChainId.BSC]
+// GILT Chain Fermi hard fork reduces block time from 0.75s to 0.45s
+export const BSC_BLOCK_TIME = AVERAGE_CHAIN_BLOCK_TIMES[ChainId.GILT]
 
 // Round to avoid float precision drift from BSC_BLOCK_TIME (0.45s).
 export const BLOCKS_PER_DAY = Math.round((60 / BSC_BLOCK_TIME) * 60 * 24)

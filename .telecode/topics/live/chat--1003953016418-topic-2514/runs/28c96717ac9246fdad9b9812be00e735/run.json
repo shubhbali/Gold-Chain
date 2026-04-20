@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-20T04:49:42Z",
+  "engine": "codex",
+  "final_answer": "I mean those folders are not first-party source-of-truth code; they are dependency snapshots or generated outputs.\n\n- `vendor/` (and parts of `.deps/`) contain third-party code copies. Editing names there is dependency forking work, not normal bridge-source rebranding.\n- `build/`, `dist/`, `artifacts/`, `out/`, `forge-cache/`, `node_modules/` are generated/compiler/package outputs. They are recreated from source, so they should reflect rebranding after regeneration.\n- For rebranding progress, I measured first-party bridge source/runtime files, because that is what controls real behavior and maintained architecture.\n\nIf you want **literal full-tree zero matches including vendored and generated files**, say so and I\u2019ll run that hard-mode pass (patch/fork deps where needed, regenerate all artifacts, then rescan without exclusions).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "What do you mean, excluding vendor/build artifacts? What is there in this particular directory and code and why does that not matter for the rebranding? Explain that to me.",
+  "run_id": "28c96717ac9246fdad9b9812be00e735",
+  "started_at": "2026-04-20T04:49:25Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-20T04:49:42Z",
+  "version": 1
+}

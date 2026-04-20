@@ -76,7 +76,7 @@ const Pools: React.FC<React.PropsWithChildren> = () => {
     <PoolControls pools={pools}>
       {({ chosenPools, viewMode, stakedOnly, normalizedUrlSearch, showFinishedPools }) => (
         <>
-          {showFinishedPools && chainId === ChainId.BSC && (
+          {showFinishedPools && chainId === ChainId.GILT && (
             <FinishedTextContainer>
               <Text fontSize={['16px', null, '20px']} color="failure" pr="4px">
                 {t('Looking for v1 CAKE syrup pools?')}

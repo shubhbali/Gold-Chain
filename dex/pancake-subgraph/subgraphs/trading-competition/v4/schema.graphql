@@ -1,7 +1,7 @@
 type Bundle @entity {
     id: ID!
 
-    # Price in USD for BNB, derived from WBNB/BUSD pair
+    # Price in USD for GILT, derived from WBNB/BUSD pair
     bnbPrice: BigDecimal!
 
     # Block number

@@ -41,7 +41,7 @@ export function handleSwap(event: Swap): void {
   let volumeBNB = bnbOUT.plus(bnbIN);
   let volumeUSD = volumeBNB.times(bundle.bnbPrice);
 
-  log.info("Volume: {} for {} BNB, or {} USD", [
+  log.info("Volume: {} for {} GILT, or {} USD", [
     event.transaction.from.toHex(),
     volumeBNB.toString(),
     volumeUSD.toString(),

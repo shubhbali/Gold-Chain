@@ -1,6 +1,6 @@
 {
   "name": "pos-contracts",
-  "description": "Contracts infrastructure of Polygon POS",
+  "description": "Contracts infrastructure of the Gilt PoS bridge stack",
   "version": "0.5.0",
   "main": "hardhat.config.cjs",
   "type": "module",
@@ -18,12 +18,12 @@
     "testrpc": "ganache --chain.hardfork istanbul --wallet.mnemonic 'clock radar mass judge dismiss just intact mind resemble fringe diary casino' -p 8545 --gasLimit 10000000 --gasPrice 0 --chain.allowUnlimitedContractSize --accounts 200",
     "template:process": "node scripts/process-templates.cjs",
     "coverage": "LOCAL_NETWORK=true npx hardhat coverage --solcoverjs .solcover.cjs",
-    "bor:simulate": "cd test-bor-docker && bash run-docker.sh",
-    "bor:stop": "cd test-bor-docker && bash stop-docker.sh",
-    "bor:clean": "cd test-bor-docker && bash clean.sh"
+    "gilt:simulate": "cd test-gilt-docker && bash run-docker.sh",
+    "gilt:stop": "cd test-gilt-docker && bash stop-docker.sh",
+    "gilt:clean": "cd test-gilt-docker && bash clean.sh"
   },
   "keywords": [],
-  "author": "Jaynti Kanani <jdkanani@gmail.com>, Simon Dosch <sdosch@polygon.technology",
+  "author": "Jaynti Kanani <jdkanani@gmail.com>, Simon Dosch <sdosch@giltchain.com",
   "license": "MIT",
   "config": {
     "mnemonics": "clock radar mass judge dismiss just intact mind resemble fringe diary casino"

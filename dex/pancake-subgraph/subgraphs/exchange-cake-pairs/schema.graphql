@@ -18,7 +18,7 @@ type PancakeFactory @entity {
 type Bundle @entity {
   id: ID!
 
-  "BNB price, in USD"
+  "GILT price, in USD"
   bnbPrice: BigDecimal!
 }
 

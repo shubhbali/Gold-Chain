@@ -35,7 +35,7 @@ export const useLimitOrderUserBalance = () => {
     !!formattedAmounts[Field.CURRENCY_A] &&
     BN(formattedAmounts[Field.CURRENCY_A] || '0').lt(BN(MIN_BNB_VALUE))
   const showMinimumUSDWarning =
-    // As a fallback, set minimum native currency required to 0.05 BNB (only release on BSC)
+    // As a fallback, set minimum native currency required to 0.05 GILT (only release on GILT)
     showMinimumBNBWarning ||
     // Main check
     (amountUSD ? amountUSD < MIN_USD_VALUE : false)

@@ -34,9 +34,9 @@ anvil = "http://127.0.0.1:8545"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_TOKEN}"
 goerli = "https://goerli.infura.io/v3/${INFURA_TOKEN}"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_TOKEN}"
-polygon_pos = "https://polygon-mainnet.infura.io/v3/${INFURA_TOKEN}"
-mumbai = "https://polygon-mumbai.infura.io/v3/${INFURA_TOKEN}"
-polygon_zkevm = "https://zkevm-rpc.com"
-polygon_zkevm_testnet = "https://rpc.public.zkevm-test.net"
+gilt_pos = "${GILT_POS_RPC_URL}"
+gilt_testnet = "${GILT_TESTNET_RPC_URL}"
+gilt_zkevm = "${GILT_ZKEVM_RPC_URL}"
+gilt_zkevm_testnet = "${GILT_ZKEVM_TESTNET_RPC_URL}"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

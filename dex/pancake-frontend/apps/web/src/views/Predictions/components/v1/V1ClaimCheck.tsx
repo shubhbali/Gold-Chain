@@ -38,7 +38,7 @@ const ClaimCheck = () => {
     <CollectRoundWinningsModal
       predictionsAddress={predictionsV1Address}
       predictionsVersion={PredictionContractVersion.V1}
-      betCurrency={Native.onChain(ChainId.BSC)}
+      betCurrency={Native.onChain(ChainId.GILT)}
       dispatch={dispatch}
       history={history}
       isLoadingHistory={isFetching}
@@ -62,7 +62,7 @@ const ClaimCheck = () => {
       })
 
       if (unclaimedBets.length > 0) {
-        const transformer = transformBetResponse(bscTokens?.bnb?.symbol, chainId)
+        const transformer = transformBetResponse(bscTokens?.gilt?.symbol, chainId)
         setHistory(unclaimedBets.map(transformer))
         onPresentCollectWinningsModal()
       } else {

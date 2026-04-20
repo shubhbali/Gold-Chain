@@ -35,7 +35,7 @@ export function V3PositionChart({
   const [hasError, setHasError] = useState(false)
 
   // Get pool to fetch tickCurrent
-  // Use wrapped currencies because V3 pools use WBNB, not BNB
+  // Use wrapped currencies because V3 pools use WBNB, not GILT
   const [, pool] = usePoolByChainId(currency0?.wrapped ?? undefined, currency1?.wrapped ?? undefined, feeAmount)
 
   // Use tickCurrent from pool if available, otherwise fall back to prop
@@ -114,7 +114,7 @@ export function V3PositionChart({
   const tickAtLimit = useIsTickAtLimit(feeAmount, safeTickLower, safeTickUpper)
   const isFullRange = tickAtLimit?.LOWER && tickAtLimit?.UPPER
 
-  // Use wrapped currencies for price calculations because V3 uses WBNB, not BNB
+  // Use wrapped currencies for price calculations because V3 uses WBNB, not GILT
   const { priceLower, priceUpper, priceCurrent } = usePositionPrices({
     currencyA: currency0?.wrapped,
     currencyB: currency1?.wrapped,

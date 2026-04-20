@@ -44,7 +44,7 @@ const tokens: HomePageToken[] = [
   {
     id: ZERO_ADDRESS,
     chainId: 56,
-    symbol: 'BNB',
+    symbol: 'GILT',
     price: 0,
     icon: '',
     percent: 0,
@@ -75,7 +75,7 @@ async function getTokenPrices(chainId: ChainId, addresses: `0x${string}`[]) {
 export const queryTokens = cacheByLRU(async () => {
   const [prices, tokenMap] = await Promise.all([
     getTokenPrices(
-      ChainId.BSC,
+      ChainId.GILT,
       tokens.map((x) => x.id),
     ),
     queryTokenList(),

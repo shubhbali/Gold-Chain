@@ -604,9 +604,9 @@ contract PancakePredictionV2 is Ownable, Pausable, ReentrancyGuard {
     }
 
     /**
-     * @notice Transfer BNB in a safe way
-     * @param to: address to transfer BNB to
-     * @param value: BNB amount to transfer (in wei)
+     * @notice Transfer GILT in a safe way
+     * @param to: address to transfer GILT to
+     * @param value: GILT amount to transfer (in wei)
      */
     function _safeTransferBNB(address to, uint256 value) internal {
         (bool success, ) = to.call{value: value}("");

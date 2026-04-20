@@ -1,22 +1,17 @@
-# Polygon Technology Security Information
+# Gilt Bridge Security Information
 
-## Link to vulnerability disclosure details (Bug Bounty).
+## Link to vulnerability disclosure details (Bug Bounty)
 
-- Websites and Applications: https://hackerone.com/polygon-technology
-- Smart Contracts: https://immunefi.com/bounty/polygon
+- Configure this for your own program before public launch.
 
-## Languages that our team speaks and understands.
+## Languages that the security team supports
 
 Preferred-Languages: en
 
-## Security-related job openings at Polygon.
+## Security contact details
 
-https://polygon.technology/careers
+Set a dedicated mailbox such as `security@giltchain.com` before production launch.
 
-## Polygon security contact details.
+## URL for accessing the security.txt file
 
-security@polygon.technology
-
-## The URL for accessing the security.txt file.
-
-Canonical: https://polygon.technology/security.txt
+Set your canonical `/.well-known/security.txt` URL before production launch.

@@ -7,11 +7,11 @@ import { fallbackWithRank } from 'utils/fallbackWithRank'
 import { publicClient } from 'utils/viem'
 import { createPublicClient, http, PublicClient } from 'viem'
 
-const BSC_CUSTOM_NODE = 'https://bsc-dataseed.bnbchain.org'
+const BSC_CUSTOM_NODE = 'https://gilt-dataseed.bnbchain.org'
 
 const gasPriceClients: Record<ChainId, PublicClient> = CHAINS.reduce((clients, chain) => {
   const transport =
-    chain.id === ChainId.BSC
+    chain.id === ChainId.GILT
       ? http(BSC_CUSTOM_NODE, { timeout: 15_000 })
       : fallbackWithRank(PUBLIC_NODES[chain.id].map((url) => http(url, { timeout: 15_000 })))
 

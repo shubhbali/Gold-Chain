@@ -21,7 +21,7 @@ export const opBnbTokens = {
     18,
     'ETH',
     'Ethereum',
-    'https://opbnb.bnbchain.org/en',
+    'https://opgilt.bnbchain.org/en',
   ),
   fdusd: new ERC20Token(
     ChainId.OPBNB,

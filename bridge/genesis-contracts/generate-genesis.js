@@ -8,11 +8,11 @@ const validators = require("./validators")
 const blocks = require("./blocks");
 const sprintSizes = require("./sprintSizes");
 
-// load and execute bor validator set
-require("./generate-borvalidatorset")
+// load and execute gilt validator set
+require("./generate-giltvalidatorset")
 
 program.version("0.0.1")
-program.option("-c, --bor-chain-id <bor-chain-id>", "Bor chain id", "15001")
+program.option("-c, --gilt-chain-id <gilt-chain-id>", "Gilt chain id", "15001")
 program.option(
   "-o, --output <output-file>",
   "Genesis json file",
@@ -63,27 +63,27 @@ async function main() {
   const result = []
   for (const file of [
     [
-      "borValidatorSetContract",
-      "contracts/BorValidatorSet.sol",
-      "BorValidatorSet",
+      "giltValidatorSetContract",
+      "contracts/GiltValidatorSet.sol",
+      "GiltValidatorSet",
       "0.5.17"
     ],
     [
-      "borStateReceiverContract",
+      "giltStateReceiverContract",
       "contracts/StateReceiver.sol",
       "StateReceiver",
       "0.6.12"
     ],
     [
-      "maticChildERC20Contract",
-      "matic-contracts/contracts/child/MRC20.sol",
+      "childGasTokenContract",
+      "child-contracts/contracts/child/MRC20.sol",
       "MRC20",
       "0.5.17"
     ]
   ]) {
     result.push(await compileContract(...file))
   }
-  const totalMaticSupply = web3.utils.toBN('10000000000')
+  const totalChildTokenSupply = web3.utils.toBN('10000000000')
 
   var validatorsBalance = web3.utils.toBN(0)
   validators.forEach(v => {
@@ -91,11 +91,11 @@ async function main() {
     v.balance = web3.utils.toHex(web3.utils.toWei(String(v.balance)))
   })
 
-  const contractBalance = totalMaticSupply.sub(validatorsBalance)
+  const contractBalance = totalChildTokenSupply.sub(validatorsBalance)
   const data = {
-    chainId: program.borChainId,
+    chainId: program.giltChainId,
     validators: validators,
-    maticChildERC20ContractBalance: web3.utils.toHex(
+    childGasTokenContractBalance: web3.utils.toHex(
       web3.utils.toWei(contractBalance.toString())
     ),
     blocks: blocks,

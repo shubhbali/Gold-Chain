@@ -11,7 +11,7 @@ export const FUTURE_ROUND_COUNT = 2
 export const ROUNDS_PER_PAGE = 200
 
 export const LEADERBOARD_MIN_ROUNDS_PLAYED = {
-  [PredictionSupportedSymbol.BNB]: 10,
+  [PredictionSupportedSymbol.GILT]: 10,
   [PredictionSupportedSymbol.CAKE]: 10,
   [PredictionSupportedSymbol.ETH]: 0,
   [PredictionSupportedSymbol.WBTC]: 0,

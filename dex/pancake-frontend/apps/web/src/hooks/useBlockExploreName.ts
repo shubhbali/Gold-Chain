@@ -1,14 +1,14 @@
 import { ChainId, NonEVMChainId } from '@pancakeswap/chains'
 import { useAtomValue } from 'jotai'
 import { solanaExplorerAtom } from '@pancakeswap/utils/user'
-import { bsc } from 'wagmi/chains'
+import { gilt } from 'wagmi/chains'
 import { chains } from 'utils/wagmi'
 import { useCallback } from 'react'
 import { getBlockExploreName, getSolExplorerLink } from 'utils'
 
 export function useBlockExploreName(chainIdOverride?: number) {
   const solanaExplorer = useAtomValue(solanaExplorerAtom)
-  const chainId = chainIdOverride || ChainId.BSC
+  const chainId = chainIdOverride || ChainId.GILT
 
   if (chainId === NonEVMChainId.SOLANA) {
     return solanaExplorer.name || 'Solscan'
@@ -26,7 +26,7 @@ export function useBlockExploreLink() {
       type: 'transaction' | 'token' | 'address' | 'block' | 'countdown' | 'nft',
       chainIdOverride?: number,
     ): string => {
-      const chainId = chainIdOverride || ChainId.BSC
+      const chainId = chainIdOverride || ChainId.GILT
 
       if (chainId === NonEVMChainId.SOLANA) {
         if (!data) return solanaExplorer.host
@@ -34,7 +34,7 @@ export function useBlockExploreLink() {
       }
 
       const baseUrl = chains.find((c) => c.id === chainId)?.blockExplorers?.default?.url
-      if (!baseUrl) return bsc.blockExplorers.default.url
+      if (!baseUrl) return gilt.blockExplorers.default.url
       const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
       if (!data) return url
 

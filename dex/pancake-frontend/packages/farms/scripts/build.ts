@@ -9,7 +9,7 @@ import { fetchUniversalFarms } from '../src/fetchUniversalFarms'
 
 const chains = [
   [1, fetchUniversalFarms(ChainId.ETHEREUM), lpHelpers1],
-  [56, fetchUniversalFarms(ChainId.BSC), lpHelpers56],
+  [56, fetchUniversalFarms(ChainId.GILT), lpHelpers56],
 ]
 
 export const saveList = async () => {

@@ -1,0 +1,63 @@
+syntax = "proto3";
+package cosmos.crypto.secp256k1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1";
+
+// PubKeyOld defines a tendermint uncompressed secp256k1 public key
+// Key is the uncompressed form of the pubkey.
+message PubKeyOld {
+  option (amino.name) = "tendermint/PubKeySecp256k1";
+  // The Amino encoding is simply the inner bytes field, and not the Amino
+  // encoding of the whole PubKey struct.
+  //
+  // Example (JSON):
+  // s := PubKeyOld{Key: []byte{0x01}}
+  // out := AminoJSONEncoder(s)
+  //
+  // Then we have:
+  // out == `"MQ=="`
+  // out != `{"key":"MQ=="}`
+  option (amino.message_encoding)     = "key_field";
+  option (gogoproto.goproto_stringer) = false;
+
+  bytes key = 1;
+}
+
+// PubKey defines a comet uncompressed secp256k1 public key
+// Key is the uncompressed form of the pubkey.
+message PubKey {
+  option (amino.name) = "cometbft/PubKeySecp256k1eth";
+  // The Amino encoding is simply the inner bytes field, and not the Amino
+  // encoding of the whole PubKey struct.
+  //
+  // Example (JSON):
+  // s := PubKey{Key: []byte{0x01}}
+  // out := AminoJSONEncoder(s)
+  //
+  // Then we have:
+  // out == `"MQ=="`
+  // out != `{"key":"MQ=="}`
+  option (amino.message_encoding)     = "key_field";
+  option (gogoproto.goproto_stringer) = false;
+
+  bytes key = 1;
+}
+
+// PrivKeyOld defines a tendermint secp256k1 private key.
+message PrivKeyOld {
+  option (amino.name)             = "tendermint/PrivKeySecp256k1";
+  option (amino.message_encoding) = "key_field";
+
+  bytes key = 1;
+}
+
+// PrivKey defines a comet secp256k1 private key.
+message PrivKey {
+  option (amino.name)             = "cometbft/PrivKeySecp256k1eth";
+  option (amino.message_encoding) = "key_field";
+
+  bytes key = 1;
+}

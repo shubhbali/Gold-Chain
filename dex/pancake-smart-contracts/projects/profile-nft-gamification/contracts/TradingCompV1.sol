@@ -3,8 +3,8 @@ pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "bsc-library/contracts/IBEP20.sol";
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 import "./interfaces/IPancakeProfile.sol";
 import "./BunnyMintingStation.sol";

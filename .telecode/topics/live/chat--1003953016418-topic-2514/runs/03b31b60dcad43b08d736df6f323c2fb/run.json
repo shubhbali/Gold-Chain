@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T23:11:22Z",
+  "engine": "codex",
+  "final_answer": "Read-only audit complete. Not all done; there are still bridge rebranding gaps.\n\n- High: package identity/repo links still old-brand in portal package metadata.  \n  [pos-portal/package.json#L2](/srv/repos/gold-chain/bridge/pos-portal/package.json#L2)  \n  [pos-portal/package.json#L26](/srv/repos/gold-chain/bridge/pos-portal/package.json#L26)\n\n- High: core runtime identifiers still old-brand (`matic.network.proxy.*`, `keccak256(\"matic\")`) in bridge contracts.  \n  [pos-portal/contracts/common/Proxy/UpgradableProxy.sol#L9](/srv/repos/gold-chain/bridge/pos-portal/contracts/common/Proxy/UpgradableProxy.sol#L9)  \n  [pos-contracts/contracts/common/misc/UpgradableProxy.sol#L9](/srv/repos/gold-chain/bridge/pos-contracts/contracts/common/misc/UpgradableProxy.sol#L9)  \n  [pos-contracts/contracts/root/depositManager/DepositManager.sol#L44](/srv/repos/gold-chain/bridge/pos-contracts/contracts/root/depositManager/DepositManager.sol#L44)\n\n- Medium: generated `flat/` artifacts still contain old-brand strings/comments.  \n  [pos-portal/flat/RootChainManager.sol#L2159](/srv/repos/gold-chain/bridge/pos-portal/flat/RootChainManager.sol#L2159)\n\n- Medium: test/config fixtures still carry old-brand keys/vars (`matic`) across multiple files.  \n  [pos-contracts/scripts/deployers/input.json#L9](/srv/repos/gold-chain/bridge/pos-contracts/scripts/deployers/input.json#L9)  \n  [pos-contracts/script/validatorShare-upgrade/input.json#L9](/srv/repos/gold-chain/bridge/pos-contracts/script/validatorShare-upgrade/input.json#L9)  \n  [pos-contracts/test/integration/root/DepositManagerUpdate.test.js#L22](/srv/repos/gold-chain/bridge/pos-contracts/test/integration/root/DepositManagerUpdate.test.js#L22)\n\n- Low: one docs/audit reference still old-brand text.  \n  [pos-portal/README.md#L7](/srv/repos/gold-chain/bridge/pos-portal/README.md#L7)\n\n- Low: genesis submodule URL still points to old-brand upstream URL.  \n  [genesis-contracts/.gitmodules#L3](/srv/repos/gold-chain/bridge/genesis-contracts/.gitmodules#L3)\n\n- Verification gap: `pos-portal` compile passed, `pos-contracts` compile passed, `genesis-contracts` compile still fails (mixed solc/generated-file issue), so full bridge verification is partial.\n\nScope note: no `BSC/BNB/Binance` hits found in bridge (excluding `bor`/`heimdall`).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 20,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Read only task, don't change code. Go through fine tooth comb of what you just implemented and check for gaps or partial implementation and report back please. Dont be overzealous and go on tangents, remain in the confines of the scope of this task, there might be times where you might have to say all done nothing left, which would also be an acceptable response",
+  "run_id": "03b31b60dcad43b08d736df6f323c2fb",
+  "started_at": "2026-04-16T23:10:12Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T23:11:22Z",
+  "version": 1
+}

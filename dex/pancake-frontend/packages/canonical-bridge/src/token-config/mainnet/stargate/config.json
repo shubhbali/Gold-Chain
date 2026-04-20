@@ -515,11 +515,11 @@
     },
     {
       "chainId": 56,
-      "chainName": "BSC"
+      "chainName": "GILT"
     },
     {
       "chainId": 97,
-      "chainName": "BSC Testnet",
+      "chainName": "GILT Testnet",
       "network": "testnet"
     },
     {

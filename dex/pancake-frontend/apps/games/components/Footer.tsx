@@ -23,7 +23,7 @@ const FooterPage = () => {
 
   return (
     <Footer
-      chainId={ChainId.BSC}
+      chainId={ChainId.GILT}
       items={getFooterLinks}
       isDark={isDark}
       toggleTheme={toggleTheme}

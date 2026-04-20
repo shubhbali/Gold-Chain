@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T20:20:49Z",
+  "engine": "codex",
+  "final_answer": "`2000` means **2000 GILT only** for validator self-stake.  \nIt is **not** \u201c2000 combined GILT+GOLD\u201d.\n\nLive chain status right now:\n- `stakeTokenB = 0x000...000` -> GOLD staking lane is not enabled yet.\n- `tokenBRewardSplitBps = 0` -> no reward share is being sent to GOLD stakers yet.\n\nSo today:\n- GILT staking path is active.\n- GOLD staking+reward path is effectively off.\n\nFor your intended model (both GILT + GOLD staking with rewards), we must enable:\n1. GOLD staking token address (`stakeTokenB`)\n2. non-zero GOLD reward split (`tokenBRewardSplitBps`)\n3. keep/set voting weights for both sides (already present)\n\nIf you want, I can make this the default chain behavior and give you a restart-ready config so both lanes work from genesis.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 8,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "What does 2000 mean, does that mean gilt tokens or 2000 combined gold and gilt tokens?\n\nTell me I want the both staking gilt and gold and achieving rewards. That is the whole purpose of this chain",
+  "run_id": "a7e2a0ac16f141d48356b19ab4ca048b",
+  "started_at": "2026-04-15T20:20:00Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T20:20:49Z",
+  "version": 1
+}

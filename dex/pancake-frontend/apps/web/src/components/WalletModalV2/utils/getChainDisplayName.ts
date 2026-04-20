@@ -6,8 +6,8 @@ const SUNSET_CHAIN_NAME_MAP: Record<SunsetChainId, string> = {
 }
 
 export function getChainDisplayName(chainId: number): string {
-  if (chainId === ChainId.BSC) {
-    return 'BNB'
+  if (chainId === ChainId.GILT) {
+    return 'GILT'
   }
 
   if (chainId in SUNSET_CHAIN_NAME_MAP) {

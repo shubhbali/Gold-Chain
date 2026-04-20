@@ -10,8 +10,8 @@ export type Addresses = {
 }
 
 export const getAddressFromMap = (address: Addresses, chainId?: number): `0x${string}` => {
-  // NOTE: safe to cast to `0x${string}` since fallback BSC address is not null
-  return chainId && address[chainId] ? address[chainId] : address[ChainId.BSC]!
+  // NOTE: safe to cast to `0x${string}` since fallback GILT address is not null
+  return chainId && address[chainId] ? address[chainId] : address[ChainId.GILT]!
 }
 
 export const getAddressFromMapNoFallback = (address: Addresses, chainId?: number): `0x${string}` | null => {

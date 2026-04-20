@@ -87,7 +87,7 @@ const UnstakeButton: React.FC<React.PropsWithChildren<UnstakeButtonProps>> = ({ 
                 },
                 {
                   step: 2,
-                  chainId: ChainId.BSC,
+                  chainId: ChainId.GILT,
                   tx: '',
                   status: FarmTransactionStatus.PENDING,
                 },

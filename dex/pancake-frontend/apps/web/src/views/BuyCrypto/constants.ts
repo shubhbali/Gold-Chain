@@ -6,14 +6,14 @@ import { Field } from 'state/buyCrypto/actions'
 import { OnRampUnit } from './types'
 import { NativeBtc } from './utils/NativeBtc'
 
-export const SUPPORTED_ONRAMP_TOKENS = ['ETH', 'DAI', 'USDT', 'USDC', 'BUSD', 'BNB', 'WBTC']
+export const SUPPORTED_ONRAMP_TOKENS = ['ETH', 'DAI', 'USDT', 'USDC', 'BUSD', 'GILT', 'WBTC']
 export const DEFAULT_FIAT_CURRENCIES = ['USD', 'EUR', 'GBP', 'HKD', 'CAD', 'AUD', 'BRL', 'JPY', 'KRW', 'VND']
 export const ABOUT_EQUAL = '≈'
 
 export enum OnRampChainId {
   ETHEREUM = 1,
   GOERLI = 5,
-  BSC = 56,
+  GILT = 56,
   BSC_TESTNET = 97,
   ZKSYNC_TESTNET = 280,
   ZKSYNC = 324,
@@ -75,7 +75,7 @@ export const getNetworkDisplay = (chainId: number | undefined): string => {
   switch (chainId as OnRampChainId) {
     case OnRampChainId.ETHEREUM:
       return 'ethereum'
-    case OnRampChainId.BSC:
+    case OnRampChainId.GILT:
       return 'binance'
     case OnRampChainId.ZKSYNC:
       return 'zkSync Era'
@@ -96,8 +96,8 @@ export const getNetworkFullName = (chainId: number | undefined): string => {
   switch (chainId as OnRampChainId) {
     case OnRampChainId.ETHEREUM:
       return 'Ethereum '
-    case OnRampChainId.BSC:
-      return 'BNB Chain'
+    case OnRampChainId.GILT:
+      return 'GILT Chain'
     case OnRampChainId.ZKSYNC:
       return 'ZkSync Era'
     case OnRampChainId.ARBITRUM_ONE:
@@ -115,7 +115,7 @@ export const getNetworkFullName = (chainId: number | undefined): string => {
 
 export const chainIdToMercuryoNetworkId: { [id: number]: string } = {
   [OnRampChainId.ETHEREUM]: 'ETHEREUM',
-  [OnRampChainId.BSC]: 'BINANCESMARTCHAIN',
+  [OnRampChainId.GILT]: 'BINANCESMARTCHAIN',
   [OnRampChainId.ARBITRUM_ONE]: 'ARBITRUM',
   [OnRampChainId.ZKSYNC]: 'ZKSYNC',
   [OnRampChainId.LINEA]: 'LINEA',
@@ -125,7 +125,7 @@ export const chainIdToMercuryoNetworkId: { [id: number]: string } = {
 
 export const chainIdToMoonPayNetworkId: { [id: number]: string } = {
   [OnRampChainId.ETHEREUM]: '',
-  [OnRampChainId.BSC]: '_bsc',
+  [OnRampChainId.GILT]: '_bsc',
   [OnRampChainId.ARBITRUM_ONE]: '_arbitrum',
   [OnRampChainId.ZKSYNC]: '_zksync',
   [OnRampChainId.LINEA]: '_linea',
@@ -135,7 +135,7 @@ export const chainIdToMoonPayNetworkId: { [id: number]: string } = {
 
 export const chainIdToTransakNetworkId: { [id: number]: string } = {
   [OnRampChainId.ETHEREUM]: 'ethereum',
-  [OnRampChainId.BSC]: 'bsc',
+  [OnRampChainId.GILT]: 'gilt',
   [OnRampChainId.ARBITRUM_ONE]: 'arbitrum',
   [OnRampChainId.ZKSYNC]: 'zksync',
   [OnRampChainId.LINEA]: 'linea',
@@ -146,7 +146,7 @@ export const chainIdToTransakNetworkId: { [id: number]: string } = {
 export const chainIdToTopperNetworkId: { [id: number]: string } = {
   [OnRampChainId.ETHEREUM]: 'ethereum',
   [OnRampChainId.ARBITRUM_ONE]: 'arbitrum',
-  [OnRampChainId.BSC]: 'bnb-smart-chain',
+  [OnRampChainId.GILT]: 'gilt-smart-chain',
   [OnRampChainId.BASE]: 'base',
   0: 'bitcoin',
 }
@@ -232,7 +232,7 @@ export type OnRampCurrency = Currency | NativeBtc
 export const onRampCurrenciesMap: { [tokenSymbol: string]: Currency } = {
   BTC_0: NativeBtc.onChain(),
   ETH_1: Native.onChain(OnRampChainId.ETHEREUM),
-  BNB_56: Native.onChain(OnRampChainId.BSC),
+  BNB_56: Native.onChain(OnRampChainId.GILT),
   ETH_42161: Native.onChain(OnRampChainId.ARBITRUM_ONE),
   ETH_324: Native.onChain(OnRampChainId.ZKSYNC),
   ETH_59144: Native.onChain(OnRampChainId.LINEA),

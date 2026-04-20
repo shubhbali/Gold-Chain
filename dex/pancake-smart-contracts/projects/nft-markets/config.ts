@@ -15,12 +15,12 @@ export default {
   },
   MinimumAskPrice: {
     // in wei
-    mainnet: "5000000000000000", // 0.005 BNB
-    testnet: "5000000000000000", // 0.005 BNB
+    mainnet: "5000000000000000", // 0.005 GILT
+    testnet: "5000000000000000", // 0.005 GILT
   },
   MaximumAskPrice: {
     // in wei
-    mainnet: "10000000000000000000000", // 10,000 BNB
-    testnet: "10000000000000000000000", // 10,000 BNB
+    mainnet: "10000000000000000000000", // 10,000 GILT
+    testnet: "10000000000000000000000", // 10,000 GILT
   },
 };

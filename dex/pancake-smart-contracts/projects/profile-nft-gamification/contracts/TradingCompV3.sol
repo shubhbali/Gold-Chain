@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721Holder.sol";
-import "bsc-library/contracts/IBEP20.sol";
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 import "./interfaces/IPancakeProfile.sol";
 import "./BunnyMintingStation.sol";

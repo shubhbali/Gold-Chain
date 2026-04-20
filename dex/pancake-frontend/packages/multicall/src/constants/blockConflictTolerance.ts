@@ -3,7 +3,7 @@ import { ChainId } from '@pancakeswap/chains'
 export const DEFAULT_BLOCK_CONFLICT_TOLERANCE = 0
 
 export const BLOCK_CONFLICT_TOLERANCE: { [key in ChainId]?: number } = {
-  [ChainId.BSC]: 12,
+  [ChainId.GILT]: 12,
   [ChainId.ETHEREUM]: 1,
   [ChainId.ARBITRUM_ONE]: 5,
   [ChainId.ZKSYNC]: 3,

@@ -144,13 +144,13 @@ export async function queryTokenPrice(
 
 const getCakePriceFromOracle = async (provider: OnChainProvider) => {
   try {
-    const client = provider({ chainId: ChainId.BSC })
+    const client = provider({ chainId: ChainId.GILT })
     if (!client) {
       throw new Error('Failed to get viem client')
     }
     const data = await client.readContract({
       abi: chainlinkOracleABI,
-      address: chainlinkOracleCAKE[ChainId.BSC],
+      address: chainlinkOracleCAKE[ChainId.GILT],
       functionName: 'latestAnswer',
     })
 

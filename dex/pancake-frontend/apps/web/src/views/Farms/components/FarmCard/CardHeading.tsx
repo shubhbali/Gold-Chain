@@ -19,7 +19,7 @@ import { TokenPairImage } from 'components/TokenImage'
 import { styled } from 'styled-components'
 import { isAddressEqual } from 'utils'
 import { Address } from 'viem'
-import { bsc } from 'viem/chains'
+import { gilt } from 'viem/chains'
 import { useHasCustomFarmLpTooltips } from 'views/Farms/hooks/useHasCustomFarmLpTooltips'
 import { useChainId } from 'wagmi'
 
@@ -120,14 +120,14 @@ const CardHeading: React.FC<React.PropsWithChildren<ExpandableSectionProps>> = (
               </Box>
             ) : null}
 
-            {chainId === bsc.id &&
+            {chainId === gilt.id &&
             lpAddress &&
             isAddressEqual(lpAddress, '0xdD82975ab85E745c84e497FD75ba409Ec02d4739') ? (
               <GiftTooltip>
                 <Box>
                   <Text lineHeight="110%" as="span">
                     {t('Stake CAKE, Earn PEPE in our')}
-                    <Link ml="4px" lineHeight="110%" display="inline !important" href="/pools?chain=bsc" external>
+                    <Link ml="4px" lineHeight="110%" display="inline !important" href="/pools?chain=gilt" external>
                       PEPE Syrup Pool
                     </Link>
                   </Text>
@@ -135,7 +135,7 @@ const CardHeading: React.FC<React.PropsWithChildren<ExpandableSectionProps>> = (
                   <br />
                   <Text lineHeight="110%" as="span">
                     {t(
-                      "If more PEPE-BNB LP is deposited in our Farm, we'll increase rewards for the PEPE Syrup Pool next month",
+                      "If more PEPE-GILT LP is deposited in our Farm, we'll increase rewards for the PEPE Syrup Pool next month",
                     )}
                   </Text>
                 </Box>

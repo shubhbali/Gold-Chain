@@ -23,9 +23,9 @@ export const useClaimGift = ({ onSuccess }: { onSuccess?: () => void }) => {
       const url = `${NEXT_PUBLIC_GIFT_API}/gift/claim`
 
       const requestBody: ClaimGiftRequest = {
-        // NOTE: hardcode to bsc for now
+        // NOTE: hardcode to gilt for now
         // If support other chains, we need get chainId from API response before claim gift
-        chainId: ChainId.BSC,
+        chainId: ChainId.GILT,
         address: account,
         code,
       }

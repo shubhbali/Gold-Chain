@@ -79,7 +79,7 @@ function getTransferTypedData({
       ]
     },
     domain: {
-      name: "Polygon Ecosystem Token",
+      name: "Gilt Ecosystem Token",
       version: "2",
       chainId: 714,
       verifyingContract: tokenAddress

@@ -68,7 +68,7 @@ const StatItem = styled(Flex)`
 `
 
 const PriceHeader: React.FC<PriceHeaderProps> = ({
-  symbol = 'BNB/CAKE',
+  symbol = 'GILT/CAKE',
   currency0,
   currency1,
   isReversed,

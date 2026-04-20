@@ -1,14 +1,11 @@
-# Polygon PoS (Proof-of-Stake) portal contracts
+# Gilt PoS (Proof-of-Stake) portal contracts
 
-![Build Status](https://github.com/maticnetwork/pos-portal/workflows/CI/badge.svg)
-
-Smart contracts that powers the PoS (proof-of-stake) based bridge mechanism for [Polygon Network](https://polygon.technology/).
+Smart contracts that power the PoS-based bridge mechanism for Gilt Chain.
 
 ## Audits
 
-- [Hexens](audits/Matic_PoS_upd.pdf)
+- [Hexens](audits/Gilt_PoS_upd.pdf)
 - [Halborn](audits/Pos-portal-halborn-audit-07-07-2021.pdf)
-- [CertiK](audits/Matic.Audit.CertiK.Report.pdf)
 - [PeckShield](audits/Pos-portal-peckshield-audit-30-07-2021.pdf)
 
 ## Usage
@@ -16,7 +13,7 @@ Smart contracts that powers the PoS (proof-of-stake) based bridge mechanism for 
 Install package from **NPM** using
 
 ```bash
-npm i @maticnetwork/pos-portal
+npm i @giltchain/pos-portal
 ```
 
 ## Hardhat Build
@@ -25,7 +22,7 @@ Make sure you have installed NodeJS, NVM & NPM.
 Clone repository, switch to the required node version & install all dependencies
 
 ```bash
-git clone https://github.com/0xPolygon/pos-portal
+git clone <your-gilt-bridge-repo-url>
 cd pos-portal
 
 nvm i
@@ -92,30 +89,30 @@ If you prefer not using docker for compiling contracts, consider setting `docker
 ...
 ```
 
-For deploying all contracts in `pos-portal`, we need to have at least two chains running --- simulating RootChain ( Ethereum ) & ChildChain ( Polygon ). There are various ways of building this multichain setup, though two of them are majorly used
+For deploying all contracts in `pos-portal`, we need to have at least two chains running --- simulating RootChain ( Ethereum ) & ChildChain ( Gilt Chain ). There are various ways of building this multichain setup, though two of them are majorly used
 
-1. With `matic-cli`
-2. Without `matic-cli`
+1. With localnet orchestration tooling
+2. Without localnet orchestration tooling
 
-`matic-cli` is a project, which makes setting up all components of Ethereum <-> Polygon multichain ecosystem easier. Three components matic-cli sets up for you
+Localnet orchestration tooling makes setting up all components of the Ethereum <-> Gilt Chain multichain ecosystem easier. Three components it sets up for you
 
 - Ganache ( simulating RootChain )
-- Heimdall ( validator node of Polygon )
-- Bor ( block production layer of Polygon i.e. ChildChain )
+- GiltConsensus ( validator node of Gilt Chain )
+- Gilt ( block production layer of Gilt Chain i.e. ChildChain )
 
-You may want to check [matic-cli](https://github.com/maticnetwork/matic-cli).
+You can use any equivalent localnet orchestration workflow.
 
 ---
 
-### 1. With `matic-cli`
+### 1. With localnet orchestration tooling
 
-Assuming you've installed `matic-cli` & set up single node local network by following [this guide](https://github.com/maticnetwork/matic-cli#usage), it's good time to start all components seperately as mentioned in `matic-cli` README.
+Assuming you've installed localnet orchestration tooling and set up a single-node local network, start all components separately as described by your tooling.
 
-This should give you RPC listen addresses for both RootChain ( read Ganache ) & ChildChain ( read Bor ), which need to updated in `pos-portal/truffle-config.js`. Also note Mnemonic you used when setting up local network, we'll make use of it for migrating pos-portal contracts.
+This should give you RPC listen addresses for both RootChain ( read Ganache ) & ChildChain ( read Gilt ), which need to updated in `pos-portal/truffle-config.js`. Also note Mnemonic you used when setting up local network, we'll make use of it for migrating pos-portal contracts.
 
-`matic-cli` generates `~/localnet/config/contractAddresses.json`, given you decided to put network setup in `~/localnet` directory, which contains deployed Plasma contract addresses. We're primarily interested in Plasma RootChain ( deployed on RootChain, as name suggests aka *Checkpoint contract* ) & StateReceiver contract ( deployed on Bor ). These two contract addresses need to be updated [here](migrations/config.js).
+Localnet tooling generates `~/localnet/config/contractAddresses.json` (or equivalent), which contains deployed Plasma contract addresses. We're primarily interested in Plasma RootChain (deployed on RootChain, aka *Checkpoint contract*) and StateReceiver contract (deployed on Gilt). These two contract addresses need to be updated [here](migrations/config.js).
 
-> You may not need to change `stateReceiver` field, because that's where Bor deploys respective contract, by default.
+> You may not need to change `stateReceiver` field, because that's where Gilt deploys respective contract, by default.
 
 > Plasma RootChain contract address is required for setting checkpoint manager in PoS RootChainManager contract during migration. PoS RootChainManager will talk to Checkpointer contract for verifying PoS exit proof.
 
@@ -165,9 +162,9 @@ Now start migration, which is 4-step operation
 Migration Step | Effect
 :-- | --:
 `migrate:2` | Deploys all rootchain contracts, on Ganache
-`migrate:3` | Deploys all childchain contracts, on Bor
+`migrate:3` | Deploys all childchain contracts, on Gilt
 `migrate:4` | Initialises rootchain contracts, on Ganache
-`migrate:5` | Initialises childchain contracts, on Bor
+`migrate:5` | Initialises childchain contracts, on Gilt
 
 
 ```bash
@@ -184,9 +181,9 @@ You've deployed all contracts required for pos-portal to work properly. All thes
 
 ---
 
-### 2. Without `matic-cli`
+### 2. Without localnet orchestration tooling
 
-You can always independently start a Ganache instance to act as RootChain & Bor node as ChildChain, without using `matic-cli`. But in this case no Heimdall nodes will be there --- depriving you of StateSync/ Checkpointing etc. where validator nodes are required.
+You can always independently start a Ganache instance to act as RootChain and Gilt node as ChildChain, without localnet tooling. But in this case no GiltConsensus nodes will be there --- depriving you of StateSync/Checkpointing where validator nodes are required.
 
 Start RootChain by
 
@@ -197,13 +194,13 @@ npm run testrpc # RPC on localhost:9545 --- default
 Now start ChildChain ( requires docker )
 
 ```bash
-npm run bor # RPC on localhost:8545 --- default
+npm run gilt # RPC on localhost:8545 --- default
 ```
 
-> If you ran a bor instance before, a dead docker container might still be lying around, clean it using following command:
+> If you ran a gilt instance before, a dead docker container might still be lying around, clean it using following command:
 
 ```bash
-npm run bor:clean # optional
+npm run gilt:clean # optional
 ```
 
 Run testcases
@@ -212,7 +209,7 @@ Run testcases
 npm run test
 ```
 
-Deploy contracts on local Ganache & Bor instance
+Deploy contracts on local Ganache & Gilt instance
 
 ```bash
 npm run migrate

@@ -26,7 +26,7 @@ contract RootChainHeader {
 }
 
 contract RootChainStorage is ProxyStorage, RootChainHeader, ChainIdMixin {
-    bytes32 public heimdallId;
+    bytes32 public giltconsensusId;
     uint8 public constant VOTE_TYPE = 2;
 
     uint16 internal constant MAX_DEPOSITS = 10_000;

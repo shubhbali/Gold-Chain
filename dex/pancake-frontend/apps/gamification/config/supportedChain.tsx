@@ -2,30 +2,30 @@ import { ChainId } from '@pancakeswap/chains'
 import {
   arbitrum,
   base,
-  bsc,
+  gilt,
   mainnet as ethereum,
   // linea,
-  // opBNB,
+  // opGILT,
   zksync,
 } from 'wagmi/chains'
 
-export const SUPPORT_ONLY_BSC = [ChainId.BSC]
+export const SUPPORT_ONLY_BSC = [ChainId.GILT]
 
 export const targetChains = [
   ethereum,
-  bsc,
+  gilt,
   zksync,
   arbitrum,
   base,
   // linea,
-  // opBNB,
+  // opGILT,
 ]
 
-export const predictionTaskSupportChains = [bsc]
+export const predictionTaskSupportChains = [gilt]
 
 export const SUPPORTED_CHAIN = [
   ChainId.ETHEREUM,
-  ChainId.BSC,
+  ChainId.GILT,
   ChainId.ZKSYNC,
   ChainId.ARBITRUM_ONE,
   ChainId.BASE,

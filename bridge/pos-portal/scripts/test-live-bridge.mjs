@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ethers } from 'ethers';
 import {
-  DEFAULT_HEIMDALL_URL,
+  DEFAULT_GILTCONSENSUS_URL,
   DEFAULT_SEPOLIA_RPC,
   NATIVE_GILT_BRIDGE_ADDRESS,
   REPO_ROOT,
@@ -21,12 +21,35 @@ import {
   sleep,
   waitForChildStateId,
   waitForCondition,
-  waitForHeimdallRecord,
+  waitForGiltConsensusRecord,
   waitForMined,
   waitForRpc,
 } from './live-bridge-common.mjs';
 
-const walletFile = path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json');
+function firstExistingPath(paths) {
+  for (const candidate of paths) {
+    if (candidate && fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+const liveChainDir = process.env.LIVE_CHAIN_DIR
+  ? path.resolve(REPO_ROOT, process.env.LIVE_CHAIN_DIR)
+  : firstExistingPath([
+      path.join(REPO_ROOT, '.live-chain'),
+      path.join(REPO_ROOT, '.live-roughnet'),
+    ]) || path.join(REPO_ROOT, '.live-roughnet');
+
+const walletFile = process.env.TESTNET_WALLETS_FILE || firstExistingPath([
+  path.join(REPO_ROOT, '.testnet-wallets', 'evm-wallets.json'),
+  path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json'),
+]);
+
+if (!walletFile) {
+  throw new Error('wallet file not found (.testnet-wallets/evm-wallets.json or .roughnet-wallets/evm-wallets.json)');
+}
 
 const portalArtifacts = {
   rootChainManager: readArtifact(
@@ -50,12 +73,12 @@ const portalArtifacts = {
   wrappedGilt: readArtifact('bridge/pos-portal/artifacts/contracts/root/RootToken/WrappedGilt.sol/WrappedGilt.json'),
   dummyErc20: readArtifact('bridge/pos-portal/artifacts/contracts/root/RootToken/DummyERC20.sol/DummyERC20.json'),
   childErc20: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/ChildERC20.sol/ChildERC20.json'),
-  maticWeth: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/MaticWETH.sol/MaticWETH.json'),
+  giltWeth: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/GiltWETH.sol/GiltWETH.json'),
 };
 
 const chainArtifacts = {
-  physicalGold1155: readArtifact('bsc-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
-  nativeGiltBridge: readArtifact('bsc-genesis-contract/out/NativeGiltBridge.sol/NativeGiltBridge.json'),
+  physicalGold1155: readArtifact('gilt-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
+  nativeGiltBridge: readArtifact('gilt-genesis-contract/out/NativeGiltBridge.sol/NativeGiltBridge.json'),
 };
 
 const stateSenderAbi = ['function counter() view returns (uint256)'];
@@ -107,13 +130,13 @@ async function waitTokenAllowance(token, owner, spender, expected, label) {
   );
 }
 
-async function waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl) {
+async function waitForBridgeCatchup(rootStateSender, childStateReceiver, giltconsensusUrl) {
   const targetId = await rootStateSender.counter();
-  console.log(`Waiting for Heimdall to persist state sync ${targetId.toString()}`);
-  await waitForHeimdallRecord(heimdallUrl, targetId, BRIDGE_WAIT_TIMEOUT_MS, 5000);
+  console.log(`Waiting for GiltConsensus to persist state sync ${targetId.toString()}`);
+  await waitForGiltConsensusRecord(giltconsensusUrl, targetId, BRIDGE_WAIT_TIMEOUT_MS, 5000);
   console.log(`Waiting for child chain to apply state sync ${targetId.toString()}`);
   await waitForChildStateId(childStateReceiver, targetId, BRIDGE_WAIT_TIMEOUT_MS, 5000);
-  return readBridgeProgress(rootStateSender, childStateReceiver, heimdallUrl);
+  return readBridgeProgress(rootStateSender, childStateReceiver, giltconsensusUrl);
 }
 
 function findLogIndex(receipt, emitter, topic0 = null) {
@@ -420,10 +443,11 @@ async function exitNativeEthDeposit(context, state) {
 
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
-  const roughnetRpc = process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
-  const heimdallUrl = process.env.HEIMDALL_URL || DEFAULT_HEIMDALL_URL;
+  const roughnetRpc = process.env.CHILD_RPC_URL || process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
+  const giltconsensusUrl = process.env.GILTCONSENSUS_URL || DEFAULT_GILTCONSENSUS_URL;
+  const validatorKeyPath = path.join(liveChainDir, 'validator-ecdsa.key');
   const rawPrivateKey =
-    process.env.PRIVATE_KEY || fs.readFileSync(path.join(REPO_ROOT, '.live-roughnet', 'validator-ecdsa.key'), 'utf8').trim();
+    process.env.PRIVATE_KEY || fs.readFileSync(validatorKeyPath, 'utf8').trim();
   const deployerKey = rawPrivateKey.startsWith('0x') ? rawPrivateKey : `0x${rawPrivateKey}`;
 
   const addressBook = loadAddressBook();
@@ -454,7 +478,7 @@ async function main() {
   const childGold = contractAt(addressBook.child.gold, chainArtifacts.physicalGold1155, roughnetProvider);
   const childUsdc = contractAt(addressBook.child.usdc, portalArtifacts.childErc20, roughnetProvider);
   const childUsdt = contractAt(addressBook.child.usdt, portalArtifacts.childErc20, roughnetProvider);
-  const childWeth = contractAt(addressBook.child.weth, portalArtifacts.maticWeth, roughnetProvider);
+  const childWeth = contractAt(addressBook.child.weth, portalArtifacts.giltWeth, roughnetProvider);
   const nativeGiltBridge = contractAt(NATIVE_GILT_BRIDGE_ADDRESS, chainArtifacts.nativeGiltBridge, roughnetUser);
   const rootStateSender = new ethers.Contract(addressBook.root.stateSender, stateSenderAbi, sepoliaProvider);
   const childStateReceiver = new ethers.Contract(STATE_RECEIVER_ADDRESS, stateReceiverAbi, roughnetProvider);
@@ -470,7 +494,7 @@ async function main() {
   });
 
   await waitForRpc(sepoliaProvider, 'Sepolia');
-  await waitForRpc(roughnetProvider, 'roughnet');
+  await waitForRpc(roughnetProvider, 'child chain');
   await ensureSepoliaEth(deployer, sepoliaUser);
 
   const rootPaxgAddress = await rootPaxg.getAddress();
@@ -484,9 +508,9 @@ async function main() {
   const childWethAddress = await childWeth.getAddress();
 
   console.log('Waiting for bridge catch-up before starting a fresh live run');
-  const preRunProgress = await waitForBridgeCatchup(rootStateSender, childStateReceiver, heimdallUrl);
+  const preRunProgress = await waitForBridgeCatchup(rootStateSender, childStateReceiver, giltconsensusUrl);
   console.log(
-    `Bridge ready at root=${preRunProgress.rootStateId.toString()} heimdall=${preRunProgress.heimdallRecordCount.toString()} child=${preRunProgress.childStateId.toString()}`,
+    `Bridge ready at root=${preRunProgress.rootStateId.toString()} giltconsensus=${preRunProgress.giltconsensusRecordCount.toString()} child=${preRunProgress.childStateId.toString()}`,
   );
 
   console.log('Verifying root and child mappings without mutating live bridge state');
@@ -523,7 +547,7 @@ async function main() {
     checkpointExitData,
   };
 
-  console.log('Submitting Sepolia -> roughnet deposits for all routes');
+  console.log('Submitting Sepolia -> child-chain deposits for all routes');
   const pendingPaxg = await submitGoldDeposit(context, 'PAXG');
   const pendingXaut = await submitGoldDeposit(context, 'XAUT');
   const pendingUsdc = await submitErc20Deposit(context, 'USDC', rootUsdc, childUsdc);
@@ -531,7 +555,7 @@ async function main() {
   const pendingGilt = await submitWrappedGiltDeposit(context);
   const pendingEth = await submitNativeEthDeposit(context);
 
-  console.log('Waiting for roughnet arrivals on all routes');
+  console.log('Waiting for child-chain arrivals on all routes');
   await awaitGoldDeposit(context, pendingPaxg);
   await awaitGoldDeposit(context, pendingXaut);
   await awaitErc20Deposit(context, pendingUsdc);
@@ -539,22 +563,22 @@ async function main() {
   await awaitWrappedGiltDeposit(context, pendingGilt);
   await awaitNativeEthDeposit(context, pendingEth);
 
-  console.log('Exiting roughnet -> Sepolia for PAXG');
+  console.log('Exiting child-chain -> Sepolia for PAXG');
   await exitGoldDeposit(context, pendingPaxg);
 
-  console.log('Exiting roughnet -> Sepolia for XAUT');
+  console.log('Exiting child-chain -> Sepolia for XAUT');
   await exitGoldDeposit(context, pendingXaut);
 
-  console.log('Exiting roughnet -> Sepolia for USDC');
+  console.log('Exiting child-chain -> Sepolia for USDC');
   await exitErc20Deposit(context, pendingUsdc);
 
-  console.log('Exiting roughnet -> Sepolia for USDT');
+  console.log('Exiting child-chain -> Sepolia for USDT');
   await exitErc20Deposit(context, pendingUsdt);
 
-  console.log('Exiting roughnet -> Sepolia for GILT');
+  console.log('Exiting child-chain -> Sepolia for GILT');
   await exitWrappedGiltDeposit(context, pendingGilt);
 
-  console.log('Exiting roughnet -> Sepolia for raw ETH');
+  console.log('Exiting child-chain -> Sepolia for raw ETH');
   await exitNativeEthDeposit(context, pendingEth);
 
   addressBook.testRun = {

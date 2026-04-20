@@ -5,7 +5,7 @@ const USDT = "0x9e5aac1ba1a2e6aed6b32689dfcf62a509ca96f3";
  * @type import('./config').NetworkConfig
  */
 module.exports = {
-  network: "opbnb-mainnet",
+  network: "opgilt-mainnet",
   wNativeAddress: WETH,
   v3: {
     // WBNB-USDT 500

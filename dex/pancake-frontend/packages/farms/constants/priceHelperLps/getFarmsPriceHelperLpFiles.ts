@@ -9,7 +9,7 @@ import FarmsBaseHelper from './8453'
 
 export const getFarmsPriceHelperLpFiles = (chainId: ChainId) => {
   switch (chainId) {
-    case ChainId.BSC:
+    case ChainId.GILT:
       return FarmsBscPriceHelper
     case ChainId.BSC_TESTNET:
       return FarmsBscTestnetPriceHelper

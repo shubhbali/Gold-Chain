@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-19T21:55:02Z",
+  "engine": "codex",
+  "final_answer": "Done.\n\nWhy this matters: it removes the remaining bridge doc gaps that were still partial (unresolved placeholders + invalid rollback/manual install steps), so the rebrand/docs pass is now internally consistent in this scope.\n\nFacts (confirmed):\n- I patched only these files:\n  - [bridge/bor/README.md](/srv/repos/gold-chain/bridge/bor/README.md)\n  - [bridge/bor/RETESTBOR.md](/srv/repos/gold-chain/bridge/bor/RETESTBOR.md)\n  - [bridge/heimdall-v2/migration/containerized/2-MIGRATION.md](/srv/repos/gold-chain/bridge/heimdall-v2/migration/containerized/2-MIGRATION.md)\n  - [bridge/heimdall-v2/migration/systemd/2a-MIGRATION-AUTOMATED.md](/srv/repos/gold-chain/bridge/heimdall-v2/migration/systemd/2a-MIGRATION-AUTOMATED.md)\n  - [bridge/heimdall-v2/migration/systemd/2b-MIGRATION-MANUAL.md](/srv/repos/gold-chain/bridge/heimdall-v2/migration/systemd/2b-MIGRATION-MANUAL.md)\n  - [bridge/heimdall-v2/migration/systemd/3-MIGRATION-ROLLBACK.md](/srv/repos/gold-chain/bridge/heimdall-v2/migration/systemd/3-MIGRATION-ROLLBACK.md)\n- Removed all remaining `<GILT_...>` placeholders in the scoped bridge docs.\n- Removed the invalid `git checkout v0.2.9` step in manual migration docs.\n- Verification scans returned zero matches for:\n  - `<GILT_...>` placeholders in the 10-file bridge rebrand scope.\n  - legacy brand tokens (`matic|polygon|bsc|bnb|binance|0xpolygon|maticnetwork`) in that same scope.\n\nInference (likely cause):\n- The last partial state was from placeholder substitution during rebrand without finalizing operational text/commands.\n\nActions (next step):\n1. If you want, I\u2019ll now run the full bridge compile suite again (same no-chain attach flow) and report pass/fail.\n\nCompletion level: complete for this requested implementation pass.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 92,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Yes do it",
+  "run_id": "3bfe68b329e14716907ef6c139750fab",
+  "started_at": "2026-04-19T21:48:25Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-19T21:55:02Z",
+  "version": 1
+}

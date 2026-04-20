@@ -25,7 +25,7 @@ const useUserInfos = ({ account, refreshCounter, setCallback }) => {
               } as const),
           )
 
-          const client = publicClient({ chainId: ChainId.BSC })
+          const client = publicClient({ chainId: ChainId.GILT })
 
           const [
             currentCanClaimForGen0,

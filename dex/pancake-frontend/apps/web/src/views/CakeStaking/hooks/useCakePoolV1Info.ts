@@ -29,7 +29,7 @@ export const useCakePoolV1Info = (targetChain?: ChainId) => {
       }
     },
 
-    enabled: Boolean(account) && (chainId === ChainId.BSC || chainId === ChainId.BSC_TESTNET),
+    enabled: Boolean(account) && (chainId === ChainId.GILT || chainId === ChainId.BSC_TESTNET),
   })
   return info || ({} as CakePoolV1Info)
 }

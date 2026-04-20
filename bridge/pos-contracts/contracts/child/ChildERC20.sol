@@ -3,8 +3,8 @@ pragma solidity ^0.5.2;
 import {ERC20Detailed} from "./ERC20Detailed.sol";
 import {ERC20} from "../common/oz/token/ERC20/ERC20.sol";
 
-import {StateSyncerVerifier} from "./bor/StateSyncerVerifier.sol";
-import {StateReceiver} from "./bor/StateReceiver.sol";
+import {StateSyncerVerifier} from "./gilt/StateSyncerVerifier.sol";
+import {StateReceiver} from "./gilt/StateReceiver.sol";
 import {BaseERC20} from "./BaseERC20.sol";
 import {IParentToken} from "./misc/IParentToken.sol";
 

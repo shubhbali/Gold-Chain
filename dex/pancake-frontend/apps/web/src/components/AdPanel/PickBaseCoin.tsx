@@ -136,7 +136,7 @@ const chainMap: Record<string, string> = {
   arb: 'ARB',
   linea: 'LINEA',
   base: 'BASE',
-  opbnb: 'OPBNB',
+  opgilt: 'OPBNB',
 }
 
 export const PickBaseCoin = ({

@@ -8,7 +8,7 @@ features:
 dataSources:
   - kind: ethereum/contract
     name: GaugeVoting
-    network: bsc
+    network: gilt
     source:
       address: '0xD6f7C34e2FfBE1b8bFD40f5960aE269C596fF893'
       abi: GaugeVoting

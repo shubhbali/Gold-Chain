@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-19T22:53:49Z",
+  "engine": "codex",
+  "final_answer": "Yes. By \u201c319 non-doc code/config files,\u201d I mean 319 files in `bridge/` (code + configs, not docs) still containing legacy tokens, and here is the full implementation plan.\n\nWhy it matters: if we leave legacy naming in Bor/Heimdall/bridge code paths, Gilt Chain stays in a half-rebranded state and operational risk stays high.\n\nFacts (confirmed):\n- Scan scope was `bridge/` with legacy tokens: `polygon|matic|0xpolygon|maticnetwork|mumbai`.\n- \u201c319\u201d excluded docs/tests/most generated-vendor noise.\n- Distribution of remaining code/config files:\n- `bridge/heimdall-v2`: 195\n- `bridge/bor`: 120\n- `bridge/pos-portal`: 2\n- `bridge/pos-contracts`: 2\n\nInference (likely cause):\n- This is not a text-only cleanup; it includes protocol-level names in Bor/Heimdall modules, proto packages, configs, and bridge runtime paths.\n- If Heimdall/Bor naming is also changed, this is a high-impact refactor and must be phased with compile gates.\n\nActions (full implementation plan):\n1. Lock naming contract first.\n- Define exact replacements for every legacy token (case-sensitive map).\n- Decide explicitly: rename Bor/Heimdall technical identifiers too (you said likely yes).\n\n2. Build authoritative rebrand manifest from the 319 files.\n- Classify each file into risk tiers:\n- Tier 1: string/config/comment labels.\n- Tier 2: code identifiers and internal constants.\n- Tier 3: protocol-critical names (proto package names, RPC fields, event/topic names, DB keys, chain config labels).\n\n3. Execute Tier 1 bulk code/config pass first (code files included, docs excluded).\n- Apply deterministic replacements only where no ABI/protocol break risk.\n- Re-scan to ensure Tier 1 tokens are cleared.\n\n4. Execute Bor refactor pass.\n- Update naming in `consensus/`, `core/`, `internal/`, `params/`, packaging/config templates.\n- Keep behavior equivalent while renaming symbols/labels.\n- Build gate: Bor compile must pass after this phase.\n\n5. Execute Heimdall-v2 refactor pass (including naming if approved).\n- Update `x/*` modules, bridge listeners/processors, helpers, CLI.\n- Update proto definitions where required, regenerate proto outputs, then fix compile breakages.\n- Build gate: Heimdall build + module tests must pass.\n\n6. Execute contracts/portal code pass.\n- Rename remaining legacy naming in Solidity code/config scripts.\n- Verify no unintended ABI/event signature changes unless explicitly intended.\n- Build gate: contract compile/tests must pass.\n\n7. Cross-component integration pass.\n- Reconcile Bor <-> Heimdall interfaces, config keys, chain metadata, and bridge event routing names.\n- Ensure no stale legacy strings in runtime-critical paths.\n\n8. Final hard verification.\n- Zero-match scan for legacy tokens in bridge code/config scope.\n- Compile/test gates for Bor, Heimdall-v2, pos-contracts, pos-portal, genesis-contracts.\n- Add CI guard to fail on legacy token reintroduction.\n\n9. Delivery artifacts.\n- Manifest of changed files.\n- Token replacement map used.\n- Build/test evidence per phase.\n- Residual exceptions list (only if intentionally retained and approved).\n\nCompletion level: complete (full plan delivered).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Yeah, the legacy tokens if they're not like, you know, what do you mean by 319 non-doc code config files? And what all needs to change? I need a full implementation plan, right? So give me the full implementation plan for this Not some random bullshit or some documentation files as you were doing before you lazy bastard Give me the full fucking plan and in the end, we might have to change the heimdall and for naming as well",
+  "run_id": "9081049982254796ba5437f10c2fd54f",
+  "started_at": "2026-04-19T22:53:09Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-19T22:53:49Z",
+  "version": 1
+}

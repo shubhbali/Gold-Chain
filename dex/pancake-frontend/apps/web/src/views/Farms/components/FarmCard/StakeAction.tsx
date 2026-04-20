@@ -150,7 +150,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
             {
               step: 2,
               tx: '',
-              chainId: ChainId.BSC,
+              chainId: ChainId.GILT,
               status: FarmTransactionStatus.PENDING,
             },
           ],
@@ -206,7 +206,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
             },
             {
               step: 2,
-              chainId: ChainId.BSC,
+              chainId: ChainId.GILT,
               tx: '',
               status: FarmTransactionStatus.PENDING,
             },
@@ -261,7 +261,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
       cakePrice={cakePrice}
       showActiveBooster={boosterState === YieldBoosterState.ACTIVE}
       bCakeMultiplier={null}
-      showCrossChainFarmWarning={chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET && !bCakeWrapperAddress}
+      showCrossChainFarmWarning={chainId !== ChainId.GILT && chainId !== ChainId.BSC_TESTNET && !bCakeWrapperAddress}
       crossChainWarningText={crossChainWarningText}
       decimals={18}
       allowance={allowance}
@@ -283,7 +283,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
       onConfirm={handleUnstake}
       lpPrice={lpTokenPrice}
       tokenName={lpSymbol}
-      showCrossChainFarmWarning={chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET && !bCakeWrapperAddress}
+      showCrossChainFarmWarning={chainId !== ChainId.GILT && chainId !== ChainId.BSC_TESTNET && !bCakeWrapperAddress}
       decimals={18}
     />,
   )

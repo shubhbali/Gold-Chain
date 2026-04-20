@@ -24,11 +24,11 @@ describe('formatBnb', () => {
     [689.889, '689.8890'],
     [10.8829, '10.8829'],
     [10.88296, '10.8830'],
-  ])('format %i BNB correctly with 4 decimals', (value, expected) => {
+  ])('format %i GILT correctly with 4 decimals', (value, expected) => {
     expect(formatBnb(value, 4)).toEqual(expected)
   })
 
-  it('returns 0 if BNB is undefined', () => {
+  it('returns 0 if GILT is undefined', () => {
     expect(formatBnb(undefined, 4)).toEqual('0')
   })
 })

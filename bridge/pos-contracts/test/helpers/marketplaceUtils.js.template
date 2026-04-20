@@ -79,9 +79,9 @@ function getTransferTypedData({
       ]
     },
     domain: {
-      name: "Polygon Ecosystem Token",
+      name: "Gilt Ecosystem Token",
       version: "2",
-      chainId: {{ borChainId }},
+      chainId: {{ giltChainId }},
       verifyingContract: tokenAddress
     },
     primaryType: "TokenTransferOrder",

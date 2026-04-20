@@ -1,0 +1,39 @@
+# Gold Staking Day-1 Requirement (Do Not Skip)
+
+## Goal
+Gold staking + rewards must be enabled from day 1.
+
+## Current reality on running chain
+- GOLD staking is currently OFF because:
+  - `stakeTokenB = 0x0000000000000000000000000000000000000000`
+  - `tokenBRewardSplitBps = 0`
+
+## Exact enable mechanism in this codebase
+- StakeHub params are controlled by governance (`onlyGov` via GovHub).
+- That means GOLD staking is enabled by governance updates to StakeHub, not by wallet settings.
+
+## Required order to enable GOLD staking
+1. Set `stakeTokenB` to the live GOLD ERC1155 contract address.
+2. Set `tokenBRewardSplitBps` to a non-zero value (this turns on GOLD reward share).
+3. Confirm/adjust power model params:
+   - `stakeWeightA` (GILT weight)
+   - `stakeWeightB` (GOLD weight)
+   - `maxBPowerRatioBps`
+   - `ratioEnabled`
+   - `minBtoARatioBps`
+4. Verify on-chain values are applied.
+5. Run live flow checks:
+   - delegate GOLD
+   - undelegate GOLD
+   - claim GOLD-side rewards
+
+## Launch policy for all future chain starts
+- Before public onboarding, governance must execute the above so GOLD staking is active.
+- If this is not done, the chain launches in GILT-only staking mode.
+
+## Validator self-stake policy (GILT)
+- Current minimum self-stake is `2000`, which is too low for a 1B GILT launch profile.
+- For launch, target at least `50,000` to `100,000` GILT minimum self-stake.
+- In current code, governance can set this only in range `1,000` to `100,000`.
+- If we need more than `100,000`, we must change code first.
+- Treat this as a launch gate and review upward over time as supply/inflation evolves.

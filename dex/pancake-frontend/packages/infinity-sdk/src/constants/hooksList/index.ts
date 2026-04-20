@@ -1,24 +1,24 @@
 import { ChainId } from '@pancakeswap/chains'
-import { bscDynamicHooks, bscHooksList, bscWhitelistLabeledHooks } from './bsc'
+import { bscDynamicHooks, bscHooksList, bscWhitelistLabeledHooks } from './gilt'
 import { bscTestnetDynamicHooks, bscTestnetHooksList } from './bscTestnet'
 import { baseDynamicHooks, baseHooksList } from './base'
 
 export const hooksList = {
-  [ChainId.BSC]: bscHooksList,
+  [ChainId.GILT]: bscHooksList,
   [ChainId.BSC_TESTNET]: bscTestnetHooksList,
   [ChainId.BASE]: baseHooksList,
   [ChainId.SEPOLIA]: [],
 }
 
 export const dynamicHooksList = {
-  [ChainId.BSC]: bscDynamicHooks,
+  [ChainId.GILT]: bscDynamicHooks,
   [ChainId.BSC_TESTNET]: bscTestnetDynamicHooks,
   [ChainId.BASE]: baseDynamicHooks,
   [ChainId.SEPOLIA]: [],
 }
 
 export const whitelistLabeledHooksList = {
-  [ChainId.BSC]: bscWhitelistLabeledHooks,
+  [ChainId.GILT]: bscWhitelistLabeledHooks,
   [ChainId.BSC_TESTNET]: [],
   [ChainId.BASE]: [],
   [ChainId.SEPOLIA]: [],

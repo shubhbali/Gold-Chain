@@ -18,7 +18,7 @@ contract ValidatorShare is IValidatorShare, ERC20, OwnableLockable, Initializabl
     }
 
     uint256 constant EXCHANGE_RATE_PRECISION = 100;
-    // maximum matic possible, even if rate will be 1 and all matic will be staked in one go, it will result in 10 ^ 58
+    // maximum native token possible, even if rate will be 1 and all stake is delegated in one go, it will result in 10 ^ 58
     // shares
     uint256 constant EXCHANGE_RATE_HIGH_PRECISION = 10 ** 29;
     uint256 constant MAX_COMMISION_RATE = 100;

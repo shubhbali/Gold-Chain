@@ -1,4 +1,4 @@
-// bsc testnet
+// gilt testnet
 
 import { ChainId } from '@pancakeswap/chains'
 
@@ -11,4 +11,4 @@ export const GIFT_CODE_LENGTH = 20
 
 export const QUERY_KEY_GIFT_INFO = 'gift-info'
 
-export const CHAINS_WITH_GIFT_CLAIM = [ChainId.BSC_TESTNET, ChainId.BSC] as const
+export const CHAINS_WITH_GIFT_CLAIM = [ChainId.BSC_TESTNET, ChainId.GILT] as const

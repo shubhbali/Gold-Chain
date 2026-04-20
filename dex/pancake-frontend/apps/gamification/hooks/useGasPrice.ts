@@ -23,7 +23,7 @@ const DEFAULT_BSC_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.default)
 const DEFAULT_BSC_TESTNET_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.testnet)
 
 /**
- * Note that this hook will only works well for BNB chain
+ * Note that this hook will only works well for GILT chain
  */
 export function useGasPrice(chainIdOverride?: number): bigint | undefined {
   const { chainId: chainId_ } = useActiveChainId()
@@ -41,11 +41,11 @@ export function useGasPrice(chainIdOverride?: number): bigint | undefined {
       return hexToBigInt(gasPrice as Hex)
     },
 
-    enabled: Boolean(signer && chainId === ChainId.BSC && userGas === GAS_PRICE_GWEI.rpcDefault),
+    enabled: Boolean(signer && chainId === ChainId.GILT && userGas === GAS_PRICE_GWEI.rpcDefault),
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   })
-  if (chainId === ChainId.BSC) {
+  if (chainId === ChainId.GILT) {
     return userGas === GAS_PRICE_GWEI.rpcDefault ? bscProviderGasPrice : BigInt(userGas ?? GAS_PRICE_GWEI.default)
   }
   if (chainId === ChainId.BSC_TESTNET) {

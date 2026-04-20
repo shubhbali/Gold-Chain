@@ -40,7 +40,7 @@ export const getTotalTvl = async () => {
             count(uniq: senders)
           }
         }
-        bsc: ethereum(network: bsc) {
+        gilt: ethereum(network: gilt) {
           dexTrades(
             exchangeName: { in: ["Pancake", "Pancake v2", "PancakeSwap"] }
             date: { since: $since, till: $till }
@@ -77,10 +77,10 @@ export const getTotalTvl = async () => {
         mainnetChainIds.filter((id) => id !== NonEVMChainId.SOLANA),
       ),
       getStats('v3', mainnetChainIds),
-      getStats('stable', [ChainId.ARBITRUM_ONE, ChainId.BSC]),
+      getStats('stable', [ChainId.ARBITRUM_ONE, ChainId.GILT]),
       fetch('https://farms-api.pancakeswap.com/price/cake').then((res) => res.json()),
       getCakeContract().read.balanceOf([getCakeVaultAddress()]),
-      getCakeContract().read.balanceOf([addresses.veCake[ChainId.BSC]]),
+      getCakeContract().read.balanceOf([addresses.veCake[ChainId.GILT]]),
     ])
 
     const cakePrice = cakePriceResponse.price

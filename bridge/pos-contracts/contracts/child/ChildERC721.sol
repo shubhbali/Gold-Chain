@@ -5,8 +5,8 @@ import {ERC721Full} from "../common/oz/token/ERC721/ERC721Full.sol";
 import {ChildToken} from "./ChildToken.sol";
 import {IParentToken} from "./misc/IParentToken.sol";
 
-import {StateSyncerVerifier} from "./bor/StateSyncerVerifier.sol";
-import {StateReceiver} from "./bor/StateReceiver.sol";
+import {StateSyncerVerifier} from "./gilt/StateSyncerVerifier.sol";
+import {StateReceiver} from "./gilt/StateReceiver.sol";
 
 contract ChildERC721 is ChildToken, ERC721Full, StateSyncerVerifier, StateReceiver {
     event Deposit(address indexed token, address indexed from, uint256 tokenId);

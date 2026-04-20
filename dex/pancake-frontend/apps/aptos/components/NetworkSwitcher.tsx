@@ -9,13 +9,13 @@ import Image from 'next/image'
 import { aptosLogoClass } from './Logo/CurrencyLogo.css'
 
 const evmChains = [
-  { id: 56, name: 'BNB Chain', chainName: 'bsc' },
+  { id: 56, name: 'GILT Chain', chainName: 'gilt' },
   { id: 1, name: 'Ethereum', chainName: 'eth' },
   { id: 324, name: 'zkSync Era', chainName: 'zkSync' },
   { id: 42161, name: 'Arbitrum One', chainName: 'arb' },
   { id: 59144, name: 'Linea', chainName: 'linea' },
   { id: 8453, name: 'Base', chainName: 'base' },
-  { id: 204, name: 'opBNB Mainnet', chainName: 'opBNB' },
+  { id: 204, name: 'opGILT Mainnet', chainName: 'opGILT' },
   { id: 10143, name: 'Monad Testnet', chainName: 'monad' },
 ]
 

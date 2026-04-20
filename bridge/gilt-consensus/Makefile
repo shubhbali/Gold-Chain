@@ -1,0 +1,217 @@
+GO ?= latest
+GOBIN = $(CURDIR)/build/bin
+GORUN = env GO111MODULE=on go run
+GOPATH = $(shell go env GOPATH)
+
+GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
+
+DOCKER := $(shell which docker)
+
+PACKAGE_NAME := github.com/giltchain/gilt-consensus
+HTTPS_GIT := https://$(PACKAGE_NAME).git
+GOLANG_CROSS_VERSION  ?= v1.24.1
+
+# Fetch git latest tag
+LATEST_GIT_TAG:=$(shell git describe --tags $(git rev-list --tags --max-count=1))
+VERSION := $(shell git describe --tags | sed 's/^v//')
+CMT_VERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::')
+COSMOS_VERSION := $(shell go list -m github.com/cosmos/cosmos-sdk | sed 's:.* ::')
+COMMIT := $(shell git log -1 --format='%H')
+
+ldflags = -X github.com/giltchain/gilt-consensus/version.Name=gilt-consensus \
+		  -X github.com/giltchain/gilt-consensus/version.ServerName=giltconsd \
+		  -X github.com/giltchain/gilt-consensus/version.Version=$(VERSION) \
+		  -X github.com/giltchain/gilt-consensus/version.Commit=$(COMMIT) \
+		  -X github.com/cosmos/cosmos-sdk/version.Name=gilt-consensus \
+		  -X github.com/cosmos/cosmos-sdk/version.ServerName=giltconsd \
+		  -X github.com/cosmos/cosmos-sdk/version.Version=$(COSMOS_VERSION) \
+		  -X github.com/cometbft/cometbft/version.TMCoreSemVer=$(CMT_VERSION)
+
+BUILD_FLAGS := -ldflags '$(ldflags)'
+
+COVERAGE_PKGS := ./app/...,./bridge/...,./client/...,./cmd/...,./common/...,./file/...,./helper/...,./sidetxs/...,./types/...,./version/...,./x/...
+
+###############################################################################
+###	                      Build, Test and Clean								###
+###############################################################################
+
+.PHONY: clean
+clean:
+	rm -rf build
+
+.PHONY: build
+build:
+	mkdir -p build
+	go build $(BUILD_FLAGS) -o build/giltconsd ./cmd/giltconsd
+	@echo "====================================================\n==================Build Successful==================\n===================================================="
+
+.PHONY: build-arm
+build-arm: clean
+	mkdir -p build
+	env CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ go build $(BUILD_FLAGS) -o build/giltconsd ./cmd/giltconsd
+	@echo "====================================================\n==================Build Successful==================\n===================================================="
+
+.PHONY: test
+test:
+	go test ./...
+
+.PHONY: test-coverage
+test-coverage:
+	@echo "Running tests with coverage..."
+	@go test ./... \
+		-coverprofile=coverage.tmp \
+		-coverpkg=$(COVERAGE_PKGS) \
+		2>&1 | grep -v "coverage:.*of statements in"
+	@echo "Filtering out generated files from coverage report..."
+	@grep -v "_mocks.go" coverage.tmp | grep -v "\.pb\.go" | grep -v "\.pb\.gw\.go" > coverage.out
+	@rm coverage.tmp
+	@echo "\n=== Coverage Summary (excluding generated files) ==="
+	@go tool cover -func=coverage.out | grep total | awk '{print "Total Coverage: " $$3}'
+	@echo "\nFull coverage report saved to coverage.out"
+	@echo "To view HTML report, run: go tool cover -html=coverage.out"
+
+###############################################################################
+###	                      Checks and Linters								###
+###############################################################################
+
+.PHONY: vulncheck
+vulncheck:
+	@go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+.PHONY: lint-deps
+lint-deps:
+	rm -f ./build/bin/golangci-lint
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./build/bin v2.11.3
+
+.PHONY: lint
+lint:
+	@if [ ! -f ./build/bin/golangci-lint ]; then \
+		echo "golangci-lint not found, installing dependencies..."; \
+		$(MAKE) lint-deps; \
+	fi
+	@if [ -n "$(NEW_FROM_REV)" ]; then \
+		echo "NEW_FROM_REV is set to: $(NEW_FROM_REV)"; \
+	else \
+		echo "NEW_FROM_REV is not set"; \
+	fi
+	@./build/bin/golangci-lint run --config ./.golangci.yml $(if $(NEW_FROM_REV),--new-from-rev $(NEW_FROM_REV))
+
+
+###############################################################################
+###                                Protobuf                                 ###
+###############################################################################
+
+protoVer=0.14.0
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+
+proto-all: proto-format proto-lint proto-gen proto-swagger-gen
+
+proto-gen:
+	@echo "Generating Protobuf files"
+	@$(protoImage) sh ./scripts/protocgen.sh
+
+proto-format:
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
+
+proto-lint:
+	@$(protoImage) buf lint --error-format=json
+
+proto-check-breaking:
+	@$(protoImage) buf breaking --against "$(HTTPS_GIT)#branch=develop"
+
+proto-swagger-gen:
+	@echo "Generating Protobuf Swagger"
+	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking
+
+mock:
+	go install github.com/golang/mock/mockgen@latest
+	mockgen -source=x/gilt/types/expected_keepers.go -destination=x/gilt/testutil/expected_keepers_mocks.go  -package=testutil
+	mockgen -source=x/checkpoint/types/expected_keepers.go -destination=x/checkpoint/testutil/expected_keepers_mocks.go -package=testutil
+	mockgen -source=x/clerk/types/expected_keepers.go -destination=x/clerk/testutil/expected_keepers_mocks.go -package=testutil
+	mockgen -source=x/stake/types/expected_keepers.go -destination=x/stake/testutil/expected_keepers_mocks.go -package=testutil
+	mockgen -source=x/topup/types/expected_keepers.go -destination=x/topup/testutil/expected_keepers_mocks.go -package=testutil
+	mockgen -destination=helper/mocks/i_http_client.go -package=mocks --source=./helper/util.go HTTPClient
+	go install github.com/vektra/mockery/v2/...@latest
+	mockery --name IContractCaller --dir ./helper  --output ./helper/mocks --filename=i_contract_caller.go
+
+
+###############################################################################
+###                                docker                                   ###
+###############################################################################
+
+build-docker:
+	@echo Fetching latest tag: $(LATEST_GIT_TAG)
+	git checkout $(LATEST_GIT_TAG)
+	docker build -t "giltchain/gilt-consensus:$(LATEST_GIT_TAG)" -f Dockerfile .
+
+push-docker:
+	@echo Pushing docker tag image: $(LATEST_GIT_TAG)
+	docker push "giltchain/gilt-consensus:$(LATEST_GIT_TAG)"
+
+###############################################################################
+###                                release                                  ###
+###############################################################################
+
+.PHONY: release-dry-run
+release-dry-run:
+	@docker run \
+		--platform linux/amd64 \
+		--rm \
+		--privileged \
+		-e CGO_ENABLED=1 \
+		-e CGO_CFLAGS=-Wno-unused-function \
+		-e GITHUB_TOKEN \
+		-e DOCKER_USERNAME \
+		-e DOCKER_PASSWORD \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $(HOME)/.docker/config.json:/root/.docker/config.json \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-w /go/src/$(PACKAGE_NAME) \
+		goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		--clean --skip=validate,publish
+
+.PHONY: release
+release:
+	@docker run \
+		--rm \
+		--privileged \
+		-e main=./cmd/giltconsd \
+		-e CGO_ENABLED=1 \
+		-e GITHUB_TOKEN \
+		-e DOCKER_USERNAME \
+		-e DOCKER_PASSWORD \
+		-e SLACK_WEBHOOK \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $(HOME)/.docker/config.json:/root/.docker/config.json \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-w /go/src/$(PACKAGE_NAME) \
+		goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		--clean --skip=validate
+
+###############################################################################
+###	                      			Help									###
+###############################################################################
+
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "  lint-deps           	- Install dependencies for GolangCI-Lint tool."
+	@echo "  lint                	- Run the GolangCI-Lint tool on the codebase."
+	@echo "  clean               	- Delete build folder."
+	@echo "  build              	- Compiles the GiltConsensus binaries."
+	@echo "  build-arm           	- Compiles the GiltConsensus binaries for ARM64 architecture."
+	@echo "  test               	- Run the tests."
+	@echo "  test-coverage       	- Run tests with coverage for core packages only."
+	@echo "  mock                	- Generate mocks."
+	@echo "  proto-all           	- Format, lint and generate proto files."
+	@echo "  proto-lint        		- Lint proto files."
+	@echo "  proto-format        	- Format proto files."
+	@echo "  proto-gen           	- Generate proto files."
+	@echo "  proto-check-breaking   - Check if proto breaks against git head."
+	@echo "  build-docker        	- Build a Docker image for the latest Git tag."
+	@echo "  push-docker         	- Push the Docker image for the latest Git tag."
+	@echo "  release-dry-run     	- Perform a dry run of the release process."
+	@echo "  release             	- Execute the actual release process."

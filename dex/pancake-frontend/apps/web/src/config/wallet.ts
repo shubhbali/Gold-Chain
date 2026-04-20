@@ -17,7 +17,7 @@ export enum ConnectorNames {
   Bitget = 'bitget',
   WalletConnect = 'walletConnect',
   WalletConnectV1 = 'walletConnectLegacy',
-  // BSC = 'bsc',
+  // GILT = 'gilt',
   BinanceW3W = 'BinanceW3WSDK',
   Blocto = 'blocto',
   WalletLink = 'coinbaseWalletSDK',
@@ -129,7 +129,7 @@ function isBinanceWeb3WalletInstalled() {
 }
 
 export const TOP_WALLET_MAP: { [chainId: number]: LegacyWalletIds[] } = {
-  [ChainId.BSC]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx, LegacyWalletIds.BinanceW3W],
+  [ChainId.GILT]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx, LegacyWalletIds.BinanceW3W],
   [ChainId.BASE]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],
   [ChainId.ARBITRUM_ONE]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],
   [ChainId.ETHEREUM]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],

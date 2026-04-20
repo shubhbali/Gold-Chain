@@ -4,6 +4,7 @@ import { execFileSync } from 'child_process';
 import { ethers } from 'ethers';
 import {
   ADDRESS_BOOK_PATH,
+  CHECKPOINT_ACCOUNT_HASH,
   DEFAULT_SEPOLIA_RPC,
   GOV_HUB_ADDRESS,
   GOVERNOR_ADDRESS,
@@ -29,16 +30,47 @@ import {
   waitForMined,
 } from './live-bridge-common.mjs';
 
-const walletFile = path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json');
-const heimdallGenesisPath = path.join(REPO_ROOT, '.heimdall-localnet', 'node0', 'heimdalld', 'config', 'genesis.json');
-const blsDatadir = path.join(REPO_ROOT, '.live-roughnet', 'validator1', 'bls');
-const blsPassword = path.join(REPO_ROOT, '.live-roughnet', 'bls-pass.txt');
+function firstExistingPath(paths) {
+  for (const candidate of paths) {
+    if (candidate && fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+const liveChainDir = process.env.LIVE_CHAIN_DIR
+  ? path.resolve(REPO_ROOT, process.env.LIVE_CHAIN_DIR)
+  : firstExistingPath([
+      path.join(REPO_ROOT, '.live-chain'),
+      path.join(REPO_ROOT, '.live-roughnet'),
+    ]) || path.join(REPO_ROOT, '.live-roughnet');
+
+const walletFile = process.env.TESTNET_WALLETS_FILE || firstExistingPath([
+  path.join(REPO_ROOT, '.testnet-wallets', 'evm-wallets.json'),
+  path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json'),
+]);
+
+const giltconsensusGenesisPath = process.env.GILTCONSENSUS_GENESIS_PATH || firstExistingPath([
+  path.join(REPO_ROOT, '.giltconsensus-testnet', 'node0', 'giltconsensusd', 'config', 'genesis.json'),
+  path.join(REPO_ROOT, '.giltconsensus-localnet', 'node0', 'giltconsensusd', 'config', 'genesis.json'),
+]);
+
+const blsDatadir = process.env.BLS_DATADIR || path.join(liveChainDir, 'validator1', 'bls');
+const blsPassword = process.env.BLS_PASSWORD_FILE || path.join(liveChainDir, 'bls-pass.txt');
 const gethBinary = path.join(REPO_ROOT, '.tmp', 'geth');
 const blsPubkey =
   process.env.BLS_PUBKEY ||
   '0x82106fca090df4d75d8a0e40e71fe47619ce9a9d5425063e734e40dca8a1f536443ea556a68e715496c8753c1be83f02';
-const DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('HEIMDALL_MAIN_CHAIN_TX_CONFIRMATIONS', 6);
-const DEFAULT_BOR_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('HEIMDALL_BOR_CHAIN_TX_CONFIRMATIONS', 10);
+const DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('GILTCONSENSUS_MAIN_CHAIN_TX_CONFIRMATIONS', 6);
+const DEFAULT_GILT_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('GILTCONSENSUS_GILT_CHAIN_TX_CONFIRMATIONS', 10);
+
+if (!walletFile) {
+  throw new Error('wallet file not found (.testnet-wallets/evm-wallets.json or .roughnet-wallets/evm-wallets.json)');
+}
+if (!giltconsensusGenesisPath) {
+  throw new Error('giltconsensus genesis not found (.giltconsensus-testnet or .giltconsensus-localnet)');
+}
 
 const rootArtifacts = {
   governance: readArtifact('bridge/pos-contracts/artifacts/contracts/common/governance/Governance.sol/Governance.json'),
@@ -52,8 +84,8 @@ const rootArtifacts = {
   validatorShareTest: readArtifact('bridge/pos-contracts/artifacts/contracts/test/ValidatorShareTest.sol/ValidatorShareTest.json'),
   stakeToken: readArtifact('bridge/pos-contracts/artifacts/contracts/common/tokens/TestToken.sol/TestToken.json'),
   polToken: readArtifact('bridge/pos-contracts/artifacts/contracts/common/tokens/ERC20Permit.sol/ERC20Permit.json'),
-  polygonMigration: readArtifact(
-    'bridge/pos-contracts/artifacts/contracts/common/misc/PolygonMigration.sol/PolygonMigration.json',
+  giltMigration: readArtifact(
+    'bridge/pos-contracts/artifacts/contracts/common/misc/GiltMigration.sol/GiltMigration.json',
   ),
   stakingInfo: readArtifact('bridge/pos-contracts/artifacts/contracts/staking/StakingInfo.sol/StakingInfo.json'),
   stakingNFT: readArtifact(
@@ -115,12 +147,12 @@ const portalArtifacts = {
     'bridge/pos-portal/artifacts/contracts/child/ChildChainManager/ChildChainManagerProxy.sol/ChildChainManagerProxy.json',
   ),
   childErc20: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/ChildERC20.sol/ChildERC20.json'),
-  maticWeth: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/MaticWETH.sol/MaticWETH.json'),
+  giltWeth: readArtifact('bridge/pos-portal/artifacts/contracts/child/ChildToken/GiltWETH.sol/GiltWETH.json'),
 };
 
 const chainArtifacts = {
-  physicalGold1155: readArtifact('bsc-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
-  legacyGoldReserveVault: readArtifact('bsc-genesis-contract/out/LegacyGoldReserveVault.sol/LegacyGoldReserveVault.json'),
+  physicalGold1155: readArtifact('gilt-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
+  legacyGoldReserveVault: readArtifact('gilt-genesis-contract/out/LegacyGoldReserveVault.sol/LegacyGoldReserveVault.json'),
 };
 
 const govHubAbi = ['function updateParam(string key, bytes value, address target)'];
@@ -253,18 +285,18 @@ async function deployEventsHub(adminSigner, registry) {
   return proxied;
 }
 
-async function deployStakeManager(sepoliaSigner, sepoliaWallet, governance, registry, rootChain, heimdallChainId) {
+async function deployStakeManager(sepoliaSigner, sepoliaWallet, governance, registry, rootChain, giltconsensusChainId) {
   const eventsHub = await deployEventsHub(sepoliaSigner, registry);
   const validatorShareFactory = await deployContract(sepoliaSigner, rootArtifacts.validatorShareFactory);
   const validatorShareImpl = await deployContract(sepoliaSigner, rootArtifacts.validatorShareTest);
   const stakeToken = await deployContract(sepoliaSigner, rootArtifacts.stakeToken, ['Stake Token', 'STAKE']);
   const polToken = await deployContract(sepoliaSigner, rootArtifacts.polToken, ['POL', 'POL', '1.1.0']);
-  const migration = await deployContract(sepoliaSigner, rootArtifacts.polygonMigration, [
+  const migration = await deployContract(sepoliaSigner, rootArtifacts.giltMigration, [
     await stakeToken.getAddress(),
     await polToken.getAddress(),
   ]);
   const stakingInfo = await deployContract(sepoliaSigner, rootArtifacts.stakingInfo, [await registry.getAddress()]);
-  const stakingNFT = await deployContract(sepoliaSigner, rootArtifacts.stakingNFT, ['Matic Validator', 'MV']);
+  const stakingNFT = await deployContract(sepoliaSigner, rootArtifacts.stakingNFT, ['Gilt Validator', 'GV']);
   const extension = await deployContract(sepoliaSigner, rootArtifacts.stakeManagerExtension);
   const stakeManagerImpl = await deployContract(sepoliaSigner, rootArtifacts.stakeManagerTestable);
   const stakeManagerProxy = await deployContract(sepoliaSigner, rootArtifacts.stakeManagerProxy, [ZERO_ADDRESS]);
@@ -324,21 +356,21 @@ async function deployStakeManager(sepoliaSigner, sepoliaWallet, governance, regi
     ),
   );
 
-  const heimdallFee = ethers.parseEther('1');
+  const giltconsensusFee = ethers.parseEther('1');
   const stakeAmount = ethers.parseEther('200');
-  await waitTx(polToken.approve(await stakeManager.getAddress(), stakeAmount + heimdallFee));
+  await waitTx(polToken.approve(await stakeManager.getAddress(), stakeAmount + giltconsensusFee));
   await waitTx(
     stakeManager.stakeForPOL(
       sepoliaAddress,
       stakeAmount,
-      heimdallFee,
+      giltconsensusFee,
       false,
       publicKeyBytes(sepoliaWallet.privateKey),
     ),
   );
 
   return {
-    heimdallChainId,
+    giltconsensusChainId,
     eventsHub,
     migration,
     polToken,
@@ -415,7 +447,7 @@ async function governUpdateParam(provider, key, valueBytes, target, description,
   await waitTx(proposalGovernor.execute(targets, values, calldatas, descriptionHash));
 }
 
-async function ensureLiveGovernanceReadiness(provider, validatorWallet, governanceWallet) {
+async function ensureLiveGovernanceReadiness(provider, validatorWallet, governanceWallet, childChainId) {
   const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, liveStakeHubAbi, provider);
   const govToken = new ethers.Contract(GOV_TOKEN_ADDRESS, govTokenAbi, provider);
   const governor = new ethers.Contract(GOVERNOR_ADDRESS, governorAbi, provider);
@@ -434,7 +466,7 @@ async function ensureLiveGovernanceReadiness(provider, validatorWallet, governan
         'account',
         'generate-proof',
         '--chain-id',
-        '714',
+        String(childChainId),
         '--blspassword',
         blsPassword,
         '--datadir',
@@ -447,10 +479,10 @@ async function ensureLiveGovernanceReadiness(provider, validatorWallet, governan
     const validatorProof = validatorProofOutput.trim().split('Proof: ')[1].trim();
     const commission = { rate: 10, maxRate: 100, maxChangeRate: 5 };
     const description = {
-      moniker: 'Rough1',
+      moniker: 'Gold1',
       identity: validatorAddress,
       website: 'https://goldchain.local',
-      details: 'live bridge roughnet validator',
+      details: 'live bridge testnet validator',
     };
 
     const createValidatorTx = await validatorWallet.sendTransaction({
@@ -488,12 +520,13 @@ async function ensureLiveGovernanceReadiness(provider, validatorWallet, governan
 
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
-  const roughnetRpc = process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
+  const roughnetRpc = process.env.CHILD_RPC_URL || process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
   const reuseRoot = process.env.REUSE_ROOT === '1';
   const skipStakeGoldCutover = process.env.SKIP_STAKE_GOLD === '1';
   const roughnetWallets = readJson(walletFile);
+  const validatorKeyPath = path.join(liveChainDir, 'validator-ecdsa.key');
   const rawPrivateKey =
-    process.env.PRIVATE_KEY || fs.readFileSync(path.join(REPO_ROOT, '.live-roughnet', 'validator-ecdsa.key'), 'utf8').trim();
+    process.env.PRIVATE_KEY || fs.readFileSync(validatorKeyPath, 'utf8').trim();
   const privateKey = rawPrivateKey.startsWith('0x') ? rawPrivateKey : `0x${rawPrivateKey}`;
   const defaultRoughnetDeployerKey = roughnetWallets[2]?.private_key || roughnetWallets[1]?.private_key || rawPrivateKey;
   const rawRoughnetPrivateKey = process.env.ROUGHNET_PRIVATE_KEY || defaultRoughnetDeployerKey;
@@ -503,6 +536,8 @@ async function main() {
 
   const sepoliaProvider = rpcProviderFor(sepoliaRpc);
   const roughnetProvider = rpcProviderFor(roughnetRpc);
+  const childNetwork = await roughnetProvider.getNetwork();
+  const childChainId = childNetwork.chainId.toString();
   const validatorWallet = new ethers.Wallet(roughnetWallets[0].private_key, roughnetProvider);
   const governanceWallet = new ethers.Wallet(roughnetWallets[1].private_key, roughnetProvider);
   const sepoliaWallet = new ethers.Wallet(privateKey, sepoliaProvider);
@@ -517,15 +552,15 @@ async function main() {
   const sepBalance = await sepoliaProvider.getBalance(sepoliaAddress);
   console.log(`Sepolia deployer ${sepoliaAddress} balance: ${ethers.formatEther(sepBalance)} ETH`);
 
-  const heimdallGenesis = readJson(heimdallGenesisPath);
-  const heimdallChainId = heimdallGenesis.chain_id;
+  const giltconsensusGenesis = readJson(giltconsensusGenesisPath);
+  const giltconsensusChainId = giltconsensusGenesis.chain_id;
 
   const existingAddressBook = reuseRoot ? loadAddressBook() : null;
   if (reuseRoot && !existingAddressBook?.root?.rootChainManager) {
     throw new Error('REUSE_ROOT=1 requires an existing live bridge address book');
   }
 
-  console.log('Deploying roughnet child contracts');
+  console.log(`Deploying child contracts on chain ${childChainId}`);
   const childChainManager = await deployProxyInitializedWithNonce(
     roughnetSigner,
     portalArtifacts.childChainManager,
@@ -554,7 +589,7 @@ async function main() {
     18,
     await childChainManager.getAddress(),
   ]);
-  const childWeth = await deployContractWithNonce(roughnetSigner, portalArtifacts.maticWeth, roughnetNonceRef, [
+  const childWeth = await deployContractWithNonce(roughnetSigner, portalArtifacts.giltWeth, roughnetNonceRef, [
     await childChainManager.getAddress(),
   ]);
 
@@ -616,7 +651,7 @@ async function main() {
     const roughnetHead = await roughnetProvider.getBlockNumber();
     if (roughnetHead <= rootLastChildBlock) {
       throw new Error(
-        `REUSE_ROOT=1 is unsafe for this roughnet: root checkpoint stack already covers child block ${rootLastChildBlock}, but current roughnet head is only ${roughnetHead}`,
+        `REUSE_ROOT=1 is unsafe for this child chain: root checkpoint stack already covers child block ${rootLastChildBlock}, but current child head is only ${roughnetHead}`,
       );
     }
   } else {
@@ -631,11 +666,11 @@ async function main() {
     const rootChainProxy = await deployContract(sepoliaSigner, rootArtifacts.rootChainProxy, [
       await rootChainImpl.getAddress(),
       await registry.getAddress(),
-      heimdallChainId,
+      giltconsensusChainId,
     ]);
     rootChain = new ethers.Contract(await rootChainProxy.getAddress(), rootArtifacts.rootChain.abi, sepoliaSigner);
 
-    staking = await deployStakeManager(sepoliaSigner, sepoliaWallet, governance, registry, rootChain, heimdallChainId);
+    staking = await deployStakeManager(sepoliaSigner, sepoliaWallet, governance, registry, rootChain, giltconsensusChainId);
 
     console.log('Deploying Sepolia portal contracts');
     stateSender = await deployContract(sepoliaSigner, portalArtifacts.stateSender);
@@ -757,9 +792,12 @@ async function main() {
   const addressBook = {
     meta: {
       generatedAt: new Date().toISOString(),
-      heimdallChainId,
+      giltconsensusChainId,
       sepoliaRpc,
       roughnetRpc,
+      childRpc: roughnetRpc,
+      childChainId,
+      checkpointAccountHash: CHECKPOINT_ACCOUNT_HASH,
       deployer: sepoliaAddress,
       nativeGiltBridge: NATIVE_GILT_BRIDGE_ADDRESS,
       stateReceiver: STATE_RECEIVER_ADDRESS,
@@ -799,10 +837,10 @@ async function main() {
 
   console.log(
     skipStakeGoldCutover
-      ? 'Wiring roughnet bridge runtime only; leaving StakeHub GOLD unchanged on this roughnet'
-      : 'Wiring roughnet governance for GOLD and native GILT bridge',
+      ? 'Wiring bridge runtime only; leaving StakeHub GOLD unchanged'
+      : 'Wiring governance for GOLD and native GILT bridge',
   );
-  await ensureLiveGovernanceReadiness(roughnetProvider, validatorWallet, governanceWallet);
+  await ensureLiveGovernanceReadiness(roughnetProvider, validatorWallet, governanceWallet, childChainId);
   const liveStakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, liveStakeHubAbi, roughnetProvider);
   if (!skipStakeGoldCutover) {
     const currentStakeTokenB = await liveStakeHub.stakeTokenB();
@@ -851,14 +889,14 @@ async function main() {
     }
   }
 
-  heimdallGenesis.app_state.bor.spans = heimdallGenesis.app_state.bor.spans.map((span) => ({
+  giltconsensusGenesis.app_state.gilt.spans = giltconsensusGenesis.app_state.gilt.spans.map((span) => ({
     ...span,
-    bor_chain_id: '714',
+    gilt_chain_id: childChainId,
   }));
-  heimdallGenesis.app_state.chainmanager.params.chain_params = {
-    ...heimdallGenesis.app_state.chainmanager.params.chain_params,
-    bor_chain_id: '714',
-    heimdall_chain_id: heimdallChainId,
+  giltconsensusGenesis.app_state.chainmanager.params.chain_params = {
+    ...giltconsensusGenesis.app_state.chainmanager.params.chain_params,
+    gilt_chain_id: childChainId,
+    giltconsensus_chain_id: giltconsensusChainId,
     pol_token_address: await staking.polToken.getAddress(),
     staking_manager_address: await staking.stakeManager.getAddress(),
     slash_manager_address: ZERO_ADDRESS,
@@ -868,13 +906,13 @@ async function main() {
     state_receiver_address: STATE_RECEIVER_ADDRESS,
     validator_set_address: '0x0000000000000000000000000000000000001000',
   };
-  heimdallGenesis.app_state.chainmanager.params.main_chain_tx_confirmations = String(
+  giltconsensusGenesis.app_state.chainmanager.params.main_chain_tx_confirmations = String(
     DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS,
   );
-  heimdallGenesis.app_state.chainmanager.params.bor_chain_tx_confirmations = String(
-    DEFAULT_BOR_CHAIN_TX_CONFIRMATIONS,
+  giltconsensusGenesis.app_state.chainmanager.params.gilt_chain_tx_confirmations = String(
+    DEFAULT_GILT_CHAIN_TX_CONFIRMATIONS,
   );
-  fs.writeFileSync(heimdallGenesisPath, `${JSON.stringify(heimdallGenesis, null, 2)}\n`);
+  fs.writeFileSync(giltconsensusGenesisPath, `${JSON.stringify(giltconsensusGenesis, null, 2)}\n`);
 
   saveAddressBook(addressBook);
   console.log(`Saved address book to ${ADDRESS_BOOK_PATH}`);

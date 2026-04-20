@@ -27,8 +27,8 @@ export const WETH9 = {
     'Wrapped Ether',
     'https://weth.io',
   ),
-  [ChainId.BSC]: new ERC20Token(
-    ChainId.BSC,
+  [ChainId.GILT]: new ERC20Token(
+    ChainId.GILT,
     '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
     18,
     'ETH',
@@ -36,7 +36,7 @@ export const WETH9 = {
     'https://ethereum.org',
   ),
   [ChainId.BSC_TESTNET]: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0xE7bCB9e341D546b66a46298f4893f5650a56e99E',
     18,
     'ETH',
@@ -187,15 +187,15 @@ export const WBNB = {
     '0x418D75f65a02b3D53B2418FB8E1fe493759c7605',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.binance.org',
   ),
-  [ChainId.BSC]: new ERC20Token(
-    ChainId.BSC,
+  [ChainId.GILT]: new ERC20Token(
+    ChainId.GILT,
     '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.binance.org',
   ),
   [ChainId.BSC_TESTNET]: new ERC20Token(
@@ -203,7 +203,7 @@ export const WBNB = {
     '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.binance.org',
   ),
   [ChainId.OPBNB_TESTNET]: new ERC20Token(
@@ -211,7 +211,7 @@ export const WBNB = {
     '0x4200000000000000000000000000000000000006',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.binance.org',
   ),
   [ChainId.OPBNB]: new ERC20Token(
@@ -219,7 +219,7 @@ export const WBNB = {
     '0x4200000000000000000000000000000000000006',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.binance.org',
   ),
 }
@@ -227,7 +227,7 @@ export const WBNB = {
 export const WNATIVE = {
   [ChainId.ETHEREUM]: WETH9[ChainId.ETHEREUM],
   [ChainId.GOERLI]: WETH9[ChainId.GOERLI],
-  [ChainId.BSC]: WBNB[ChainId.BSC],
+  [ChainId.GILT]: WBNB[ChainId.GILT],
   [ChainId.BSC_TESTNET]: WBNB[ChainId.BSC_TESTNET],
   [ChainId.ARBITRUM_ONE]: WETH9[ChainId.ARBITRUM_ONE],
   [ChainId.ARBITRUM_GOERLI]: WETH9[ChainId.ARBITRUM_GOERLI],
@@ -250,16 +250,16 @@ export const WNATIVE = {
 
 const ETHER = { name: 'Ether', symbol: 'ETH', decimals: 18 } as const
 
-const BNB = {
+const GILT = {
   name: 'Binance Chain Native Token',
-  symbol: 'BNB',
+  symbol: 'GILT',
   decimals: 18,
 } as const
 
 export const NATIVE = {
   [ChainId.ETHEREUM]: ETHER,
   [ChainId.GOERLI]: { name: 'Goerli Ether', symbol: 'GOR', decimals: 18 },
-  [ChainId.BSC]: BNB,
+  [ChainId.GILT]: GILT,
   [ChainId.BSC_TESTNET]: {
     name: 'Binance Chain Native Token',
     symbol: 'tBNB',
@@ -275,7 +275,7 @@ export const NATIVE = {
   [ChainId.ZKSYNC_TESTNET]: ETHER,
   [ChainId.LINEA]: ETHER,
   [ChainId.LINEA_TESTNET]: ETHER,
-  [ChainId.OPBNB]: BNB,
+  [ChainId.OPBNB]: GILT,
   [ChainId.OPBNB_TESTNET]: {
     name: 'Binance Chain Native Token',
     symbol: 'tBNB',

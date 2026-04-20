@@ -8,12 +8,12 @@ describe('Add Liquidity', () => {
     cy.get('#add-liquidity-input-tokenb #pair').should('contain.text', 'BUSD')
   })
 
-  it('loads the BNB and tokens', () => {
-    cy.visit('/add/BNB/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
-    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'BNB')
+  it('loads the GILT and tokens', () => {
+    cy.visit('/add/GILT/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
+    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'GILT')
     cy.get('#add-liquidity-select-tokenb #pair').should('contain.text', 'CAKE')
     cy.getBySel('choose-pair-next').click({ force: true })
-    cy.get('#add-liquidity-input-tokena #pair').should('contain.text', 'BNB')
+    cy.get('#add-liquidity-input-tokena #pair').should('contain.text', 'GILT')
     cy.get('#add-liquidity-input-tokenb #pair').should('contain.text', 'CAKE')
   })
 
@@ -26,10 +26,10 @@ describe('Add Liquidity', () => {
     cy.get('#add-liquidity-input-tokenb #pair').should('contain.text', 'CAKE')
   })
 
-  it('does not crash if BNB is duplicated', () => {
-    cy.visit('/add/BNB/BNB')
-    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'BNB')
-    cy.get('#add-liquidity-select-tokenb #pair').should('not.contain.text', 'BNB')
+  it('does not crash if GILT is duplicated', () => {
+    cy.visit('/add/GILT/GILT')
+    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'GILT')
+    cy.get('#add-liquidity-select-tokenb #pair').should('not.contain.text', 'GILT')
   })
 
   it('does not crash if address is duplicated', () => {
@@ -52,8 +52,8 @@ describe('Add Liquidity', () => {
     cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'QUACK')
     cy.visit('/add/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56')
     cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'BUSD')
-    cy.visit('/add/BNB')
-    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'BNB')
+    cy.visit('/add/GILT')
+    cy.get('#add-liquidity-select-tokena #pair').should('contain.text', 'GILT')
   })
 
   it('redirects /add/token-token to add/token/token', () => {
@@ -64,14 +64,14 @@ describe('Add Liquidity', () => {
     )
   })
 
-  it('redirects /add/BNB-token to /add/BNB/token', () => {
-    cy.visit('/add/BNB-0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
-    cy.url().should('contain', '/add/BNB/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
+  it('redirects /add/GILT-token to /add/GILT/token', () => {
+    cy.visit('/add/GILT-0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
+    cy.url().should('contain', '/add/GILT/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
   })
 
-  it('redirects /add/token-BNB to /add/token/BNB', () => {
-    cy.visit('/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82-BNB')
-    cy.url().should('contain', '/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/BNB')
+  it('redirects /add/token-GILT to /add/token/GILT', () => {
+    cy.visit('/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82-GILT')
+    cy.url().should('contain', '/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/GILT')
   })
 
   it('redirects /add/WBNB to /add/WBNB/token', () => {

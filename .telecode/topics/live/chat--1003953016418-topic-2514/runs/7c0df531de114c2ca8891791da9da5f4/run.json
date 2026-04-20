@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-19T19:40:22Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "I asked you, \"Where have we reached? Why are you running commands? I want an answer here. Do you not understand my question you idiot?\"",
+  "run_id": "7c0df531de114c2ca8891791da9da5f4",
+  "started_at": "2026-04-19T19:39:22Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-19T19:40:22Z",
+  "version": 1
+}

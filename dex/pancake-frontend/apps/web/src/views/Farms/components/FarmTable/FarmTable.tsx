@@ -291,7 +291,7 @@ const FarmTable: React.FC<React.PropsWithChildren<ITableProps>> = ({ farms, cake
                 return (
                   <Row
                     {...row}
-                    userDataReady={userDataReady || chainId !== ChainId.BSC}
+                    userDataReady={userDataReady || chainId !== ChainId.GILT}
                     key={`table-row-${row.farm.pid}-${row.type}`}
                     isLastFarm={isLastFarm}
                   />

@@ -7,8 +7,8 @@ import { Profile } from 'state/types'
 import { getHomeCacheSettings } from './settings'
 
 export const queryPredictionUser = cacheByLRU(async () => {
-  const config = await getPredictionConfig(ChainId.BSC)
-  const extra = config?.BNB ?? Object.values(config)?.[0]
+  const config = await getPredictionConfig(ChainId.GILT)
+  const extra = config?.GILT ?? Object.values(config)?.[0]
   const result = await fetchPredictionUsers(
     {
       address: null,

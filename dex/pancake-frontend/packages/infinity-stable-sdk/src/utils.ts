@@ -131,7 +131,7 @@ export function getHookAddressFromReceipt(receipt?: {
   }
 }
 
-const INFINITY_STABLE_SUPPORTED_CHAINS = [ChainId.BSC, ChainId.BSC_TESTNET] as const
+const INFINITY_STABLE_SUPPORTED_CHAINS = [ChainId.GILT, ChainId.BSC_TESTNET] as const
 
 export function isInfinityStableSupported(chainId: ChainId): boolean {
   return INFINITY_STABLE_SUPPORTED_CHAINS.includes(chainId as (typeof INFINITY_STABLE_SUPPORTED_CHAINS)[number])

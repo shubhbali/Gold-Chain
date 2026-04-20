@@ -25,14 +25,14 @@ describe('InfinityStableHookFactory', () => {
   })
 
   describe('getHookFactoryAddress - retrieving factory contract address by chain', () => {
-    it('should return correct BSC mainnet factory address', () => {
-      const address = InfinityStableHookFactory.getHookFactoryAddress(ChainId.BSC)
+    it('should return correct GILT mainnet factory address', () => {
+      const address = InfinityStableHookFactory.getHookFactoryAddress(ChainId.GILT)
 
-      expect(address).toBe(HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC])
+      expect(address).toBe(HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.GILT])
       expect(address).toBe('0x44de03599d1088b205D959b09A842448A0a63173')
     })
 
-    it('should return correct BSC testnet factory address', () => {
+    it('should return correct GILT testnet factory address', () => {
       const address = InfinityStableHookFactory.getHookFactoryAddress(ChainId.BSC_TESTNET)
 
       expect(address).toBe(HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC_TESTNET])
@@ -53,16 +53,16 @@ describe('InfinityStableHookFactory', () => {
   })
 
   describe('getPoolCount - fetching number of pools for cache invalidation', () => {
-    it('should return pool count from factory contract on BSC mainnet', async () => {
+    it('should return pool count from factory contract on GILT mainnet', async () => {
       const mockPoolCount = 5n
 
       vi.mocked(mockPublicClient.readContract).mockResolvedValue(mockPoolCount)
 
-      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)
+      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)
 
       expect(poolCount).toBe(5)
       expect(mockPublicClient.readContract).toHaveBeenCalledWith({
-        address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC],
+        address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.GILT],
         abi: expect.any(Array),
         functionName: 'pool_count',
       })
@@ -81,7 +81,7 @@ describe('InfinityStableHookFactory', () => {
 
       vi.mocked(mockPublicClient.readContract).mockResolvedValue(mockPoolCount)
 
-      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)
+      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)
 
       expect(poolCount).toBe(1000)
     })
@@ -89,7 +89,7 @@ describe('InfinityStableHookFactory', () => {
     it('should throw meaningful error when RPC node is unreachable', async () => {
       vi.mocked(mockPublicClient.readContract).mockRejectedValue(new Error('Network timeout'))
 
-      await expect(InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)).rejects.toThrow(
+      await expect(InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)).rejects.toThrow(
         'pool_count() call failed: Error: Network timeout',
       )
     })
@@ -97,7 +97,7 @@ describe('InfinityStableHookFactory', () => {
     it('should throw meaningful error when contract call reverts', async () => {
       vi.mocked(mockPublicClient.readContract).mockRejectedValue(new Error('execution reverted'))
 
-      await expect(InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)).rejects.toThrow(
+      await expect(InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)).rejects.toThrow(
         'pool_count() call failed',
       )
     })
@@ -125,23 +125,23 @@ describe('InfinityStableHookFactory', () => {
         { status: 'success', result: mockPoolAddresses[2] },
       ])
 
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, 3)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, 3)
 
       expect(pools).toEqual(mockPoolAddresses)
       expect(mockPublicClient.multicall).toHaveBeenCalledWith({
         contracts: expect.arrayContaining([
           expect.objectContaining({
-            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC],
+            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.GILT],
             functionName: 'pool_list',
             args: [0n],
           }),
           expect.objectContaining({
-            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC],
+            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.GILT],
             functionName: 'pool_list',
             args: [1n],
           }),
           expect.objectContaining({
-            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.BSC],
+            address: HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS[ChainId.GILT],
             functionName: 'pool_list',
             args: [2n],
           }),
@@ -151,7 +151,7 @@ describe('InfinityStableHookFactory', () => {
     })
 
     it('should return empty array when poolCount is 0 without making RPC call', async () => {
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, 0)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, 0)
 
       expect(pools).toEqual([])
       expect(mockPublicClient.multicall).not.toHaveBeenCalled()
@@ -169,7 +169,7 @@ describe('InfinityStableHookFactory', () => {
         { status: 'success', result: mockPoolAddresses[1] },
       ])
 
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, 3)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, 3)
 
       expect(pools).toEqual(mockPoolAddresses)
       expect(pools).toHaveLength(2)
@@ -181,7 +181,7 @@ describe('InfinityStableHookFactory', () => {
         { status: 'failure', error: new Error('RPC error 2') },
       ])
 
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, 2)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, 2)
 
       expect(pools).toEqual([])
     })
@@ -202,7 +202,7 @@ describe('InfinityStableHookFactory', () => {
         mockPools.map((address) => ({ status: 'success' as const, result: address })),
       )
 
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, poolCount)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, poolCount)
 
       expect(pools).toHaveLength(poolCount)
       expect(pools).toEqual(mockPools)
@@ -212,7 +212,7 @@ describe('InfinityStableHookFactory', () => {
     it('should throw when entire multicall operation fails', async () => {
       vi.mocked(mockPublicClient.multicall).mockRejectedValue(new Error('RPC node down'))
 
-      await expect(InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, 3)).rejects.toThrow(
+      await expect(InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, 3)).rejects.toThrow(
         'RPC node down',
       )
     })
@@ -230,7 +230,7 @@ describe('InfinityStableHookFactory', () => {
         .mockResolvedValueOnce(mockPoolAddresses[0])
         .mockResolvedValueOnce(mockPoolAddresses[1])
 
-      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.BSC)
+      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.GILT)
 
       expect(pools).toEqual(mockPoolAddresses)
       expect(mockPublicClient.readContract).toHaveBeenCalledTimes(3)
@@ -239,7 +239,7 @@ describe('InfinityStableHookFactory', () => {
     it('should return empty array when pool count is zero', async () => {
       vi.mocked(mockPublicClient.readContract).mockResolvedValue(0n)
 
-      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.BSC)
+      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.GILT)
 
       expect(pools).toEqual([])
       expect(mockPublicClient.readContract).toHaveBeenCalledTimes(1)
@@ -249,7 +249,7 @@ describe('InfinityStableHookFactory', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.mocked(mockPublicClient.readContract).mockRejectedValue(new Error('Connection refused'))
 
-      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.BSC)
+      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.GILT)
 
       expect(pools).toEqual([])
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -267,7 +267,7 @@ describe('InfinityStableHookFactory', () => {
         .mockResolvedValueOnce(2n)
         .mockRejectedValueOnce(new Error('Invalid pool index'))
 
-      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.BSC)
+      const pools = await InfinityStableHookFactory.getPools(mockPublicClient, ChainId.GILT)
 
       expect(pools).toEqual([])
       expect(consoleErrorSpy).toHaveBeenCalled()
@@ -333,10 +333,10 @@ describe('InfinityStableHookFactory', () => {
         { status: 'success', result: mockNewPool },
       ])
 
-      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)
+      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)
 
       if (poolCount !== currentCachedPoolCount) {
-        const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, poolCount)
+        const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, poolCount)
         expect(pools).toHaveLength(3)
         expect(pools[2]).toBe(mockNewPool)
       }
@@ -345,8 +345,8 @@ describe('InfinityStableHookFactory', () => {
     it('should handle empty factory state correctly', async () => {
       vi.mocked(mockPublicClient.readContract).mockResolvedValue(0n)
 
-      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.BSC)
-      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.BSC, poolCount)
+      const poolCount = await InfinityStableHookFactory.getPoolCount(mockPublicClient, ChainId.GILT)
+      const pools = await InfinityStableHookFactory.getPoolAddressesBatch(mockPublicClient, ChainId.GILT, poolCount)
 
       expect(poolCount).toBe(0)
       expect(pools).toEqual([])

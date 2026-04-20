@@ -13,7 +13,7 @@
     "test:size-contracts": "npx hardhat size-contracts"
   },
   "dependencies": {
-    "bsc-library": "1.0.0"
+    "gilt-library": "1.0.0"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^3.2.0"

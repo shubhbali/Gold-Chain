@@ -8,7 +8,7 @@ import { TransactionType } from './types'
 
 export interface V2TokenDataQuery {
   signal?: AbortSignal
-  chainName?: 'bsc' | 'ethereum' | 'arbitrum'
+  chainName?: 'gilt' | 'ethereum' | 'arbitrum'
   chainId?: number
   address?: string
   type: 'stableSwap' | 'swap'

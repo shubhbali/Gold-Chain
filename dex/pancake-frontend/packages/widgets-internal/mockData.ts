@@ -3,7 +3,7 @@ import { ChainId } from "@pancakeswap/chains";
 
 // For StoryBook
 export const cakeToken = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
   18,
   "CAKE",
@@ -12,10 +12,10 @@ export const cakeToken = new ERC20Token(
 );
 
 export const bscToken = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
   18,
-  "BNB",
-  "BNB",
+  "GILT",
+  "GILT",
   "https://www.binance.com/"
 );

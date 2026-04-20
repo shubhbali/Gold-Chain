@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-17T02:30:07Z",
+  "engine": "codex",
+  "final_answer": "Cleaned.\n\n- The 3 partial bridge scripts are now consolidated (`MM` -> `M`), so there is no staged/unstaged split left in them: [deploy-live-bridge.mjs](/srv/repos/gold-chain/bridge/pos-portal/scripts/deploy-live-bridge.mjs), [resume-live-bridge-exits.mjs](/srv/repos/gold-chain/bridge/pos-portal/scripts/resume-live-bridge-exits.mjs), [test-live-bridge.mjs](/srv/repos/gold-chain/bridge/pos-portal/scripts/test-live-bridge.mjs).\n- Syntax check passed on all 3 scripts (`node --check`).\n- Old-brand grep on those scripts is clean (no `Polygon/Matic/BSC/BNB` hits).\n- `bridge/pos-portal` build still passes.\n\nStill pending (unchanged blockers from before):\n- `bridge/pos-contracts` integration test still needs valid fork RPC credentials (`HH110 invalid project id`).\n- `bridge/genesis-contracts` truffle compile still fails on mixed compiler/missing generated `BorValidatorSet.sol`.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 36,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "OK clean them so we can start new bridge in later steps",
+  "run_id": "2d9859e5781b4879b5537edbcc2c3308",
+  "started_at": "2026-04-17T02:27:53Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-17T02:30:07Z",
+  "version": 1
+}

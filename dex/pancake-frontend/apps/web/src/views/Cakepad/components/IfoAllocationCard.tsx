@@ -25,8 +25,8 @@ export const IfoAllocationDisplay: React.FC<IfoAllocationCardProps> = ({
   const amount = allocatedAmount ?? '0'
 
   const swapUrl = useMemo(() => {
-    const chainQueryName = chainId ? CHAIN_QUERY_NAME[chainId] : 'bsc'
-    const nativeCurrency = chainId ? Native.onChain(chainId) : Native.onChain(56) // Default to BSC if no chainId
+    const chainQueryName = chainId ? CHAIN_QUERY_NAME[chainId] : 'gilt'
+    const nativeCurrency = chainId ? Native.onChain(chainId) : Native.onChain(56) // Default to GILT if no chainId
     const nativeSymbol = nativeCurrency.symbol
     return `https://pancakeswap.finance/swap?chain=${chainQueryName}&inputCurrency=${tokenAddress}&outputCurrency=${nativeSymbol}`
   }, [chainId, tokenAddress])

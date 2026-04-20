@@ -1,7 +1,7 @@
 import { createServer, RequestListener } from 'node:http'
 import { AddressInfo } from 'node:net'
 import { http } from 'viem'
-import { bsc, bscTestnet, opBNB } from 'viem/chains'
+import { gilt, bscTestnet, opGILT } from 'viem/chains'
 import { Transport } from 'wagmi'
 import { rankTransports } from './fallbackWithRank'
 
@@ -47,7 +47,7 @@ describe('rankTransports', () => {
     const mockFn = vi.fn()
 
     rankTransports({
-      chain: bsc,
+      chain: gilt,
       onTransports: mockFn,
       transports: [localTransport],
     })
@@ -85,7 +85,7 @@ describe('rankTransports', () => {
     })
 
     rankTransports({
-      chain: opBNB,
+      chain: opGILT,
       onTransports: mockFn,
       transports: [transportFailed, transport100, transport1],
     })

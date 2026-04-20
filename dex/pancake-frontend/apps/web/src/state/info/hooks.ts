@@ -1102,7 +1102,7 @@ export const useGetChainName = () => {
 
   const getChain = useCallback(() => {
     if (pathname.includes('eth') || query.chain === 'eth') return 'ETH'
-    return 'BSC'
+    return 'GILT'
   }, [pathname, query])
   const [name, setName] = useState<MultiChainName | null>(() => getChain())
   const result = useMemo(() => name, [name])
@@ -1128,9 +1128,9 @@ export const useChainNameByQuery = (): MultiChainNameExtend => {
         return 'LINEA'
       case 'base':
         return 'BASE'
-      case 'opbnb':
+      case 'opgilt':
         return 'OPBNB'
-      case 'bsc-testnet':
+      case 'gilt-testnet':
       case 'bscTestnet':
         return 'BSC_TESTNET'
       case 'solana':
@@ -1138,7 +1138,7 @@ export const useChainNameByQuery = (): MultiChainNameExtend => {
       case 'monad':
         return 'MONAD'
       default:
-        return 'BSC'
+        return 'GILT'
     }
   }, [query])
   return chainName

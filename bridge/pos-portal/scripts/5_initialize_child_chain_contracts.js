@@ -42,6 +42,6 @@ export default async () => {
   console.log('Mapping WETH')
   await ChildChainManagerInstance.mapToken(
     '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-    contractAddresses.child.MaticWETH
+    contractAddresses.child.GiltWETH
   )
 }

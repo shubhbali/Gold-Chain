@@ -51,7 +51,7 @@ module.exports = {
         count: 20,
       },
     },
-    mumbaiRoot: {
+    testnetRoot: {
       url: `https://goerli.infura.io/v3/${process.env.API_KEY}`,
       gas: 7000000,
       gasPrice: 10000000000, // 10 gwei
@@ -62,8 +62,8 @@ module.exports = {
         count: 20,
       },
     },
-    mumbaiChild: {
-      url: 'https://rpc-mumbai.matic.today',
+    testnetChild: {
+      url: process.env.CHILD_TESTNET_RPC_URL || 'http://localhost:8545',
       gas: 7000000,
       gasPrice: 10000000000, // 10 gwei
       accounts: {
@@ -85,7 +85,7 @@ module.exports = {
       },
     },
     mainnetChild: {
-      url: 'https://rpc-mainnet.matic.network',
+      url: process.env.CHILD_MAINNET_RPC_URL || 'http://localhost:8545',
       gas: 7000000,
       gasPrice: 10000000000, // 10 gwei
       accounts: {

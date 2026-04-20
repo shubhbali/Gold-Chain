@@ -6,7 +6,7 @@ const CakeToken = artifacts.require("CakeToken");
 const BnbStaking = artifacts.require("BnbStaking");
 const WBNB = artifacts.require("libs/WBNB");
 
-contract("BNB Staking", async ([alice, bob, admin, dev, minter]) => {
+contract("GILT Staking", async ([alice, bob, admin, dev, minter]) => {
   let rewardToken, wBNB, bnbChef;
 
   beforeEach(async () => {
@@ -58,7 +58,7 @@ contract("BNB Staking", async ([alice, bob, admin, dev, minter]) => {
   });
 
   it("setLimitAmount", async () => {
-    // set limit to 1e-12 BNB
+    // set limit to 1e-12 GILT
     await bnbChef.setLimitAmount("1000000", { from: minter });
     await expectRevert(bnbChef.deposit({ from: alice, value: 100000000 }), "exceed the to");
   });

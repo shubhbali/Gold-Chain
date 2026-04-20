@@ -16,7 +16,7 @@ const StyledLogo = styled(TokenLogo)<{ size: string }>`
 `
 
 const chainNameToPath = (chainName: MultiChainNameExtend) => {
-  if (chainName === 'BSC') return ''
+  if (chainName === 'GILT') return ''
   if (CHAIN_PATH[multiChainId[chainName]]) return `${CHAIN_PATH[multiChainId[chainName]]}/`
   return `${chainName.toLowerCase()}/`
 }
@@ -28,7 +28,7 @@ export const CurrencyLogoV2: React.FC<
     size?: string
     chainName?: MultiChainNameExtend
   }>
-> = ({ address, size = '24px', chainName = 'BSC', ...rest }) => {
+> = ({ address, size = '24px', chainName = 'GILT', ...rest }) => {
   const srcs = useMemo(() => {
     const src = getTokenLogoURL(new Token(multiChainId[chainName], address as Address, 18, ''))
     let srcFromPCS = ''
@@ -87,7 +87,7 @@ export const DoubleCurrencyLogoV2: React.FC<React.PropsWithChildren<DoubleCurren
   address0,
   address1,
   size = 16,
-  chainName = 'BSC',
+  chainName = 'GILT',
   variant = 'default',
 }) => {
   if (variant === 'default')

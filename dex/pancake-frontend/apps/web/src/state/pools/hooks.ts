@@ -123,7 +123,7 @@ export const usePoolsPageFetch = () => {
 }
 
 const useCakeVaultChain = (chainId?: ChainId) => {
-  return useMemo(() => getSourceChain(chainId) || ChainId.BSC, [chainId])
+  return useMemo(() => getSourceChain(chainId) || ChainId.GILT, [chainId])
 }
 
 export const useFetchIfo = () => {

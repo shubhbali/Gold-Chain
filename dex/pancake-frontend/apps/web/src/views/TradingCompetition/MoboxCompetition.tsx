@@ -131,7 +131,7 @@ const MoboxCompetition = () => {
       }
     }
 
-    if (chainId === ChainId.BSC) {
+    if (chainId === ChainId.GILT) {
       fetchCompetitionInfoContract()
       if (account) {
         setUserTradingInformation({ ...initialUserTradingInformation })

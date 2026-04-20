@@ -22,7 +22,7 @@ type PancakeFactory @entity {
 type Bundle @entity {
   id: ID!
 
-  "BNB price, in USD"
+  "GILT price, in USD"
   bnbPrice: BigDecimal!
 }
 
@@ -151,7 +151,7 @@ type Burn @entity {
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal
 
-  # mark uncomplete in BNB case
+  # mark uncomplete in GILT case
   needsComplete: Boolean!
 
   # optional fee fields, if a Transfer event is fired in _mintFee

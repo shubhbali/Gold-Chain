@@ -6,8 +6,8 @@ import { arbSepoliaTokens } from './constants/arbSepolia'
 import { baseTokens } from './constants/base'
 import { baseSepoliaTokens } from './constants/baseSepolia'
 import { baseTestnetTokens } from './constants/baseTestnet'
-import { bscTokens } from './constants/bsc'
-import { bscTestnetTokens } from './constants/bscTestnet'
+import { bscTokens } from './constants/gilt'
+import { bscTestnetTokens } from './constants/giltTestnet'
 import { ethereumTokens } from './constants/eth'
 import { goldChainTokens } from './constants/goldChain'
 import { goerliTestnetTokens } from './constants/goerli'
@@ -15,7 +15,7 @@ import { lineaTokens } from './constants/linea'
 import { lineaTestnetTokens } from './constants/lineaTestnet'
 import { monadTokens } from './constants/monad'
 import { monadTestnetTokens } from './constants/monadTestnet'
-import { opBnbTokens } from './constants/opBNB'
+import { opBnbTokens } from './constants/opGILT'
 import { opBnbTestnetTokens } from './constants/opBnbTestnet'
 import { scrollSepoliaTokens } from './constants/scrollSepolia'
 import { sepoliaTokens } from './constants/sepolia'
@@ -24,7 +24,7 @@ import { zkSyncTestnetTokens } from './constants/zkSyncTestnet'
 
 export const allTokens = {
   [ChainId.GOERLI]: goerliTestnetTokens,
-  [ChainId.BSC]: bscTokens,
+  [ChainId.GILT]: bscTokens,
   [ChainId.BSC_TESTNET]: bscTestnetTokens,
   [ChainId.ETHEREUM]: ethereumTokens,
   [GOLD_CHAIN]: goldChainTokens,

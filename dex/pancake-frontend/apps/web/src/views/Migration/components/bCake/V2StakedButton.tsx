@@ -105,7 +105,7 @@ const StakeButton: React.FC<React.PropsWithChildren<StakeButtonProps>> = ({
   const bCakeWrapperContract = useV2SSBCakeWrapperContract(wrapperAddress ?? '0x')
 
   const currency = useMemo(() => {
-    return new Token(chainId ?? ChainId.BSC, lpAddress ?? '0x', lpDecimals ?? 18, lpSymbol, lpSymbol)
+    return new Token(chainId ?? ChainId.GILT, lpAddress ?? '0x', lpDecimals ?? 18, lpSymbol, lpSymbol)
   }, [lpAddress, chainId, lpSymbol, lpDecimals])
 
   const amountLp = useMemo(

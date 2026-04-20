@@ -10,7 +10,7 @@ import { getProtocolsByIndex, parseUrlToSearchQuery } from '../utils/queryParser
 
 const _searchQueryAtom = atom<FarmQuery>(parseUrlToSearchQuery())
 export const searchQueryAtom = atom((get) => {
-  const chainId = getQueryChainId() || ChainId.BSC
+  const chainId = getQueryChainId() || ChainId.GILT
   const query = get(_searchQueryAtom)
   const showTestnet = get(userShowTestnetAtom)
   if (!showTestnet) {
@@ -18,7 +18,7 @@ export const searchQueryAtom = atom((get) => {
   }
   return {
     ...query,
-    activeChainId: isEvm(chainId as number) ? (chainId as ChainId) : ChainId.BSC,
+    activeChainId: isEvm(chainId as number) ? (chainId as ChainId) : ChainId.GILT,
   }
 })
 

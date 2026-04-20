@@ -13,9 +13,9 @@ export function useUnifiedNativeCurrency(overrideChainId?: UnifiedChainId): Unif
       if (chainId === NonEVMChainId.SOLANA) {
         return SOL
       }
-      return Native.onChain(overrideChainId ?? chainId ?? ChainId.BSC)
+      return Native.onChain(overrideChainId ?? chainId ?? ChainId.GILT)
     } catch (e) {
-      return Native.onChain(ChainId.BSC)
+      return Native.onChain(ChainId.GILT)
     }
   }, [overrideChainId, chainId])
 }
@@ -24,9 +24,9 @@ export default function useNativeCurrency(overrideChainId?: ChainId): NativeCurr
   const { chainId } = useActiveChainId()
   return useMemo(() => {
     try {
-      return Native.onChain(overrideChainId ?? chainId ?? ChainId.BSC)
+      return Native.onChain(overrideChainId ?? chainId ?? ChainId.GILT)
     } catch (e) {
-      return Native.onChain(ChainId.BSC)
+      return Native.onChain(ChainId.GILT)
     }
   }, [overrideChainId, chainId])
 }
@@ -34,9 +34,9 @@ export default function useNativeCurrency(overrideChainId?: ChainId): NativeCurr
 export const nativeCurrencyAtom = atomFamily((chainId?: ChainId) => {
   return atom(() => {
     try {
-      return Native.onChain(chainId ?? ChainId.BSC)
+      return Native.onChain(chainId ?? ChainId.GILT)
     } catch (e) {
-      return Native.onChain(ChainId.BSC)
+      return Native.onChain(ChainId.GILT)
     }
   })
 })

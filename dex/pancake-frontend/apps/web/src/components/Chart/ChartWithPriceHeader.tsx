@@ -28,7 +28,7 @@ const Container = styled(Box)`
   }
 `
 
-const ChartWithPriceHeader: React.FC<ChartWithPriceHeaderProps> = ({ symbol = 'BNB/CAKE', currency0, currency1 }) => {
+const ChartWithPriceHeader: React.FC<ChartWithPriceHeaderProps> = ({ symbol = 'GILT/CAKE', currency0, currency1 }) => {
   const [isReversed, setIsReversed] = useState(false)
   const setPriceData = useSetAtom(chartPriceDataAtom)
 

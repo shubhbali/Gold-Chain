@@ -9,7 +9,7 @@ interface AprMap {
   [key: string]: number
 }
 
-const FETCH_CHAIN_ID = [ChainId.BSC, ChainId.ETHEREUM]
+const FETCH_CHAIN_ID = [ChainId.GILT, ChainId.ETHEREUM]
 const fetchAndUpdateLPsAPR = async () => {
   Promise.all(
     FETCH_CHAIN_ID.map(async (chainId) => {

@@ -37,7 +37,7 @@ const GOLD_CHAIN_SMART_ROUTER_ADDRESS =
 export const SMART_ROUTER_ADDRESSES = {
   [ChainId.ETHEREUM]: '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4',
   [ChainId.GOERLI]: '0x9a489505a00cE272eAa5e07Dba6491314CaE3796',
-  [ChainId.BSC]: '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4',
+  [ChainId.GILT]: '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4',
   [ChainId.BSC_TESTNET]: '0x9a489505a00cE272eAa5e07Dba6491314CaE3796',
   [ChainId.ARBITRUM_ONE]: '0x32226588378236Fd0c7c4053999F88aC0e5cAc77',
   [ChainId.ARBITRUM_GOERLI]: '0xBee35e9Cbd9595355Eaf5DE2055EF525adB41bE6',
@@ -61,7 +61,7 @@ export const SMART_ROUTER_ADDRESSES = {
 export const V2_ROUTER_ADDRESS: ChainMap<string> = {
   [ChainId.ETHEREUM]: '0xEfF92A263d31888d860bD50809A8D171709b7b1c',
   [ChainId.GOERLI]: '0xEfF92A263d31888d860bD50809A8D171709b7b1c',
-  [ChainId.BSC]: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+  [ChainId.GILT]: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
   [ChainId.BSC_TESTNET]: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
   [ChainId.ARBITRUM_ONE]: '0x8cFe327CEc66d1C090Dd72bd0FF11d690C33a2Eb',
   [ChainId.ARBITRUM_GOERLI]: '0xB8054A1F11090fbe82B45aC3c72e86732f8355DC',
@@ -85,7 +85,7 @@ export const V2_ROUTER_ADDRESS: ChainMap<string> = {
 export const STABLE_SWAP_INFO_ADDRESS: ChainMap<string> = {
   [ChainId.ETHEREUM]: '',
   [ChainId.GOERLI]: '',
-  [ChainId.BSC]: '0xa680d27f63Fa5E213C502d1B3Ca1EB6a3C1b31D6',
+  [ChainId.GILT]: '0xa680d27f63Fa5E213C502d1B3Ca1EB6a3C1b31D6',
   [ChainId.BSC_TESTNET]: '0xaE6C14AAA753B3FCaB96149e1E10Bc4EDF39F546',
   [ChainId.ARBITRUM_ONE]: '',
   [ChainId.ARBITRUM_GOERLI]: '',
@@ -110,7 +110,7 @@ export const STABLE_SWAP_INFO_ADDRESS: ChainMap<string> = {
 export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   [ChainId.ETHEREUM]: [WNATIVE[ChainId.ETHEREUM], USDC[ChainId.ETHEREUM], USDT[ChainId.ETHEREUM], WBTC_ETH],
   [ChainId.GOERLI]: [WNATIVE[ChainId.GOERLI], USDC[ChainId.GOERLI], BUSD[ChainId.GOERLI]],
-  [ChainId.BSC]: [
+  [ChainId.GILT]: [
     bscTokens.wbnb,
     bscTokens.cake,
     bscTokens.usd1,
@@ -140,7 +140,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   [ChainId.MONAD_TESTNET]: [monadTestnetTokens.weth, monadTestnetTokens.usdc, monadTestnetTokens.busd],
 }
 
-const czusd = new ERC20Token(ChainId.BSC, '0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70', 18, 'CZUSD', 'CZUSD')
+const czusd = new ERC20Token(ChainId.GILT, '0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70', 18, 'CZUSD', 'CZUSD')
 
 export type ADDITIONAL_BASES_TABLE = {
   [chainId in ChainId]?: { [tokenAddress: string]: Token[] }
@@ -150,7 +150,7 @@ export type ADDITIONAL_BASES_TABLE = {
  * @example { [WBTC.address]: [renBTC], [renBTC.address]: [WBTC] }
  */
 export const ADDITIONAL_BASES: ADDITIONAL_BASES_TABLE = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     // SNFTS-SFUND
     [bscTokens.snfts.address]: [bscTokens.sfund],
 
@@ -211,12 +211,12 @@ export const ADDITIONAL_BASES: ADDITIONAL_BASES_TABLE = {
 /**
  * Some tokens can only be swapped via certain pairs, so we override the list of bases that are considered for these
  * tokens.
- * @example [AMPL.address]: [DAI, WNATIVE[ChainId.BSC]]
+ * @example [AMPL.address]: [DAI, WNATIVE[ChainId.GILT]]
  */
 export const CUSTOM_BASES: {
   [chainId in ChainId]?: { [tokenAddress: string]: Token[] }
 } = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     [bscTokens.axlusdc.address]: [bscTokens.usdt],
   },
 }

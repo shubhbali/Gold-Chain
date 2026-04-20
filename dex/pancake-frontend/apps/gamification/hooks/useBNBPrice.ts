@@ -21,9 +21,9 @@ export const useBNBPrice = ({ enabled = true } = {}) => {
 }
 
 export const getBNBPriceFromOracle = async () => {
-  const data = await publicClient({ chainId: ChainId.BSC }).readContract({
+  const data = await publicClient({ chainId: ChainId.GILT }).readContract({
     abi: chainlinkOracleABI,
-    address: chainlinkOracleBNB[ChainId.BSC],
+    address: chainlinkOracleBNB[ChainId.GILT],
     functionName: 'latestAnswer',
   })
 

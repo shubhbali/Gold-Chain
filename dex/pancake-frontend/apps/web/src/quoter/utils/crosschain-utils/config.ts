@@ -9,7 +9,7 @@ import { ChainId, NonEVMChainId, UnifiedChainId } from '@pancakeswap/chains'
 
 // Order will be decided for the Token Selection Modal
 export const CROSSCHAIN_SUPPORTED_CHAINS: UnifiedChainId[] = [
-  ChainId.BSC,
+  ChainId.GILT,
   ChainId.BASE,
   ChainId.ARBITRUM_ONE,
   ChainId.ETHEREUM,
@@ -18,11 +18,11 @@ export const CROSSCHAIN_SUPPORTED_CHAINS: UnifiedChainId[] = [
   NonEVMChainId.SOLANA,
 ]
 
-export const CROSSCHAIN_INFINITY_SWAP_SUPPORTED_CHAINS = [ChainId.BSC]
+export const CROSSCHAIN_INFINITY_SWAP_SUPPORTED_CHAINS = [ChainId.GILT]
 
 // OriginChainId -> TokenAddress[]
 export const WHITELIST_TOKEN_MAP = {
-  [ChainId.BSC.toString()]: [
+  [ChainId.GILT.toString()]: [
     // ETH (Binance-Peg Ethereum Token),
     '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
     // USDT

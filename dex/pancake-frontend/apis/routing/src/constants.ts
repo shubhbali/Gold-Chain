@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 
 export const SUPPORTED_CHAINS = [
   ChainId.ETHEREUM,
-  ChainId.BSC,
+  ChainId.GILT,
   ChainId.LINEA_TESTNET,
   ChainId.ZKSYNC,
   ChainId.BSC_TESTNET,

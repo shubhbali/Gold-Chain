@@ -1,11 +1,11 @@
 import { ChainId, GOLD_CHAIN } from '@pancakeswap/chains'
 import { UnifiedToken } from '@pancakeswap/sdk'
-import { bscTokens } from './constants/bsc'
+import { bscTokens } from './constants/gilt'
 import { goldChainTokens } from './constants/goldChain'
 
 export const searchTopTokens: Record<ChainId, UnifiedToken[]> = {
   [ChainId.GOERLI]: [],
-  [ChainId.BSC]: [bscTokens.u],
+  [ChainId.GILT]: [bscTokens.u],
   [ChainId.BSC_TESTNET]: [],
   [ChainId.ETHEREUM]: [],
   [GOLD_CHAIN]: [goldChainTokens.gold, goldChainTokens.gilt, goldChainTokens.dex],

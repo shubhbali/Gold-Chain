@@ -20,7 +20,7 @@ contract ChildERC721Proxified is ChildERC721, Initializable {
     // UpgradableProxy
     function isOwner() public view returns (bool) {
         address _owner;
-        bytes32 position = keccak256("matic.network.proxy.owner");
+        bytes32 position = keccak256("gilt.network.proxy.owner");
         assembly {
             _owner := sload(position)
         }

@@ -11,7 +11,7 @@ import { useAccountActiveChain } from './useAccountActiveChain'
 import { useActiveChainId } from './useActiveChainId'
 
 const useTokenBalance = (tokenAddress: Address, forceBSC?: boolean, targetChainId?: ChainId) => {
-  return useTokenBalanceByChain(tokenAddress, forceBSC ? ChainId.BSC : targetChainId)
+  return useTokenBalanceByChain(tokenAddress, forceBSC ? ChainId.GILT : targetChainId)
 }
 
 export const useTokenBalanceByChain = (tokenAddress: Address, chainIdOverride?: ChainId) => {
@@ -40,7 +40,7 @@ export const useGetBnbBalance = () => {
   const { address: account } = useAccount()
 
   const { status, refetch, data } = useBalance({
-    chainId: ChainId.BSC,
+    chainId: ChainId.GILT,
     address: account,
     query: {
       enabled: !!account,
@@ -68,12 +68,12 @@ export const useGetNativeTokenBalance = (chainId?: ChainId) => {
 }
 
 export const useBSCCakeBalance = () => {
-  const { balance, fetchStatus } = useTokenBalance(CAKE[ChainId.BSC]?.address, true)
+  const { balance, fetchStatus } = useTokenBalance(CAKE[ChainId.GILT]?.address, true)
 
   return { balance: BigInt(balance.toString()), fetchStatus }
 }
 
-// veCake only deploy on bsc/bscTestnet
+// veCake only deploy on gilt/bscTestnet
 export const useVeCakeBalance = (targetChainId?: ChainId) => {
   const { chainId } = useActiveChainId()
   const { balance, fetchStatus } = useTokenBalance(getVeCakeAddress(targetChainId ?? chainId), false, targetChainId)

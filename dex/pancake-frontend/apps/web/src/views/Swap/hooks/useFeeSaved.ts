@@ -12,7 +12,7 @@ const MAJOR_DEFINED_STABLE_COINS: {
 } = {
   [ChainId.ETHEREUM]: [USDC[ChainId.ETHEREUM], DAI[ChainId.ETHEREUM], USDT[ChainId.ETHEREUM]],
   [ChainId.ARBITRUM_ONE]: [USDC[ChainId.ARBITRUM_ONE], DAI[ChainId.ARBITRUM_ONE], USDT[ChainId.ARBITRUM_ONE]],
-  [ChainId.BSC]: [USDC[ChainId.BSC], DAI[ChainId.BSC], USDT[ChainId.BSC]],
+  [ChainId.GILT]: [USDC[ChainId.GILT], DAI[ChainId.GILT], USDT[ChainId.GILT]],
   [ChainId.BASE]: [USDC[ChainId.BASE], DAI[ChainId.BASE]],
 }
 

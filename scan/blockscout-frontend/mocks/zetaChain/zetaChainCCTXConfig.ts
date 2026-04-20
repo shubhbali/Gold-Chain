@@ -19,8 +19,8 @@ export const zetaChainCCTXConfig = [
   },
   {
     chain_id: 97,
-    chain_name: 'BSC Testnet',
-    chain_logo: 'https://example.com/bsc-testnet-logo.svg',
+    chain_name: 'GILT Testnet',
+    chain_logo: 'https://example.com/gilt-testnet-logo.svg',
     instance_url: 'https://testnet.bscscan.com',
   },
 ];

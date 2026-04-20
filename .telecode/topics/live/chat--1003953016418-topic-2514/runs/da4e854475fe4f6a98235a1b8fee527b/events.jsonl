@@ -1,0 +1,12 @@
+{"seq": 1, "timestamp": "2026-04-17T02:38:28Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-17T02:38:29Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-17T02:38:29Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Running: sed -n '1,220p' bridge/pos-portal/scripts/live-bridge-common.mjs", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Finished (0): sed -n '1,220p' bridge/pos-portal/scripts/live-bridge-common.mjs", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Running: sed -n '1,260p' bridge/pos-portal/scripts/deploy-live-bridge.mjs", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Finished (0): sed -n '1,260p' bridge/pos-portal/scripts/deploy-live-bridge.mjs", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Running: rg -n \\\"process\\\\.env\\\\.|TESTNET_WALLETS_FILE|LIVE_CHAIN_DIR|HEIMDALL_GENESIS_PATH|BLS_|SEPOLIA_RPC_URL|CHILD_RPC_URL|ROUGHNET_RPC_URL|PRIVATE_KEY|REUSE_ROOT|SKIP_STAKE_GOLD|HEIMDALL_URL\\\" bridge/pos-portal/scripts/deploy-live-bridge.mjs bridge/pos-portal/scripts/test-live-bridge.mjs bridge/pos-portal/scripts/resume-live-bridge-exits.mjs bridge/pos-portal/scripts/live-bridge-common.mjs", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-17T02:38:43Z", "type": "progress.event", "text": "Finished (0): rg -n \\\"process\\\\.env\\\\.|TESTNET_WALLETS_FILE|LIVE_CHAIN_DIR|HEIMDALL_GENESIS_PATH|BLS_|SEPOLIA_RPC_URL|CHILD_RPC_URL|ROUGHNET_RPC_URL|PRIVATE_KEY|REUSE_ROOT|SKIP_STAKE_GOLD|HEIMDALL_URL\\\" bridge/pos-portal/scripts/deploy-live-bridge.mjs bridge/pos-portal/scripts/test-live-bridge.mjs bridge/pos-portal/scripts/resume-live-bridge-exits.mjs bridge/pos-portal/scripts/live-bridge-common.mjs", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-17T02:38:46Z", "type": "progress.event", "text": "Running: sed -n '500,980p' bridge/pos-portal/scripts/deploy-live-bridge.mjs", "metadata": {}}
+{"seq": 11, "timestamp": "2026-04-17T02:38:46Z", "type": "progress.event", "text": "Finished (0): sed -n '500,980p' bridge/pos-portal/scripts/deploy-live-bridge.mjs", "metadata": {}}
+{"seq": 12, "timestamp": "2026-04-17T02:39:03Z", "type": "run.completed", "text": "Done.", "metadata": {}}

@@ -8,7 +8,7 @@ const WrongNetworkWarning = () => {
   const { switchNetwork, canSwitch } = useSwitchNetwork()
 
   const handleSwitchNetwork = async (): Promise<void> => {
-    await switchNetwork(ChainId.BSC)
+    await switchNetwork(ChainId.GILT)
   }
 
   return (

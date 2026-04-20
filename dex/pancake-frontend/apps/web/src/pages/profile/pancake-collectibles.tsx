@@ -29,7 +29,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const profileContract = getProfileContract()
     const nftRole = await profileContract.read.NFT_ROLE()
 
-    const collectionRoles = await viemServerClients[ChainId.BSC].multicall({
+    const collectionRoles = await viemServerClients[ChainId.GILT].multicall({
       contracts: Object.keys(fetchedCollections).map((collectionAddress) => {
         return {
           abi: pancakeProfileABI,

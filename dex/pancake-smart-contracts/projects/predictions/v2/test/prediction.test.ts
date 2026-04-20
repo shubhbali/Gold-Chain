@@ -9,11 +9,11 @@ const GAS_PRICE = 8000000000; // hardhat default
 // BLOCK_COUNT_MULTPLIER: Only for test, because testing trx causes block to increment which exceeds blockBuffer time checks
 // Note that the higher this value is, the slower the test will run
 const BLOCK_COUNT_MULTPLIER = 5;
-const DECIMALS = 8; // Chainlink default for BNB/USD
+const DECIMALS = 8; // Chainlink default for GILT/USD
 const INITIAL_PRICE = 10000000000; // $100, 8 decimal places
 const INTERVAL_SECONDS = 20 * BLOCK_COUNT_MULTPLIER; // 20 seconds * multiplier
 const BUFFER_SECONDS = 5 * BLOCK_COUNT_MULTPLIER; // 5 seconds * multplier, round must lock/end within this buffer
-const MIN_BET_AMOUNT = ether("1"); // 1 BNB
+const MIN_BET_AMOUNT = ether("1"); // 1 GILT
 const UPDATE_ALLOWANCE = 30 * BLOCK_COUNT_MULTPLIER; // 30s * multiplier
 const INITIAL_REWARD_RATE = 0.9; // 90%
 const INITIAL_TREASURY_RATE = 0.1; // 10%
@@ -250,14 +250,14 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1.1") }); // 1.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("1.2") }); // 1.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("1.4") }); // 1.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1.1") }); // 1.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("1.2") }); // 1.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("1.4") }); // 1.4 GILT
 
-      assert.equal((await balance.current(prediction.address)).toString(), ether("3.7").toString()); // 3.7 BNB
-      assert.equal((await prediction.rounds(1)).totalAmount, ether("3.7").toString()); // 3.7 BNB
-      assert.equal((await prediction.rounds(1)).bullAmount, ether("2.3").toString()); // 2.3 BNB
-      assert.equal((await prediction.rounds(1)).bearAmount, ether("1.4").toString()); // 1.4 BNB
+      assert.equal((await balance.current(prediction.address)).toString(), ether("3.7").toString()); // 3.7 GILT
+      assert.equal((await prediction.rounds(1)).totalAmount, ether("3.7").toString()); // 3.7 GILT
+      assert.equal((await prediction.rounds(1)).bullAmount, ether("2.3").toString()); // 2.3 GILT
+      assert.equal((await prediction.rounds(1)).bearAmount, ether("1.4").toString()); // 1.4 GILT
       assert.equal((await prediction.ledger(1, bullUser1)).position, Position.Bull);
       assert.equal((await prediction.ledger(1, bullUser1)).amount, ether("1.1").toString());
       assert.equal((await prediction.ledger(1, bullUser2)).position, Position.Bull);
@@ -274,14 +274,14 @@ contract(
       await prediction.genesisLockRound(); // For round 1
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("2.1") }); // 2.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2.2") }); // 2.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("2.4") }); // 2.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("2.1") }); // 2.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2.2") }); // 2.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("2.4") }); // 2.4 GILT
 
-      assert.equal((await balance.current(prediction.address)).toString(), ether("10.4").toString()); // 10.4 BNB (3.7+6.7)
-      assert.equal((await prediction.rounds(2)).totalAmount, ether("6.7").toString()); // 6.7 BNB
-      assert.equal((await prediction.rounds(2)).bullAmount, ether("4.3").toString()); // 4.3 BNB
-      assert.equal((await prediction.rounds(2)).bearAmount, ether("2.4").toString()); // 2.4 BNB
+      assert.equal((await balance.current(prediction.address)).toString(), ether("10.4").toString()); // 10.4 GILT (3.7+6.7)
+      assert.equal((await prediction.rounds(2)).totalAmount, ether("6.7").toString()); // 6.7 GILT
+      assert.equal((await prediction.rounds(2)).bullAmount, ether("4.3").toString()); // 4.3 GILT
+      assert.equal((await prediction.rounds(2)).bearAmount, ether("2.4").toString()); // 2.4 GILT
       assert.equal((await prediction.ledger(2, bullUser1)).position, Position.Bull);
       assert.equal((await prediction.ledger(2, bullUser1)).amount, ether("2.1").toString());
       assert.equal((await prediction.ledger(2, bullUser2)).position, Position.Bull);
@@ -299,14 +299,14 @@ contract(
       await prediction.executeRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("3.1").toString() }); // 3.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("3.2").toString() }); // 3.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("3.4").toString() }); // 4.3 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("3.1").toString() }); // 3.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("3.2").toString() }); // 3.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("3.4").toString() }); // 4.3 GILT
 
-      assert.equal((await balance.current(prediction.address)).toString(), ether("20.1").toString()); // 20.1 BNB (3.7+6.7+9.7)
-      assert.equal((await prediction.rounds(3)).totalAmount, ether("9.7").toString()); // 9.7 BNB
-      assert.equal((await prediction.rounds(3)).bullAmount, ether("6.3").toString()); // 6.3 BNB
-      assert.equal((await prediction.rounds(3)).bearAmount, ether("3.4").toString()); // 3.4 BNB
+      assert.equal((await balance.current(prediction.address)).toString(), ether("20.1").toString()); // 20.1 GILT (3.7+6.7+9.7)
+      assert.equal((await prediction.rounds(3)).totalAmount, ether("9.7").toString()); // 9.7 GILT
+      assert.equal((await prediction.rounds(3)).bullAmount, ether("6.3").toString()); // 6.3 GILT
+      assert.equal((await prediction.rounds(3)).bearAmount, ether("3.4").toString()); // 3.4 GILT
       assert.equal((await prediction.ledger(3, bullUser1)).position, Position.Bull);
       assert.equal((await prediction.ledger(3, bullUser1)).amount, ether("3.1").toString());
       assert.equal((await prediction.ledger(3, bullUser2)).position, Position.Bull);
@@ -324,14 +324,14 @@ contract(
       await prediction.executeRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("4.1").toString() }); // 4.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("4.2").toString() }); // 4.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4.4").toString() }); // 4.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("4.1").toString() }); // 4.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("4.2").toString() }); // 4.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4.4").toString() }); // 4.4 GILT
 
-      assert.equal((await balance.current(prediction.address)).toString(), ether("32.8").toString()); // 32.8 BNB (3.7+6.7+9.7+12.7)
-      assert.equal((await prediction.rounds(4)).totalAmount, ether("12.7").toString()); // 12.7 BNB
-      assert.equal((await prediction.rounds(4)).bullAmount, ether("8.3").toString()); // 8.3 BNB
-      assert.equal((await prediction.rounds(4)).bearAmount, ether("4.4").toString()); // 4.4 BNB
+      assert.equal((await balance.current(prediction.address)).toString(), ether("32.8").toString()); // 32.8 GILT (3.7+6.7+9.7+12.7)
+      assert.equal((await prediction.rounds(4)).totalAmount, ether("12.7").toString()); // 12.7 GILT
+      assert.equal((await prediction.rounds(4)).bullAmount, ether("8.3").toString()); // 8.3 GILT
+      assert.equal((await prediction.rounds(4)).bearAmount, ether("4.4").toString()); // 4.4 GILT
       assert.equal((await prediction.ledger(4, bullUser1)).position, Position.Bull);
       assert.equal((await prediction.ledger(4, bullUser1)).amount, ether("4.1").toString());
       assert.equal((await prediction.ledger(4, bullUser2)).position, Position.Bull);
@@ -426,7 +426,7 @@ contract(
       await expectRevert(
         prediction.betBull(currentEpoch, { from: bullUser1, value: ether("0.5") }),
         "Bet amount must be greater than minBetAmount"
-      ); // 0.5 BNB
+      ); // 0.5 GILT
       await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // Success
 
       // Epoch 2
@@ -437,7 +437,7 @@ contract(
       await expectRevert(
         prediction.betBull(currentEpoch, { from: bullUser1, value: ether("0.5") }),
         "Bet amount must be greater than minBetAmount"
-      ); // 0.5 BNB
+      ); // 0.5 GILT
       await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // Success
 
       // Epoch 3
@@ -449,7 +449,7 @@ contract(
       await expectRevert(
         prediction.betBull(currentEpoch, { from: bullUser1, value: ether("0.5") }),
         "Bet amount must be greater than minBetAmount"
-      ); // 0.5 BNB
+      ); // 0.5 GILT
       await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // Success
     });
 
@@ -460,9 +460,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1.1") }); // 1.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("1.2") }); // 1.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("1.4") }); // 1.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1.1") }); // 1.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("1.2") }); // 1.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("1.4") }); // 1.4 GILT
 
       assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, 0);
       assert.equal((await prediction.rounds(1)).rewardAmount, 0);
@@ -476,9 +476,9 @@ contract(
       await prediction.genesisLockRound(); // For round 1
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("2.1") }); // 2.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2.2") }); // 2.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("2.4") }); // 2.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("2.1") }); // 2.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2.2") }); // 2.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("2.4") }); // 2.4 GILT
 
       assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, 0);
       assert.equal((await prediction.rounds(1)).rewardAmount, 0);
@@ -494,15 +494,15 @@ contract(
       await prediction.executeRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("3.1").toString() }); // 3.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("3.2").toString() }); // 3.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("3.4").toString() }); // 3.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("3.1").toString() }); // 3.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("3.2").toString() }); // 3.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("3.4").toString() }); // 3.4 GILT
 
-      assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, ether("2.3").toString()); // 2.3 BNB, Bull total
-      assert.equal((await prediction.rounds(1)).rewardAmount, ether("3.7") * INITIAL_REWARD_RATE); // 3.33 BNB, Total * rewardRate
+      assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, ether("2.3").toString()); // 2.3 GILT, Bull total
+      assert.equal((await prediction.rounds(1)).rewardAmount, ether("3.7") * INITIAL_REWARD_RATE); // 3.33 GILT, Total * rewardRate
       assert.equal((await prediction.rounds(2)).rewardBaseCalAmount, 0);
       assert.equal((await prediction.rounds(2)).rewardAmount, 0);
-      assert.equal(await prediction.treasuryAmount(), ether("3.7") * INITIAL_TREASURY_RATE); // 3.7 BNB, Total * treasuryRate
+      assert.equal(await prediction.treasuryAmount(), ether("3.7") * INITIAL_TREASURY_RATE); // 3.7 GILT, Total * treasuryRate
       assert.equal(
         (await balance.current(prediction.address)).toString(),
         ether("3.7").add(ether("6.7")).add(ether("9.7")).toString()
@@ -515,14 +515,14 @@ contract(
       await prediction.executeRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("4.1").toString() }); // 4.1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("4.2").toString() }); // 4.2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4.4").toString() }); // 4.4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("4.1").toString() }); // 4.1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("4.2").toString() }); // 4.2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4.4").toString() }); // 4.4 GILT
 
-      assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, ether("2.3").toString()); // 2.3 BNB, Bull total
-      assert.equal((await prediction.rounds(1)).rewardAmount, ether("3.7") * INITIAL_REWARD_RATE); // 3.33 BNB, Total * rewardRate
-      assert.equal((await prediction.rounds(2)).rewardBaseCalAmount, ether("2.4").toString()); // 2.4 BNB, Bear total
-      assert.equal((await prediction.rounds(2)).rewardAmount, ether("6.7") * INITIAL_REWARD_RATE); // 6.7 BNB, Total * rewardRate
+      assert.equal((await prediction.rounds(1)).rewardBaseCalAmount, ether("2.3").toString()); // 2.3 GILT, Bull total
+      assert.equal((await prediction.rounds(1)).rewardAmount, ether("3.7") * INITIAL_REWARD_RATE); // 3.33 GILT, Total * rewardRate
+      assert.equal((await prediction.rounds(2)).rewardBaseCalAmount, ether("2.4").toString()); // 2.4 GILT, Bear total
+      assert.equal((await prediction.rounds(2)).rewardAmount, ether("6.7") * INITIAL_REWARD_RATE); // 6.7 GILT, Total * rewardRate
       assert.equal(await prediction.treasuryAmount(), ether("3.7").add(ether("6.7")) * INITIAL_TREASURY_RATE); // 10.4, Accumulative treasury
       assert.equal(
         (await balance.current(prediction.address)).toString(),
@@ -555,9 +555,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 GILT
 
       assert.equal(await prediction.claimable(1, bullUser1), false);
       assert.equal(await prediction.claimable(1, bullUser2), false);
@@ -576,9 +576,9 @@ contract(
       await prediction.genesisLockRound(); // For round 1
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 GILT
 
       assert.equal(await prediction.claimable(1, bullUser1), false);
       assert.equal(await prediction.claimable(1, bullUser2), false);
@@ -663,9 +663,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 GILT
 
       assert.equal(await prediction.claimable(1, bullUser1), false);
       assert.equal(await prediction.claimable(1, bullUser2), false);
@@ -678,9 +678,9 @@ contract(
       await prediction.genesisLockRound(); // For round 1
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 GILT
 
       // Epoch 3, Round 1 is Bull (130 > 120)
       await nextEpoch();
@@ -733,7 +733,7 @@ contract(
       tx = await prediction.claim([1, 2], { from: bullUser2 }); // Success
       gasUsed = tx.receipt.gasUsed;
 
-      // 4.2 = 2/3 * (7*0.9) + // 30.851162790697674418 = 22 / 43 * (67 * 0.9) = 35.051162790697674418 BNB
+      // 4.2 = 2/3 * (7*0.9) + // 30.851162790697674418 = 22 / 43 * (67 * 0.9) = 35.051162790697674418 GILT
       expectEvent(tx, "Claim", { sender: bullUser2, epoch: new BN("1"), amount: ether("4.2") });
 
       // Manual event handling for second event with same name from the same contract
@@ -761,9 +761,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 GILT
 
       // Epoch 2
       await nextEpoch();
@@ -792,9 +792,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 GILT
       predictionCurrentBNB = predictionCurrentBNB.add(ether("7"));
 
       assert.equal(await prediction.treasuryAmount(), 0);
@@ -807,9 +807,9 @@ contract(
       await prediction.genesisLockRound(); // For round 1
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("21") }); // 21 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("22") }); // 22 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("24") }); // 24 GILT
       predictionCurrentBNB = predictionCurrentBNB.add(ether("67"));
 
       assert.equal(await prediction.treasuryAmount(), 0);
@@ -822,9 +822,9 @@ contract(
       await prediction.executeRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("31") }); // 31 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("32") }); // 32 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("34") }); // 34 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("31") }); // 31 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("32") }); // 32 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("34") }); // 34 GILT
       predictionCurrentBNB = predictionCurrentBNB.add(ether("97"));
 
       // Admin claim for Round 1
@@ -957,9 +957,9 @@ contract(
       await prediction.genesisStartRound();
       currentEpoch = await prediction.currentEpoch();
 
-      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 BNB
-      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 BNB
-      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 BNB
+      await prediction.betBull(currentEpoch, { from: bullUser1, value: ether("1") }); // 1 GILT
+      await prediction.betBull(currentEpoch, { from: bullUser2, value: ether("2") }); // 2 GILT
+      await prediction.betBear(currentEpoch, { from: bearUser1, value: ether("4") }); // 4 GILT
 
       assert.equal(await prediction.refundable(1, bullUser1), false);
       assert.equal(await prediction.refundable(1, bullUser2), false);

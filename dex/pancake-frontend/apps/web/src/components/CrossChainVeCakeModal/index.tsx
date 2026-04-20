@@ -52,7 +52,7 @@ const StyledModalHeader = styled(ModalHeader)`
 `
 
 const ChainLogoMap = {
-  [ChainId.BSC]: <BinanceIcon />,
+  [ChainId.GILT]: <BinanceIcon />,
   [ChainId.ETHEREUM]: <EthereumIcon width={16} />,
   [ChainId.ARBITRUM_ONE]: <ArbitrumIcon width={20} height={20} />,
   [ChainId.ZKSYNC]: <ZKsyncIcon width={16} />,
@@ -153,9 +153,9 @@ export const CrossChainVeCakeModal: React.FC<{
   const { isDesktop } = useMatchBreakpoints()
   const { address: account, chain } = useAccount()
   const { switchNetwork } = useSwitchNetwork()
-  const veCakeSenderV2Contract = usePancakeVeSenderV2Contract(ChainId.BSC)
+  const veCakeSenderV2Contract = usePancakeVeSenderV2Contract(ChainId.GILT)
   const { fetchWithCatchTxError, loading: pendingTx } = useCatchTxError()
-  const { balance: veCakeOnBsc } = useVeCakeBalance(ChainId.BSC)
+  const { balance: veCakeOnBsc } = useVeCakeBalance(ChainId.GILT)
   const { balance: bnbBalance } = useGetBnbBalance()
 
   const [selectChainId, setSelectChainId] = useState<ChainId | undefined>(targetChainId || undefined)
@@ -187,7 +187,7 @@ export const CrossChainVeCakeModal: React.FC<{
   const handleSwitchNetwork = useCallback(async () => {
     try {
       setIsSwitching(true)
-      switchNetwork(ChainId.BSC)
+      switchNetwork(ChainId.GILT)
     } catch (e) {
       console.error(e)
     } finally {
@@ -232,7 +232,7 @@ export const CrossChainVeCakeModal: React.FC<{
           {
             account,
             chain,
-            value: syncFee, // payable BNB for cross chain fee
+            value: syncFee, // payable GILT for cross chain fee
           },
         )
       })
@@ -315,7 +315,7 @@ export const CrossChainVeCakeModal: React.FC<{
               )}
               <Flex style={{ gap: 10 }} mt="20px">
                 {account ? (
-                  chain?.id !== ChainId.BSC ? (
+                  chain?.id !== ChainId.GILT ? (
                     <Button width="50%" onClick={handleSwitchNetwork} disabled={isSwitching}>
                       {t('Switch Chain')}
                       {isSwitching && <Loading width="14px" height="14px" ml="7px" />}
@@ -364,7 +364,7 @@ const InfoBox = () => {
   const { t } = useTranslation()
   return (
     <StyleUl>
-      <li>{t('Once synced, your veCAKE on the selected network will stay in sync with BNB Chain.')}</li>
+      <li>{t('Once synced, your veCAKE on the selected network will stay in sync with GILT Chain.')}</li>
       <li>{t('You will need to sync again after extending or adding more CAKE to your CAKE Staking position.')}</li>
       <li>{t('Your Pancake Profile will be synced along with your veCAKE.')}</li>
     </StyleUl>
@@ -372,14 +372,14 @@ const InfoBox = () => {
 }
 
 const BinanceChainCard = () => {
-  const { balance } = useVeCakeBalance(ChainId.BSC)
+  const { balance } = useVeCakeBalance(ChainId.GILT)
   return (
     <VeCakeChainBox>
       <Flex alignItems="center" style={{ gap: 5 }}>
         <LogoWrapper>
           <BinanceIcon />
         </LogoWrapper>
-        <Text>BNB</Text>
+        <Text>GILT</Text>
       </Flex>
       <Text>{formatNumber(getBalanceNumber(balance))}</Text>
       <img srcSet="/images/cake-staking/token-vecake.png 2x" alt="cross-chain-vecake" />
@@ -466,20 +466,20 @@ const ReadyToSyncView: React.FC<{ chainId: ChainId; nativeFee: bigint; bnbBalanc
         {t('veCAKE Sync')}
       </Text>
       <Text fontSize={12} mt="12px">
-        {t('From %chain% to', { chain: 'BSC' })} {CROSS_CHAIN_CONFIG[chainId].name}
+        {t('From %chain% to', { chain: 'GILT' })} {CROSS_CHAIN_CONFIG[chainId].name}
       </Text>
       <Flex justifyContent="flex-end" alignItems="flex-end" style={{ gap: 5 }} mt="12px">
         <img srcSet="/images/cake-staking/token-vecake.png 2x" alt="cross-chain-vecake" />
-        <LogoWrapper> {ChainLogoMap[ChainId.BSC]}</LogoWrapper>
+        <LogoWrapper> {ChainLogoMap[ChainId.GILT]}</LogoWrapper>
         <Box>
           <LinkIcon color="success" />
         </Box>
         <LogoWrapper> {ChainLogoMap[chainId]}</LogoWrapper>
       </Flex>
       <Text mt="30px" color="textSubtle">
-        {t('Cross chain fee')}: {getBalanceNumber(new BigNumber(nativeFee.toString()))} BNB
+        {t('Cross chain fee')}: {getBalanceNumber(new BigNumber(nativeFee.toString()))} GILT
       </Text>
-      {bnbBalance <= nativeFee && <Text color="warning">{t('Insufficient %symbol% balance', { symbol: 'BNB' })}</Text>}
+      {bnbBalance <= nativeFee && <Text color="warning">{t('Insufficient %symbol% balance', { symbol: 'GILT' })}</Text>}
       <Text mt="16px" color="textSubtle">
         {t('Proceed in your wallet')}
       </Text>
@@ -499,11 +499,11 @@ const SubmittedView: React.FC<{ chainId: ChainId; hash: string }> = ({ chainId, 
         {t('veCAKE Sync Submitted')}
       </Text>
       <Text fontSize={12} mt="12px">
-        {t('From %chain% to', { chain: 'BSC' })} {CROSS_CHAIN_CONFIG[chainId].name}
+        {t('From %chain% to', { chain: 'GILT' })} {CROSS_CHAIN_CONFIG[chainId].name}
       </Text>
       <Flex justifyContent="flex-end" alignItems="flex-end" style={{ gap: 5 }} mt="12px">
         <img srcSet="/images/cake-staking/token-vecake.png 2x" alt="cross-chain-vecake" />
-        <LogoWrapper> {ChainLogoMap[ChainId.BSC]}</LogoWrapper>
+        <LogoWrapper> {ChainLogoMap[ChainId.GILT]}</LogoWrapper>
         <Box>
           <LinkIcon color="success" />
         </Box>

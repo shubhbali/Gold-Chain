@@ -175,7 +175,7 @@ async function deploy() {
     'mapToken',
     [
       { value: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
-      { value: contractAddresses.child.MaticWETH },
+      { value: contractAddresses.child.GiltWETH },
       { value: EtherType }
     ],
     'RootChainManagerProxy'

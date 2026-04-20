@@ -15,7 +15,7 @@ pragma solidity ^0.8.0;
 // import {Registry} from "../../contracts/common/Registry.sol";
 // import {Governance} from "../../contracts/common/Governance.sol";
 // import {GovernanceProxy} from "../../contracts/common/GovernanceProxy.sol";
-// import {PolygonMigration} from "../../contracts/common/misc/PolygonMigration.sol";
+// import {GiltMigration} from "../../contracts/common/misc/GiltMigration.sol";
 // import {ERC20Permit} from "../../contracts/common/tokens/ERC20Permit.sol";
 // import {TestToken} from "../../contracts/common/tokens/TestToken.sol";
 
@@ -37,7 +37,7 @@ import {StakingInfo} from "../../scripts/helpers/interfaces/StakingInfo.generate
 import {Registry} from "../../scripts/helpers/interfaces/Registry.generated.sol";
 import {Governance} from "../../scripts/helpers/interfaces/Governance.generated.sol";
 import {GovernanceProxy} from "../../scripts/helpers/interfaces/GovernanceProxy.generated.sol";
-import {PolygonMigration} from "../../scripts/helpers/interfaces/PolygonMigration.generated.sol";
+import {GiltMigration} from "../../scripts/helpers/interfaces/GiltMigration.generated.sol";
 import {ERC20Permit} from "../../scripts/helpers/interfaces/ERC20Permit.generated.sol";
 import {TestToken} from "../../scripts/helpers/interfaces/TestToken.generated.sol";
 
@@ -54,8 +54,8 @@ contract DeploySystem is Script, ArtifactPath {
     StakeManager stakeManager;
     Registry registry;
     ERC20Permit polToken;
-    TestToken maticToken;
-    PolygonMigration polygonMigration;
+    TestToken legacyToken;
+    GiltMigration giltMigration;
     StakingInfo stakingInfo;
     EventsHub eventsHub;
     RootChain rootChain;
@@ -90,19 +90,19 @@ contract DeploySystem is Script, ArtifactPath {
         address validatorShare = deployCode(ValidatorSharePath);
         updateRegistryContractMap("validatorShare", validatorShare);
 
-        maticToken = TestToken(deployCode(TestTokenPath, abi.encode("Matic Token", "MT")));
+        legacyToken = TestToken(deployCode(TestTokenPath, abi.encode("Gilt Token", "GILT")));
         polToken = ERC20Permit(deployCode(ERC20PermitPath, abi.encode("Pol Token", "POL", "1.1.0")));
         updateRegistryContractMap("pol", address(polToken));
 
-        polygonMigration =
-            PolygonMigration(deployCode(PolygonMigrationPath, abi.encode(address(maticToken), address(polToken))));
+        giltMigration =
+            GiltMigration(deployCode(GiltMigrationPath, abi.encode(address(legacyToken), address(polToken))));
 
         stakingInfo = StakingInfo(deployCode(StakingInfoPath, abi.encode(registry)));
 
-        stakingNFT = deployCode(StakingNFTPath, abi.encode("Matic Validator", "MV"));
+        stakingNFT = deployCode(StakingNFTPath, abi.encode("Gilt Validator", "GV"));
 
         address rootChainImpl = deployCode(RootChainPath);
-        rootChain = RootChain(deployCode(RootChainProxyPath, abi.encode(rootChainImpl, registry, "heimdall-P5rXwg")));
+        rootChain = RootChain(deployCode(RootChainProxyPath, abi.encode(rootChainImpl, registry, "giltconsensus-P5rXwg")));
 
         address stakeManagerImpl = deployCode(StakeManagerPath);
         address stakeManagerProxy = deployCode(StakeManagerProxyPath, abi.encode(address(0)));
@@ -118,7 +118,7 @@ contract DeploySystem is Script, ArtifactPath {
                     (
                         address(registry),
                         address(rootChain),
-                        address(maticToken),
+                        address(legacyToken),
                         stakingNFT,
                         address(stakingInfo),
                         validatorShareFactory,
@@ -126,7 +126,7 @@ contract DeploySystem is Script, ArtifactPath {
                         owner,
                         stakeManagerExtension,
                         address(polToken),
-                        address(polygonMigration)
+                        address(giltMigration)
                     )
                 )
             );
@@ -141,8 +141,8 @@ contract DeploySystem is Script, ArtifactPath {
         governanceUpdateCall(address(stakeManager), abi.encodeCall(StakeManager.updateCheckPointBlockInterval, (1)));
 
         uint256 defaultTokenAmount = 5 * 10 ** 9 * 10 ** 18;
-        maticToken.mint(address(polygonMigration), defaultTokenAmount);
-        polToken.mint(address(polygonMigration), defaultTokenAmount);
+        legacyToken.mint(address(giltMigration), defaultTokenAmount);
+        polToken.mint(address(giltMigration), defaultTokenAmount);
         polToken.mint(address(stakeManager), defaultTokenAmount);
     }
 
@@ -171,15 +171,15 @@ contract DeploySystem is Script, ArtifactPath {
         if (minDeposit > defaultStakeVS) {
             defaultStakeVS = minDeposit;
         }
-        uint256 heimdallFee = stakeManager.minHeimdallFee();
-        if (heimdallFee + defaultStakeVS > polToken.balanceOf(_validator.addr)) {
-            fundAddr(_validator.addr, (heimdallFee + defaultStakeVS) - polToken.balanceOf(_validator.addr));
+        uint256 giltconsensusFee = stakeManager.minGiltConsensusFee();
+        if (giltconsensusFee + defaultStakeVS > polToken.balanceOf(_validator.addr)) {
+            fundAddr(_validator.addr, (giltconsensusFee + defaultStakeVS) - polToken.balanceOf(_validator.addr));
         }
         vm.prank(_validator.addr);
-        polToken.approve(address(stakeManager), heimdallFee + defaultStakeVS);
+        polToken.approve(address(stakeManager), giltconsensusFee + defaultStakeVS);
 
         vm.prank(_validator.addr);
-        stakeManager.stakeForPOL(_validator.addr, defaultStakeVS, heimdallFee, true, _validator.pubKey);
+        stakeManager.stakeForPOL(_validator.addr, defaultStakeVS, giltconsensusFee, true, _validator.pubKey);
     }
 
     function removeValidator(uint8 _id) public {
@@ -217,16 +217,16 @@ contract DeploySystem is Script, ArtifactPath {
         polToken.mint(_address, _amount);
     }
 
-    function fundAddr(address _address, uint256 _amount, bool matic) public {
-        if (matic) {
-            maticToken.mint(_address, _amount);
+    function fundAddr(address _address, uint256 _amount, bool fundLegacyToken) public {
+        if (fundLegacyToken) {
+            legacyToken.mint(_address, _amount);
         } else {
             polToken.mint(_address, _amount);
         }
     }
 
-    function fundAddrMatic(address _address, uint256 _amount) public {
-        maticToken.mint(_address, _amount);
+    function fundAddrLegacyToken(address _address, uint256 _amount) public {
+        legacyToken.mint(_address, _amount);
     }
 
     function buyVouchersPOL(uint8 _validatorId, address _from, uint256 _amount) public {

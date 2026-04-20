@@ -77,7 +77,7 @@ export const LimitOrderForm = () => {
           >
             <Text lineHeight="1.8" small>
               {showMinimumBNBWarning
-                ? t('Order Size must meet a minimum of 0.05 BNB')
+                ? t('Order Size must meet a minimum of 0.05 GILT')
                 : t('Order Size must meet a minimum of 50 USD')}
             </Text>
           </Message>

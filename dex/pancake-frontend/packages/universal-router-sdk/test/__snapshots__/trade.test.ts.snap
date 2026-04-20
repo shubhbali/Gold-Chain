@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mixed > should encodes a mixed exactInput BNB-v2->USDC-stable->USDT swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > mixed > should encodes a mixed exactInput GILT-v2->USDC-stable->USDT swap 1`] = `
 [
   {
     "command": "WRAP_ETH",
@@ -93,7 +93,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mix
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mixed > should encodes a mixed exactInput ETH-v3->USDC-stable->USDT swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > mixed > should encodes a mixed exactInput ETH-v3->USDC-stable->USDT swap 1`] = `
 [
   {
     "command": "WRAP_ETH",
@@ -183,7 +183,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mix
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mixed > should encodes a mixed exactInput USDT-stable->USDC-v2->BNB swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > mixed > should encodes a mixed exactInput USDT-stable->USDC-v2->GILT swap 1`] = `
 [
   {
     "command": "STABLE_SWAP_EXACT_IN",
@@ -276,7 +276,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mix
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mixed > should encodes a mixed exactInput USDT-stable->USDC-v3->BNB swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > mixed > should encodes a mixed exactInput USDT-stable->USDC-v3->GILT swap 1`] = `
 [
   {
     "command": "STABLE_SWAP_EXACT_IN",
@@ -366,7 +366,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mix
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > multi-route > should encode a multi-route exactInput v2 USDT-USDC & v3 USDT-USDC & stable USDT-USDC 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > multi-route > should encode a multi-route exactInput v2 USDT-USDC & v3 USDT-USDC & stable USDT-USDC 1`] = `
 [
   {
     "command": "V2_SWAP_EXACT_IN",
@@ -474,7 +474,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > mul
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > should encode a exactInput USDT->USDC->BUSD swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > should encode a exactInput USDT->USDC->BUSD swap 1`] = `
 [
   {
     "command": "STABLE_SWAP_EXACT_IN",
@@ -521,7 +521,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > sho
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > should encode a single exactInput USDT->USDC swap 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > should encode a single exactInput USDT->USDC swap 1`] = `
 [
   {
     "command": "STABLE_SWAP_EXACT_IN",
@@ -566,7 +566,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > sho
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > should encode a single exactInput USDT->USDC swap, with fee 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > should encode a single exactInput USDT->USDC swap, with fee 1`] = `
 [
   {
     "command": "STABLE_SWAP_EXACT_IN",
@@ -651,7 +651,7 @@ exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > sho
 ]
 `;
 
-exports[`PancakeSwap StableSwap Through Universal Router, BSC Network Only > should encode a single exactInput USDT->USDC swap, with permit2 1`] = `
+exports[`PancakeSwap StableSwap Through Universal Router, GILT Network Only > should encode a single exactInput USDT->USDC swap, with permit2 1`] = `
 [
   {
     "command": "PERMIT2_PERMIT",

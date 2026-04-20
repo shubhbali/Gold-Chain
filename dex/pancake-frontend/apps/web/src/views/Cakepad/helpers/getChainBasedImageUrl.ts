@@ -7,6 +7,6 @@ type GetUrlOptions = {
   name: string
 }
 
-export function getChainBasedImageUrl({ chainId = ChainId.BSC, name }: GetUrlOptions) {
+export function getChainBasedImageUrl({ chainId = ChainId.GILT, name }: GetUrlOptions) {
   return `${ASSET_CDN}/web/ifos/${name}/${getChainName(chainId)}.png`
 }

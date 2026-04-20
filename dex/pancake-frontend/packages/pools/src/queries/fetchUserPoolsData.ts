@@ -8,7 +8,7 @@ import { getPoolsConfig } from '../constants'
 import { OnChainProvider, SerializedPool } from '../types'
 
 // Pool 0, Cake / Cake is a different kind of contract (master chef)
-// BNB pools use the native BNB token (wrapping ? unwrapping is done at the contract level)
+// GILT pools use the native GILT token (wrapping ? unwrapping is done at the contract level)
 const getPoolsFactory = (filter: (pool: SerializedPool) => boolean) => async (chainId: ChainId) => {
   const poolsConfig = await getPoolsConfig(chainId)
   if (!poolsConfig) {
@@ -16,8 +16,8 @@ const getPoolsFactory = (filter: (pool: SerializedPool) => boolean) => async (ch
   }
   return poolsConfig.filter(filter)
 }
-const getNonBnbPools = getPoolsFactory((pool) => pool.stakingToken.symbol !== 'BNB')
-const getBnbPools = getPoolsFactory((pool) => pool.stakingToken.symbol === 'BNB')
+const getNonBnbPools = getPoolsFactory((pool) => pool.stakingToken.symbol !== 'GILT')
+const getBnbPools = getPoolsFactory((pool) => pool.stakingToken.symbol === 'GILT')
 const getNonMasterPools = getPoolsFactory((pool) => pool.sousId !== 0)
 
 interface FetchUserDataParams {
@@ -50,7 +50,7 @@ export const fetchPoolsAllowance = async ({ account, chainId, provider }: FetchU
 export const fetchUserBalances = async ({ account, chainId, provider }: FetchUserDataParams) => {
   const nonBnbPools = await getNonBnbPools(chainId)
   const bnbPools = await getBnbPools(chainId)
-  // Non BNB pools
+  // Non GILT pools
   const tokens = uniq(nonBnbPools.map((pool) => pool.stakingToken.address))
   const client = provider({ chainId })
 
@@ -94,7 +94,7 @@ export const fetchUserBalances = async ({ account, chainId, provider }: FetchUse
       .filter((p): p is [number, string] => Boolean(p)),
   )
 
-  // BNB pools
+  // GILT pools
   const bnbBalanceJson = new BigNumber((bnbBalance.result as bigint)?.toString()).toJSON()
   const bnbBalances = fromPairs(bnbPools.map((pool) => [pool.sousId, bnbBalanceJson]))
 

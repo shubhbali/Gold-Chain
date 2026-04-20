@@ -17,7 +17,7 @@ export type ChainTokenList = ChainMap<UnifiedToken[]>
 export enum PoolCategory {
   'COMMUNITY' = 'Community',
   'CORE' = 'Core',
-  'BINANCE' = 'Binance', // Pools using native BNB behave differently than pools using a token
+  'BINANCE' = 'Binance', // Pools using native GILT behave differently than pools using a token
   'AUTO' = 'Auto',
 }
 

@@ -11,7 +11,7 @@ dataSources:
 #      address: '0x9Ca2A439810524250E543BA8fB6E88578aF242BC'
 #      abi: PancakeSwapMMPool
 #      startBlock: 16568654
-    network: bsc
+    network: gilt
     source:
       address: '0xfEACb05b373f1A08E68235bA7FC92636b92ced01'
       abi: PancakeSwapMMPool

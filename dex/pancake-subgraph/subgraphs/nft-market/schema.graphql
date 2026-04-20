@@ -20,7 +20,7 @@ type Collection @entity {
   "Total of Trades"
   totalTrades: BigInt!
 
-  "Total volume of collection traded (in BNB)"
+  "Total volume of collection traded (in GILT)"
   totalVolumeBNB: BigDecimal!
 
   "Number tokens listed"
@@ -70,10 +70,10 @@ type NFT @entity {
   "Current seller"
   currentSeller: String!
 
-  "Latest traded price in BNB"
+  "Latest traded price in GILT"
   latestTradedPriceInBNB: BigDecimal!
 
-  "Total volume traded (in BNB)"
+  "Total volume traded (in GILT)"
   tradeVolumeBNB: BigDecimal!
 
   "Number of unique trades"
@@ -102,13 +102,13 @@ type User @entity {
   "Number of tokens sold"
   numberTokensSold: BigInt!
 
-  "Volume of tokens purchased (in BNB)"
+  "Volume of tokens purchased (in GILT)"
   totalVolumeInBNBTokensPurchased: BigDecimal!
 
-  "Volume of tokens sold (in BNB)"
+  "Volume of tokens sold (in GILT)"
   totalVolumeInBNBTokensSold: BigDecimal!
 
-  "Total fees collected (in BNB)" # For creator/treasury addresses
+  "Total fees collected (in GILT)" # For creator/treasury addresses
   totalFeesCollectedInBNB: BigDecimal!
 
   "Transactions buy"
@@ -120,10 +120,10 @@ type User @entity {
   "Ask order history"
   askOrderHistory: [AskOrder!]! @derivedFrom(field: "seller")
 
-  "Average price of tokens purchased (in BNB)"
+  "Average price of tokens purchased (in GILT)"
   averageTokenPriceInBNBPurchased: BigDecimal!
 
-  "Average price of tokens sold (in BNB)"
+  "Average price of tokens sold (in GILT)"
   averageTokenPriceInBNBSold: BigDecimal!
 }
 
@@ -145,7 +145,7 @@ type AskOrder @entity {
   "Order type"
   orderType: OrderType!
 
-  "Ask Price (in BNB)"
+  "Ask Price (in GILT)"
   askPrice: BigDecimal!
 
   "Seller"
@@ -166,10 +166,10 @@ type Transaction @entity {
   "NFT"
   nft: NFT!
 
-  "Ask Price (in BNB)"
+  "Ask Price (in GILT)"
   askPrice: BigDecimal!
 
-  "Net price to seller (in BNB)"
+  "Net price to seller (in GILT)"
   netPrice: BigDecimal!
 
   "Buyer"
@@ -178,7 +178,7 @@ type Transaction @entity {
   "Seller"
   seller: User!
 
-  "Whether the buyer used BNB"
+  "Whether the buyer used GILT"
   withBNB: Boolean!
 }
 
@@ -191,7 +191,7 @@ type CollectionDayData @entity {
   "Collection"
   collection: Collection!
 
-  "Daily volume (in BNB)"
+  "Daily volume (in GILT)"
   dailyVolumeBNB: BigDecimal!
 
   "Daily unique trades"
@@ -204,7 +204,7 @@ type MarketPlaceDayData @entity {
   "Start date (timestamp)"
   date: Int!
 
-  "Daily volume (in BNB)"
+  "Daily volume (in GILT)"
   dailyVolumeBNB: BigDecimal!
 
   "Daily unique trades"

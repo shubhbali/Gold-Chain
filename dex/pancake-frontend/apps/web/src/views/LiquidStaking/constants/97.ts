@@ -12,7 +12,7 @@ import { Abi } from 'viem'
 const liquidStaking: LiquidStakingList[] = [
   {
     stakingSymbol: 'ETH / wBETH',
-    contract: WBETH[ChainId.BSC],
+    contract: WBETH[ChainId.GILT],
     token0: WETH9[ChainId.BSC_TESTNET],
     token1: bscTokens.wbeth,
     abi: wbethBscABI as Abi,

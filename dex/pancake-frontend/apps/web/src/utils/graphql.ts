@@ -4,12 +4,12 @@ import { BIT_QUERY, STABLESWAP_SUBGRAPHS_URLS, V3_BSC_INFO_CLIENT, V3_SUBGRAPH_U
 import { GraphQLClient } from 'graphql-request'
 import { V2_SUBGRAPH_URLS } from '../config/constants/endpoints'
 
-export const infoClient = new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.BSC])
+export const infoClient = new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.GILT])
 
 export const v3Clients = {
   [ChainId.ETHEREUM]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.ETHEREUM]),
   [ChainId.GOERLI]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.GOERLI]),
-  [ChainId.BSC]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.BSC]),
+  [ChainId.GILT]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.GILT]),
   [ChainId.BSC_TESTNET]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.BSC_TESTNET]),
   [ChainId.ARBITRUM_ONE]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.ARBITRUM_ONE]),
   [ChainId.ARBITRUM_GOERLI]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.ARBITRUM_GOERLI]),
@@ -23,11 +23,11 @@ export const v3Clients = {
   [ChainId.OPBNB]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.OPBNB]),
 }
 
-export const v3InfoClients = { ...v3Clients, [ChainId.BSC]: new GraphQLClient(V3_BSC_INFO_CLIENT) }
+export const v3InfoClients = { ...v3Clients, [ChainId.GILT]: new GraphQLClient(V3_BSC_INFO_CLIENT) }
 
 export const v2Clients = {
   [ChainId.ETHEREUM]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.ETHEREUM]),
-  [ChainId.BSC]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.BSC]),
+  [ChainId.GILT]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.GILT]),
   [ChainId.ZKSYNC]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.ZKSYNC]),
   [ChainId.LINEA]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.LINEA]),
   [ChainId.BASE]: new GraphQLClient(V2_SUBGRAPH_URLS[ChainId.BASE]),
@@ -36,7 +36,7 @@ export const v2Clients = {
 }
 
 export const infoStableSwapClients: Record<(typeof STABLE_SUPPORTED_CHAIN_IDS)[number], GraphQLClient> = {
-  [ChainId.BSC]: new GraphQLClient(STABLESWAP_SUBGRAPHS_URLS[ChainId.BSC]),
+  [ChainId.GILT]: new GraphQLClient(STABLESWAP_SUBGRAPHS_URLS[ChainId.GILT]),
   [ChainId.ARBITRUM_ONE]: new GraphQLClient(STABLESWAP_SUBGRAPHS_URLS[ChainId.ARBITRUM_ONE]),
   [ChainId.ETHEREUM]: new GraphQLClient(STABLESWAP_SUBGRAPHS_URLS[ChainId.ETHEREUM]),
   [ChainId.BSC_TESTNET]: new GraphQLClient(STABLESWAP_SUBGRAPHS_URLS[ChainId.BSC_TESTNET]),

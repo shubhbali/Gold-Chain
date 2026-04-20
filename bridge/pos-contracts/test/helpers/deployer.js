@@ -25,11 +25,11 @@ class Deployer {
     this.validatorShareFactory = await contractFactories.ValidatorShareFactory.deploy()
     this.stakeToken = await contractFactories.TestToken.deploy('Stake Token', 'ST')
     this.polToken = await contractFactories.ERC20Permit.deploy('POL', 'POL', '1.1.0')
-    this.migration = await contractFactories.PolygonMigration.deploy(this.stakeToken.address, this.polToken.address)
+    this.migration = await contractFactories.GiltMigration.deploy(this.stakeToken.address, this.polToken.address)
 
     this.stakingInfo = await contractFactories.StakingInfo.deploy(this.registry.address)
     this.rootChain = await this.deployRootChain()
-    this.stakingNFT = await contractFactories.StakingNFT.deploy('Matic Validator', 'MV')
+    this.stakingNFT = await contractFactories.StakingNFT.deploy('Gilt Validator', 'GV')
 
     let stakeManagerProxy = await contractFactories.StakeManagerProxy.deploy(utils.ZeroAddress)
     let stakeManager = await contractFactories.StakeManagerTest.deploy()
@@ -93,9 +93,9 @@ class Deployer {
     this.stakingInfo = await contractFactories.StakingInfo.deploy(this.registry.address)
     this.stakeToken = await contractFactories.TestToken.deploy('Stake Token', 'STAKE')
     this.polToken = await contractFactories.ERC20Permit.deploy('POL', 'POL', '1.1.0')
-    this.migration = await contractFactories.PolygonMigration.deploy(this.stakeToken.address, this.polToken.address)
+    this.migration = await contractFactories.GiltMigration.deploy(this.stakeToken.address, this.polToken.address)
 
-    this.stakingNFT = await contractFactories.StakingNFT.deploy('Matic Validator', 'MV')
+    this.stakingNFT = await contractFactories.StakingNFT.deploy('Gilt Validator', 'GV')
 
     let stakeManager = await contractFactories.StakeManagerTestable.deploy()
     const rootChainOwner = wallets[1]
@@ -152,19 +152,19 @@ class Deployer {
     const rootChainProxy = await contractFactories.RootChainProxy.deploy(
       rootChain.address,
       this.registry.address,
-      'heimdall-P5rXwg'
+      'giltconsensus-P5rXwg'
     )
     this.rootChain = await contractFactories.RootChain.attach(rootChainProxy.address)
     return this.rootChain
   }
 
-  async deployMaticWeth() {
-    const maticWeth = await contractFactories.MaticWETH.deploy()
+  async deployGiltWeth() {
+    const giltWeth = await contractFactories.GiltWETH.deploy()
     await Promise.all([
-      this.mapToken(maticWeth.address, maticWeth.address, false /* isERC721 */),
-      this.updateContractMap(ethUtils.keccak256('wethToken'), maticWeth.address)
+      this.mapToken(giltWeth.address, giltWeth.address, false /* isERC721 */),
+      this.updateContractMap(ethUtils.keccak256('wethToken'), giltWeth.address)
     ])
-    return maticWeth
+    return giltWeth
   }
 
   async deployGovernance() {
@@ -305,8 +305,8 @@ class Deployer {
     return { rootERC20, childToken, childTokenProxy }
   }
 
-  async deployMaticToken() {
-    if (!this.globalMatic) throw Error('global matic token is not initialized')
+  async deployLegacyToken() {
+    if (!this.globalLegacyToken) throw Error('global legacyToken token is not initialized')
     if (!this.childChain) throw Error('child chain is not initialized')
     // Since we cannot initialize MRC20 repeatedly, deploy a dummy MRC20 to test it
     // not mentioning the gas limit fails with "The contract code couldn't be stored, please check your gas limit." intermittently which is super weird
@@ -318,7 +318,7 @@ class Deployer {
     // send some ether to dummy MRC20, so that deposits can be processed
 
     const value = web3.utils.toBN(100).mul(utils.scalingFactor)
-    await this.globalMatic.childToken.deposit(childToken.address, web3.utils.toHex(value))
+    await this.globalLegacyToken.childToken.deposit(childToken.address, web3.utils.toHex(value))
     return { rootERC20, childToken }
   }
 
@@ -368,25 +368,25 @@ class Deployer {
 
     await this.childChain.changeStateSyncerAddress(childSigner0)
     
-    let childMaticTokenAddress = utils.ChildMaticTokenAddress
-    if (!this.globalMatic) {
-      // MRC20 comes as a genesis-contract at utils.ChildMaticTokenAddress
+    let childLegacyTokenAddress = utils.ChildLegacyTokenAddress
+    if (!this.globalLegacyToken) {
+      // MRC20 comes as a genesis-contract at utils.ChildLegacyTokenAddress
       if (hre.__SOLIDITY_COVERAGE_RUNNING) {
-        childMaticTokenAddress = (await contractFactories.MRC20.deploy()).address
+        childLegacyTokenAddress = (await contractFactories.MRC20.deploy()).address
       }
 
-      this.globalMatic = { childToken: await contractFactories.MRC20.attach(childMaticTokenAddress) }
-      const maticOwner = await this.globalMatic.childToken.owner()
-      if (maticOwner === '0x0000000000000000000000000000000000000000') {
-        // matic contract at 0x1010 can only be initialized once, after the bor image starts to run
-        await this.globalMatic.childToken.initialize(childSigner0, utils.ZeroAddress)
+      this.globalLegacyToken = { childToken: await contractFactories.MRC20.attach(childLegacyTokenAddress) }
+      const legacyTokenOwner = await this.globalLegacyToken.childToken.owner()
+      if (legacyTokenOwner === '0x0000000000000000000000000000000000000000') {
+        // legacyToken contract at 0x1010 can only be initialized once, after the gilt image starts to run
+        await this.globalLegacyToken.childToken.initialize(childSigner0, utils.ZeroAddress)
       }
     }
     if (this.registry) {
       // When a new set of contracts is deployed, we should map MRC20 on root, though we cannot initialize it more than once in its lifetime
-      this.globalMatic.rootERC20 = await this.deployTestErc20({
+      this.globalLegacyToken.rootERC20 = await this.deployTestErc20({
         mapToken: true,
-        childTokenAdress: childMaticTokenAddress
+        childTokenAdress: childLegacyTokenAddress
       })
     }
     if (options.updateRegistry) {

@@ -76,7 +76,7 @@ export function handleTransfer(event: Transfer): void {
     }
   }
 
-  // case where direct send first on BNB withdrawals
+  // case where direct send first on GILT withdrawals
   if (event.params.to.toHex() == pair.id) {
     let burns = transaction.burns;
     let burn = new BurnEvent(
@@ -257,7 +257,7 @@ export function handleMint(event: Mint): void {
   token0.totalTransactions = token0.totalTransactions.plus(ONE_BI);
   token1.totalTransactions = token1.totalTransactions.plus(ONE_BI);
 
-  // get new amounts of USD and BNB for tracking
+  // get new amounts of USD and GILT for tracking
   let bundle = Bundle.load("1");
   let amountTotalUSD = token1.derivedBNB
     .times(token1Amount)
@@ -310,7 +310,7 @@ export function handleBurn(event: Burn): void {
   token0.totalTransactions = token0.totalTransactions.plus(ONE_BI);
   token1.totalTransactions = token1.totalTransactions.plus(ONE_BI);
 
-  // get new amounts of USD and BNB for tracking
+  // get new amounts of USD and GILT for tracking
   let bundle = Bundle.load("1");
   let amountTotalUSD = token1.derivedBNB
     .times(token1Amount)
@@ -356,17 +356,17 @@ export function handleSwap(event: Swap): void {
   let amount0Total = amount0Out.plus(amount0In);
   let amount1Total = amount1Out.plus(amount1In);
 
-  // BNB/USD prices
+  // GILT/USD prices
   let bundle = Bundle.load("1");
 
   let derivedToken0AmountBNB = token0.derivedBNB.times(amount0Total);
   let derivedToken1AmountBNB = token1.derivedBNB.times(amount1Total);
 
-  // get total amounts of derived USD and BNB for tracking
+  // get total amounts of derived USD and GILT for tracking
   let derivedAmountBNB = derivedToken1AmountBNB.plus(derivedToken0AmountBNB).div(BigDecimal.fromString("2"));
   let derivedAmountUSD = derivedAmountBNB.times(bundle.bnbPrice);
 
-  // get swap fee amount of derived USD and BNB for tracking
+  // get swap fee amount of derived USD and GILT for tracking
   let derivedFeeAmountBNB: BigDecimal;
   if (
     derivedToken0AmountBNB.equals(BigDecimal.fromString("0")) ||

@@ -55,8 +55,8 @@ describe('Coin', () => {
       const busd = new Coin(ChainId.TESTNET, ADDRESS_BUSD, 8, 'BUSD')
       expect(usdc.sortsBefore(busd)).toBe(false)
 
-      const bnb = new Coin(ChainId.TESTNET, ADDRESS_BNB, 8, 'BNB')
-      expect(bnb.sortsBefore(busd)).toBe(true)
+      const gilt = new Coin(ChainId.TESTNET, ADDRESS_BNB, 8, 'GILT')
+      expect(gilt.sortsBefore(busd)).toBe(true)
 
       expect(AptosCoin.onChain(ChainId.TESTNET).sortsBefore(tokenA)).toBe(true)
 

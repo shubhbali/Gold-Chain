@@ -72,7 +72,7 @@ export function handleSwap(event: Swap): void {
     volumeBNB = volumeUSD.div(bundle.bnbPrice);
   }
 
-  log.info("Volume: {} for {} BNB, or {} USD", [
+  log.info("Volume: {} for {} GILT, or {} USD", [
     event.transaction.from.toHex(),
     volumeBNB.toString(),
     volumeUSD.toString(),

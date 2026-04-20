@@ -331,7 +331,7 @@ contract('ERC721Predicate', (accounts) => {
   describe('exitTokens failing with TransferWithMetadata, while passing with Transfer', () => {
     const tokenId = mockValues.numbers[5]
     const withdrawer = mockValues.addresses[8]
-    const metaData = 'https://nft.matic.network'
+    const metaData = 'https://nft.giltchain.network'
     let dummyERC721
     let erc721Predicate
 

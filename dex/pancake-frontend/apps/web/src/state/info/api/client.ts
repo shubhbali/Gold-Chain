@@ -95,14 +95,14 @@ export const chartPeriodRange = ['1H', '1D', '1W', '1M', '1Y'] as const
 export type ChartPeriod = (typeof chartPeriodRange)[number]
 
 export const chainIdToExplorerInfoChainName = {
-  [ChainId.BSC_TESTNET]: 'bsc-testnet',
-  [ChainId.BSC]: 'bsc',
+  [ChainId.BSC_TESTNET]: 'gilt-testnet',
+  [ChainId.GILT]: 'gilt',
   [ChainId.ETHEREUM]: 'ethereum',
   [ChainId.ZKSYNC]: 'zksync',
   [ChainId.ARBITRUM_ONE]: 'arbitrum',
   [ChainId.LINEA]: 'linea',
   [ChainId.BASE]: 'base',
-  [ChainId.OPBNB]: 'opbnb',
+  [ChainId.OPBNB]: 'opgilt',
   [GOLD_CHAIN]: process.env.NEXT_PUBLIC_GOLD_CHAIN_EXPLORER_CHAIN_NAME || 'gold-chain',
   [ChainId.MONAD_MAINNET]: 'monad',
   [NonEVMChainId.SOLANA]: 'sol',

@@ -81,7 +81,7 @@ interface ValidatorSet {
 		view
 		returns (uint256);
 
-	function getBorValidators(uint256 number)
+	function getGiltValidators(uint256 number)
 		external
 		view
 		returns (address[] memory, uint256[] memory);

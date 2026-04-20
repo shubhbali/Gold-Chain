@@ -12,9 +12,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const REPO_ROOT = path.resolve(__dirname, '../../..');
-export const ADDRESS_BOOK_PATH = path.join(REPO_ROOT, '.live-roughnet', 'live-bridge-addresses.json');
+const DEFAULT_LIVE_CHAIN_DIR = fs.existsSync(path.join(REPO_ROOT, '.live-chain'))
+  ? path.join(REPO_ROOT, '.live-chain')
+  : path.join(REPO_ROOT, '.live-roughnet');
+const LIVE_CHAIN_DIR = process.env.LIVE_CHAIN_DIR
+  ? path.resolve(REPO_ROOT, process.env.LIVE_CHAIN_DIR)
+  : DEFAULT_LIVE_CHAIN_DIR;
+export const ADDRESS_BOOK_PATH =
+  process.env.LIVE_BRIDGE_ADDRESS_BOOK || path.join(LIVE_CHAIN_DIR, 'live-bridge-addresses.json');
 export const DEFAULT_SEPOLIA_RPC = 'https://sepolia.drpc.org';
-export const DEFAULT_HEIMDALL_URL = 'http://127.0.0.1:1317';
+export const DEFAULT_GILTCONSENSUS_URL = 'http://127.0.0.1:1317';
 
 export const ROOT_ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const STATE_RECEIVER_ADDRESS = '0x0000000000000000000000000000000000003001';
@@ -23,9 +30,15 @@ export const STAKE_HUB_ADDRESS = '0x0000000000000000000000000000000000002002';
 export const GOV_HUB_ADDRESS = '0x0000000000000000000000000000000000001007';
 export const GOVERNOR_ADDRESS = '0x0000000000000000000000000000000000002004';
 export const GOV_TOKEN_ADDRESS = '0x0000000000000000000000000000000000002005';
-export const GOLD_CHAIN_ID = 714;
+const GOLD_CHAIN_ID_RAW = process.env.GOLD_CHAIN_ID || process.env.CHAIN_ID || '714';
+export const GOLD_CHAIN_ID = Number.parseInt(GOLD_CHAIN_ID_RAW, 10);
+if (!Number.isInteger(GOLD_CHAIN_ID) || GOLD_CHAIN_ID <= 0) {
+  throw new Error(`Invalid GOLD_CHAIN_ID: ${GOLD_CHAIN_ID_RAW}`);
+}
 export const ZERO_ADDRESS = ethers.ZeroAddress;
-export const CHECKPOINT_ACCOUNT_HASH = ethers.keccak256(ethers.toUtf8Bytes('gold-chain-roughnet'));
+const CHECKPOINT_ACCOUNT_SEED = process.env.CHECKPOINT_ACCOUNT_SEED || 'gold-chain-testnet';
+export const CHECKPOINT_ACCOUNT_HASH = process.env.CHECKPOINT_ACCOUNT_HASH
+  || ethers.keccak256(ethers.toUtf8Bytes(CHECKPOINT_ACCOUNT_SEED));
 
 export function addressEq(a, b) {
   return a.toLowerCase() === b.toLowerCase();
@@ -298,23 +311,23 @@ async function fetchJson(url, label) {
   return response.json();
 }
 
-export async function readHeimdallLatestRecord(heimdallUrl = DEFAULT_HEIMDALL_URL) {
-  const url = new URL('/clerk/event-records/latest-id', heimdallUrl);
-  const payload = await fetchJson(url, 'heimdall latest record');
+export async function readGiltConsensusLatestRecord(giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL) {
+  const url = new URL('/clerk/event-records/latest-id', giltconsensusUrl);
+  const payload = await fetchJson(url, 'giltconsensus latest record');
   return {
     latestRecordId: BigInt(payload.latest_record_id),
-    isProcessedByHeimdall: Boolean(payload.is_processed_by_heimdall),
+    isProcessedByGiltConsensus: Boolean(payload.is_processed_by_giltconsensus),
   };
 }
 
-export async function readHeimdallRecordCount(heimdallUrl = DEFAULT_HEIMDALL_URL) {
-  const url = new URL('/clerk/event-records/count', heimdallUrl);
-  const payload = await fetchJson(url, 'heimdall record count');
+export async function readGiltConsensusRecordCount(giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL) {
+  const url = new URL('/clerk/event-records/count', giltconsensusUrl);
+  const payload = await fetchJson(url, 'giltconsensus record count');
   return BigInt(payload.count);
 }
 
-export async function readHeimdallRecord(heimdallUrl, recordId) {
-  const url = new URL(`/clerk/event-records/${recordId.toString()}`, heimdallUrl);
+export async function readGiltConsensusRecord(giltconsensusUrl, recordId) {
+  const url = new URL(`/clerk/event-records/${recordId.toString()}`, giltconsensusUrl);
   const response = await fetch(url, {
     headers: { Accept: 'application/json' },
     signal: AbortSignal.timeout(10000),
@@ -323,18 +336,18 @@ export async function readHeimdallRecord(heimdallUrl, recordId) {
     return null;
   }
   if (!response.ok) {
-    throw new Error(`heimdall record ${recordId.toString()} returned HTTP ${response.status}`);
+    throw new Error(`giltconsensus record ${recordId.toString()} returned HTTP ${response.status}`);
   }
   return response.json();
 }
 
-export async function waitForHeimdallRecord(heimdallUrl, recordId, timeoutMs = 900000, intervalMs = 5000) {
+export async function waitForGiltConsensusRecord(giltconsensusUrl, recordId, timeoutMs = 900000, intervalMs = 5000) {
   return waitForCondition(
     async () => {
-      const record = await readHeimdallRecord(heimdallUrl, recordId);
+      const record = await readGiltConsensusRecord(giltconsensusUrl, recordId);
       return record ? record : null;
     },
-    `heimdall record ${recordId.toString()}`,
+    `giltconsensus record ${recordId.toString()}`,
     timeoutMs,
     intervalMs,
   );
@@ -398,19 +411,19 @@ export async function waitForChildStateId(stateReceiver, targetId, timeoutMs = 9
   );
 }
 
-export async function readBridgeProgress(rootStateSender, childStateReceiver, heimdallUrl = DEFAULT_HEIMDALL_URL) {
-  const [rootStateId, childStateId, heimdallLatest, heimdallCount] = await Promise.all([
+export async function readBridgeProgress(rootStateSender, childStateReceiver, giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL) {
+  const [rootStateId, childStateId, giltconsensusLatest, giltconsensusCount] = await Promise.all([
     rootStateSender.counter(),
     childStateReceiver.lastStateId(),
-    readHeimdallLatestRecord(heimdallUrl),
-    readHeimdallRecordCount(heimdallUrl),
+    readGiltConsensusLatestRecord(giltconsensusUrl),
+    readGiltConsensusRecordCount(giltconsensusUrl),
   ]);
   return {
     rootStateId,
     childStateId,
-    heimdallLatestRecordId: heimdallLatest.latestRecordId,
-    heimdallLatestProcessed: heimdallLatest.isProcessedByHeimdall,
-    heimdallRecordCount: heimdallCount,
+    giltconsensusLatestRecordId: giltconsensusLatest.latestRecordId,
+    giltconsensusLatestProcessed: giltconsensusLatest.isProcessedByGiltConsensus,
+    giltconsensusRecordCount: giltconsensusCount,
   };
 }
 
@@ -575,6 +588,8 @@ export function createCheckpointBuilder({
   childWeb3,
   roughnetProvider,
   addressBook = null,
+  goldChainId = null,
+  checkpointAccountHash = null,
 }) {
   let offsetBlock = null;
   let lastActualEndBlock = null;
@@ -582,6 +597,8 @@ export function createCheckpointBuilder({
   let logicalEnd = null;
   let currentHeaderBlock = null;
   let cursorPromise = null;
+  let resolvedGoldChainId = goldChainId == null ? null : BigInt(goldChainId);
+  let resolvedCheckpointAccountHash = checkpointAccountHash || addressBook?.meta?.checkpointAccountHash || CHECKPOINT_ACCOUNT_HASH;
 
   const persistCursor = () => {
     if (
@@ -665,6 +682,12 @@ export function createCheckpointBuilder({
 
     const actualStartBlock = lastActualEndBlock + 1;
     const checkpointData = await buildCheckpointData(childWeb3, txHash, offsetBlock, actualStartBlock);
+    if (resolvedGoldChainId == null) {
+      const childChainId = addressBook?.meta?.childChainId
+        || addressBook?.meta?.goldChainId
+        || (await roughnetProvider.getNetwork()).chainId;
+      resolvedGoldChainId = BigInt(childChainId);
+    }
     const data = ethers.AbiCoder.defaultAbiCoder().encode(
       ['address', 'uint256', 'uint256', 'bytes32', 'bytes32', 'uint256'],
       [
@@ -672,8 +695,8 @@ export function createCheckpointBuilder({
         BigInt(checkpointData.startBlock),
         BigInt(checkpointData.endBlock),
         checkpointData.headerRoot,
-        CHECKPOINT_ACCOUNT_HASH,
-        BigInt(GOLD_CHAIN_ID),
+        resolvedCheckpointAccountHash,
+        resolvedGoldChainId,
       ],
     );
 

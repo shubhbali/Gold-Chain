@@ -49,7 +49,7 @@ const ProfileNftModal: React.FC<React.PropsWithChildren<ProfileNftModalProps>> =
       : nft?.tokenId
 
   const handleSwitchNetwork = async (): Promise<void> => {
-    await switchNetworkAsync(ChainId.BSC)
+    await switchNetworkAsync(ChainId.GILT)
   }
 
   return (
@@ -96,7 +96,7 @@ const ProfileNftModal: React.FC<React.PropsWithChildren<ProfileNftModalProps>> =
           </Text>
         </TextWrapper>
         <Flex flexDirection="column" py="16px" px="16px">
-          {chainId !== ChainId.BSC ? (
+          {chainId !== ChainId.GILT ? (
             <Button width="100%" variant="secondary" onClick={handleSwitchNetwork}>
               {t('Switch Network')}
             </Button>

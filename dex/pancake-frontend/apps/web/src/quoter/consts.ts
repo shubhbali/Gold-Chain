@@ -4,7 +4,7 @@ export const X_API_TIMEOUT = 5_000
 
 export const QUOTE_TIMEOUT = {
   [ChainId.BSC_TESTNET]: 12_000,
-  [ChainId.BSC]: 12_000,
+  [ChainId.GILT]: 12_000,
 
   // L1 (slower / variable)
   [ChainId.ETHEREUM]: 15_000,
@@ -43,9 +43,9 @@ export const POOL_EDGE_API_FETCH_TIMEOUT = 6_000
 
 // Revalidate interval after a successful quote in seconds
 export const QUOTE_SUCC_REVALIDATE = {
-  // BSC
+  // GILT
   [ChainId.BSC_TESTNET]: 15,
-  [ChainId.BSC]: 15,
+  [ChainId.GILT]: 15,
 
   // L1 slower
   [ChainId.ETHEREUM]: 25,
@@ -83,9 +83,9 @@ export const QUOTE_SUCC_REVALIDATE = {
 
 // Revalidate interval after a failed quote in seconds
 export const QUOTE_FAIL_REVALIDATE = {
-  // BSC
+  // GILT
   [ChainId.BSC_TESTNET]: 5,
-  [ChainId.BSC]: 5,
+  [ChainId.GILT]: 5,
 
   // L1 slower / variable
   [ChainId.ETHEREUM]: 7,

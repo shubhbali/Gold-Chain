@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T21:25:40Z",
+  "engine": "codex",
+  "final_answer": "Implemented and verified.\n\nI changed:\n- [gilt-chain/eth/handler_gilt_test.go](/srv/repos/gold-chain/gilt-chain/eth/handler_gilt_test.go)\n- [TokenRecoverPortal.t.sol](/srv/repos/gold-chain/gilt-genesis-contract/test/TokenRecoverPortal.t.sol)\n- [generate-genesis.js](/srv/repos/gold-chain/gilt-genesis-contract/scripts/generate-genesis.js)\n- [genesis-template.json](/srv/repos/gold-chain/gilt-genesis-contract/genesis-template.json)\n\nWhat this fixed:\n- Removed leftover `Bsc*` naming from main chain GILT protocol tests.\n- Fixed the failing `TokenRecoverPortal` approval-signature fixture.\n- Renamed genesis script/template input from `initLockedBNBOnTokenHub` to `initLockedGILTOnTokenHub`.\n\nChecks run:\n- `go test ./eth -run 'TestSendVotes68|TestRecvVotes68'` passed.\n- `forge test --chain-id 56 --match-path test/TokenRecoverPortal.t.sol` passed.\n- `forge test --chain-id 56` now passes fully: **97 passed, 0 failed**.\n- `go test ./eth/...` still fails only in `eth/tracers` (`TestStateHooks`, `TestTraceCall`) with the same pre-existing mismatch class.\n\nCurrent exact blocker:\n- Full `BNB` terminology removal is still pending in staking public ABI names (`minSelfDelegationBNB`, `minDelegationBNBChange`, etc.), including the mirrored `stakeABI` blob in `gilt-chain/consensus/parlia/abi.go`. That is a separate coordinated rename pass.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 312,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "OK implement this plan and do it surgically and  right you have unlimited time and tokens. I would rather you took longer and did it right, like even if you take 1000 years it's fine with me, but I don't want to go through the doom loop of testing and debugging. Make sure we don't want to write any duplicate code. Once done check for gaps or partial implementation and fix that keeping the objective of this task in mind. YOU WILL READ AGENTS.MD 1ST BEFORE YOU DO ANYTHING OR I WILL STOP THIS RESPONSE AND ASK YOU WHY YOU DIDNT READ IT AND WONT LET YOU DO SHIT UNTILL YOU READ IT!!!!",
+  "run_id": "90ea8ad394484b11af36d3d95365b8fc",
+  "started_at": "2026-04-16T20:57:49Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T21:25:40Z",
+  "version": 1
+}

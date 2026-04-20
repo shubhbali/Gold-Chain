@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-20T03:56:54Z",
+  "engine": "codex",
+  "final_answer": "No: file naming passed, but code failed the surgical test (`0` filename/path matches, `3537` code matches for `bor|heimdall|polygon`).\n\nWhy it matters: you asked for zero legacy tokens in both naming and code, and code is still not at zero.\n\nFacts (confirmed):\n- Path/file-name scan in `bridge/` (excluding `.deps/vendor/node_modules/build`) returned `0` matches.\n- Code-text scan returned `3537` matches.\n- Top remaining sources are generated/protocol surfaces, e.g.:\n  - [query.pulsar.go](/srv/repos/gold-chain/bridge/gilt-consensus/api/giltconsensusv2/gilt/query.pulsar.go)\n  - [tx.pulsar.go](/srv/repos/gold-chain/bridge/gilt-consensus/api/giltconsensusv2/gilt/tx.pulsar.go)\n  - [swagger.yaml](/srv/repos/gold-chain/bridge/gilt-consensus/client/docs/swagger-ui/swagger.yaml)\n\nInference:\n- The remaining failures are mostly protocol/API/generated artifacts, not filesystem naming.\n\nActions (fix path):\n1. Rename remaining `bor` protocol/API surfaces (proto package/message/service names + REST paths + swagger labels).\n2. Regenerate API/proto artifacts and update references/tests.\n3. Re-run the same surgical scan until code matches are `0`.\n\nCompletion level: partial.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 18,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Run surgical test, no bor or heimdall or polygon shit, in file naming or code",
+  "run_id": "25fd364b3cc1480f9bc5239dfb784fa5",
+  "started_at": "2026-04-20T03:55:57Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-20T03:56:54Z",
+  "version": 1
+}

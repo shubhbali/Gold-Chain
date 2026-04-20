@@ -1,8 +1,6 @@
-# Matic contracts
+# Gilt Bridge contracts
 
-![Build Status](https://github.com/maticnetwork/contracts/workflows/CI/badge.svg)
-
-Ethereum smart contracts that power the [Matic Network](https://polygon.technology/polygon-pos).
+Ethereum smart contracts that power the Gilt Chain bridge stack.
 
 ## Development
 ### Install dependencies with
@@ -20,13 +18,13 @@ pre-commit install
 ### Prepare templates
 
 ```
-npm run template:process -- --bor-chain-id 15001
+npm run template:process -- --gilt-chain-id 15001
 ```
 
-bor-chain-id should be:  
+gilt-chain-id should be:
 **local: 15001**  
 Mainnet = 137  
-TestnetV4 (Mumbai) = 80001
+Testnet = 80001
 
 ### Generate interfaces
 
@@ -57,22 +55,22 @@ forge test
 
 All tests are run against a fork of mainnet using Hardhat's forking functionality. No need to run any local chain!
 
-- Start Matic side chain. Requires docker.
+- Start child side chain. Requires docker.
 
 ```
-npm run bor:simulate
+npm run gilt:simulate
 ```
 
 - Stop with
 
 ```
-npm run bor:stop
+npm run gilt:stop
 ```
 
 - If you want a clean chain, this also deletes your /data folder containing the chain state.
 
 ```
-npm run bor:clean
+npm run gilt:clean
 ```
 
 #### Run tests
@@ -93,4 +91,4 @@ npm run coverage
 
 ## Contact
 
-For more discussions, please head to the [R&D Discord](https://discord.gg/0xPolygonRnD)
+For more discussions, use your project's internal engineering communication channels.

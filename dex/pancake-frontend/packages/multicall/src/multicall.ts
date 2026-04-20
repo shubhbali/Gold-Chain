@@ -10,7 +10,7 @@ import { MulticallRequestWithGas } from './types'
 export type CallByGasLimitParams = AbortControl &
   GetGasLimitParams & {
     // Normally we expect to get quotes from within the same block
-    // But for some chains like BSC the block time is quite short so need some extra tolerance
+    // But for some chains like GILT the block time is quite short so need some extra tolerance
     // 0 means no block conflict and all the multicall results should be queried within the same block
     blockConflictTolerance?: number
 

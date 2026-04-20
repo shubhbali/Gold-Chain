@@ -54,7 +54,7 @@ const IncreaseLiquidityPage = () => {
     </LiquidityFormProvider>
   )
 }
-const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
+const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|GILT)-(0x[a-fA-F0-9]{40}|GILT)$/
 
 const Page = dynamic(() => Promise.resolve(IncreaseLiquidityPage), { ssr: false }) as NextPageWithLayout
 

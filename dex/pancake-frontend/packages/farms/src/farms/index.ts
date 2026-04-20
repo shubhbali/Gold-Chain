@@ -7,7 +7,7 @@ import { monadFarmConfig, monadTestnetFarmConfig } from './monad'
 import { zkSyncTestnetFarmConfig } from './zkSyncTestnet'
 
 const chainIds: ChainId[] = [
-  ChainId.BSC,
+  ChainId.GILT,
   ChainId.ETHEREUM,
   ChainId.ZKSYNC,
   ChainId.ARBITRUM_ONE,

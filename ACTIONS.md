@@ -2,12 +2,12 @@
 
 ## PHASE 1: CORE INFRASTRUCTURE (Weeks 1-4)
 
-### 1.1 BSC Fork Setup
-- [ ] Clone BSC repository
+### 1.1 GILT Fork Setup
+- [ ] Clone GILT repository
 - [ ] Set up 3 validator nodes (local/testnet first)
 - [ ] Configure genesis file with GOLD + GOV tokens
 - [ ] Modify `StakeHub.sol` for two-token reward distribution
-- [ ] Modify `BSCValidatorSet.sol` for dual token tracking
+- [ ] Modify `GiltValidatorSet.sol` for dual token tracking
 - [ ] Register both tokens as valid gas tokens in genesis config
 - [ ] Test block production and consensus
 
@@ -256,7 +256,7 @@
 
 The minimum viable launch requires completing in order:
 
-1. **BSC fork running** (can't do anything without L1)
+1. **GILT fork running** (can't do anything without L1)
 2. **Token contracts** (GOLD + GILT deployed)
 3. **Bridge vault on Ethereum** (can't bridge without it)
 4. **Bridge contract on L1** (minting side)
@@ -273,7 +273,7 @@ Everything else (governance, audits, airdrops) can happen in parallel or after.
 ## DEPENDENCIES
 
 ```
-BSC Fork ─────────────────┬─────────────────────────────────────┐
+GILT Fork ─────────────────┬─────────────────────────────────────┐
                           │                                     │
                           v                                     v
                     Token Contracts                       Blockscout
@@ -313,7 +313,7 @@ BSC Fork ─────────────────┬─────�
 
 | Protocol | Token | License | Fork From |
 |----------|-------|---------|-----------|
-| L1 Blockchain | GOLD + GILT | Apache 2.0 | BSC |
+| L1 Blockchain | GOLD + GILT | Apache 2.0 | GILT |
 | DEX | Separate (TBD) | MIT | Velodrome/Aerodrome |
 | Liquid Staking | Separate (TBD) | GPL-3.0 | Lido |
 | Lending | Separate (TBD) | BSD-3 | Compound |

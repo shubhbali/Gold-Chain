@@ -38,7 +38,7 @@ export const ERC20PredicateBurnOnly = await ethers.getContractFactory('ERC20Pred
 export const ERC721PredicateBurnOnly = await ethers.getContractFactory('ERC721PredicateBurnOnly')
 
 // tokens
-export const MaticWETH = await ethers.getContractFactory('MaticWETH')
+export const GiltWETH = await ethers.getContractFactory('GiltWETH')
 export const TestToken = await ethers.getContractFactory('TestToken')
 export const ERC20Permit = await ethers.getContractFactory('ERC20Permit')
 export const RootERC721 = await ethers.getContractFactory('RootERC721')
@@ -48,14 +48,14 @@ export const ExitNFT = await ethers.getContractFactory('ExitNFT')
 // Misc
 export const GnosisSafeProxy = await ethers.getContractFactory('GnosisSafeProxy')
 export const GnosisSafe = await ethers.getContractFactory('GnosisSafe')
-export const PolygonMigrationTest = await ethers.getContractFactory('PolygonMigrationTest')
-export const PolygonMigration = await ethers.getContractFactory('PolygonMigration')
+export const GiltMigrationTest = await ethers.getContractFactory('GiltMigrationTest')
+export const GiltMigration = await ethers.getContractFactory('GiltMigration')
 
 // child chain
-const borProvider = new ethers.providers.JsonRpcProvider(
-  process.env.BOR_CHAIN_URL ? process.env.BOR_CHAIN_URL : 'http://localhost:9545'
+const giltProvider = new ethers.providers.JsonRpcProvider(
+  process.env.GILT_CHAIN_URL ? process.env.GILT_CHAIN_URL : 'http://localhost:9545'
 )
-let childSigner = borProvider.getSigner()
+let childSigner = giltProvider.getSigner()
 
 if (hre.__SOLIDITY_COVERAGE_RUNNING) {
   childSigner = undefined

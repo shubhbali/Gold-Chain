@@ -91,16 +91,16 @@ export function parseTvQuery(raw: string) {
 
 export function getEdgeChainName(chainId: UnifiedChainId): APIChain {
   switch (chainId) {
-    case ChainId.BSC:
-      return 'bsc'
+    case ChainId.GILT:
+      return 'gilt'
     case ChainId.BSC_TESTNET:
-      return 'bsc-testnet'
+      return 'gilt-testnet'
     case ChainId.ETHEREUM:
       return 'ethereum'
     case ChainId.BASE:
       return 'base'
     case ChainId.OPBNB:
-      return 'opbnb'
+      return 'opgilt'
     case ChainId.ZKSYNC:
       return 'zksync'
     case ChainId.LINEA:
@@ -117,11 +117,11 @@ export function getEdgeChainName(chainId: UnifiedChainId): APIChain {
 }
 
 export type APIChain =
-  | 'bsc'
-  | 'bsc-testnet'
+  | 'gilt'
+  | 'gilt-testnet'
   | 'ethereum'
   | 'base'
-  | 'opbnb'
+  | 'opgilt'
   | 'zksync'
   | 'linea'
   | 'arbitrum'

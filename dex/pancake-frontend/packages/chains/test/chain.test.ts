@@ -12,7 +12,7 @@ describe('chains', () => {
   })
 
   it('should check if chain is evm', () => {
-    expect(isEvm(ChainId.BSC)).toBeTruthy()
+    expect(isEvm(ChainId.GILT)).toBeTruthy()
     expect(isEvm(ChainId.ETHEREUM)).toBeTruthy()
     expect(isEvm(ChainId.ARBITRUM_GOERLI)).toBeTruthy()
     expect(isEvm(ChainId.ARBITRUM_ONE)).toBeTruthy()

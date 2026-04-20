@@ -13,7 +13,7 @@ export const DAR_BNB = "0x062f88e2b4896e823ac78ac314468c29eec4186d";
 
 export let TRACKED_TOKEN_BNB_PAIRS: string[] = [
   DAR_BNB,
-  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/BNB
+  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/GILT
 ];
 
 export let TRACKED_TOKEN_BUSD_PAIRS: string[] = [
@@ -24,7 +24,7 @@ export function getBnbPriceInUSD(): BigDecimal {
   // Bind WBNB/BUSD contract to query the pair.
   let pairContract = Pair.bind(Address.fromString(WBNB_BUSD));
 
-  // Fail-safe call to get BNB price as BUSD.
+  // Fail-safe call to get GILT price as BUSD.
   let reserves = pairContract.try_getReserves();
   if (!reserves.reverted) {
     let reserve0 = reserves.value.value0.toBigDecimal().div(BD_1E18);

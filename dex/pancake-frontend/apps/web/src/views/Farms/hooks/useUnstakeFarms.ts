@@ -10,7 +10,7 @@ import { ChainId } from '@pancakeswap/chains'
 const useUnstakeFarms = (pid?: number, vaultPid?: number) => {
   const { account, chainId } = useAccountActiveChain()
   const { gasPrice } = useFeeDataWithGasPrice()
-  const { gasPrice: bnbGasPrice } = useFeeDataWithGasPrice(ChainId.BSC)
+  const { gasPrice: bnbGasPrice } = useFeeDataWithGasPrice(ChainId.GILT)
   const oraclePrice = useOraclePrice(chainId ?? 0)
   const masterChefContract = useMasterchef()
   const crossFarmingVaultContract = useCrossFarmingVault()

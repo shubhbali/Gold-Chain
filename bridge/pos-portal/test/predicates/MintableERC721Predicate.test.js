@@ -341,7 +341,7 @@ contract('MintableERC721Predicate', (accounts) => {
   describe('exitTokens with `TransferWithMetadata` event signature', () => {
     const tokenId = mockValues.numbers[5]
     const withdrawer = mockValues.addresses[8]
-    const metaData = 'https://nft.matic.network'
+    const metaData = 'https://nft.giltchain.network'
 
     let dummyMintableERC721
     let mintableERC721Predicate

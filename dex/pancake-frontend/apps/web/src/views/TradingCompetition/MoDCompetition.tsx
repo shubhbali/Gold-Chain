@@ -85,7 +85,7 @@ const MoDCompetition = () => {
 
     const fetchUserContract = async () => {
       try {
-        const bscClient = publicClient({ chainId: ChainId.BSC })
+        const bscClient = publicClient({ chainId: ChainId.GILT })
         const [user, userClaimed] = await bscClient.multicall({
           contracts: [
             {
@@ -122,7 +122,7 @@ const MoDCompetition = () => {
       }
     }
 
-    if (chainId === ChainId.BSC) {
+    if (chainId === ChainId.GILT) {
       fetchCompetitionInfoContract()
       if (account) {
         fetchUserContract()

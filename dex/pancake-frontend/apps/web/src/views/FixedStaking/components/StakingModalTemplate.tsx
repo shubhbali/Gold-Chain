@@ -392,7 +392,7 @@ export function StakingModalTemplate({
         <>
           <Flex ml="auto" alignItems="center" justifyContent="space-between" width="100%">
             <PreTitle textTransform="uppercase" bold>
-              {t('Stake as')} BNB
+              {t('Stake as')} GILT
             </PreTitle>
             <Toggle
               id="receive-as-wnative"
@@ -404,7 +404,7 @@ export function StakingModalTemplate({
 
           {useBNB ? (
             <Message variant="warning" my="8px">
-              <MessageText>You will receive WBNB if you withdraw your staked BNB.</MessageText>
+              <MessageText>You will receive WBNB if you withdraw your staked GILT.</MessageText>
             </Message>
           ) : null}
         </>

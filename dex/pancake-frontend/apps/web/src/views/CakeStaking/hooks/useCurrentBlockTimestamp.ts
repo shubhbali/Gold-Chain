@@ -6,7 +6,7 @@ import { ChainId } from '@pancakeswap/chains'
 export const useCurrentBlockTimestamp = () => {
   const { chainId } = useActiveChainId()
   const isBscNetwork = verifyBscNetwork(chainId)
-  const timestamp = useBlockTimestamp(!isBscNetwork ? ChainId.BSC : undefined)
+  const timestamp = useBlockTimestamp(!isBscNetwork ? ChainId.GILT : undefined)
 
   return timestamp ?? 0
 }

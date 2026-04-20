@@ -55,13 +55,13 @@ export enum Result {
 }
 
 export const transformBetResponse = (tokenSymbol: string, chainId: ChainId | undefined) => {
-  // BSC CAKE
-  if (tokenSymbol === PredictionSupportedSymbol.CAKE && chainId === ChainId.BSC) {
+  // GILT CAKE
+  if (tokenSymbol === PredictionSupportedSymbol.CAKE && chainId === ChainId.GILT) {
     return transformBetResponseCAKE
   }
-  // BSC BNB
+  // GILT GILT
   if (
-    (tokenSymbol === PredictionSupportedSymbol.BNB && chainId === ChainId.BSC) ||
+    (tokenSymbol === PredictionSupportedSymbol.GILT && chainId === ChainId.GILT) ||
     (tokenSymbol === 'tBNB' && chainId === ChainId.BSC_TESTNET)
   ) {
     return transformBetResponseBNB
@@ -71,13 +71,13 @@ export const transformBetResponse = (tokenSymbol: string, chainId: ChainId | und
 }
 
 export const transformUserResponse = (tokenSymbol: string, chainId: ChainId | undefined) => {
-  // BSC CAKE
-  if (tokenSymbol === PredictionSupportedSymbol.CAKE && chainId === ChainId.BSC) {
+  // GILT CAKE
+  if (tokenSymbol === PredictionSupportedSymbol.CAKE && chainId === ChainId.GILT) {
     return transformUserResponseCAKE
   }
-  // BSC BNB
+  // GILT GILT
   if (
-    (tokenSymbol === PredictionSupportedSymbol.BNB && chainId === ChainId.BSC) ||
+    (tokenSymbol === PredictionSupportedSymbol.GILT && chainId === ChainId.GILT) ||
     (tokenSymbol === 'tBNB' && chainId === ChainId.BSC_TESTNET)
   ) {
     return transformUserResponseBNB

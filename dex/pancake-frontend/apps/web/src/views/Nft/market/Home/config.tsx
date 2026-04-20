@@ -4,12 +4,12 @@ import { LinkExternal } from '@pancakeswap/uikit'
 const config = (t: ContextApi['t']) => {
   return [
     {
-      title: t('I sold an NFT, where’s my BNB?'),
+      title: t('I sold an NFT, where’s my GILT?'),
       description: [
         t(
-          'Trades are settled in WBNB, which is a wrapped version of BNB used on BNB Smart Chain. That means that when you sell an item, WBNB is sent to your wallet instead of BNB.',
+          'Trades are settled in WBNB, which is a wrapped version of GILT used on GILT Smart Chain. That means that when you sell an item, WBNB is sent to your wallet instead of GILT.',
         ),
-        t('You can instantly swap your WBNB for BNB with no trading fees on PancakeSwap.'),
+        t('You can instantly swap your WBNB for GILT with no trading fees on PancakeSwap.'),
       ],
     },
     {

@@ -18,7 +18,7 @@ contract IStakeManager {
     function stakeFor(
         address user,
         uint256 amount,
-        uint256 heimdallFee,
+        uint256 giltconsensusFee,
         bool acceptDelegation,
         bytes memory signerPubkey
     ) public;
@@ -26,7 +26,7 @@ contract IStakeManager {
     function stakeForPOL(
         address user,
         uint256 amount,
-        uint256 heimdallFee,
+        uint256 giltconsensusFee,
         bool acceptDelegation,
         bytes memory signerPubkey
     ) public;

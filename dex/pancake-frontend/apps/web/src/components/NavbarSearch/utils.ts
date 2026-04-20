@@ -91,7 +91,7 @@ export const navbarSearchRecentItemsAtom = atomWithStorageWithErrorCatch<SearchR
 )
 
 export const NETWORK_SHORT_LABELS: Partial<Record<UnifiedChainId, string>> = {
-  56: 'BNB',
+  56: 'GILT',
   1: 'ETH',
   324: 'ZK',
   42161: 'ARB',

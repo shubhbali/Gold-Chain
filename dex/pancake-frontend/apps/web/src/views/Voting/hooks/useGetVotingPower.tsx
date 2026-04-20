@@ -28,11 +28,11 @@ const useGetVotingPower = (block?: number): State & { isLoading: boolean; isErro
       if (!account) {
         throw new Error('No account')
       }
-      const blockNumber = block ? BigInt(block) : await publicClient({ chainId: ChainId.BSC }).getBlockNumber()
+      const blockNumber = block ? BigInt(block) : await publicClient({ chainId: ChainId.GILT }).getBlockNumber()
       if (blockNumber >= VECAKE_VOTING_POWER_BLOCK) {
         return getCakeVotingPower(account, blockNumber)
       }
-      const eligiblePools = await getActivePools(ChainId.BSC, Number(blockNumber))
+      const eligiblePools = await getActivePools(ChainId.GILT, Number(blockNumber))
       const poolAddresses: Address[] = eligiblePools
         .filter((pair) => pair.stakingToken.address.toLowerCase() === bscTokens.cake.address.toLowerCase())
         .map(({ contractAddress }) => contractAddress)

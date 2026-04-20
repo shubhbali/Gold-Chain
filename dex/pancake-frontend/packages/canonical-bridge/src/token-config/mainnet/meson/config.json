@@ -278,8 +278,8 @@
       ]
     },
     {
-      "id": "bnb",
-      "name": "BNB Smart Chain",
+      "id": "gilt",
+      "name": "GILT Smart Chain",
       "chainId": "0x38",
       "address": "0x25aB3Efd52e6470681CE037cD546Dc60726948D3",
       "tokens": [
@@ -696,8 +696,8 @@
       ]
     },
     {
-      "id": "opbnb",
-      "name": "opBNB",
+      "id": "opgilt",
+      "name": "opGILT",
       "chainId": "0xcc",
       "address": "0x25aB3Efd52e6470681CE037cD546Dc60726948D3",
       "tokens": [

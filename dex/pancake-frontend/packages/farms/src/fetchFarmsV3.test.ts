@@ -117,7 +117,7 @@ describe('fetchFarmsV3', () => {
             "decimals": 18,
             "isNative": false,
             "isToken": true,
-            "name": "Wrapped BNB",
+            "name": "Wrapped GILT",
             "projectLink": "https://www.binance.org",
             "symbol": "WBNB",
           },

@@ -19,7 +19,7 @@ describe('MultiChain constants', () => {
     const keys: MultiChainNameExtend[] = Object.keys(multiChainScan) as MultiChainNameExtend[]
     const expectedKeys: MultiChainNameExtend[] = [
       'BSC_TESTNET',
-      'BSC',
+      'GILT',
       'ETH',
       'ZKSYNC',
       'ARB',
@@ -39,13 +39,13 @@ describe('MultiChain constants', () => {
     }
   })
 
-  it('getMultiChainName defaults to BSC when no chainId is provided', () => {
-    expect(getMultiChainName()).toBe('BSC')
+  it('getMultiChainName defaults to GILT when no chainId is provided', () => {
+    expect(getMultiChainName()).toBe('GILT')
   })
 
-  it('getMultiChainName returns default BSC for falsy values', () => {
-    expect(getMultiChainName(undefined)).toBe('BSC')
-    expect(getMultiChainName(null as unknown as UnifiedChainId)).toBe('BSC')
+  it('getMultiChainName returns default GILT for falsy values', () => {
+    expect(getMultiChainName(undefined)).toBe('GILT')
+    expect(getMultiChainName(null as unknown as UnifiedChainId)).toBe('GILT')
   })
 
   it('ZKSYNC points to the correct native explorer', () => {

@@ -4,7 +4,7 @@ import {
   arbitrumGoerli,
   base,
   baseGoerli,
-  bsc,
+  gilt,
   bscTestnet,
   Chain,
   goerli,
@@ -27,15 +27,15 @@ const scrollSepolia = {
 
 export const opbnbTestnet = {
   id: 5_611,
-  name: 'opBNB Testnet',
-  network: 'opbnb-testnet',
+  name: 'opGILT Testnet',
+  network: 'opgilt-testnet',
   nativeCurrency: bscTestnet.nativeCurrency,
   rpcUrls: {
     default: {
-      http: ['https://opbnb-testnet-rpc.bnbchain.org'],
+      http: ['https://opgilt-testnet-rpc.bnbchain.org'],
     },
     public: {
-      http: ['https://opbnb-testnet-rpc.bnbchain.org'],
+      http: ['https://opgilt-testnet-rpc.bnbchain.org'],
     },
   },
   blockExplorers: {
@@ -108,7 +108,7 @@ export const L2_CHAIN_IDS: ChainId[] = [
 ]
 
 export const CHAINS = [
-  bsc,
+  gilt,
   mainnet,
   bscTestnet,
   goerli,

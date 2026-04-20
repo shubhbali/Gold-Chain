@@ -22,12 +22,12 @@ if (hre.__SOLIDITY_COVERAGE_RUNNING) {
   web3Child = new web3.constructor(web3.currentProvider)
 } else {
   web3Child = new web3.constructor(
-    new web3.providers.HttpProvider(process.env.BOR_CHAIN_URL ? process.env.BOR_CHAIN_URL : 'http://localhost:9545')
+    new web3.providers.HttpProvider(process.env.GILT_CHAIN_URL ? process.env.GILT_CHAIN_URL : 'http://localhost:9545')
   )
 }
 
 export const ZeroAddress = '0x0000000000000000000000000000000000000000'
-export let ChildMaticTokenAddress = '0x0000000000000000000000000000000000001010'
+export let ChildLegacyTokenAddress = '0x0000000000000000000000000000000000001010'
 export const scalingFactor = web3.utils.toBN(10).pow(web3.utils.toBN(18))
 
 export function getSigs(wallets, votedata, order = true) {
@@ -236,7 +236,7 @@ export async function deposit(
     depositBlockId = '0x' + crypto.randomBytes(32).toString('hex')
   }
 
-  let deposit = await fireDepositFromMainToMatic(
+  let deposit = await fireDepositFromMainToChild(
     childChain,
     '0xa' /* dummy id */,
     user,
@@ -248,7 +248,7 @@ export async function deposit(
   return deposit
 }
 
-export function fireDepositFromMainToMatic(childChain, eventId, user, tokenAddress, amountOrToken, depositBlockId) {
+export function fireDepositFromMainToChild(childChain, eventId, user, tokenAddress, amountOrToken, depositBlockId) {
   // ACLed on onlyOwner
   return childChain.onStateReceive(eventId, encodeDepositStateSync(user, tokenAddress, amountOrToken, depositBlockId))
 }

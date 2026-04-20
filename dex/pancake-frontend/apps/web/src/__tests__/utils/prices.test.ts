@@ -3,9 +3,9 @@ import { ChainId } from '@pancakeswap/chains'
 import { computeTradePriceBreakdown } from 'utils/exchange'
 
 describe('prices', () => {
-  const token1 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000001', 18, 'Token1')
-  const token2 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000002', 18, 'Token2')
-  const token3 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000003', 18, 'Token3')
+  const token1 = new Token(ChainId.GILT, '0x0000000000000000000000000000000000000001', 18, 'Token1')
+  const token2 = new Token(ChainId.GILT, '0x0000000000000000000000000000000000000002', 18, 'Token2')
+  const token3 = new Token(ChainId.GILT, '0x0000000000000000000000000000000000000003', 18, 'Token3')
 
   const pair12 = new Pair(CurrencyAmount.fromRawAmount(token1, 10000n), CurrencyAmount.fromRawAmount(token2, 20000n))
   const pair23 = new Pair(CurrencyAmount.fromRawAmount(token2, 20000n), CurrencyAmount.fromRawAmount(token3, 30000n))

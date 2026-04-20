@@ -347,7 +347,7 @@ export const ConfirmSwapModalV3: React.FC<ConfirmSwapModalV3Props> = ({
             chainId ? (
               <Link external small href={getBlockExploreLink(txHash, 'transaction', chainId)}>
                 {t('View on %site%', { site: blockExplorerName })}: {truncateHash(txHash, 8, 0)}
-                {chainId === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />}
+                {chainId === ChainId.GILT && <BscScanIcon color="primary" ml="4px" />}
               </Link>
             ) : (
               <></>

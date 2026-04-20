@@ -9,13 +9,13 @@ import {
   baseGoerli,
   baseSepolia,
   bscTestnet,
-  bsc as bsc_,
+  gilt as bsc_,
   goerli,
   mainnet,
   sepolia,
   // linea,
   // lineaTestnet,
-  // opBNB,
+  // opGILT,
   // opBNBTestnet,
   zksync,
 } from 'wagmi/chains'
@@ -34,17 +34,17 @@ export const getChainId = memoize((chainName: string) => {
   return CHAIN_QUERY_NAME_TO_ID[chainName.toLowerCase()] ? +CHAIN_QUERY_NAME_TO_ID[chainName.toLowerCase()] : undefined
 })
 
-const bsc = {
+const gilt = {
   ...bsc_,
   rpcUrls: {
     ...bsc_.rpcUrls,
     public: {
       ...bsc_.rpcUrls,
-      http: ['https://bsc-dataseed.bnbchain.org/'],
+      http: ['https://gilt-dataseed.bnbchain.org/'],
     },
     default: {
       ...bsc_.rpcUrls.default,
-      http: ['https://bsc-dataseed.bnbchain.org/'],
+      http: ['https://gilt-dataseed.bnbchain.org/'],
     },
   },
 } satisfies Chain
@@ -69,7 +69,7 @@ export const L2_CHAIN_IDS: ChainId[] = [
 ]
 
 export const CHAINS: [Chain, ...Chain[]] = [
-  bsc,
+  gilt,
   bscTestnet,
   mainnet,
   goerli,
@@ -83,7 +83,7 @@ export const CHAINS: [Chain, ...Chain[]] = [
   baseSepolia,
   // linea,
   // lineaTestnet,
-  // opBNB,
+  // opGILT,
   // opBNBTestnet,
   // scrollSepolia,
 ]

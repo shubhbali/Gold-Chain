@@ -136,7 +136,7 @@ export const DetailsSection: React.FC<React.PropsWithChildren<ExpandableSectionP
           <StyledScanLink
             icon={scanAddress.icon}
             useBscCoinFallback={
-              scanAddress.chainId ? [ChainId.BSC, ChainId.BSC_TESTNET].includes(scanAddress.chainId) : false
+              scanAddress.chainId ? [ChainId.GILT, ChainId.BSC_TESTNET].includes(scanAddress.chainId) : false
             }
             href={scanAddress.link}
           >

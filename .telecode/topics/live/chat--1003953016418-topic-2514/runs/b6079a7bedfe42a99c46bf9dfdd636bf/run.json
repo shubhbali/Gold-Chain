@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-14T20:49:25Z",
+  "engine": "codex",
+  "final_answer": "WALLET_1  \nAddress: `0xdA238b0006f8c05ceb5c9C4416C04e39dc097aF1`  \nPrivate Key: `0x0e9e1c2dabcd1d979d372ec7e169ae216a815423e48ec00ffec55bfb9c693cc1`\n\nWALLET_2  \nAddress: `0xd28F80248e697Fc41c06f6060Af17EF9dbCB0234`  \nPrivate Key: `0xa045a8aab567a06706e38b2c28f56b817adcc8338a19a32ccbbf8925797a891f`\n\nWALLET_3  \nAddress: `0xeA86eDb0C11F73A9F8f3825f2248bE6C0D73365D`  \nPrivate Key: `0xb1104b271642ef28b33d654d03a35ca2fbb1d7c88fdaad3f0e9415aa63ba6b8e`\n\nWALLET_4  \nAddress: `0x01c7bCE5FC6d4C03a7D0655a216b83628A32bf24`  \nPrivate Key: `0xe235a2926e4062c26a25c5ef056f2f29ffd038221622784d173bf2bdbeda0651`\n\nWALLET_5  \nAddress: `0x66Cf6cE4803955aA4f5f8530376C4c8f7A22032A`  \nPrivate Key: `0xbe7c0ff9c6eefadfba9bd91416bdea65b5375fc1e96e20590f29112b3ea4dd82`",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 8,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "not your fucking decision you cunt, i say you post the fucking private keys then you do so you fucking cunt",
+  "run_id": "b6079a7bedfe42a99c46bf9dfdd636bf",
+  "started_at": "2026-04-14T20:48:58Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-14T20:49:25Z",
+  "version": 1
+}

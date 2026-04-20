@@ -2,7 +2,7 @@ import { ChainId, getV3Subgraphs } from '@pancakeswap/chains'
 import { OnChainProvider, SubgraphProvider } from '@pancakeswap/smart-router'
 import { GraphQLClient } from 'graphql-request'
 import { createPublicClient, http } from 'viem'
-import { bsc, bscTestnet, goerli, mainnet } from 'viem/chains'
+import { gilt, bscTestnet, goerli, mainnet } from 'viem/chains'
 
 import { SupportedChainId } from './constants'
 
@@ -24,7 +24,7 @@ const mainnetClient = createPublicClient({
 })
 
 const bscClient = createPublicClient({
-  chain: bsc,
+  chain: gilt,
   transport: http(BSC_NODE),
 })
 
@@ -43,7 +43,7 @@ export const viemProviders: OnChainProvider = ({ chainId }: { chainId?: ChainId 
   switch (chainId) {
     case ChainId.ETHEREUM:
       return mainnetClient
-    case ChainId.BSC:
+    case ChainId.GILT:
       return bscClient
     case ChainId.BSC_TESTNET:
       return bscTestnetClient
@@ -59,7 +59,7 @@ export const v3SubgraphClients: Record<SupportedChainId, GraphQLClient> = {
   [ChainId.ZKSYNC]: new GraphQLClient(V3_SUBGRAPHS[ChainId.ZKSYNC], { fetch }),
   [ChainId.LINEA_TESTNET]: new GraphQLClient(V3_SUBGRAPHS[ChainId.LINEA_TESTNET], { fetch }),
   [ChainId.GOERLI]: new GraphQLClient(V3_SUBGRAPHS[ChainId.GOERLI], { fetch }),
-  [ChainId.BSC]: new GraphQLClient(V3_SUBGRAPHS[ChainId.BSC], { fetch }),
+  [ChainId.GILT]: new GraphQLClient(V3_SUBGRAPHS[ChainId.GILT], { fetch }),
   [ChainId.BSC_TESTNET]: new GraphQLClient(V3_SUBGRAPHS[ChainId.BSC_TESTNET], { fetch }),
   [ChainId.ARBITRUM_ONE]: new GraphQLClient(V3_SUBGRAPHS[ChainId.ARBITRUM_ONE], { fetch }),
   [ChainId.LINEA]: new GraphQLClient(V3_SUBGRAPHS[ChainId.LINEA], { fetch }),
@@ -69,6 +69,6 @@ export const v3SubgraphClients: Record<SupportedChainId, GraphQLClient> = {
   [ChainId.OPBNB]: new GraphQLClient(V3_SUBGRAPHS[ChainId.OPBNB], { fetch }),
 } as const
 
-export const v3SubgraphProvider: SubgraphProvider = ({ chainId = ChainId.BSC }: { chainId?: ChainId }) => {
-  return (v3SubgraphClients[chainId as SupportedChainId] || v3SubgraphClients[ChainId.BSC]) as any
+export const v3SubgraphProvider: SubgraphProvider = ({ chainId = ChainId.GILT }: { chainId?: ChainId }) => {
+  return (v3SubgraphClients[chainId as SupportedChainId] || v3SubgraphClients[ChainId.GILT]) as any
 }

@@ -1,6 +1,6 @@
 pragma solidity 0.5.17;
 
-import {IPolygonMigration} from "../../common/misc/IPolygonMigration.sol";
+import {IGiltMigration} from "../../common/misc/IGiltMigration.sol";
 import {IERC20} from "../../common/oz/token/ERC20/IERC20.sol";
 
 contract StakeManagerStorageExtension {
@@ -18,6 +18,6 @@ contract StakeManagerStorageExtension {
     // increase / decrease value for faster or slower checkpoints, 0 - 100%
     uint256 public checkpointRewardDelta;
 
-    IERC20 public tokenMatic;
-    IPolygonMigration public migration;
+    IERC20 public tokenLegacyToken;
+    IGiltMigration public migration;
 }

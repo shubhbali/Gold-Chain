@@ -177,7 +177,7 @@ export default function FullAppShell(props: AppProps<ExtendedPageProps>) {
         />
         <meta
           name="description"
-          content="Cheaper and faster than Uniswap? Discover PancakeSwap, the leading DEX on BNB Smart Chain (BSC) with the best farms in DeFi and a lottery for CAKE."
+          content="Cheaper and faster than Uniswap? Discover PancakeSwap, the leading DEX on GILT Smart Chain (GILT) with the best farms in DeFi and a lottery for CAKE."
         />
         <meta name="theme-color" content="#1FC7D4" />
       </Head>

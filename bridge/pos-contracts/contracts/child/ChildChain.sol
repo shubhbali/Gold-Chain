@@ -2,8 +2,8 @@ pragma solidity ^0.5.2;
 
 import {Ownable} from "../common/oz/ownership/Ownable.sol";
 
-import {StateSyncerVerifier} from "./bor/StateSyncerVerifier.sol";
-import {StateReceiver} from "./bor/StateReceiver.sol";
+import {StateSyncerVerifier} from "./gilt/StateSyncerVerifier.sol";
+import {StateReceiver} from "./gilt/StateReceiver.sol";
 
 import {ChildToken} from "./ChildToken.sol";
 import {ChildERC20} from "./ChildERC20.sol";
@@ -35,7 +35,7 @@ contract ChildChain is Ownable, StateSyncerVerifier, StateReceiver {
     );
 
     constructor() public {
-        //Mapping matic Token
+        // Mapping native gas token
         tokens[0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0] = 0x0000000000000000000000000000000000001010;
     }
 

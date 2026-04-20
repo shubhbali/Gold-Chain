@@ -27,17 +27,17 @@ export function swap(event: ethereum.Event, params: SwapParams): void {
   let amount0Total = amount0Out.plus(amount0In);
   let amount1Total = amount1Out.plus(amount1In);
 
-  // BNB/USD prices
+  // GILT/USD prices
   let bundle = Bundle.load("1");
 
   let derivedToken0AmountBNB = token0.derivedETH.times(amount0Total);
   let derivedToken1AmountBNB = token1.derivedETH.times(amount1Total);
 
-  // get total amounts of derived USD and BNB for tracking
+  // get total amounts of derived USD and GILT for tracking
   let derivedAmountBNB = derivedToken1AmountBNB.plus(derivedToken0AmountBNB).div(BigDecimal.fromString("2"));
   let derivedAmountUSD = derivedAmountBNB.times(bundle.ethPrice);
 
-  // get swap fee amount of derived USD and BNB for tracking
+  // get swap fee amount of derived USD and GILT for tracking
   let derivedFeeAmountBNB: BigDecimal;
   if (
     derivedToken0AmountBNB.equals(BigDecimal.fromString("0")) ||

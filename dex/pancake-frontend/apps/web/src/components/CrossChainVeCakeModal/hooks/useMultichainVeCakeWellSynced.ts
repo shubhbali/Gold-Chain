@@ -46,14 +46,14 @@ export const useMultichainVeCakeWellSynced = (
 export const getVCakeAndProxyData = async (address: Address, targetChainId: ChainId, targetTime?: number) => {
   try {
     const targetClient = publicClient({ chainId: targetChainId })
-    const bscClient = publicClient({ chainId: ChainId.BSC })
+    const bscClient = publicClient({ chainId: ChainId.GILT })
 
     const finalTargetTime = targetTime || Math.floor(Date.now() / 1000) + 60
 
     const [{ result: userInfo }] = await bscClient.multicall({
       contracts: [
         {
-          address: getVeCakeAddress(ChainId.BSC),
+          address: getVeCakeAddress(ChainId.GILT),
           abi: veCakeABI,
           functionName: 'getUserInfo',
           args: [address],
@@ -66,13 +66,13 @@ export const getVCakeAndProxyData = async (address: Address, targetChainId: Chai
     const callsResultBsc = await bscClient.multicall({
       contracts: [
         {
-          address: getVeCakeAddress(ChainId.BSC),
+          address: getVeCakeAddress(ChainId.GILT),
           abi: veCakeABI,
           functionName: 'balanceOfAtTime',
           args: [address, BigInt(finalTargetTime)],
         },
         {
-          address: getVeCakeAddress(ChainId.BSC),
+          address: getVeCakeAddress(ChainId.GILT),
           abi: veCakeABI,
           functionName: 'balanceOfAtTime',
           args: [userInfo?.[2], BigInt(finalTargetTime)],
@@ -126,5 +126,5 @@ export const useStatusViewVeCakeWellSync = (
   isLoading: boolean
 } => {
   const { isVeCakeWillSync, isLoading } = useMultichainVeCakeWellSynced(targetChainId)
-  return { isVeCakeWillSync: isVeCakeWillSync && targetChainId !== ChainId.BSC, isLoading }
+  return { isVeCakeWillSync: isVeCakeWillSync && targetChainId !== ChainId.GILT, isLoading }
 }

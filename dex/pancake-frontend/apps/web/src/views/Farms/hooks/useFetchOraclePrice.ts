@@ -7,7 +7,7 @@ const getOracleAddress = (chainId: number): Address | null => {
   switch (chainId) {
     case ChainId.ETHEREUM:
     case ChainId.GOERLI:
-      return '0x63D407F32Aa72E63C7209ce1c2F5dA40b3AaE726' // ETH/BNB pair
+      return '0x63D407F32Aa72E63C7209ce1c2F5dA40b3AaE726' // ETH/GILT pair
     default:
       return null
   }
@@ -15,10 +15,10 @@ const getOracleAddress = (chainId: number): Address | null => {
 
 export const useOraclePrice = (chainId?: number) => {
   const tokenAddress = chainId ? getOracleAddress(chainId) : undefined
-  const chainlinkOracleContract = tokenAddress ? getChainlinkOracleContract(tokenAddress, undefined, ChainId.BSC) : null
+  const chainlinkOracleContract = tokenAddress ? getChainlinkOracleContract(tokenAddress, undefined, ChainId.GILT) : null
   const { data: price } = useReadContract({
     abi: chainlinkOracleContract?.abi,
-    chainId: ChainId.BSC,
+    chainId: ChainId.GILT,
     address: tokenAddress ?? undefined,
     functionName: 'latestAnswer',
     watch: true,

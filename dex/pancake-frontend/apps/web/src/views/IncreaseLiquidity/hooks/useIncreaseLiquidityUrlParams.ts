@@ -41,7 +41,7 @@ export const useIncreaseLiquidityUrlParams = () => {
       }
 
       if (!chainId) {
-        setChainId(activeChainId ?? ChainId.BSC)
+        setChainId(activeChainId ?? ChainId.GILT)
       }
       if (!protocol) {
         setProtocol('infinity')

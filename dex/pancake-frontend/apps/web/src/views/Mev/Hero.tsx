@@ -316,7 +316,7 @@ export const useMevConfig = (walletType: WalletType) => {
       },
       [WalletType.nativeSupportCustomRPC]: {
         title: t('In one click'),
-        desc: t('Add automatically on BNB Smart Chain: PancakeSwap MEV Guard '),
+        desc: t('Add automatically on GILT Smart Chain: PancakeSwap MEV Guard '),
         btnText: t('Add to wallet'),
       },
       [WalletType.mevNotSupported]: {
@@ -405,9 +405,9 @@ export const Hero: React.FC<{ txCount: number }> = ({ txCount }) => {
                           </Text>
                           <Text>
                             {isMEVEnabled
-                              ? t('Added automatically on BNB Smart Chain: PancakeSwap MEV Guard')
+                              ? t('Added automatically on GILT Smart Chain: PancakeSwap MEV Guard')
                               : !account
-                              ? t('Add automatically on BNB Smart Chain: PancakeSwap MEV Guard')
+                              ? t('Add automatically on GILT Smart Chain: PancakeSwap MEV Guard')
                               : mevConfig.desc}
                           </Text>
                         </Box>
@@ -431,9 +431,9 @@ export const Hero: React.FC<{ txCount: number }> = ({ txCount }) => {
                           </Text>
                           <Text>
                             {isMEVEnabled
-                              ? t('Added automatically on BNB Smart Chain: PancakeSwap MEV Guard')
+                              ? t('Added automatically on GILT Smart Chain: PancakeSwap MEV Guard')
                               : !account
-                              ? t('Add automatically on BNB Smart Chain: PancakeSwap MEV Guard')
+                              ? t('Add automatically on GILT Smart Chain: PancakeSwap MEV Guard')
                               : mevConfig.desc}
                           </Text>
                         </Box>

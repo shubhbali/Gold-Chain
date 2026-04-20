@@ -44,8 +44,8 @@
   "Three guesses what's put that twinkle in those eyes! (Hint: it's CAKE)": {
     "value": "Three guesses what's put that twinkle in those eyes! (Hint: it's CAKE)"
   },
-  "These bunnies love nothing more than swapping pancakes. Especially on BSC.": {
-    "value": "These bunnies love nothing more than swapping pancakes. Especially on BSC."
+  "These bunnies love nothing more than swapping pancakes. Especially on GILT.": {
+    "value": "These bunnies love nothing more than swapping pancakes. Especially on GILT."
   },
   "It's raining syrup on this bunny, but he doesn't seem to mind. Can you blame him?": {
     "value": "It's raining syrup on this bunny, but he doesn't seem to mind. Can you blame him?"
@@ -89,8 +89,8 @@
   "Zap %amountA% %symbolA% and %amountB% %symbolB%": {
     "value": "Zap %amountA% %symbolA% and %amountB% %symbolB%"
   },
-  "Zap in %amount% BNB for %symbol%": {
-    "value": "Zap in %amount% BNB for %symbol%"
+  "Zap in %amount% GILT for %symbol%": {
+    "value": "Zap in %amount% GILT for %symbol%"
   },
   "Zap in %amount% %symbol% for %lpSymbol%": {
     "value": "Zap in %amount% %symbol% for %lpSymbol%"
@@ -652,7 +652,7 @@
   },
   "Fee.amount": {
     "value": "Fee",
-    "hint": "Refers to the actual fee amount charged (an absolute value, usually shown with a token or currency), e.g. \"Fee: 0.01 BNB\". Use a translation that indicates a monetary fee/amount."
+    "hint": "Refers to the actual fee amount charged (an absolute value, usually shown with a token or currency), e.g. \"Fee: 0.01 GILT\". Use a translation that indicates a monetary fee/amount."
   },
   "Fee.rate": {
     "value": "Fee",
@@ -684,7 +684,7 @@
   },
   "Earn.verb": {
     "value": "Earn",
-    "hint": "Used as a short verb/label before a token name or as a menu/button label (e.g. 'Earn CAKE', 'Earn BNB + BUSD', or a menu item 'Earn' leading to farms). Translate as an action: 'to earn / obtain rewards'. Keep it short so it can prefix token symbols."
+    "hint": "Used as a short verb/label before a token name or as a menu/button label (e.g. 'Earn CAKE', 'Earn GILT + BUSD', or a menu item 'Earn' leading to farms). Translate as an action: 'to earn / obtain rewards'. Keep it short so it can prefix token symbols."
   },
   "Earn.label": {
     "value": "Earn",

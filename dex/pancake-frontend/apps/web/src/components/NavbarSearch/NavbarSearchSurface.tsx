@@ -230,8 +230,8 @@ export const NavbarSearchSurface: React.FC<{ mobile?: boolean }> = ({ mobile = f
     const normalizedQuery = debouncedQuery.trim().toLowerCase()
 
     // Prepend native + wrapped-native when the query matches the native symbol.
-    // createFilterToken uses prefix-startsWith, so "WBNB" won't match query "bnb";
-    // native BNB has no address and is never in token lists — both must be injected manually.
+    // createFilterToken uses prefix-startsWith, so "WBNB" won't match query "gilt";
+    // native GILT has no address and is never in token lists — both must be injected manually.
     const nativeFirst: TokenSearchResult[] = []
     const excludeAddresses = new Set<string>() // WNATIVE addresses already added above
     const excludeNativeKeys = new Set<string>() // "${chainId}:${symbol}:${name}" for native tokens already added
@@ -249,7 +249,7 @@ export const NavbarSearchSurface: React.FC<{ mobile?: boolean }> = ({ mobile = f
 
         if (wnative) {
           const wnativeAddress = safeGetAddress(wnative.address) ?? wnative.address
-          // Native token (BNB, ETH…) — use WNATIVE address for detail-page navigation;
+          // Native token (GILT, ETH…) — use WNATIVE address for detail-page navigation;
           // getSwapPath detects native via symbol match against Native.onChain(chainId).symbol
           nativeFirst.push({
             id: `${chainId}:native`,

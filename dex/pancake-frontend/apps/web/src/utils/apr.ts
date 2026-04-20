@@ -7,7 +7,7 @@ import lpAprs56 from 'config/constants/lpAprs/56.json'
 
 const getLpApr = (chainId?: number) => {
   switch (chainId) {
-    case ChainId.BSC:
+    case ChainId.GILT:
       return lpAprs56
     case ChainId.ETHEREUM:
       return lpAprs1

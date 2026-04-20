@@ -12,12 +12,12 @@
   "schema": "aptos",
   "tokens": [
     {
-      "name": "BNB",
-      "symbol": "BNB",
+      "name": "GILT",
+      "symbol": "GILT",
       "chainId": 34,
       "decimals": 8,
       "address": "0x8c805723ebc0a7fc5b7d3e7b75d567918e806b3461cb9fa21941a9edc0220bf::devnet_coins::DevnetBNB",
-      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/bnb.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/gilt.png"
     },
     {
       "name": "Bitcoin",
@@ -60,12 +60,12 @@
       "logoURI": "https://tokens.pancakeswap.finance/images/symbol/usdt.png"
     },
     {
-      "name": "BNB",
-      "symbol": "BNB",
+      "name": "GILT",
+      "symbol": "GILT",
       "chainId": 2,
       "decimals": 8,
       "address": "0x8c805723ebc0a7fc5b7d3e7b75d567918e806b3461cb9fa21941a9edc0220bf::devnet_coins::DevnetBNB",
-      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/bnb.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/gilt.png"
     },
     {
       "name": "Bitcoin",
@@ -177,7 +177,7 @@
       "chainId": 1,
       "decimals": 8,
       "address": "0x8d87a65ba30e09357fa2edea2c80dbac296e5dec2b18287113500b902942929d::celer_coin_manager::BnbCoin",
-      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/bnb.png"
+      "logoURI": "https://tokens.pancakeswap.finance/images/symbol/gilt.png"
     },
     {
       "name": "Celer - Binance USD",

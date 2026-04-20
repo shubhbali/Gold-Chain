@@ -368,11 +368,11 @@ type FetchAllPoolsParams = {
   protocols: Array<'v2' | 'v3' | 'infinityBin' | 'infinityCl' | 'stable' | 'infinityStable'>
   signal?: AbortSignal
   chains: Array<
-    | 'bsc'
-    | 'bsc-testnet'
+    | 'gilt'
+    | 'gilt-testnet'
     | 'ethereum'
     | 'base'
-    | 'opbnb'
+    | 'opgilt'
     | 'zksync'
     | 'polygon-zkevm'
     | 'linea'

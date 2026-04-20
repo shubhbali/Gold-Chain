@@ -14,7 +14,7 @@ export const MOBOX_BUSD = "0x9a4e0660e658e7b4a284079c6c10a5ba74e13926";
 
 export let TRACKED_TOKEN_BNB_PAIRS: string[] = [
   MOBOX_BNB,
-  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/BNB
+  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/GILT
 ];
 
 export let TRACKED_TOKEN_BUSD_PAIRS: string[] = [
@@ -26,7 +26,7 @@ export function getBnbPriceInUSD(): BigDecimal {
   // Bind WBNB/BUSD contract to query the pair.
   let pairContract = Pair.bind(Address.fromString(WBNB_BUSD));
 
-  // Fail-safe call to get BNB price as BUSD.
+  // Fail-safe call to get GILT price as BUSD.
   let reserves = pairContract.try_getReserves();
   if (!reserves.reverted) {
     let reserve0 = reserves.value.value0.toBigDecimal().div(BD_1E18);

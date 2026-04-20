@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T20:25:59Z",
+  "engine": "codex",
+  "final_answer": "Yes, correct: **GOLD staking is not enabled on the chain running right now**.\n\nCurrent live values:\n- `stakeTokenB = 0x0000000000000000000000000000000000000000` (unset)\n- `tokenBRewardSplitBps = 0` (no GOLD reward split)\n\nSo the GOLD staking lane exists in code, but is currently switched off in runtime config.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Is gold staking not enabled in thsi chain we are running now",
+  "run_id": "ddfd428394a24974a0c047358d5d920b",
+  "started_at": "2026-04-15T20:25:48Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T20:25:59Z",
+  "version": 1
+}

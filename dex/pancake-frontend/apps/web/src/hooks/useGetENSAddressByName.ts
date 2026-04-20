@@ -23,7 +23,7 @@ export const useGetENSAddressByName = (ensNameOrAddress?: string) => {
       enabled:
         typeof ensNameOrAddress !== 'undefined' &&
         (ENS_NAME_REGEX.test(ensNameOrAddress) || ADDRESS_REGEX.test(ensNameOrAddress)) &&
-        chainId !== ChainId.BSC &&
+        chainId !== ChainId.GILT &&
         chainId !== ChainId.BSC_TESTNET &&
         ensSupported,
     },

@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-14T20:40:34Z",
+  "engine": "codex",
+  "final_answer": "Good question. You don\u2019t need keys for everything.\n\n- **For genesis allocation**: only wallet **addresses** are needed.\n- **Keys are needed only for wallets that must act** (sign transactions), like:\n  - validator/operator wallet\n  - governance wallet\n  - deployer/ops wallet\n  - bridge relayer wallet\n  - test actor wallets (delegator, swap tester, etc.)\n\nSo: send addresses for funding, and keep private keys only for active operator/test wallets. You should keep keys on your side and not share them.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 5,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Why do you need the keys? I don't get it",
+  "run_id": "82a9a13eb1c2446aa245db55e22ad486",
+  "started_at": "2026-04-14T20:40:25Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-14T20:40:34Z",
+  "version": 1
+}

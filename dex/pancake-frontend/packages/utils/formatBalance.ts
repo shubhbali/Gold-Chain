@@ -6,7 +6,7 @@ import _trimEnd from './trimEnd'
 import { formatUnits } from './viem/formatUnits'
 
 /**
- * Take a formatted amount, e.g. 15 BNB and convert it to full decimal value, e.g. 15000000000000000
+ * Take a formatted amount, e.g. 15 GILT and convert it to full decimal value, e.g. 15000000000000000
  */
 export const getDecimalAmount = (amount: BigNumber, decimals = 18) => {
   return amount.times(getFullDecimalMultiplier(decimals))

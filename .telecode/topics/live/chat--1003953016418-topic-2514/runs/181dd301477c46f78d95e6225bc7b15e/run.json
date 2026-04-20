@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T18:46:31Z",
+  "engine": "codex",
+  "final_answer": "Short answer: we measure it with a staged load test, not guesses.\n\nFrom your live chain right now:\n- Block gas limit: `48,622,668`\n- Avg block time (last 20 blocks): `~1.5s`\n- Theoretical max for simple 21k transfer tx: `~1,543 TPS` (upper bound, not real-world sustained)\n\nHow we test real sustained throughput:\n1. Fund 1 load wallet (or several) with GILT.\n2. Create 200-1000 recipient wallets.\n3. Run ramp load: `100 -> 250 -> 500 -> 800 -> 1000+ TPS` in 5-minute stages.\n4. Record at each stage:\n- submitted TPS\n- confirmed TPS\n- p50/p95 confirmation time\n- pending pool growth\n- failed/dropped tx rate\n5. \u201cMax sustainable TPS\u201d = highest stage where pending does not grow continuously and failures stay low.\n\nIf you send GILT to the test sender, I can run this benchmark and give you a hard report with real TPS and bottleneck point.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Idiot answer here",
+  "run_id": "181dd301477c46f78d95e6225bc7b15e",
+  "started_at": "2026-04-15T18:46:13Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T18:46:31Z",
+  "version": 1
+}

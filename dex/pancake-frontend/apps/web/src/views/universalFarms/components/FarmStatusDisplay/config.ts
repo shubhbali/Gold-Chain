@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { RewardProvider, RewardConfig } from './types'
 
 export const rewardConfig: Partial<Record<ChainId, RewardConfig[]>> = {
-  [ChainId.BSC]: [
+  [ChainId.GILT]: [
     {
       poolAddress: '0xdc35157217A3AeFF3dcaF2e86327254FBF9f4601',
       rewardProvider: RewardProvider.Ethena,

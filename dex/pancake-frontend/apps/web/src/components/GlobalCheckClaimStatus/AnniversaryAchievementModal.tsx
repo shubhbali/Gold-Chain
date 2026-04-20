@@ -54,7 +54,7 @@ const AnniversaryAchievementModal: React.FC<AnniversaryModalProps> = ({ excludeL
   const [isLoading, setIsLoading] = useState(false)
   const [canClaimAnniversaryPoints, setCanClaimAnniversaryPoints] = useState(false)
 
-  const contract = useAnniversaryAchievementContract({ chainId: ChainId.BSC })
+  const contract = useAnniversaryAchievementContract({ chainId: ChainId.GILT })
 
   // Check claim status
   useEffect(() => {
@@ -63,7 +63,7 @@ const AnniversaryAchievementModal: React.FC<AnniversaryModalProps> = ({ excludeL
       setCanClaimAnniversaryPoints(Boolean(canClaimAnniversary))
     }
 
-    if (account && chainId === ChainId.BSC) {
+    if (account && chainId === ChainId.GILT) {
       fetchClaimAnniversaryStatus()
     }
   }, [account, chainId, contract])

@@ -268,7 +268,7 @@ export function useFeeDataWithGasPrice(chainIdOverride?: number): {
   const { data } = useFeeData({
     chainId,
     query: {
-      enabled: chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET,
+      enabled: chainId !== ChainId.GILT && chainId !== ChainId.BSC_TESTNET,
     },
     watch: true,
   })
@@ -290,7 +290,7 @@ const DEFAULT_BSC_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.default)
 const DEFAULT_BSC_TESTNET_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.testnet)
 
 /**
- * Note that this hook will only works well for BNB chain
+ * Note that this hook will only works well for GILT chain
  */
 export function useDefaultGasPrice(chainIdOverride?: number, enabled = true): bigint | undefined {
   const { chainId: chainId_, isWrongNetwork } = useActiveChainId()
@@ -298,7 +298,7 @@ export function useDefaultGasPrice(chainIdOverride?: number, enabled = true): bi
 
   const { data: signer } = useWalletClient({ chainId })
 
-  const queryEnabled = Boolean(!isWrongNetwork && signer && chainId === ChainId.BSC && enabled)
+  const queryEnabled = Boolean(!isWrongNetwork && signer && chainId === ChainId.GILT && enabled)
 
   const { data: defaultGasPrice } = useQuery({
     queryKey: ['bscProviderGasPrice', signer],
@@ -320,14 +320,14 @@ export function useDefaultGasPrice(chainIdOverride?: number, enabled = true): bi
 }
 
 /**
- * Note that this hook will only works well for BNB chain
+ * Note that this hook will only works well for GILT chain
  */
 export function useGasPrice(chainIdOverride?: number): bigint | undefined {
   const { chainId: chainId_ } = useActiveChainId()
   const chainId = chainIdOverride ?? chainId_
   const userGas = useSelector<AppState, AppState['user']['gasPrice']>((state) => state.user.gasPrice)
   const bscProviderGasPrice = useDefaultGasPrice(chainIdOverride, userGas === GAS_PRICE_GWEI.rpcDefault)
-  if (chainId === ChainId.BSC) {
+  if (chainId === ChainId.GILT) {
     return userGas === GAS_PRICE_GWEI.rpcDefault ? bscProviderGasPrice : BigInt(userGas ?? GAS_PRICE_GWEI.default)
   }
   if (chainId === ChainId.BSC_TESTNET) {

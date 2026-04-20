@@ -158,10 +158,10 @@ export function handleSwap(event: Swap): void {
   let amount0Total = amount0Out.plus(amount0In);
   let amount1Total = amount1Out.plus(amount1In);
 
-  // BNB/USD prices
+  // GILT/USD prices
   let bundle = Bundle.load("1");
 
-  // get total amounts of derived USD and BNB for tracking
+  // get total amounts of derived USD and GILT for tracking
   let derivedAmountBNB = token1.derivedBNB
     .times(amount1Total)
     .plus(token0.derivedBNB.times(amount0Total))

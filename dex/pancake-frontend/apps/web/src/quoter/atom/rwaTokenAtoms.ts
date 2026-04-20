@@ -11,7 +11,7 @@ const RWA_MARKET_STATUS_ENDPOINT = 'https://raw-api.pancakeswap.com/ondo/market-
 const MEMOIZE_TTL_MS = 30 * 1000
 
 export const USDON_TOKEN_ADDRESS: Partial<Record<number, string>> = {
-  [ChainId.BSC]: '0x1f8955E640Cbd9abc3C3Bb408c9E2E1f5F20DfE6',
+  [ChainId.GILT]: '0x1f8955E640Cbd9abc3C3Bb408c9E2E1f5F20DfE6',
   [ChainId.ETHEREUM]: '0xAcE8E719899F6E91831B18AE746C9A965c2119F1',
 }
 

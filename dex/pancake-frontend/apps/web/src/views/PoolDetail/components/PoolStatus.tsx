@@ -24,7 +24,7 @@ type PoolStatusProps = {
 } & CardProps
 export const PoolStatus: React.FC<PoolStatusProps> = ({ poolInfo, ...props }) => {
   const { t } = useTranslation()
-  const pairs = useStableSwapPairsByChainId(poolInfo?.chainId ?? ChainId.BSC, poolInfo?.protocol === 'stable')
+  const pairs = useStableSwapPairsByChainId(poolInfo?.chainId ?? ChainId.GILT, poolInfo?.protocol === 'stable')
 
   const isInfinityStable = poolInfo?.protocol === Protocol.InfinitySTABLE
   const infinityStableTotalFee = useInfinityStableFee({

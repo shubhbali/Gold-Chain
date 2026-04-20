@@ -4,16 +4,16 @@ import { ChainId } from '@pancakeswap/chains'
 /**
  * InfinityStable Pool Factory contract addresses by chain
  */
-export const CL_STABLE_SWAP_POOL_FACTORY_ADDRESS: Record<ChainId.BSC | ChainId.BSC_TESTNET, Address> = {
-  [ChainId.BSC]: '0x3669dDD1a9ee009dB9Eb2174C5C760FFfc66cfeF',
+export const CL_STABLE_SWAP_POOL_FACTORY_ADDRESS: Record<ChainId.GILT | ChainId.BSC_TESTNET, Address> = {
+  [ChainId.GILT]: '0x3669dDD1a9ee009dB9Eb2174C5C760FFfc66cfeF',
   [ChainId.BSC_TESTNET]: '0x41187151170541bE6Ec0F3C235781ED9d7EF9923',
 }
 
 /**
  * InfinityStable Hook Factory contract addresses by chain
  */
-export const HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS: Record<ChainId.BSC | ChainId.BSC_TESTNET, Address> = {
-  [ChainId.BSC]: '0x44de03599d1088b205D959b09A842448A0a63173',
+export const HOOK_INFINITY_STABLE_HOOK_FACTORY_ADDRESS: Record<ChainId.GILT | ChainId.BSC_TESTNET, Address> = {
+  [ChainId.GILT]: '0x44de03599d1088b205D959b09A842448A0a63173',
   [ChainId.BSC_TESTNET]: '0x9188584835110FB6e0eB3BAE10ef1459Acf99edB', // TODO: Update with actual testnet address
 }
 

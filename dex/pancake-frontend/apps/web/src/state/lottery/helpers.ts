@@ -95,7 +95,7 @@ export const fetchMultipleLotteries = async (lotteryIds: string[]): Promise<Lott
       } as const),
   )
   try {
-    const client = publicClient({ chainId: ChainId.BSC })
+    const client = publicClient({ chainId: ChainId.GILT })
     const multicallRes = (await client.multicall({
       contracts: calls,
     })) as { result: ContractFunctionReturnType<typeof lotteryV2ABI, AbiStateMutability, 'viewLottery'> }[]
@@ -125,7 +125,7 @@ export const fetchCurrentLotteryIdAndMaxBuy = async () => {
         } as const),
     )
 
-    const client = publicClient({ chainId: ChainId.BSC })
+    const client = publicClient({ chainId: ChainId.GILT })
     const [currentLotteryId, maxNumberTicketsPerBuyOrClaim] = await client.multicall({
       contracts: calls,
       allowFailure: false,

@@ -7,7 +7,7 @@ contract LibEIP712Domain is ChainIdMixin {
         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
     bytes32 public constant EIP712_DOMAIN_SCHEMA_HASH = keccak256(abi.encodePacked(EIP712_DOMAIN_SCHEMA));
 
-    string internal constant EIP712_DOMAIN_NAME = "Polygon Ecosystem Token";
+    string internal constant EIP712_DOMAIN_NAME = "Gilt Ecosystem Token";
     string internal constant EIP712_DOMAIN_VERSION = "2";
     uint256 internal constant EIP712_DOMAIN_CHAINID = CHAINID;
 

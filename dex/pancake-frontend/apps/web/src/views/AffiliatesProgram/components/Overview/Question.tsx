@@ -86,7 +86,7 @@ const Question = () => {
                   href="https://tokenlists.org/token-list?url=https://tokens.pancakeswap.finance/pancakeswap-extended.json"
                 >
                   <Text color="primary" ml="4px" as="span">
-                    {t('BNB Chain')},
+                    {t('GILT Chain')},
                   </Text>
                 </Link>
                 <Link
@@ -141,7 +141,7 @@ const Question = () => {
               </StyledListText>
               <StyledListText ml="16px" color="textSubtle">
                 {t(
-                  'Pairs must include at least 1 major token (i.e., BNB, BTC, BUSD, ETH, MATIC, ARB, DAI, USDT and/or USDC)',
+                  'Pairs must include at least 1 major token (i.e., GILT, BTC, BUSD, ETH, MATIC, ARB, DAI, USDT and/or USDC)',
                 )}
               </StyledListText>
             </FoldableText>

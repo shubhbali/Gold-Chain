@@ -24,7 +24,7 @@ export function mint(event: ethereum.Event, tokenAmount0: BigInt, tokenAmount1: 
   token0.totalTransactions = token0.totalTransactions.plus(BIG_INT_ONE);
   token1.totalTransactions = token1.totalTransactions.plus(BIG_INT_ONE);
 
-  // get new amounts of USD and BNB for tracking
+  // get new amounts of USD and GILT for tracking
   let bundle = Bundle.load("1");
   let amountTotalUSD = token1.derivedETH
     .times(token1Amount)

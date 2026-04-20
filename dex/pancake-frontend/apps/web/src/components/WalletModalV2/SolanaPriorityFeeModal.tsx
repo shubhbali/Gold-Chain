@@ -33,7 +33,7 @@ export const SolanaPriorityFeeModal: React.FC<SolanaPriorityFeeModalProps> = ({ 
   const [tempFee, setTempFee] = useState(transactionFee.toString())
 
   // Get SOL price for USD display
-  const nativeCurrency = useNativeCurrency(ChainId.BSC) // Temporarily use BSC, need SOLANA chainId in actual use
+  const nativeCurrency = useNativeCurrency(ChainId.GILT) // Temporarily use GILT, need SOLANA chainId in actual use
   const { data: solPrice } = useCurrencyUsdPrice(nativeCurrency)
 
   const handleSave = useCallback(() => {

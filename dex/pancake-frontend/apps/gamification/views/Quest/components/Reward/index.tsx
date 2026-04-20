@@ -49,7 +49,7 @@ export const Reward: React.FC<RewardProps> = ({ quest, isTasksCompleted, isQuest
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { fetchWithSiweAuth } = useSiwe()
-  const localChainName = chains.find((c) => c.id === quest?.reward?.currency?.network)?.name ?? 'BSC'
+  const localChainName = chains.find((c) => c.id === quest?.reward?.currency?.network)?.name ?? 'GILT'
 
   const { data: proofData, refetch: refreshProofData } = useQuery({
     queryKey: ['/get-user-merkle-proof', account, quest.id],

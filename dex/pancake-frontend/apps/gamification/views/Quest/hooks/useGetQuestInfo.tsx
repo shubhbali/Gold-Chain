@@ -12,7 +12,7 @@ const initialData: SingleQuestData = {
   reward: undefined,
   startDateTime: 0,
   endDateTime: 0,
-  chainId: ChainId.BSC,
+  chainId: ChainId.GILT,
   completionStatus: CompletionStatus.ONGOING,
   description: '',
   startDate: null,

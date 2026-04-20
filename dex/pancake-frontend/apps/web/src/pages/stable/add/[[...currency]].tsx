@@ -14,7 +14,7 @@ import { SELECTOR_TYPE } from 'views/AddLiquidityV3/types'
 import { PageWithoutFAQ } from 'views/Page'
 import useStableConfig from 'views/Swap/hooks/useStableConfig'
 
-const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
+const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|GILT)-(0x[a-fA-F0-9]{40}|GILT)$/
 
 const AddStableLiquidityPage = () => {
   const router = useRouter()

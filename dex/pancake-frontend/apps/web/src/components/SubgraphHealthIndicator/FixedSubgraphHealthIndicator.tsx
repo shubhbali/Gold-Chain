@@ -10,6 +10,6 @@ export const FixedSubgraphHealthIndicator = () => {
   const { pathname } = useRouter()
   const isOnNftPages = pathname.includes('nfts')
   return isOnNftPages ? (
-    <SubgraphHealthIndicator chainId={ChainId.BSC} subgraph={GRAPH_API_NFTMARKET} checkApiInstead />
+    <SubgraphHealthIndicator chainId={ChainId.GILT} subgraph={GRAPH_API_NFTMARKET} checkApiInstead />
   ) : null
 }

@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: FarmAuction
-    network: bsc
+    network: gilt
     source:
       address: '0xb92Ab7c1edcb273AbA24b0656cEb3681654805D2'
       abi: FarmAuction

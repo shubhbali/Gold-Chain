@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T22:43:36Z",
+  "engine": "codex",
+  "final_answer": "That line means: **rename-only**, no logic or economics changes.\n\nFor your scope (**bridge only**), the corrected version is:\n\n1. Touch only bridge code/docs/config names.  \n2. Replace old branding terms (`Polygon`, `Matic`, `BSC/BNB`) with your bridge branding where user-facing.  \n3. Keep `bor` and `heimdall` names as-is.  \n4. Do not touch DEX, scanner, or chain branding in this task.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "fer bhenchoda aa ki aavdi maa chudai c fudi deya: havior/config/tokenomics changes.\n2. Create one naming map first: Gilt Chain, GILT, GOLD, Gilt Bridge, BullSwap, GiltScan; allow bor and heimdall as explicit exceptions.",
+  "run_id": "48fbfcff434b454ebabbd672eeb5ffb3",
+  "started_at": "2026-04-16T22:43:18Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T22:43:36Z",
+  "version": 1
+}

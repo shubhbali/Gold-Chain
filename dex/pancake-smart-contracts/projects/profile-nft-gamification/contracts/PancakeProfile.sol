@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721Holder.sol";
 
-import "bsc-library/contracts/IBEP20.sol";
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 /** @title PancakeProfile.
  * @notice It is a contract for users to bind their address

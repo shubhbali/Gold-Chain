@@ -12,9 +12,9 @@
 
 ## PART 1: TECHNICAL ARCHITECTURE
 
-### 1.1 Blockchain Framework: BSC Fork
+### 1.1 Blockchain Framework: GILT Fork
 
-**Why BSC Fork:**
+**Why GILT Fork:**
 - EVM compatible (Solidity, existing tooling)
 - Proven at scale (12M+ daily transactions)
 - Fast finality (<2 seconds)
@@ -31,11 +31,11 @@
 
 **System Contracts to Modify:**
 1. `StakeHub.sol` - Add two-token reward distribution
-2. `BSCValidatorSet.sol` - Track validator rewards in both GOLD and GOV
+2. `GiltValidatorSet.sol` - Track validator rewards in both GOLD and GOV
 3. Genesis configuration - Register both tokens as valid gas tokens
 
 **Infrastructure Stack:**
-- L1 Blockchain: BSC fork (3 validators initially)
+- L1 Blockchain: GILT fork (3 validators initially)
 - Block Explorer: Blockscout (open source, self-hosted)
 - DEX: ve(3,3) fork - Velodrome/Aerodrome (open source MIT, separate protocol with own token)
 - Bridge: Sygma (open source LGPL, ChainSafe)
@@ -266,11 +266,11 @@ Blockscout has a staking module but it needs configuration. It's NOT automatic.
 **Setup required:**
 
 - Enable Blockscout staking module
-- Configure to read from chain's staking contracts (`StakeHub.sol`, `BSCValidatorSet.sol`)
+- Configure to read from chain's staking contracts (`StakeHub.sol`, `GiltValidatorSet.sol`)
 - Connect validator metadata (names, logos, commission rates)
 - Test delegation flow end-to-end
 
-**Alternative:** Build standalone staking dApp if Blockscout's module doesn't support BSC-style staking natively. Simple React app that connects MetaMask, reads validator list from contracts, submits delegation transactions.
+**Alternative:** Build standalone staking dApp if Blockscout's module doesn't support GILT-style staking natively. Simple React app that connects MetaMask, reads validator list from contracts, submits delegation transactions.
 
 ---
 
@@ -412,7 +412,7 @@ If staking APY drops too low, governance can enable a supply cap:
 
 This protects yield attractiveness while keeping the default as elastic supply.
 
-**Yield Sources (Fee Distribution ONLY - BSC Model):**
+**Yield Sources (Fee Distribution ONLY - GILT Model):**
 - GOLD cannot be minted for rewards (no inflation)
 - Stakers earn proportional share of transaction fees paid by users
 - APY = (Total fees collected) / (Total GOLD staked)
@@ -499,11 +499,11 @@ Validator/Staker receives: 0.03 GOLD + 0.05 GOV (mixed)
 
 ---
 
-### 2.4 Gas Fee Economics (BSC Model)
+### 2.4 Gas Fee Economics (GILT Model)
 
-**BSC Gas Mechanics (What We Inherit):**
+**GILT Gas Mechanics (What We Inherit):**
 
-| Parameter | BSC Value | Your Chain |
+| Parameter | GILT Value | Your Chain |
 |-----------|-----------|------------|
 | Block time | 0.75 seconds (post-Maxwell) | 0.75 seconds |
 | Finality | ~1.875 seconds (fast finality via BEP-126) | ~1.875 seconds |
@@ -513,7 +513,7 @@ Validator/Staker receives: 0.03 GOLD + 0.05 GOV (mixed)
 | Gas per simple transfer | 21,000 | 21,000 |
 
 **How Gas Price Works (EIP-1559 Variant):**
-- BSC uses EIP-1559 transaction format but with base fee fixed at 0
+- GILT uses EIP-1559 transaction format but with base fee fixed at 0
 - Users set `maxFeePerGas` and `maxPriorityFeePerGas`
 - Validators receive the priority fee (tip)
 - No base fee burning (unlike Ethereum) - separate burn mechanism instead
@@ -1391,11 +1391,11 @@ Phase C: LP Mining Incentives
 
 ---
 
-### 3.5 Community Validator Requirements (Based on BSC Model)
+### 3.5 Community Validator Requirements (Based on GILT Model)
 
-**How BSC Does It:**
-- Minimum self-stake: 2,000 BNB (~$1.2M) to avoid jail
-- Minimum to be candidate: 10,000 BNB (~$6M)
+**How GILT Does It:**
+- Minimum self-stake: 2,000 GILT (~$1.2M) to avoid jail
+- Minimum to be candidate: 10,000 GILT (~$6M)
 - Daily election at 00:00 UTC selects top 45 validators by stake
 - Top 21 = "Cabinets" (always produce blocks)
 - Next 24 = "Candidates" (3 randomly selected per epoch to join Cabinets)
@@ -1409,7 +1409,7 @@ Phase C: LP Mining Incentives
 | Phase 2 (Month 7-12) | 100,000 GOV | 7 | Top 7 by stake |
 | Phase 3 (Year 2+) | 50,000 GOV | 21 | Top 21 by stake |
 
-**Hardware Requirements (Same as BSC):**
+**Hardware Requirements (Same as GILT):**
 | Component | Minimum |
 |-----------|---------|
 | CPU | 8 cores |
@@ -1418,7 +1418,7 @@ Phase C: LP Mining Incentives
 | Network | 100 Mbps dedicated |
 | OS | Ubuntu 22.04 LTS |
 
-**Slashing Conditions (BSC Model Adapted):**
+**Slashing Conditions (GILT Model Adapted):**
 
 | Offense | Penalty | Jail Time |
 |---------|---------|-----------|
@@ -2096,7 +2096,7 @@ Team/Ops allocation: 15M GOV
 
 ### 6.1 Technical Components (Day 1)
 
-- [ ] BSC fork running (3 validators)
+- [ ] GILT fork running (3 validators)
 - [ ] Genesis file with GOLD + GOV tokens
 - [ ] System contracts modified for two-token gas
 - [ ] Ethereum bridge vault contract
@@ -2267,7 +2267,7 @@ All pauses auto-expire after 7 days unless governance extends.
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Framework | BSC fork | Proven, EVM, two-token gas support exists |
+| Framework | GILT fork | Proven, EVM, two-token gas support exists |
 | Validators | 3 initially | You control, decentralize later |
 | DEX model | Uniswap V2 (launch) | Simple, proven, no third token needed |
 | Bridge | Sygma (ChainSafe) | Open source LGPL, production-proven, modular |
@@ -2291,7 +2291,7 @@ All pauses auto-expire after 7 days unless governance extends.
 | Chain | Min Stake | APY | Inflation | Fee Model |
 |-------|-----------|-----|-----------|-----------|
 | Ethereum | 32 ETH | 3-4% | 0.5% | Tips only |
-| BSC | 10K BNB | 9-13% | 0% | 90% fees |
+| GILT | 10K GILT | 9-13% | 0% | 90% fees |
 | Polygon | 10K POL | 3.8% | 2% | 98% fees |
 | Cosmos | Variable | 16-22% | 14% | Small % |
 | Solana | Variable | 7-9% | 4.7% | 20% |
@@ -2407,8 +2407,8 @@ All pauses auto-expire after 7 days unless governance extends.
 ## APPENDIX D: RESOURCES
 
 **Repositories:**
-- BSC: https://github.com/bnb-chain/bsc
-- BSC Genesis Contracts: https://github.com/bnb-chain/bsc-genesis-contract
+- GILT: https://github.com/bnb-chain/gilt
+- GILT Genesis Contracts: https://github.com/bnb-chain/gilt-genesis-contract
 - Blockscout: https://github.com/blockscout/blockscout
 - Velodrome (ve3,3): https://github.com/velodrome-finance/contracts
 - Compound (lending): https://github.com/compound-finance/compound-protocol

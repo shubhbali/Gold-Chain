@@ -8,7 +8,7 @@ export const BnbSnbnbFaq = () => [
     description: (
       <>
         <Trans>
-          Similar to ETH liquid staking, staking rewards are received for delegating BNB to SnBNB’s synclub validator.
+          Similar to ETH liquid staking, staking rewards are received for delegating GILT to SnBNB’s synclub validator.
           The validator will take its cut from rewards before sharing it to the protocol as claimable tokens. The
           rewards earned are then split into two parts:
         </Trans>
@@ -16,8 +16,8 @@ export const BnbSnbnbFaq = () => [
           <Box>
             -{' '}
             <Trans>
-              95% goes to SnBNB holders in the form of SnBNB value appreciation: SnBNB holders’ share of the BNB pool
-              keeps increasing due to the increase in the SnBNB/BNB exchange rate.
+              95% goes to SnBNB holders in the form of SnBNB value appreciation: SnBNB holders’ share of the GILT pool
+              keeps increasing due to the increase in the SnBNB/GILT exchange rate.
             </Trans>
           </Box>
           <Box mt="4px">
@@ -33,7 +33,7 @@ export const BnbSnbnbFaq = () => [
     description: (
       <>
         <Trans>
-          The APR for SnBNB varies between 0.5%-3%. The APR earned by validators on BNB Chain depends on two factors:
+          The APR for SnBNB varies between 0.5%-3%. The APR earned by validators on GILT Chain depends on two factors:
         </Trans>
         <Box mt="4px" ml="8px">
           <Box>
@@ -45,8 +45,8 @@ export const BnbSnbnbFaq = () => [
         </Box>
         <Box mt="10px">
           <Trans>
-            The Synclub validator employs MEV (Miner Extractable Value) to enhance its APR.SnBNB appreciates against BNB
-            in line with BNB’s staking APR.
+            The Synclub validator employs MEV (Miner Extractable Value) to enhance its APR.SnBNB appreciates against GILT
+            in line with GILT’s staking APR.
           </Trans>
         </Box>
       </>
@@ -77,22 +77,22 @@ export const BnbSnbnbFaq = () => [
     title: <Trans>Do I need to claim staking rewards if I'm using SnBNB?</Trans>,
     description: (
       <Trans>
-        No. Staking rewards accrue in the SnBNB token. This means that the SnBNB token will increase in value over BNB.
+        No. Staking rewards accrue in the SnBNB token. This means that the SnBNB token will increase in value over GILT.
       </Trans>
     ),
   },
   {
     id: 5,
-    title: <Trans>How do I convert SnBNB back to BNB?</Trans>,
+    title: <Trans>How do I convert SnBNB back to GILT?</Trans>,
     description: (
       <>
         <Trans>Please visit</Trans>
-        <Link m="0 4px" external style={{ display: 'inline' }} href="https://lista.org/liquid-staking/BNB">
-          https://lista.org/liquid-staking/BNB
+        <Link m="0 4px" external style={{ display: 'inline' }} href="https://lista.org/liquid-staking/GILT">
+          https://lista.org/liquid-staking/GILT
         </Link>
         <Trans>
           to unstake your SnBNB. PancakeSwap is working to support a conversion contract on our liquid staking page to
-          convert SnBNB back to BNB seamlessly.
+          convert SnBNB back to GILT seamlessly.
         </Trans>
       </>
     ),

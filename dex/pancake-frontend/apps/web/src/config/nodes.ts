@@ -10,7 +10,7 @@ import {
   baseSepolia,
   linea,
   monadTestnet,
-  opBNB,
+  opGILT,
   opBNBTestnet,
   scrollSepolia,
   sepolia,
@@ -39,19 +39,19 @@ const GOLD_CHAIN_NODES = [
 ].filter(Boolean)
 
 export const SERVER_NODES = {
-  [ChainId.BSC]: [
-    getNodeRealUrl(ChainId.BSC, process.env.SERVER_NODE_REAL_API_ETH) || '',
+  [ChainId.GILT]: [
+    getNodeRealUrl(ChainId.GILT, process.env.SERVER_NODE_REAL_API_ETH) || '',
     process.env.NEXT_PUBLIC_NODE_PRODUCTION || '',
-    getGroveUrl(ChainId.BSC, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
-    'https://bsc.publicnode.com',
+    getGroveUrl(ChainId.GILT, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
+    'https://gilt.publicnode.com',
     // 'https://binance.llamarpc.com',
-    'https://bsc-dataseed1.defibit.io',
-    'https://bsc-dataseed1.bnbchain.org',
+    'https://gilt-dataseed1.defibit.io',
+    'https://gilt-dataseed1.bnbchain.org',
   ].filter(Boolean),
   [ChainId.BSC_TESTNET]: [
-    'https://bsc-testnet-dataseed.bnbchain.org',
-    'https://bsc-testnet.bnbchain.org',
-    'https://bsc-prebsc-dataseed.bnbchain.org',
+    'https://gilt-testnet-dataseed.bnbchain.org',
+    'https://gilt-testnet.bnbchain.org',
+    'https://gilt-prebsc-dataseed.bnbchain.org',
   ],
   [ChainId.ETHEREUM]: [
     getNodeRealUrl(ChainId.ETHEREUM, process.env.SERVER_NODE_REAL_API_ETH) || '',
@@ -79,7 +79,7 @@ export const SERVER_NODES = {
   ],
   [ChainId.OPBNB_TESTNET]: opBNBTestnet.rpcUrls.default.http,
   [ChainId.OPBNB]: [
-    ...opBNB.rpcUrls.default.http,
+    ...opGILT.rpcUrls.default.http,
     getNodeRealUrl(ChainId.OPBNB, process.env.SERVER_NODE_REAL_API_ETH) || '',
   ].filter(Boolean),
   [ChainId.BASE]: [
@@ -100,21 +100,21 @@ export const SERVER_NODES = {
 } satisfies Partial<Record<ChainId, readonly string[]>>
 
 export const PUBLIC_NODES: Partial<Record<ChainId, readonly string[]>> = {
-  [ChainId.BSC]: [
+  [ChainId.GILT]: [
     process.env.NEXT_PUBLIC_NODE_PRODUCTION || '',
-    getNodeRealUrl(ChainId.BSC, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
+    getNodeRealUrl(ChainId.GILT, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
     process.env.NEXT_PUBLIC_NODIES_BSC || '',
-    // getGroveUrl(ChainId.BSC, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
-    'https://bsc.publicnode.com',
+    // getGroveUrl(ChainId.GILT, process.env.NEXT_PUBLIC_GROVE_API_KEY) || '',
+    'https://gilt.publicnode.com',
     // 'https://binance.llamarpc.com',
-    'https://bsc-dataseed1.defibit.io',
-    'https://bsc-dataseed1.bnbchain.org',
+    'https://gilt-dataseed1.defibit.io',
+    'https://gilt-dataseed1.bnbchain.org',
   ].filter(Boolean) as readonly string[],
   [ChainId.BSC_TESTNET]: [
     getNodeRealUrl(ChainId.BSC_TESTNET, process.env.SERVER_NODE_REAL_API_ETH) || '',
-    'https://bsc-testnet-dataseed.bnbchain.org',
-    'https://bsc-testnet.bnbchain.org',
-    'https://bsc-prebsc-dataseed.bnbchain.org',
+    'https://gilt-testnet-dataseed.bnbchain.org',
+    'https://gilt-testnet.bnbchain.org',
+    'https://gilt-prebsc-dataseed.bnbchain.org',
   ].filter(Boolean) as readonly string[],
   [ChainId.ETHEREUM]: [
     getNodeRealUrl(ChainId.ETHEREUM, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
@@ -150,9 +150,9 @@ export const PUBLIC_NODES: Partial<Record<ChainId, readonly string[]>> = {
   ],
   [ChainId.OPBNB_TESTNET]: opBNBTestnet.rpcUrls.default.http,
   [ChainId.OPBNB]: [
-    ...opBNB.rpcUrls.default.http,
+    ...opGILT.rpcUrls.default.http,
     getNodeRealUrl(ChainId.OPBNB, process.env.NEXT_PUBLIC_NODE_REAL_API_ETH) || '',
-    'https://opbnb.publicnode.com',
+    'https://opgilt.publicnode.com',
   ].filter(Boolean) as readonly string[],
   [ChainId.BASE]: [
     'https://base.publicnode.com',

@@ -52,5 +52,5 @@ export function transformPoolData(item: ApiPoolData): PoolDataForView {
 }
 
 export function getMultiChainName(chainId?: UnifiedChainId) {
-  return multiChainName[chainId || ChainId.BSC]
+  return multiChainName[chainId || ChainId.GILT]
 }

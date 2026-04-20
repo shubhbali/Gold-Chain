@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-19T22:50:33Z",
+  "engine": "codex",
+  "final_answer": "The Polygon bridge code here is primarily under **GNU GPL v3**, with **LGPL v3** also present in Bor.\n\nWhy it matters: this is a copyleft license stack, so distribution/commercial use without compliance creates legal and operational risk for Gilt Chain.\n\nFacts (confirmed):\n- GPL v3 license files exist in:\n- [bridge/bor/COPYING](/srv/repos/gold-chain/bridge/bor/COPYING)\n- [bridge/heimdall-v2/LICENSE](/srv/repos/gold-chain/bridge/heimdall-v2/LICENSE)\n- [bridge/pos-contracts/LICENSE](/srv/repos/gold-chain/bridge/pos-contracts/LICENSE)\n- [bridge/pos-portal/LICENSE](/srv/repos/gold-chain/bridge/pos-portal/LICENSE)\n- Bor also includes LGPL v3:\n- [bridge/bor/COPYING.LESSER](/srv/repos/gold-chain/bridge/bor/COPYING.LESSER)\n- Some files/subdeps are mixed-license (MIT/Apache/etc.), including `genesis-contracts` metadata.\n\nInference (likely cause):\n- If you \u201cdon\u2019t change it now,\u201d the biggest immediate exposure is **legal/compliance + ops risk**, not an instant contract exploit.\n- Operationally, legacy Polygon naming in bridge code/config increases wrong-network/wrong-address misconfiguration risk and incident-response confusion.\n\nActions (recommended next steps):\n1. Freeze and document license obligations now (GPL/LGPL notice + source-disclosure/compliance plan).\n2. Continue full bridge-wide rebrand immediately to remove legacy network naming from code/config/proto.\n3. After each rebrand batch, run compile + bridge unit checks to catch misrouting/config regressions early.\n\nCompletion level: complete.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 28,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "what is the license under which this briddge is given from polgon? and what are the vulnerabilites we might have if we dont change it right now",
+  "run_id": "76330a9af6334cf6847bb84850ffc365",
+  "started_at": "2026-04-19T22:49:27Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-19T22:50:33Z",
+  "version": 1
+}

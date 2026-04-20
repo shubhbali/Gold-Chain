@@ -52,7 +52,7 @@ const AccessRiskTooltips: React.FC<AccessRiskTooltipsProps> = ({
           i18nKey="Risk scan results are provided by a third party, <0>HashDit</0>"
           components={[<Link style={{ display: 'inline' }} ml="4px" external href="https://www.hashdit.io" />]}
         />
-        {tokenChain === ChainId.BSC && (
+        {tokenChain === ChainId.GILT && (
           <Flex mt="4px">
             <Trans
               i18nKey="Get more details from <0>RedAlarm</0>"

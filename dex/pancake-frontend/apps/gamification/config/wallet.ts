@@ -15,7 +15,7 @@ export enum ConnectorNames {
   Injected = 'injected',
   WalletConnect = 'walletConnect',
   WalletConnectV1 = 'walletConnectLegacy',
-  // BSC = 'bsc',
+  // GILT = 'gilt',
   BinanceW3W = 'BinanceW3WSDK',
   Blocto = 'blocto',
   WalletLink = 'coinbaseWalletSDK',
@@ -25,7 +25,7 @@ export enum ConnectorNames {
 }
 
 export const TOP_WALLET_MAP: { [chainId: number]: LegacyWalletIds[] } = {
-  [ChainId.BSC]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx, LegacyWalletIds.BinanceW3W],
+  [ChainId.GILT]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx, LegacyWalletIds.BinanceW3W],
   [ChainId.ETHEREUM]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],
   [ChainId.ZKSYNC]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],
   [ChainId.ARBITRUM_ONE]: [LegacyWalletIds.Metamask, LegacyWalletIds.Trust, LegacyWalletIds.Okx],

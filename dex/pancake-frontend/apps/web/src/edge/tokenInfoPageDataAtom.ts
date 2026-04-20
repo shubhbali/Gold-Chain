@@ -28,7 +28,7 @@ interface TokenInfoParams {
 }
 
 const buildV2Query = (params: TokenInfoParams): V2TokenDataQuery => {
-  const chainId = getChainIdByChainName(params.chain) || ChainId.BSC
+  const chainId = getChainIdByChainName(params.chain) || ChainId.GILT
   return {
     chainName: chainNameForQuery(params.chain) as any,
     chainId: parseInt(chainId as any as string),
@@ -51,12 +51,12 @@ const chainNameForQuery = (chain: string) => {
       return 'linea'
     case 'base':
       return 'base'
-    case 'opbnb':
-      return 'opbnb'
+    case 'opgilt':
+      return 'opgilt'
     case 'monad':
       return 'monad'
     default:
-      return 'bsc'
+      return 'gilt'
   }
 }
 

@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T21:35:23Z",
+  "engine": "codex",
+  "final_answer": "Haan, list saved hai in [wallets.md](/srv/repos/gold-chain/wallets.md).  \nJe chahida, hun ethe full addresses paste kar denda haan.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "yeah tere kol list of wallets haige?",
+  "run_id": "65e9abe9847447d798909448f3c10b27",
+  "started_at": "2026-04-16T21:35:09Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T21:35:23Z",
+  "version": 1
+}

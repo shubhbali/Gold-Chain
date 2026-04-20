@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import memoize from 'lodash/memoize'
 import { Address, getAddress } from 'viem'
-import { bsc } from 'wagmi/chains'
+import { gilt } from 'wagmi/chains'
 import { chains } from './wagmi'
 
 export const safeGetAddress = memoize((value: any): Address | undefined => {
@@ -21,9 +21,9 @@ export function getBlockExploreLink(
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
   chainIdOverride?: number,
 ): string {
-  const chainId = chainIdOverride || ChainId.BSC
+  const chainId = chainIdOverride || ChainId.GILT
   const chain = chains.find((c) => c.id === chainId)
-  if (!chain || !data) return bsc.blockExplorers.default.url
+  if (!chain || !data) return gilt.blockExplorers.default.url
   switch (type) {
     case 'transaction': {
       return `${chain?.blockExplorers?.default.url}/tx/${data}`
@@ -44,10 +44,10 @@ export function getBlockExploreLink(
 }
 
 export function getBlockExploreName(chainIdOverride?: number) {
-  const chainId = chainIdOverride || ChainId.BSC
+  const chainId = chainIdOverride || ChainId.GILT
   const chain = chains.find((c) => c.id === chainId)
 
-  return chain?.blockExplorers?.default.name || bsc.blockExplorers.default.name
+  return chain?.blockExplorers?.default.name || gilt.blockExplorers.default.name
 }
 
 // add 10%
@@ -57,7 +57,7 @@ export function calculateGasMargin(value: bigint, margin = 1000n): bigint {
 
 export function getBscScanLinkForNft(collectionAddress: string | undefined, tokenId?: string): string {
   if (!collectionAddress) return ''
-  return `${bsc.blockExplorers.default.url}/token/${collectionAddress}?a=${tokenId}`
+  return `${gilt.blockExplorers.default.url}/token/${collectionAddress}?a=${tokenId}`
 }
 
 export function escapeRegExp(string: string): string {

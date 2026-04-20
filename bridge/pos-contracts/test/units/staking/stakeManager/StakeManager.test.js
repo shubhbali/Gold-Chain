@@ -1562,10 +1562,10 @@ describe('StakeManager', function (accounts) {
       })
 
       it('when fee is too small', async function () {
-        const minHeimdallFee = await this.stakeManager.minHeimdallFee()
+        const minGiltConsensusFee = await this.stakeManager.minGiltConsensusFee()
         const stakeManagerValidatorUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(validatorUser))
         await expectRevert(
-          stakeManagerValidatorUser.topUpForFee(validatorUser, minHeimdallFee.sub(1).toString()),
+          stakeManagerValidatorUser.topUpForFee(validatorUser, minGiltConsensusFee.sub(1).toString()),
           'fee too small'
         )
       })
@@ -1665,12 +1665,12 @@ describe('StakeManager', function (accounts) {
           await stakeManagerValidatorUser.topUpForFee(validatorAddr, fee.toString())
         }
 
-        this.beforeClaimTotalHeimdallFee = await this.stakeManager.totalHeimdallFee()
+        this.beforeClaimTotalGiltConsensusFee = await this.stakeManager.totalGiltConsensusFee()
       }
     }
 
     function testAliceClaim() {
-      it('Alice must withdraw heimdall fee', async function () {
+      it('Alice must withdraw giltconsensus fee', async function () {
         const stakeManagerUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(this.user))
         this.receipt = await (
           await stakeManagerUser.claimFee(
@@ -1693,9 +1693,9 @@ describe('StakeManager', function (accounts) {
         assertBigNumberEquality(this.beforeClaimBalance.add(this.claimedFee.toString()), newBalance)
       })
 
-      it('total heimdall fee must decrease by fee', async function () {
-        const totalHeimdallFee = await this.stakeManager.totalHeimdallFee()
-        assertBigNumberEquality(this.beforeClaimTotalHeimdallFee.sub(this.claimedFee.toString()), totalHeimdallFee)
+      it('total giltconsensus fee must decrease by fee', async function () {
+        const totalGiltConsensusFee = await this.stakeManager.totalGiltConsensusFee()
+        assertBigNumberEquality(this.beforeClaimTotalGiltConsensusFee.sub(this.claimedFee.toString()), totalGiltConsensusFee)
       })
     }
 
@@ -1729,7 +1729,7 @@ describe('StakeManager', function (accounts) {
           this.fee = firstFeeToClaim
           this.claimedFee = this.fee
           this.beforeClaimBalance = await this.polToken.balanceOf(this.user)
-          this.beforeClaimTotalHeimdallFee = await this.stakeManager.totalHeimdallFee()
+          this.beforeClaimTotalGiltConsensusFee = await this.stakeManager.totalGiltConsensusFee()
         })
 
         testAliceClaim()
@@ -1743,14 +1743,14 @@ describe('StakeManager', function (accounts) {
           this.fee = secondFeeToClaim
           this.claimedFee = secondFeeToClaim.sub(firstFeeToClaim)
           this.beforeClaimBalance = await this.polToken.balanceOf(this.user)
-          this.beforeClaimTotalHeimdallFee = await this.stakeManager.totalHeimdallFee()
+          this.beforeClaimTotalGiltConsensusFee = await this.stakeManager.totalGiltConsensusFee()
         })
 
         testAliceClaim()
       })
     })
 
-    describe('when Alice and Bob stakes, but only Alice topups heimdall fee', function () {
+    describe('when Alice and Bob stakes, but only Alice topups giltconsensus fee', function () {
       const AliceValidatorId = 1
       const BobValidatorId = 2
 
@@ -2197,7 +2197,7 @@ describe('StakeManager', function (accounts) {
       })
     })
 
-    describe('when Chad migrates to matic validator', function () {
+    describe('when Chad migrates to legacy validator', function () {
       const aliceId = '8'
       const bobId = '2'
       const delegator = wallets[9].getChecksumAddressString()

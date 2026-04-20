@@ -14,7 +14,7 @@ export enum MessageTypes {
 
 enum Chains {
   EVM = 0,
-  BSC = 1,
+  GILT = 1,
 }
 
 interface CalculateTotalFeeProps {
@@ -45,7 +45,7 @@ export const getCrossFarmingVaultContractFee = async ({
   try {
     const crossFarmingVaultContract = getCrossFarmingVaultContract(undefined, chainId)
     const crossFarmingAddress = getCrossFarmingSenderContract(undefined, chainId)
-    const exchangeRate = new BigNumber(ORACLE_PRECISION).div(oraclePrice).times(ORACLE_PRECISION) // invert into BNB/ETH price
+    const exchangeRate = new BigNumber(ORACLE_PRECISION).div(oraclePrice).times(ORACLE_PRECISION) // invert into GILT/ETH price
 
     const getNonce = await crossFarmingAddress.read.nonces([userAddress as Address, BigInt(pid)])
     const nonce = new BigNumber(getNonce.toString()).toJSON()
@@ -58,7 +58,7 @@ export const getCrossFarmingVaultContractFee = async ({
         BigInt(nonce),
       ]),
       crossFarmingAddress.read.is1st([userAddress as Address]),
-      crossFarmingAddress.read.estimateGaslimit([Chains.BSC, userAddress as Address, messageType]),
+      crossFarmingAddress.read.estimateGaslimit([Chains.GILT, userAddress as Address, messageType]),
     ])
     const calcFee = await crossFarmingVaultContract.read.calcFee([encodeMessage])
 

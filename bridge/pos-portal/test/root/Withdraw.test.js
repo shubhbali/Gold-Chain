@@ -1400,7 +1400,7 @@ contract('RootChainManager', async (accounts) => {
         ])
       )
       // attempt exit, but fail due to mismatching event signature
-      // read PR description of https://github.com/maticnetwork/pos-portal-private/pull/1
+      // read PR description of https://github.com/giltchain/pos-portal-private/pull/1
       await expect(contracts.root.rootChainManager.exit(data)).to.be.revertedWith('ERC721Predicate: INVALID_SIGNATURE')
     })
 

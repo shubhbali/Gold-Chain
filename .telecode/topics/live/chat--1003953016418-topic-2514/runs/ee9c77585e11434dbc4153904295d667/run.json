@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T21:29:55Z",
+  "engine": "codex",
+  "final_answer": "Perfect. Yes, use `gilt`/`GILT` as the canonical replacement.\n\nHere are the main trace areas and what to rename:\n\n1. Core chain identity\n- [params/config.go](/srv/repos/gold-chain/bsc/params/config.go): `bsc` network label, `IsInBSC`, \u201cParlia (proof-of-staked--authority)\u201d branch naming\n- [consensus/parlia/parlia.go](/srv/repos/gold-chain/bsc/consensus/parlia/parlia.go): \u201cconsensus engine of BSC\u201d wording\n- [core/systemcontracts/upgrade.go](/srv/repos/gold-chain/bsc/core/systemcontracts/upgrade.go): many `bsc-genesis-contract` commit URLs/comments\n\nRename target:\n- `bsc` -> `gilt`\n- `BSC` -> `GILT`\n\n2. Genesis-contract package + contract names\n- [package.json](/srv/repos/gold-chain/bsc-genesis-contract/package.json), [pyproject.toml](/srv/repos/gold-chain/bsc-genesis-contract/pyproject.toml): `bsc-genesis-contract`\n- [BSCValidatorSet.sol](/srv/repos/gold-chain/bsc-genesis-contract/contracts/BSCValidatorSet.sol)\n- [BSCGovernor.sol](/srv/repos/gold-chain/bsc-genesis-contract/contracts/BSCGovernor.sol)\n- [BSCTimelock.sol](/srv/repos/gold-chain/bsc-genesis-contract/contracts/BSCTimelock.sol)\n- interfaces/import paths with `IBSC...`\n\nRename target:\n- `bsc-genesis-contract` -> `gilt-genesis-contract`\n- `BSCValidatorSet` -> `GiltValidatorSet`\n- `BSCGovernor` -> `GiltGovernor`\n- `BSCTimelock` -> `GiltTimelock`\n- `IBSC...` -> `IGilt...`\n\n3. Native token naming leftovers\n- [StakeHub.sol](/srv/repos/gold-chain/bsc-genesis-contract/contracts/StakeHub.sol), [StakeCredit.sol](/srv/repos/gold-chain/bsc-genesis-contract/contracts/StakeCredit.sol): many `BNB` field/function names\n- [wbnb/WBNB.sol](/srv/repos/gold-chain/bsc-genesis-contract/wbnb/WBNB.sol): `Wrapped BNB`, `WBNB`\n\nRename target:\n- `BNB` (native token context) -> `GILT`\n- `WBNB` -> `WGILT`\n\n4. Config/env/script naming\n- [foundry.toml](/srv/repos/gold-chain/bsc-genesis-contract/foundry.toml): `RPC_BSC`\n- [check-bsc-hardfork-bytecode.ts](/srv/repos/gold-chain/bsc-genesis-contract/scripts/check-bsc-hardfork-bytecode.ts): script name/content\n\nRename target:\n- `RPC_BSC` -> `RPC_GILT`\n- `check-bsc-*` -> `check-gilt-*`\n\nRecommended execution order:\n1. Non-breaking text/config/file-name rename pass  \n2. Contract/interface rename + import updates  \n3. ABI regeneration + core call-site alignment  \n4. Fresh chain boot + full smoke test\n\nIf you want, I\u2019ll start the actual rename pass now in that exact order.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "lovely, now lets get on with with removing the traces of other projects from our code base, where all do we have that and what should we rename it as, it should be gilt i guess instead of any other chain",
+  "run_id": "ee9c77585e11434dbc4153904295d667",
+  "started_at": "2026-04-15T21:29:24Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T21:29:55Z",
+  "version": 1
+}

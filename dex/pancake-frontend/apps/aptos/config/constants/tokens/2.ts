@@ -27,12 +27,12 @@ export const testnetTokens = {
     'ETH Token',
     '',
   ),
-  bnb: new Coin(
+  gilt: new Coin(
     ChainId.TESTNET,
     '0x8c805723ebc0a7fc5b7d3e7b75d567918e806b3461cb9fa21941a9edc0220bf::devnet_coins::DevnetBNB',
     8,
-    'BNB',
-    'BNB Token',
+    'GILT',
+    'GILT Token',
     '',
   ),
   btc: new Coin(

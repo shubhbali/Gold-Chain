@@ -55,11 +55,11 @@ describe('RootChain', async function (accounts) {
       stakeManager.interface.encodeFunctionData('updateCheckPointBlockInterval', [1])
     )
 
-    this.defaultHeimdallFee = new BN(web3.utils.toWei('1'))
+    this.defaultGiltConsensusFee = new BN(web3.utils.toWei('1'))
 
     let amount = new BN(web3.utils.toWei('1000'))
     for (let i = 0; i < validatorsCount; i++) {
-      const mintAmount = amount.add(this.defaultHeimdallFee)
+      const mintAmount = amount.add(this.defaultGiltConsensusFee)
       await stakeToken.mint(wallets[i].getAddressString(), mintAmount.toString())
 
       const stakeToken_i = stakeToken.connect(stakeToken.provider.getSigner(i))
@@ -69,7 +69,7 @@ describe('RootChain', async function (accounts) {
       await stakeManager_i.stakeFor(
         wallets[i].getAddressString(),
         amount.toString(),
-        this.defaultHeimdallFee.toString(),
+        this.defaultGiltConsensusFee.toString(),
         false,
         wallets[i].getPublicKeyString()
       )

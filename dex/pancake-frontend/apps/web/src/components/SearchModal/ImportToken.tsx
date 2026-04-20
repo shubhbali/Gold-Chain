@@ -121,7 +121,7 @@ function ImportToken({ tokens, handleCurrencySelect, chainId: chainIdProp }: Imp
                     {t('View on %site%', {
                       site: blockExplorerName,
                     })}
-                    {token.chainId === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />})
+                    {token.chainId === ChainId.GILT && <BscScanIcon color="primary" ml="4px" />})
                   </Link>
                 </>
               )}

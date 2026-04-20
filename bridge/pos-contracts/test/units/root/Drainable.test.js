@@ -122,9 +122,9 @@ describe('Drainable', async function (accounts) {
       function testEtherDrain() {
         before(freshDeploy)
         before(async function () {
-          this.maticWeth = await deployer.deployMaticWeth()
+          this.giltWeth = await deployer.deployGiltWeth()
           // get child signer
-          await this.maticWeth.provider.getSigner(0).sendTransaction({
+          await this.giltWeth.provider.getSigner(0).sendTransaction({
             to: this.depositManager.address,
             value: this.amount,
           })
@@ -132,7 +132,7 @@ describe('Drainable', async function (accounts) {
 
         describe('before drain', function () {
           it('depositManager must have correct balance', async function () {
-            utils.assertBigNumberEquality(await this.maticWeth.balanceOf(this.depositManager.address), this.amount)
+            utils.assertBigNumberEquality(await this.giltWeth.balanceOf(this.depositManager.address), this.amount)
           })
         })
 
@@ -148,7 +148,7 @@ describe('Drainable', async function (accounts) {
 
           it('depositManager must have correct balance', async function () {
             utils.assertBigNumberEquality(
-              await this.maticWeth.balanceOf(this.depositManager.address),
+              await this.giltWeth.balanceOf(this.depositManager.address),
               this.amount - this.drainAmount
             )
           })

@@ -25,7 +25,7 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: C
   const { switchNetwork, isLoading, canSwitchToChain } = useSwitchNetwork()
   const { logout } = useAuth()
   const { connector, isConnected, chain, chainId: walletChainId } = useAccount()
-  const chainId = currentChain.id || ChainId.BSC
+  const chainId = currentChain.id || ChainId.GILT
   const { t } = useTranslation()
   const router = useRouter()
 

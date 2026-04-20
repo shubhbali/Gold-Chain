@@ -13,23 +13,23 @@ git submodule init
 git submodule update
 ```
 
-### 2. Compile Matic contracts
+### 2. Compile child contracts
 ```bash
-cd matic-contracts
+cd child-contracts
 npm install
-node scripts/process-templates.js --bor-chain-id <bor-chain-id>
+node scripts/process-templates.js --gilt-chain-id <gilt-chain-id>
 npm run truffle:compile
 cd ..
 ```
 
-### 3. Generate Bor validator set sol file
+### 3. Generate Gilt validator set sol file
 
-Following command will generate `BorValidatorSet.sol` file from `BorValidatorSet.template` file.
+Following command will generate `GiltValidatorSet.sol` file from `GiltValidatorSet.template` file.
 
 ```bash
-# Generate bor validator set using stake and balance
+# Generate gilt validator set using stake and balance
 # Modify validators.json before as per your need
-$ node generate-borvalidatorset.js --bor-chain-id <bor-chain-id> --heimdall-chain-id <heimdall-chain-id>
+$ node generate-giltvalidatorset.js --gilt-chain-id <gilt-chain-id> --giltconsensus-chain-id <giltconsensus-chain-id>
 ```
 
 ### 4. Compile contracts
@@ -47,7 +47,7 @@ Following command will generate `genesis.json` file from `genesis-template.json`
 
 ```bash
 # Generate genesis file
-node generate-genesis.js --bor-chain-id <bor-chain-id> --heimdall-chain-id <heimdall-chain-id>
+node generate-genesis.js --gilt-chain-id <gilt-chain-id> --giltconsensus-chain-id <giltconsensus-chain-id>
 ```
 
 ### 7. Run Tests

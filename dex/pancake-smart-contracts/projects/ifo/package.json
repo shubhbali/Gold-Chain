@@ -11,7 +11,7 @@
     "test:size-contracts": "npx hardhat size-contracts"
   },
   "dependencies": {
-    "bsc-library": "1.0.0",
+    "gilt-library": "1.0.0",
     "profile-nft-gamification": "2.0.0",
     "pancake-cake-vault": "1.0.0"
   },

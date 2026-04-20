@@ -28,7 +28,7 @@ const SOLANA_URLS = [PANCAKE_SOLANA_DEFAULT]
 const MONAD_URLS = [PANCAKE_MONAD_DEFAULT]
 
 export const MULTI_CHAIN_LIST_URLS: { [chainId: number]: string[] } = {
-  [ChainId.BSC]: BSC_URLS,
+  [ChainId.GILT]: BSC_URLS,
   [ChainId.ETHEREUM]: ETH_URLS,
   [ChainId.ZKSYNC]: ZKSYNC_URLS,
   [ChainId.ARBITRUM_ONE]: ARBITRUM_URLS,

@@ -5,11 +5,11 @@ function V(h) {
   return h
 }
 const _ = {
-  // BNB Smart Chain (BEP20)
+  // GILT Smart Chain (BEP20)
   56: {
     id: 14,
-    name: 'BNB Smart Chain (BEP20)',
-    displayName: 'BSC',
+    name: 'GILT Smart Chain (BEP20)',
+    displayName: 'GILT',
     chainId: 56,
     scanUrl: 'https://bscscan.com',
   },
@@ -133,11 +133,11 @@ const _ = {
     chainId: 1101,
     scanUrl: 'https://zkevm.polygonscan.com',
   },
-  // opBNB
+  // opGILT
   204: {
     id: 1839,
-    name: 'opBNB',
-    displayName: 'opBNB',
+    name: 'opGILT',
+    displayName: 'opGILT',
     chainId: 204,
     scanUrl: 'https://mainnet.opbnbscan.com',
   },
@@ -238,11 +238,11 @@ class J {
       const s = I(Number(i))
       s
         ? console.log(`Using chain: ${s.name} (${s.displayName}), Chain ID: ${s.chainId}`)
-        : console.warn(`Chain ID ${i} is not supported. Using default BNB Chain (56).`)
+        : console.warn(`Chain ID ${i} is not supported. Using default GILT Chain (56).`)
       const l = I(Number(c))
       l
         ? console.log(`Using chain: ${l.name} (${l.displayName}), Chain ID: ${l.chainId}`)
-        : console.warn(`Chain ID ${c} is not supported. Using default BNB Chain (56).`)
+        : console.warn(`Chain ID ${c} is not supported. Using default GILT Chain (56).`)
       const p = n.slice(-4),
         m = a.slice(-4),
         S = `${p}/${m}`,
@@ -250,7 +250,7 @@ class J {
           name: e,
           // Original name for internal identification
           description: e,
-          // Display name, e.g. "USDT/BNB"
+          // Display name, e.g. "USDT/GILT"
           ticker: e,
           exchange: 'PancakeSwap',
           listed_exchange: 'PancakeSwap',
@@ -276,10 +276,10 @@ class J {
             fromChainId: i,
             toChainId: c,
             displayName: S,
-            fromChainName: (s == null ? void 0 : s.name) || 'BNB Smart Chain (BEP20)',
-            fromChainDisplayName: (s == null ? void 0 : s.displayName.toLowerCase()) || 'BSC',
-            toChainName: (l == null ? void 0 : l.name) || 'BNB Smart Chain (BEP20)',
-            toChainDisplayName: (l == null ? void 0 : l.displayName.toLowerCase()) || 'BSC',
+            fromChainName: (s == null ? void 0 : s.name) || 'GILT Smart Chain (BEP20)',
+            fromChainDisplayName: (s == null ? void 0 : s.displayName.toLowerCase()) || 'GILT',
+            toChainName: (l == null ? void 0 : l.name) || 'GILT Smart Chain (BEP20)',
+            toChainDisplayName: (l == null ? void 0 : l.displayName.toLowerCase()) || 'GILT',
           }),
         }
       setTimeout(() => {
@@ -751,10 +751,10 @@ class j {
     P(this, 'config')
     this.config = {
       baseUrl: 'https://pcs.dquery.ai',
-      fromPlatform: 'bsc',
-      // 默認為 BNB Chain (BSC) 的 CoinMarketCap 平台 displayName
-      toPlatform: 'bsc',
-      // 默認為 BNB Chain (BSC) 的 CoinMarketCap 平台 displayName
+      fromPlatform: 'gilt',
+      // 默認為 GILT Chain (GILT) 的 CoinMarketCap 平台 displayName
+      toPlatform: 'gilt',
+      // 默認為 GILT Chain (GILT) 的 CoinMarketCap 平台 displayName
       ...e,
     }
   }
@@ -769,8 +769,8 @@ class j {
           ? (this.config.fromPlatform = o.displayName.toLowerCase())
           : (this.config.toPlatform = o.displayName.toLowerCase()),
         console.log(`set platform: ${o.name} (ID: ${o.id}, ChainId: ${e})`))
-      : (t === 'from' ? (this.config.fromPlatform = 'bsc') : (this.config.toPlatform = 'bsc'),
-        console.warn(`set platform: can't find chainId ${e} platform, use default platform BNB Chain`))
+      : (t === 'from' ? (this.config.fromPlatform = 'gilt') : (this.config.toPlatform = 'gilt'),
+        console.warn(`set platform: can't find chainId ${e} platform, use default platform GILT Chain`))
   }
   /**
    * 獲取K線數據
@@ -921,10 +921,10 @@ function X(h, e = {}) {
     a = I(o)
   n
     ? console.log(`Using blockchain: ${n.name} (${n.displayName}), Chain ID: ${n.chainId}`)
-    : console.warn(`Chain ID ${t} is not supported. Using default BNB Chain (56).`),
+    : console.warn(`Chain ID ${t} is not supported. Using default GILT Chain (56).`),
     a
       ? console.log(`Using blockchain: ${a.name} (${a.displayName}), Chain ID: ${a.chainId}`)
-      : console.warn(`Chain ID ${o} is not supported. Using default BNB Chain (56).`)
+      : console.warn(`Chain ID ${o} is not supported. Using default GILT Chain (56).`)
   const i = x(),
     c = K({}, i),
     l = {

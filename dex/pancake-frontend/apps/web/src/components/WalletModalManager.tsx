@@ -67,7 +67,7 @@ const WalletModalManager: React.FC<{ isOpen: boolean; onDismiss?: () => void }> 
   const handleDiscordLogin = useCallback(() => loginWithDiscord(), [loginWithDiscord])
 
   const createEvmQrCode = useCallback(() => {
-    return createQrCode(chainId || ChainId.BSC, connectAsync)
+    return createQrCode(chainId || ChainId.GILT, connectAsync)
   }, [chainId, connectAsync])
 
   useWalletFilterEffect({ evmAddress: evmAccount ?? undefined, solanaAddress: solanaAccount ?? undefined })

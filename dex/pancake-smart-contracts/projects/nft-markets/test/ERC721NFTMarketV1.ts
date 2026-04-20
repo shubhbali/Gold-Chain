@@ -165,7 +165,7 @@ contract(
         const tokensForSale = await collectibleMarket.viewAsksByCollection(mockNFT1.address, "0", "500");
         assert.equal(tokensForSale[0][0], "0"); // TokenId = 0
         assert.equal(tokensForSale[1][0][0], seller1); // Address = seller1
-        assert.equal(String(tokensForSale[1][0][1]), parseEther("1").toString()); // Price = 1 BNB
+        assert.equal(String(tokensForSale[1][0][1]), parseEther("1").toString()); // Price = 1 GILT
         assert.equal(String(tokensForSale[2]), "1"); // 1 token listed in the collection
       });
 
@@ -190,7 +190,7 @@ contract(
         let tokensForSale = await collectibleMarket.viewAsksByCollection(mockNFT1.address, "0", "500");
         assert.equal(tokensForSale[0][1], "2"); // TokenId = 2
         assert.equal(tokensForSale[1][1][0], seller2); // Address = seller2
-        assert.equal(String(tokensForSale[1][1][1]), parseEther("1.2").toString()); // Price = 1.2 BNB
+        assert.equal(String(tokensForSale[1][1][1]), parseEther("1.2").toString()); // Price = 1.2 GILT
         assert.equal(String(tokensForSale[2]), "2"); // 2 tokens listed in the collection
 
         result = await collectibleMarket.modifyAskOrder(mockNFT1.address, "2", parseEther("2"), {
@@ -205,7 +205,7 @@ contract(
         });
 
         tokensForSale = await collectibleMarket.viewAsksByCollection(mockNFT1.address, "0", "500");
-        assert.equal(String(tokensForSale[1][1][1]), parseEther("2").toString()); // Price updated to 2 BNB
+        assert.equal(String(tokensForSale[1][1][1]), parseEther("2").toString()); // Price updated to 2 GILT
       });
 
       it("Seller2 cancels her order", async () => {
@@ -231,7 +231,7 @@ contract(
         assert.equal(String(tokensForSale[2]), "1"); // 1 token listed in the collection
       });
 
-      it("Buyer1 matches order from seller1 with BNB", async () => {
+      it("Buyer1 matches order from seller1 with GILT", async () => {
         const marketPrice = parseEther("1").toString();
 
         const estimations = await collectibleMarket.calculatePriceAndFeesForCollection(mockNFT1.address, marketPrice);
@@ -419,7 +419,7 @@ contract(
         });
       });
 
-      it("Admin changes minimum/max prices to 10/11 BNB, seller3 cannot change price below", async () => {
+      it("Admin changes minimum/max prices to 10/11 GILT, seller3 cannot change price below", async () => {
         const newMinPrice = parseEther("10");
         const newMaxPrice = parseEther("11");
 
@@ -673,7 +673,7 @@ contract(
       });
 
       it("Price front-running protections work as expected", async () => {
-        // Seller1 cannot purchase its own offer for 1.0000000001 BNB
+        // Seller1 cannot purchase its own offer for 1.0000000001 GILT
         await expectRevert(
           collectibleMarket.buyTokenUsingBNB(mockNFT2.address, "0", {
             value: parseEther("1.0000000001").toString(),
@@ -690,7 +690,7 @@ contract(
           "Buy: Incorrect price"
         );
 
-        // Seller1 cannot purchase its own offer for 0.9999999999 BNB
+        // Seller1 cannot purchase its own offer for 0.9999999999 GILT
         await expectRevert(
           collectibleMarket.buyTokenUsingBNB(mockNFT2.address, "0", {
             value: parseEther("0.9999999999").toString(),
@@ -739,7 +739,7 @@ contract(
           "Collection: Not for listing"
         );
 
-        // Buyer1 cannot change purchase the tokenId=0 for 1 BNB
+        // Buyer1 cannot change purchase the tokenId=0 for 1 GILT
         await expectRevert(
           collectibleMarket.buyTokenUsingBNB(mockNFT2.address, "0", {
             value: parseEther("1").toString(),
@@ -748,7 +748,7 @@ contract(
           "Collection: Not for trading"
         );
 
-        // Buyer1 cannot change purchase the tokenId=0 for 1 BNB
+        // Buyer1 cannot change purchase the tokenId=0 for 1 GILT
         await expectRevert(
           collectibleMarket.buyTokenUsingWBNB(mockNFT2.address, "0", parseEther("1"), {
             from: buyer1,
@@ -1232,7 +1232,7 @@ contract(
 
           while (i < 30) {
             await mockNFT4.mint("ipfs://token" + i + " .json", { from: seller3 });
-            // tokenId = 0 --> 1 BNB, tokenId = 5 --> 1.5 BNB, tokenId = 30 --> 4 BNB, etc.
+            // tokenId = 0 --> 1 GILT, tokenId = 5 --> 1.5 GILT, tokenId = 30 --> 4 GILT, etc.
             const priceToList = parseEther(String(1 + i / 10));
             // Set approvals for all future NFTs minted
             await mockNFT4.setApprovalForAll(collectibleMarket.address, true, { from: seller3 });

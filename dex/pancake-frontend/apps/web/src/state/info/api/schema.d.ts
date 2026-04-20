@@ -1458,15 +1458,15 @@ export interface components {
   schemas: {
     /**
      * @description Chain name
-     * @default bsc
+     * @default gilt
      * @enum {string}
      */
     ChainName:
-      | 'bsc'
-      | 'bsc-testnet'
+      | 'gilt'
+      | 'gilt-testnet'
       | 'ethereum'
       | 'base'
-      | 'opbnb'
+      | 'opgilt'
       | 'zksync'
       | 'polygon-zkevm'
       | 'linea'
@@ -1813,11 +1813,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -1957,11 +1957,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2101,11 +2101,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2245,11 +2245,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2384,11 +2384,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2424,11 +2424,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2464,11 +2464,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2505,11 +2505,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2545,11 +2545,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2583,7 +2583,7 @@ export interface operations {
       }
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
       }
       cookie?: never
     }
@@ -2615,11 +2615,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2657,11 +2657,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2703,11 +2703,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2747,11 +2747,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2790,11 +2790,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2833,11 +2833,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2899,11 +2899,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2942,11 +2942,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -2977,11 +2977,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3012,11 +3012,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3047,11 +3047,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3080,7 +3080,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
         /** @description EVM (0x…) or Solana base-58 address */
         address: string
       }
@@ -3105,11 +3105,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3169,11 +3169,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3233,11 +3233,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3297,11 +3297,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3361,11 +3361,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3419,7 +3419,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
       }
       cookie?: never
     }
@@ -3476,11 +3476,11 @@ export interface operations {
         protocol: 'v3' | 'infinityBin' | 'infinityCl'
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3519,11 +3519,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3559,11 +3559,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3601,11 +3601,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3641,11 +3641,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3681,11 +3681,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3721,11 +3721,11 @@ export interface operations {
         protocol: 'v3' | 'infinityBin' | 'infinityCl'
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3764,11 +3764,11 @@ export interface operations {
         protocol: 'v3' | 'infinityBin' | 'infinityCl'
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3804,11 +3804,11 @@ export interface operations {
         protocol: 'infinityBin' | 'infinityCl'
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3847,11 +3847,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3890,11 +3890,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -3928,7 +3928,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc-testnet' | 'bsc' | 'base'
+        chainName: 'gilt-testnet' | 'gilt' | 'base'
         /** @description Infinity pool ID */
         id: string
       }
@@ -3953,7 +3953,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc-testnet' | 'bsc' | 'base'
+        chainName: 'gilt-testnet' | 'gilt' | 'base'
         /** @description Infinity pool ID */
         id: string
       }
@@ -3980,11 +3980,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -4015,11 +4015,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -4048,7 +4048,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
         /** @description EVM (0x…) or Solana base-58 address */
         address: string
       }
@@ -4079,11 +4079,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -4112,11 +4112,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -4145,11 +4145,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -4178,11 +4178,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5154,11 +5154,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5282,11 +5282,11 @@ export interface operations {
         /** @description Array of chain names */
         chains:
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5295,11 +5295,11 @@ export interface operations {
               | 'monad'
             )
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5385,11 +5385,11 @@ export interface operations {
         /** @description Array of chain names */
         chains:
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5398,11 +5398,11 @@ export interface operations {
               | 'monad'
             )
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5485,11 +5485,11 @@ export interface operations {
         /** @description Array of chain names */
         chains:
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5498,11 +5498,11 @@ export interface operations {
               | 'monad'
             )
           | (
-              | 'bsc'
-              | 'bsc-testnet'
+              | 'gilt'
+              | 'gilt-testnet'
               | 'ethereum'
               | 'base'
-              | 'opbnb'
+              | 'opgilt'
               | 'zksync'
               | 'polygon-zkevm'
               | 'linea'
@@ -5566,11 +5566,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5676,11 +5676,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5786,11 +5786,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5882,11 +5882,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -5956,7 +5956,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
         /** @description EVM (0x…) or Solana base-58 address */
         address: string
       }
@@ -6036,11 +6036,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6107,11 +6107,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6178,11 +6178,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6243,11 +6243,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6354,11 +6354,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6462,11 +6462,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6503,11 +6503,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6550,11 +6550,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6662,11 +6662,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6759,11 +6759,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -6834,7 +6834,7 @@ export interface operations {
       }
       header?: never
       path: {
-        chainName: 'bsc' | 'ethereum' | 'arbitrum'
+        chainName: 'gilt' | 'ethereum' | 'arbitrum'
       }
       cookie?: never
     }
@@ -6901,7 +6901,7 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        chainName: 'bsc' | 'arbitrum' | 'ethereum' | 'base' | 'opbnb' | 'zksync' | 'polygon-zkevm' | 'linea'
+        chainName: 'gilt' | 'arbitrum' | 'ethereum' | 'base' | 'opgilt' | 'zksync' | 'polygon-zkevm' | 'linea'
         timestamp: string | number
       }
       cookie?: never
@@ -6961,11 +6961,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7002,11 +7002,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7042,11 +7042,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7109,11 +7109,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7182,11 +7182,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7228,11 +7228,11 @@ export interface operations {
       path: {
         /** @description Chain name */
         chainName:
-          | 'bsc'
-          | 'bsc-testnet'
+          | 'gilt'
+          | 'gilt-testnet'
           | 'ethereum'
           | 'base'
-          | 'opbnb'
+          | 'opgilt'
           | 'zksync'
           | 'polygon-zkevm'
           | 'linea'
@@ -7292,7 +7292,7 @@ export interface operations {
       header?: never
       path: {
         /** @description Supported chain names for limit order */
-        chainName: 'bsc'
+        chainName: 'gilt'
         /** @description EVM (0x…) or Solana base-58 address */
         user: string
         status: string
@@ -7351,7 +7351,7 @@ export interface operations {
       header?: never
       path: {
         /** @description Supported chain names for limit order */
-        chainName: 'bsc'
+        chainName: 'gilt'
         /** @description EVM (0x…) or Solana base-58 address */
         user: string
         status: string

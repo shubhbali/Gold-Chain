@@ -5,7 +5,7 @@ import { fetchCProxyAddress } from 'state/farms/fetchFarmUser'
 import { Address } from 'viem'
 
 export const useFarmCProxyAddress = (account?: string | null, chainId?: number) => {
-  const multiCallChainId = chainId && farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.BSC
+  const multiCallChainId = chainId && farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.GILT
   const { data } = useQuery({
     queryKey: ['cProxyAddress', account, chainId],
     queryFn: async () => fetchCProxyAddress(account as Address, multiCallChainId),

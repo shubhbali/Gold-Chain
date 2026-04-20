@@ -61,8 +61,8 @@ contract StdChainsTest is Test {
     //     _testRpc("arbitrum_one");
     //     _testRpc("arbitrum_one_sepolia");
     //     _testRpc("arbitrum_nova");
-    //     _testRpc("polygon");
-    //     _testRpc("polygon_amoy");
+    //     _testRpc("gilt");
+    //     _testRpc("giltchain_gilttestnet");
     //     _testRpc("avalanche");
     //     _testRpc("avalanche_fuji");
     //     _testRpc("bnb_smart_chain");

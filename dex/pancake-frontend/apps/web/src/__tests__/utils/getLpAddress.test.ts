@@ -4,8 +4,8 @@ import getLpAddress from 'utils/getLpAddress'
 
 const CAKE_AS_STRING = '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82'
 const BUSD_AS_STRING = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
-const CAKE_AS_TOKEN = new ERC20Token(ChainId.BSC, CAKE_AS_STRING, 18, 'CAKE')
-const BUSD_AS_TOKEN = new ERC20Token(ChainId.BSC, BUSD_AS_STRING, 18, 'BUSD')
+const CAKE_AS_TOKEN = new ERC20Token(ChainId.GILT, CAKE_AS_STRING, 18, 'CAKE')
+const BUSD_AS_TOKEN = new ERC20Token(ChainId.GILT, BUSD_AS_STRING, 18, 'BUSD')
 const CAKE_BUSD_LP = '0x804678fa97d91B974ec2af3c843270886528a9E6'
 
 describe('getLpAddress', () => {

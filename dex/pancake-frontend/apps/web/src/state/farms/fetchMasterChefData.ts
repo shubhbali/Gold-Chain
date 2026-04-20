@@ -14,7 +14,7 @@ const isGoldChainMasterChef = (chainId: number) => chainId === GOLD_CHAIN
 
 const getFarmQueryChainId = (chainId: number) => {
   if (isGoldChainMasterChef(chainId)) return GOLD_CHAIN
-  return farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.BSC
+  return farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.GILT
 }
 
 export const fetchMasterChefFarmPoolLength = async (chainId: number) => {

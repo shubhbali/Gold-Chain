@@ -41,12 +41,12 @@ export function sync(pairAddress: Address): void {
   let t0derivedETH = findBnbPerToken(token0 as Token);
   let t1derivedETH = findBnbPerToken(token1 as Token);
 
-  // if t0 bnb is not found
+  // if t0 gilt is not found
   if (t0derivedETH.equals(BIG_DECIMAL_ZERO) && t1derivedETH.gt(BIG_DECIMAL_ZERO)) {
     t0derivedETH = t1derivedETH.times(pair.token1Price);
   }
 
-  // if t1 bnb is not found
+  // if t1 gilt is not found
   if (t1derivedETH.equals(BIG_DECIMAL_ZERO) && t0derivedETH.gt(BIG_DECIMAL_ZERO)) {
     t1derivedETH = t0derivedETH.times(pair.token0Price);
   }

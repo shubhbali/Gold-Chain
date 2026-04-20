@@ -1,0 +1,31 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "GiltConsensus v2 - gRPC Gateway docs",
+    "description": "A REST interface for state queries.",
+    "version": "1.0.0"
+  },
+  "apis": [
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/gilt/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/chainmanager/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/checkpoint/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/clerk/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/milestone/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/stake/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/giltconsensusv2/topup/query.swagger.json"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import { bscTokens } from '@pancakeswap/tokens'
 import { GiftTooltip } from 'components/GiftTooltip/GiftTooltip'
 import { isAddressEqual } from 'utils'
 import { Address } from 'viem'
-import { bsc } from 'viem/chains'
+import { gilt } from 'viem/chains'
 import { useChainId } from 'wagmi'
 import ActionPanel from './ActionPanel/ActionPanel'
 import AprCell from './Cells/AprCell'
@@ -38,7 +38,7 @@ const PoolRow: React.FC<React.PropsWithChildren<{ sousId: number; account: strin
   const getNow = useCallback(() => Date.now(), [])
 
   const tooltip =
-    chainId === bsc.id &&
+    chainId === gilt.id &&
     stakingToken &&
     earningToken &&
     isAddressEqual(stakingToken.address as Address, bscTokens.cake.address) &&
@@ -46,8 +46,8 @@ const PoolRow: React.FC<React.PropsWithChildren<{ sousId: number; account: strin
       <GiftTooltip>
         <Box>
           <Text lineHeight="110%" as="span">
-            {t("Enjoying the APR? Get more PEPE rewards in next month's Syrup Pool by staking more PEPE-BNB LP in our")}
-            <Link ml="4px" lineHeight="110%" display="inline !important" href="/farms?chain=bsc" external>
+            {t("Enjoying the APR? Get more PEPE rewards in next month's Syrup Pool by staking more PEPE-GILT LP in our")}
+            <Link ml="4px" lineHeight="110%" display="inline !important" href="/farms?chain=gilt" external>
               {t('Farms')}
             </Link>
           </Text>

@@ -57,7 +57,7 @@ export async function getLinkForPool(pool: UnifiedPoolInfo, type: 'detail' | 'in
   const { chainId, protocol, lpAddress, stableSwapAddress, poolId } = pool
 
   if (type === 'detail') {
-    const linkPrefix = `/liquidity/pool${multiChainPaths[chainId] || '/bsc'}`
+    const linkPrefix = `/liquidity/pool${multiChainPaths[chainId] || '/gilt'}`
     if (protocol === Protocol.STABLE) {
       if (stableSwapAddress) {
         return `${linkPrefix}/${stableSwapAddress}`

@@ -8,7 +8,7 @@ import { getFullChainNameById } from 'utils/getFullChainNameById'
 import { getChainBasedImageUrl } from '../helpers'
 
 const BACKGROUND = {
-  [ChainId.BSC]: '#D8A70A',
+  [ChainId.GILT]: '#D8A70A',
   [ChainId.BSC_TESTNET]: '#D8A70A',
   [ChainId.ETHEREUM]: '#627AD8',
   [ChainId.GOERLI]: '#627AD8',

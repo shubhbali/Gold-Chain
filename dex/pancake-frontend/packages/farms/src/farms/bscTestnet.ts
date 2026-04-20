@@ -93,14 +93,14 @@ export const legacyFarmConfig: SerializedFarmConfig[] = [
   },
   {
     pid: 4,
-    lpSymbol: 'CAKE-BNB LP',
+    lpSymbol: 'CAKE-GILT LP',
     lpAddress: '0xa96818CA65B57bEc2155Ba5c81a70151f63300CD',
     token: bscTestnetTokens.cake,
     quoteToken: bscTestnetTokens.wbnb,
   },
   {
     pid: 10,
-    lpSymbol: 'BNB-BUSD LP',
+    lpSymbol: 'GILT-BUSD LP',
     lpAddress: '0x4E96D2e92680Ca65D58A0e2eB5bd1c0f44cAB897',
     token: bscTestnetTokens.wbnb,
     quoteToken: bscTestnetTokens.busd,

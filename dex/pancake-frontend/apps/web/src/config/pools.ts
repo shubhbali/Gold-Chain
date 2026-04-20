@@ -3,7 +3,7 @@ import { ChainId } from '@pancakeswap/chains'
 // Revalidate interval in milliseconds
 export const POOLS_FAST_REVALIDATE = {
   [ChainId.BSC_TESTNET]: 10_000,
-  [ChainId.BSC]: 10_000,
+  [ChainId.GILT]: 10_000,
   [ChainId.ETHEREUM]: 20_000,
   [ChainId.GOERLI]: 20_000,
   [ChainId.ARBITRUM_ONE]: 10_000,
@@ -26,7 +26,7 @@ export const POOLS_FAST_REVALIDATE = {
 
 export const POOLS_SLOW_REVALIDATE = {
   [ChainId.BSC_TESTNET]: 20_000,
-  [ChainId.BSC]: 20_000,
+  [ChainId.GILT]: 20_000,
   [ChainId.ETHEREUM]: 40_000,
   [ChainId.GOERLI]: 40_000,
   [ChainId.ARBITRUM_ONE]: 20_000,

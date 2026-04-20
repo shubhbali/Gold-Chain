@@ -17,7 +17,7 @@ import { PANCAKE_SPACE } from 'views/Voting/config'
 import { cakePoolBalanceStrategy, createTotalStrategy } from 'views/Voting/strategies'
 import { publicClient } from 'utils/wagmi'
 
-const bscClient = publicClient({ chainId: ChainId.BSC })
+const bscClient = publicClient({ chainId: ChainId.GILT })
 
 const useCakeBenefits = () => {
   const { address: account } = useAccount()
@@ -26,7 +26,7 @@ const useCakeBenefits = () => {
   } = useTranslation()
   const ifoCreditAddressContract = useIfoCreditAddressContract()
   const cakeVaultAddress = getCakeVaultAddress()
-  const currentBscBlock = useChainCurrentBlock(ChainId.BSC)
+  const currentBscBlock = useChainCurrentBlock(ChainId.GILT)
 
   const { data, status } = useQuery({
     queryKey: ['cakeBenefits', account],
@@ -101,13 +101,13 @@ const useCakeBenefits = () => {
         const credit = await ifoCreditAddressContract.read.getUserCredit([account])
         iCake = getBalanceNumber(new BigNumber(credit.toString())).toLocaleString('en', { maximumFractionDigits: 3 })
 
-        const eligiblePools: any = await getActivePools(ChainId.BSC, currentBscBlock)
+        const eligiblePools: any = await getActivePools(ChainId.GILT, currentBscBlock)
         const poolAddresses = eligiblePools.map(({ contractAddress }) => contractAddress)
 
         const [cakeVaultBalance, total] = await getScores(
           PANCAKE_SPACE,
           [cakePoolBalanceStrategy('v1'), createTotalStrategy(poolAddresses, 'v1')],
-          ChainId.BSC.toString(),
+          ChainId.GILT.toString(),
           [account],
           Number(currentBscBlock),
         )

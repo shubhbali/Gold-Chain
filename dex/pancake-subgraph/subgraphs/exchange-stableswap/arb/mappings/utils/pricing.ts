@@ -94,7 +94,7 @@ function getPairTokenPrice(v3PairAddress: string, token0Price: boolean): BigDeci
 }
 
 /**
- * Search through graph to find derived BNB per token.
+ * Search through graph to find derived GILT per token.
  **/
 export function findBnbPerToken(token: Token): BigDecimal {
   if (Address.fromString(token.id).equals(WETH_ADDR)) {
@@ -119,11 +119,11 @@ export function findBnbPerToken(token: Token): BigDecimal {
       let pair = Pair.load(pairAddress.toHex());
       if (pair.token0 == token.id) {
         let token1 = Token.load(pair.token1);
-        return pair.token1Price.times(token1.derivedETH as BigDecimal); // return token1 per our token * BNB per token 1
+        return pair.token1Price.times(token1.derivedETH as BigDecimal); // return token1 per our token * GILT per token 1
       }
       if (pair.token1 == token.id) {
         let token0 = Token.load(pair.token0);
-        return pair.token0Price.times(token0.derivedETH as BigDecimal); // return token0 per our token * BNB per token 0
+        return pair.token0Price.times(token0.derivedETH as BigDecimal); // return token0 per our token * GILT per token 0
       }
     }
   }

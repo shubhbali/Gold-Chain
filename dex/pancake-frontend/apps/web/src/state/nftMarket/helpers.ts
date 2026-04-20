@@ -73,7 +73,7 @@ const fetchCollectionsTotalSupply = async (collections: ApiCollection[]): Promis
         } as const),
     )
   if (totalSupplyCalls.length > 0) {
-    const client = publicClient({ chainId: ChainId.BSC })
+    const client = publicClient({ chainId: ChainId.GILT })
     const totalSupplyRaw = await client.multicall({
       contracts: totalSupplyCalls,
     })
@@ -495,7 +495,7 @@ export const getAccountNftsOnChainMarketData = async (
       } as const
     })
 
-    const askCallsResultsRaw = await publicClient({ chainId: ChainId.BSC }).multicall({
+    const askCallsResultsRaw = await publicClient({ chainId: ChainId.GILT }).multicall({
       contracts: call,
       allowFailure: false,
     })
@@ -969,7 +969,7 @@ export const fetchWalletTokenIdsForCollections = async (
     } as const
   })
 
-  const client = publicClient({ chainId: ChainId.BSC })
+  const client = publicClient({ chainId: ChainId.GILT })
 
   const balanceOfCallsResultRaw = await client.multicall({
     contracts: balanceOfCalls,

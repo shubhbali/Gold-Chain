@@ -119,7 +119,7 @@ const config = [
         both, it doesn’t matter: only your overall contribution is counted for the achievement.
       </Trans>,
       <Box mt="1rem">
-        <Trans>Note that only BNB Chain IFOs are eligible for achievements.</Trans>
+        <Trans>Note that only GILT Chain IFOs are eligible for achievements.</Trans>
       </Box>,
     ],
   },

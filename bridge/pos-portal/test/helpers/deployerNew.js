@@ -320,9 +320,9 @@ export const deployFreshChildContracts = async (accounts) => {
   const dummyMintableERC1155 = await DummyMintableERC1155.deploy('Dummy Mintable ERC1155', childChainManager.target)
   await dummyMintableERC1155.waitForDeployment()
 
-  const MaticWETH = await ethers.getContractFactory('MaticWETH')
-  const maticWETH = await MaticWETH.deploy(childChainManager.target)
-  await maticWETH.waitForDeployment()
+  const GiltWETH = await ethers.getContractFactory('GiltWETH')
+  const giltWETH = await GiltWETH.deploy(childChainManager.target)
+  await giltWETH.waitForDeployment()
 
   const UChildERC20 = await ethers.getContractFactory('UChildERC20')
   const uChildERC20 = await UChildERC20.deploy()
@@ -369,7 +369,7 @@ export const deployFreshChildContracts = async (accounts) => {
     dummyMintableERC1155,
     dummyMintableERC20,
     dummyMintableERC721,
-    maticWETH,
+    giltWETH,
     testChildTunnel,
     testUChildERC20,
     uChildDAI,
@@ -485,8 +485,8 @@ export const deployInitializedContracts = async (accounts) => {
   const EtherType = await root.etherPredicate.TOKEN_TYPE()
   await root.etherPredicate.grantRole(MANAGER_ROLE, root.rootChainManager.target)
   await root.rootChainManager.registerPredicate(EtherType, root.etherPredicate.target)
-  await root.rootChainManager.mapToken(etherAddress, child.maticWETH.target, EtherType)
-  await child.childChainManager.mapToken(etherAddress, child.maticWETH.target)
+  await root.rootChainManager.mapToken(etherAddress, child.giltWETH.target, EtherType)
+  await child.childChainManager.mapToken(etherAddress, child.giltWETH.target)
 
   return { root, child }
 }

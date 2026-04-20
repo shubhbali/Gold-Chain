@@ -68,7 +68,7 @@ contract StakeManagerStorage is GovernanceLockable, RootChainable {
     uint256 public dynasty; // unit: epoch 50 days
     uint256 public CHECKPOINT_REWARD; // update via governance
     uint256 public minDeposit; // in ERC20 token
-    uint256 public minHeimdallFee; // in ERC20 token
+    uint256 public minGiltConsensusFee; // in ERC20 token
     uint256 public checkPointBlockInterval;
     uint256 public signerUpdateLimit;
 
@@ -96,5 +96,5 @@ contract StakeManagerStorage is GovernanceLockable, RootChainable {
     // validatorId to last signer update epoch
     mapping(uint256 => uint256) public latestSignerUpdateEpoch;
 
-    uint256 public totalHeimdallFee;
+    uint256 public totalGiltConsensusFee;
 }

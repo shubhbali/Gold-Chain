@@ -1411,7 +1411,7 @@ describe('ValidatorSharePOL', function () {
         )
       })
 
-      it('Alice must have unchanged matic', async function () {
+      it('Alice must have unchanged legacy token', async function () {
         assertBigNumberEquality(
           await this.stakeToken.balanceOf(this.alice),
           initialAliceStakeBalance
@@ -1448,7 +1448,7 @@ describe('ValidatorSharePOL', function () {
         )
       })
 
-      it('Bob must have unchanged matic', async function () {
+      it('Bob must have unchanged legacy token', async function () {
         assertBigNumberEquality(
           await this.stakeToken.balanceOf(this.bob),
           initialBobStakeBalance

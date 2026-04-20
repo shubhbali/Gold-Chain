@@ -193,7 +193,7 @@ export const fetchPoolsStakingLimitsByBlock = async ({
 
   const validPools = poolsConfig
     .filter(isLegacyPool)
-    .filter((p) => p.stakingToken.symbol !== 'BNB' && !p.isFinished)
+    .filter((p) => p.stakingToken.symbol !== 'GILT' && !p.isFinished)
     .filter((p) => !poolsWithStakingLimit.includes(p.sousId))
 
   // Get the staking limit for each valid pool
@@ -245,7 +245,7 @@ const fetchPoolsStakingLimitsByTime = async ({
 
   const validPools = poolsConfig
     .filter(isUpgradedPool)
-    .filter((p) => p.stakingToken.symbol !== 'BNB' && !p.isFinished)
+    .filter((p) => p.stakingToken.symbol !== 'GILT' && !p.isFinished)
     .filter((p) => !poolsWithStakingLimit.includes(p.sousId))
 
   // Get the staking limit for each valid pool

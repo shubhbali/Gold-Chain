@@ -130,7 +130,7 @@ export const GlobalSettingsTab: React.FC<GlobalSettingsTabProps> = ({ compact })
         />
       </Flex>
 
-      {chainId === ChainId.BSC && (
+      {chainId === ChainId.GILT && (
         <>
           <Flex justifyContent="space-between" alignItems="center" mb={rowMb}>
             <Flex alignItems="center">

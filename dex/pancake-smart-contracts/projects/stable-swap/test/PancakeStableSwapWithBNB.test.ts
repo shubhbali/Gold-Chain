@@ -46,7 +46,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
     await LPFactory.transferOwnership(factory.address, { from: admin });
     await swapDeployer.transferOwnership(factory.address, { from: admin });
     await swapTriplePoolDeployer.transferOwnership(factory.address, { from: admin });
-    WBNB = await Token.new("Wrapped BNB", "WBNB", 18, { from: admin });
+    WBNB = await Token.new("Wrapped GILT", "WBNB", 18, { from: admin });
     await WBNB.mint(user1, parseEther("10000"), { from: user1 });
     await WBNB.mint(user2, parseEther("10000"), { from: user2 });
     let tx = await factory.createSwapPair(WBNB.address, BNBAddress, A, Fee, AdminFee, { from: admin });
@@ -63,7 +63,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
     poolInfoSC = await PancakeStableSwapInfo.new(twoPoolInfoSC.address, threePoolInfoSC.address, { from: admin });
   });
 
-  describe("Stable Swap Pair Info With BNB", () => {
+  describe("Stable Swap Pair Info With GILT", () => {
     it("Check pair info between factory and swap smart contract", async () => {
       let info = await factory.getPairInfo(WBNB.address, BNBAddress);
       assert.equal(info.swapContract, swap_BNB_WBNB.address);
@@ -76,7 +76,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
     });
   });
 
-  describe("User Add Liquidity with BNB", () => {
+  describe("User Add Liquidity with GILT", () => {
     it("Initialize  liquidity", async () => {
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user1 });
 
@@ -133,7 +133,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
       assert.equal(LP_totalSupply.toString(), LP_balance.toString());
     });
 
-    it("Add one coin into liquidity with BNB ", async () => {
+    it("Add one coin into liquidity with GILT ", async () => {
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user1 });
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user2 });
 
@@ -196,7 +196,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
     });
   });
 
-  describe("User Remove Liquidity with BNB", () => {
+  describe("User Remove Liquidity with GILT", () => {
     beforeEach(async () => {
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user1 });
       await swap_BNB_WBNB.add_liquidity([parseEther("100"), parseEther("100")], 0, {
@@ -204,7 +204,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
         value: ether("100"),
       });
     });
-    it("Remove liquidity with BNB", async () => {
+    it("Remove liquidity with GILT", async () => {
       let LP_balance_before = await LP_BNB_WBNB.balanceOf(user1);
       let wbnb_balance_before = await WBNB.balanceOf(user1);
       let bnb_balance_before = await balance.current(user1);
@@ -226,7 +226,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
       assert.equal(bnb_balance_after.sub(bnb_balance_before).toString(), expectCoins[1].sub(gasUsed).toString());
     });
 
-    it("Remove liquidity imbalance with BNB", async () => {
+    it("Remove liquidity imbalance with GILT", async () => {
       let user_LP_balance_before = await LP_BNB_WBNB.balanceOf(user1);
       let LP_totalSupply_before = await LP_BNB_WBNB.totalSupply();
       let user_wbnb_balance_before = await WBNB.balanceOf(user1);
@@ -301,7 +301,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
       );
     });
 
-    it("Remove liquidity one_coin with BNB", async () => {
+    it("Remove liquidity one_coin with GILT", async () => {
       let defaultTokenAmount = parseEther("1");
       let user_token1_balance_before = await balance.current(user1);
       let expect_Token1_amount = await swap_BNB_WBNB.calc_withdraw_one_coin(defaultTokenAmount, 1);
@@ -326,7 +326,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
     });
   });
 
-  describe("User Exchange with BNB", () => {
+  describe("User Exchange with GILT", () => {
     beforeEach(async () => {
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user1 });
       await swap_BNB_WBNB.add_liquidity([parseEther("100"), parseEther("100")], 0, {
@@ -334,7 +334,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
         value: ether("100"),
       });
     });
-    it("Swap wbnb to bnb", async () => {
+    it("Swap wbnb to gilt", async () => {
       await WBNB.approve(swap_BNB_WBNB.address, parseEther("1000000000"), { from: user2 });
       let exchange_wbnb_balance = parseEther("1");
       let expect_bnb_balance;
@@ -409,7 +409,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
         user_bnb_balance_after.sub(user_bnb_balance_before).add(gasUsed).toString(),
         expect_bnb_balance.toString()
       );
-      //check bnb balance
+      //check gilt balance
       assert.equal(
         user_bnb_balance_after.sub(user_bnb_balance_before).add(gasUsed).toString(),
         swap_bnb_balance_before.sub(swap_bnb_balance_after).sub(exchangeFees[1]).toString()
@@ -420,7 +420,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
       );
     });
 
-    it("Swap bnb to wbnb", async () => {
+    it("Swap gilt to wbnb", async () => {
       let exchange_bnb_balance = parseEther("1");
       let expect_wbnb_balance;
       let exchangeFees;
@@ -498,7 +498,7 @@ contract("PancakeStableSwapTwoPool", ([admin, user1, user2]) => {
       let user_bnb_balance_after;
       user_wbnb_balance_after = await WBNB.balanceOf(user2);
       user_bnb_balance_after = await balance.current(user2);
-      //check user bnb balance
+      //check user gilt balance
       assert.equal(
         exchange_bnb_balance.toString(),
         user_bnb_balance_before.sub(user_bnb_balance_after).sub(gasUsed).toString()

@@ -28,7 +28,7 @@ function createEndpoint(url: string) {
   }
 }
 
-router.post('/opbnb-exchange-v3', createEndpoint(OPBNB_ENDPOINT))
+router.post('/opgilt-exchange-v3', createEndpoint(OPBNB_ENDPOINT))
 
 router.options('*', handleCors(CORS_ALLOW, _corsMethods, _corsHeaders))
 

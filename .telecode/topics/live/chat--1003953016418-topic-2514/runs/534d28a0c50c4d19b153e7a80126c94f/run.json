@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T20:24:47Z",
+  "engine": "codex",
+  "final_answer": "Done. I completed the filename rename pass.\n\nKey rename groups are in place:\n- Chain core: [`gilt-chain/eth/protocols/gilt`](/srv/repos/gold-chain/gilt-chain/eth/protocols/gilt), [`gilt-chain/eth/handler_gilt.go`](/srv/repos/gold-chain/gilt-chain/eth/handler_gilt.go), truffle script/config names, checkpoint filenames, and `core/systemcontracts/*/testnet/*` directory names.\n- Genesis contracts: `BSC* / IBSC*` filenames were renamed to `Gilt* / IGilt*` across contracts/interfaces/abi/workflow files in [`gilt-genesis-contract`](/srv/repos/gold-chain/gilt-genesis-contract).\n- DEX: [`dex/bullswap-v1-gilt-testnet`](/srv/repos/gold-chain/dex/bullswap-v1-gilt-testnet) and remaining DEX filename traces (`bsc`, `chapel`) were renamed to `gilt` / `testnet`.\n\nVerification:\n- Filename scan now returns **0** remaining `bsc/BSC/chapel` filenames (excluding `.tmp`, `node_modules`, `out`).\n- Passed: `go build ./cmd/geth`\n- Passed: `go test ./eth/protocols/gilt -run TestDoesNotExist -count=1`\n- Passed: `go test ./core/systemcontracts/... -run TestDoesNotExist -count=1`\n- `npx hardhat compile` still cannot run in this env (Node 18 + non-local Hardhat constraint).\n\nIf you want, I\u2019ll commit this full rename set next.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 124,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "ok do it then",
+  "run_id": "534d28a0c50c4d19b153e7a80126c94f",
+  "started_at": "2026-04-16T20:15:49Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T20:24:47Z",
+  "version": 1
+}

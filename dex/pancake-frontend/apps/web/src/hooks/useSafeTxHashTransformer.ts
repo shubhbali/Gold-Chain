@@ -26,7 +26,7 @@ class SafeTxHashNotAvailableError extends Error {
 export const useSafeTxHashTransformer = () => {
   const { connector, chainId } = useAccount()
   const isGnosisSafe = useMemo(() => connector?.name === 'Safe', [connector])
-  const confirmationSeconds = chainId ? AVERAGE_CHAIN_BLOCK_TIMES[chainId] : AVERAGE_CHAIN_BLOCK_TIMES[ChainId.BSC]
+  const confirmationSeconds = chainId ? AVERAGE_CHAIN_BLOCK_TIMES[chainId] : AVERAGE_CHAIN_BLOCK_TIMES[ChainId.GILT]
 
   return useCallback(
     async <T = Hash | TransactionDetails>(safeTxHash: T): Promise<Hash> => {

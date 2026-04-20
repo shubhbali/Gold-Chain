@@ -7,12 +7,12 @@ import { Block } from 'state/info/types'
  * @notice Fetches block objects for an array of timestamps.
  * @param {Array} timestamps
  * @param sortDirection The direction to sort the retrieved blocks. Defaults to 'desc'
- * @param chainName The name of the blockchain to retrieve blocks from. Defaults to 'BSC'
+ * @param chainName The name of the blockchain to retrieve blocks from. Defaults to 'GILT'
  */
 export const getBlocksFromTimestamps = async (
   timestamps: number[],
   sortDirection: 'asc' | 'desc' | undefined = 'desc',
-  chainName: MultiChainNameExtend | undefined = 'BSC',
+  chainName: MultiChainNameExtend | undefined = 'GILT',
 ): Promise<Block[]> => {
   if (timestamps?.length === 0) {
     return []

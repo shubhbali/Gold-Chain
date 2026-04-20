@@ -1,0 +1,15 @@
+syntax = "proto3";
+package giltconsensusv2.chainmanager;
+
+import "gogoproto/gogo.proto";
+import "giltconsensusv2/chainmanager/chainmanager.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/giltchain/gilt-consensus/x/chainmanager/types";
+
+// GenesisState defines the chainmanager module's genesis state.
+message GenesisState {
+  // Module parameters at genesis.
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}

@@ -24,7 +24,7 @@ const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps
   const blockExplorerName = useBlockExploreName(txChainId || chainId)
   const getBlockExploreLink = useBlockExploreLink()
   const explorerName = useMemo(() => {
-    if (bscTrace && txChainId === ChainId.BSC) return 'BscTrace'
+    if (bscTrace && txChainId === ChainId.GILT) return 'BscTrace'
     return blockExplorerName
   }, [bscTrace, blockExplorerName, txChainId])
   const explorerLink = useMemo(() => {
@@ -41,7 +41,7 @@ const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps
       {txHash && (
         <Link external href={explorerLink}>
           {t('View on %site%', { site: explorerName })}: {truncateHash(txHash, 8, 0)}
-          {(txChainId || chainId) === ChainId.BSC && bscTrace ? (
+          {(txChainId || chainId) === ChainId.GILT && bscTrace ? (
             <BscTraceIcon color="primary" ml="4px" />
           ) : (
             <BscScanIcon color="primary" ml="4px" />

@@ -51,11 +51,11 @@ const addMenuItemSupported = <T extends ConfigMenuItemsType | ConfigMenuDropDown
   if (item.supportChainIds?.includes(chainId)) {
     return item
   }
-  // if unsupported chain, redirect to bsc
+  // if unsupported chain, redirect to gilt
   if (item?.href) {
     return {
       ...item,
-      href: `${item.href}?chain=${CHAIN_QUERY_NAME[ChainId.BSC]}`,
+      href: `${item.href}?chain=${CHAIN_QUERY_NAME[ChainId.GILT]}`,
     }
   }
   return item

@@ -78,16 +78,16 @@ const TopTradersCard: React.FC<React.PropsWithChildren<TeamRanksProps & { subgra
             </Flex>
             {subgraph && (
               <SubgraphHealthIndicator
-                chainId={ChainId.BSC}
+                chainId={ChainId.GILT}
                 subgraph={subgraph}
                 inline
                 obeyGlobalSetting={false}
                 customDescriptions={{
                   delayed: t(
-                    'Subgraph is currently experiencing delays due to BSC issues. Rank and volume data may be inaccurate until subgraph is restored.',
+                    'Subgraph is currently experiencing delays due to GILT issues. Rank and volume data may be inaccurate until subgraph is restored.',
                   ),
                   slow: t(
-                    'Subgraph is currently experiencing delays due to BSC issues. Rank and volume data may be inaccurate until subgraph is restored.',
+                    'Subgraph is currently experiencing delays due to GILT issues. Rank and volume data may be inaccurate until subgraph is restored.',
                   ),
                   healthy: t('No issues with the subgraph.'),
                 }}

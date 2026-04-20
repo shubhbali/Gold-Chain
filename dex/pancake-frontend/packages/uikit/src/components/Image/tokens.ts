@@ -972,7 +972,7 @@ const tokens = {
       97: "",
     },
     decimals: 18,
-    projectLink: "https://bsc.dego.finance/home",
+    projectLink: "https://gilt.dego.finance/home",
   },
   nrv: {
     symbol: "NRV",
@@ -1098,7 +1098,7 @@ const tokens = {
       97: "",
     },
     decimals: 18,
-    projectLink: "https://bsc.alpaca.city/",
+    projectLink: "https://gilt.alpaca.city/",
   },
   hzn: {
     symbol: "HZN",

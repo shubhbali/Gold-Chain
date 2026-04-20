@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ERC721NFTMarketV1
-    network: bsc
+    network: gilt
     source:
       address: "0x17539cCa21C7933Df5c980172d22659B8C345C5A"
       abi: ERC721NFTMarketV1

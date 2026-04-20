@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T20:18:37Z",
+  "engine": "codex",
+  "final_answer": "1. Min self stake right now is **2000** (coded as `2000 ether` units in StakeHub, which maps to your native token unit model, i.e. GILT on your chain setup).\n\n2. For staking via MetaMask:\n- Technically: yes, users can do it by directly calling staking contracts.\n- Practically: you should build a frontend/website, otherwise UX is bad and error-prone.\n- GOLD-side staking is not \u201cplug-and-play\u201d yet until that lane is fully configured/activated in your chain config.\n- BSC-style reality: users mostly use staking portals/dapps (not raw MetaMask contract calls) for normal flow.\n\n3. Done: I wrote the reminder in [totest.md](/srv/repos/gold-chain/totest.md).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 6,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "What is the min self stake in our chain to your point 3?\n\nPoint 4,can people just stake gilt or gold through metamask or do we need to create a websife/frontend for it. How does SC chain do it\n\nPoint 5,write in file totest.md so we don't forget",
+  "run_id": "90af5325caf940268aa1074105ca157c",
+  "started_at": "2026-04-15T20:18:14Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T20:18:37Z",
+  "version": 1
+}

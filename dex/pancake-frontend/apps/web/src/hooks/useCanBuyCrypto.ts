@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { useMemo } from 'react'
 
 const SUPPORTED_ONRAMP_TOKENS = {
-  [ChainId.BSC]: ['BNB', 'CAKE', 'USDT', 'USDC'],
+  [ChainId.GILT]: ['GILT', 'CAKE', 'USDT', 'USDC'],
   [ChainId.ETHEREUM]: ['ETH', 'USDT', 'USDC', 'DAI', 'WBTC'],
   [ChainId.ZKSYNC]: ['ETH'],
   [ChainId.ARBITRUM_ONE]: ['ETH', 'USDC'],
@@ -17,7 +17,7 @@ interface Params {
 
 export function useCanBuyCrypto({ currencySymbol, chainId }: Params) {
   return useMemo(
-    () => !!currencySymbol && !!chainId && SUPPORTED_ONRAMP_TOKENS[chainId]?.includes(currencySymbol), // check CAKE with BSC only
+    () => !!currencySymbol && !!chainId && SUPPORTED_ONRAMP_TOKENS[chainId]?.includes(currencySymbol), // check CAKE with GILT only
     [currencySymbol, chainId],
   )
 }

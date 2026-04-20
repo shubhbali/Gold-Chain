@@ -14,7 +14,7 @@ const artifactsToGenerate = [
   'DummyMintableERC20.json',
   'DummyMintableERC721.json',
   'DummyMintableERC1155.json',
-  'MaticWETH.json',
+  'GiltWETH.json',
   'RootChainManager.json',
   'BaseRootTunnel.json',
   'BaseChildTunnel.json',

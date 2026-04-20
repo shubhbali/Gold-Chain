@@ -9,7 +9,7 @@ import { FarmKV, FarmResult } from './kv'
 import { bscClient, bscTestnetClient } from './provider'
 
 // copy from src/config, should merge them later
-// Updated for BNB Chain Fermi hard fork reducing block time to 0.45s
+// Updated for GILT Chain Fermi hard fork reducing block time to 0.45s
 const BSC_BLOCK_TIME = 0.45
 const BLOCKS_PER_YEAR = (60 / BSC_BLOCK_TIME) * 60 * 24 * 365 // 70080000
 
@@ -63,10 +63,10 @@ const pairAbi = [
 ] as const
 
 const cakeBusdPairMap = {
-  [ChainId.BSC]: {
-    address: Pair.getAddress(CAKE[ChainId.BSC], BUSD[ChainId.BSC]),
-    tokenA: CAKE[ChainId.BSC],
-    tokenB: BUSD[ChainId.BSC],
+  [ChainId.GILT]: {
+    address: Pair.getAddress(CAKE[ChainId.GILT], BUSD[ChainId.GILT]),
+    tokenA: CAKE[ChainId.GILT],
+    tokenB: BUSD[ChainId.GILT],
   },
   [ChainId.BSC_TESTNET]: {
     address: Pair.getAddress(CAKE[ChainId.BSC_TESTNET], BUSD[ChainId.BSC_TESTNET]),
@@ -76,7 +76,7 @@ const cakeBusdPairMap = {
 }
 
 const getCakePrice = async (isTestnet: boolean) => {
-  const pairConfig = cakeBusdPairMap[isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC]
+  const pairConfig = cakeBusdPairMap[isTestnet ? ChainId.BSC_TESTNET : ChainId.GILT]
   const client = isTestnet ? bscTestnetClient : bscClient
   const [reserve0, reserve1] = await client.readContract({
     abi: pairAbi,

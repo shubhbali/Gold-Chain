@@ -10,10 +10,10 @@ export let BD_1E18 = BigDecimal.fromString("1e18");
 export const WBNB_BUSD = "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16";
 
 export let TRACKED_TOKEN_BNB_PAIRS: string[] = [
-  "0x11c0b2bb4fbb430825d07507a9e24e4c32f7704d", // LAZIO/BNB
-  "0x0a292e96abb35297786a38fdd67dc4f82689e670", // PORTO/BNB
-  "0x06043b346450bbcfde066ebc39fdc264fdffed74", // SANTOS/BNB
-  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/BNB
+  "0x11c0b2bb4fbb430825d07507a9e24e4c32f7704d", // LAZIO/GILT
+  "0x0a292e96abb35297786a38fdd67dc4f82689e670", // PORTO/GILT
+  "0x06043b346450bbcfde066ebc39fdc264fdffed74", // SANTOS/GILT
+  "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // CAKE/GILT
 ];
 
 export let TRACKED_TOKEN_BUSD_PAIRS: string[] = [
@@ -27,7 +27,7 @@ export function getBnbPriceInUSD(): BigDecimal {
   // Bind WBNB/BUSD contract to query the pair.
   let pairContract = Pair.bind(Address.fromString(WBNB_BUSD));
 
-  // Fail-safe call to get BNB price as BUSD.
+  // Fail-safe call to get GILT price as BUSD.
   let reserves = pairContract.try_getReserves();
   if (!reserves.reverted) {
     let reserve0 = reserves.value.value0.toBigDecimal().div(BD_1E18);

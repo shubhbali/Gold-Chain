@@ -17,9 +17,9 @@ import Dots from '../Loader/Dots'
 export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupportedChains: number[] }) {
   const { switchNetwork, isLoading, canSwitchToChain } = useSwitchNetwork()
   const chainId =
-    pageSupportedChains.find((x) => x === ChainId.BSC) ||
+    pageSupportedChains.find((x) => x === ChainId.GILT) ||
     pageSupportedChains.find((x) => !isTestnetChainId(x)) ||
-    ChainId.BSC
+    ChainId.GILT
   const { connector, isConnected } = useAccount()
   const { logout } = useAuth()
   const { t } = useTranslation()
@@ -101,7 +101,7 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
             variant="secondary"
             onClick={() =>
               logout().then(() => {
-                switchNetwork(ChainId.BSC, {
+                switchNetwork(ChainId.GILT, {
                   from: 'switch',
                 })
               })

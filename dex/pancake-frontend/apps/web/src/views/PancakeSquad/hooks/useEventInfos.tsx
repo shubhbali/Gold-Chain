@@ -31,7 +31,7 @@ const useEventInfos = ({ refreshCounter, setCallback }) => {
             } as const),
         )
 
-        const client = publicClient({ chainId: ChainId.BSC })
+        const client = publicClient({ chainId: ChainId.GILT })
 
         const [
           currentMaxSupply,

@@ -1,4 +1,4 @@
-import { StakingInfo, TestToken, PolygonMigration, ValidatorShare } from '../../../helpers/artifacts.js'
+import { StakingInfo, TestToken, GiltMigration, ValidatorShare } from '../../../helpers/artifacts.js'
 
 import { checkPoint, assertBigNumberEquality, assertBigNumbergt } from '../../../helpers/utils.js'
 import testHelpers from '@openzeppelin/test-helpers'
@@ -67,18 +67,18 @@ describe('stake POL', function () {
       polTokenUser = this.polToken.connect(this.polToken.provider.getSigner(user))
       stakeManagerUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(user))
 
-      await polTokenUser.approve(this.stakeManager.address, new BN(amount).add(this.defaultHeimdallFee).toString())
+      await polTokenUser.approve(this.stakeManager.address, new BN(amount).add(this.defaultGiltConsensusFee).toString())
     })
 
     it('must revert', async function () {
       if (unspecified) {
         await expectRevert(
-          stakeManagerUser.stakeForPOL(user, stakeAmount, this.defaultHeimdallFee.toString(), false, userPubkey),
+          stakeManagerUser.stakeForPOL(user, stakeAmount, this.defaultGiltConsensusFee.toString(), false, userPubkey),
           'no more slots'
         )
       } else {
         await expectRevert(
-          stakeManagerUser.stakeForPOL(user, stakeAmount, this.defaultHeimdallFee.toString(), false, userPubkey),
+          stakeManagerUser.stakeForPOL(user, stakeAmount, this.defaultGiltConsensusFee.toString(), false, userPubkey),
           'Invalid signer'
         )
       }
@@ -94,7 +94,7 @@ describe('stake POL', function () {
     let stakeManagerUser, polTokenUser
     before('Approve', async function () {
       this.user = user
-      this.fee = new BN(fee || this.defaultHeimdallFee)
+      this.fee = new BN(fee || this.defaultGiltConsensusFee)
 
       polTokenUser = this.polToken.connect(this.polToken.provider.getSigner(user))
       stakeManagerUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(user))
@@ -307,7 +307,7 @@ describe('stake POL', function () {
     })
   })
 
-  describe('stake with heimdall fee', function () {
+  describe('stake with giltconsensus fee', function () {
     before('deploy', async function() {
       await freshDeploy.call(this)
     })
@@ -710,11 +710,11 @@ describe('unstakeClaim POL', function () {
         })
       })
 
-      it('must have pre-stake + reward - heimdall fee balance', async function () {
+      it('must have pre-stake + reward - giltconsensus fee balance', async function () {
         let balance = await this.polToken.balanceOf(user)
         assertBigNumberEquality(
           balance,
-          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultHeimdallFee)
+          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultGiltConsensusFee)
         )
       })
     })
@@ -741,11 +741,11 @@ describe('unstakeClaim POL', function () {
         })
       })
 
-      it('must have pre-stake + reward - heimdall fee balance', async function () {
+      it('must have pre-stake + reward - giltconsensus fee balance', async function () {
         let balance = await this.polToken.balanceOf(user)
         assertBigNumberEquality(
           balance,
-          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultHeimdallFee)
+          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultGiltConsensusFee)
         )
       })
     })

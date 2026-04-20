@@ -1546,8 +1546,8 @@ describe('ValidatorShare', async function () {
       let initialAliceSharesBalance
       let initialBobSharesBalance
 
-      let initialAliceMaticBalance
-      let initialBobMaticBalance
+      let initialAliceLegacyTokenBalance
+      let initialBobLegacyTokenBalance
 
       before('Alice and Bob purchases voucher, checkpoint is commited', async function () {
         await buyVoucher(this.validatorContract, ValidatorDefaultStake, this.alice)
@@ -1556,8 +1556,8 @@ describe('ValidatorShare', async function () {
         initialAliceSharesBalance = await this.validatorContract.balanceOf(this.alice)
         initialBobSharesBalance = await this.validatorContract.balanceOf(this.bob)
 
-        initialAliceMaticBalance = await this.stakeToken.balanceOf(this.alice)
-        initialBobMaticBalance = await this.stakeToken.balanceOf(this.bob)
+        initialAliceLegacyTokenBalance = await this.stakeToken.balanceOf(this.alice)
+        initialBobLegacyTokenBalance = await this.stakeToken.balanceOf(this.bob)
 
         await checkPoint([this.validatorUser], this.rootChainOwner, this.stakeManager)
       })
@@ -1575,10 +1575,10 @@ describe('ValidatorShare', async function () {
         })
       })
 
-      it('Alice must claim 3000 matic', async function () {
+      it('Alice must claim 3000 legacy tokens', async function () {
         assertBigNumberEquality(
           await this.stakeToken.balanceOf(this.alice),
-          initialAliceMaticBalance.add(toWei('3000'))
+          initialAliceLegacyTokenBalance.add(toWei('3000'))
         )
       })
 
@@ -1605,10 +1605,10 @@ describe('ValidatorShare', async function () {
         })
       })
 
-      it('Bob must claim 3000 matic', async function () {
+      it('Bob must claim 3000 legacy tokens', async function () {
         assertBigNumberEquality(
           await this.stakeToken.balanceOf(this.bob),
-          initialBobMaticBalance.add(toWei('3000'))
+          initialBobLegacyTokenBalance.add(toWei('3000'))
         )
       })
 

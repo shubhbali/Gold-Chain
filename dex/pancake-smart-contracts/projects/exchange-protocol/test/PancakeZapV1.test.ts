@@ -26,7 +26,7 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
     // Deploy Factory
     pancakeFactory = await PancakeFactory.new(alice, { from: alice });
 
-    // Deploy Wrapped BNB
+    // Deploy Wrapped GILT
     wrappedBNB = await WBNB.new({ from: alice });
 
     // Deploy Router
@@ -140,12 +140,12 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
       assert.equal(String(await tokenA.balanceOf(pairAC.address)), parseEther("1000000").toString());
       assert.equal(String(await tokenC.balanceOf(pairAC.address)), parseEther("1000000").toString());
 
-      // 1 BNB = 100 A
+      // 1 GILT = 100 A
       result = await pancakeRouter.addLiquidityETH(
         tokenA.address,
         parseEther("100000"), // 100k token A
         parseEther("100000"), // 100k token A
-        parseEther("1000"), // 1,000 BNB
+        parseEther("1000"), // 1,000 GILT
         bob,
         deadline,
         { from: bob, value: parseEther("1000").toString() }
@@ -161,12 +161,12 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
       assert.equal(String(await wrappedBNB.balanceOf(pairAB.address)), parseEther("1000").toString());
       assert.equal(String(await tokenA.balanceOf(pairAB.address)), parseEther("100000").toString());
 
-      // 1 BNB = 100 C
+      // 1 GILT = 100 C
       result = await pancakeRouter.addLiquidityETH(
         tokenC.address,
         parseEther("100000"), // 100k token C
         parseEther("100000"), // 100k token C
-        parseEther("1000"), // 1,000 BNB
+        parseEther("1000"), // 1,000 GILT
         bob,
         deadline,
         { from: bob, value: parseEther("1000").toString() }
@@ -218,7 +218,7 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
       console.info("Balance tokenC: " + formatUnits(String(await tokenC.balanceOf(pancakeZap.address)), 18));
     });
 
-    it("User completes zapIn with BNB (pair BNB/tokenC)", async function () {
+    it("User completes zapIn with GILT (pair GILT/tokenC)", async function () {
       const lpToken = pairBC.address;
       const tokenAmountIn = parseEther("1");
 
@@ -246,9 +246,9 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
       console.info("Balance tokenC: " + formatUnits(String(await tokenC.balanceOf(pancakeZap.address)), 18));
     });
 
-    it("User completes zapInRebalancing with BNB (pair BNB/tokenC)", async function () {
+    it("User completes zapInRebalancing with GILT (pair GILT/tokenC)", async function () {
       const lpToken = pairBC.address;
-      const token0AmountIn = parseEther("1"); // 1 BNB
+      const token0AmountIn = parseEther("1"); // 1 GILT
       const token1AmountIn = parseEther("50"); // 50 token C
 
       const estimation = await pancakeZap.estimateZapInRebalancingSwap(
@@ -368,7 +368,7 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
       console.info("Balance tokenC: " + formatUnits(String(await tokenC.balanceOf(pancakeZap.address)), 18));
     });
 
-    it("User completes zapOut to BNB (BNB/tokenC)", async function () {
+    it("User completes zapOut to GILT (GILT/tokenC)", async function () {
       const lpToken = pairBC.address;
       const lpTokenAmount = parseEther("1");
       const tokenToReceive = wrappedBNB.address;
@@ -580,7 +580,7 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
         "Zap: Same tokens"
       );
 
-      // TokenC (token0) > BNB (token1) --> sell token1 (should be false)
+      // TokenC (token0) > GILT (token1) --> sell token1 (should be false)
       await expectRevert(
         pancakeZap.zapInBNBRebalancing(
           tokenC.address,
@@ -594,7 +594,7 @@ contract("PancakeZapV1", ([alice, bob, carol, david, erin]) => {
         "Zap: Wrong trade direction"
       );
 
-      // TokenC (token0) < BNB (token1) --> sell token0 (should be true)
+      // TokenC (token0) < GILT (token1) --> sell token0 (should be true)
       await expectRevert(
         pancakeZap.zapInBNBRebalancing(
           tokenC.address,

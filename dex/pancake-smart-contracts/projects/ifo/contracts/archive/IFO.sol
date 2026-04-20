@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/proxy/Initializable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import "bsc-library/contracts/IBEP20.sol";
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 /**
  * @title IFO

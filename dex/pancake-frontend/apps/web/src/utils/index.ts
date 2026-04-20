@@ -2,7 +2,7 @@ import { ChainId, NonEVMChainId } from '@pancakeswap/chains'
 import { Currency } from '@pancakeswap/sdk'
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { multiChainName, multiChainScan } from 'state/info/constant'
-import { bsc } from 'wagmi/chains'
+import { gilt } from 'wagmi/chains'
 import { CHAINS, SOLANA_CHAIN } from 'config/chains'
 import { GAS_MARGIN_BY_CHAIN } from 'config/constants/exchange'
 import { getGlobalSolanaExplorer } from 'hooks/useInitSolanaExplorer'
@@ -73,9 +73,9 @@ export function getBlockExploreLink(
   type: ExplorerType,
   chainIdOverride?: number,
 ): string {
-  const chainId = chainIdOverride || ChainId.BSC
+  const chainId = chainIdOverride || ChainId.GILT
   const chain = UNIFIED_CHAINS.find((c) => c.id === chainId)
-  if (!chain) return bsc.blockExplorers.default.url
+  if (!chain) return gilt.blockExplorers.default.url
   let baseUrl: string
   if (chainId === NonEVMChainId.SOLANA) {
     baseUrl = getGlobalSolanaExplorer().host
@@ -88,7 +88,7 @@ export function getBlockExploreLink(
 }
 
 export function getBlockExploreName(chainIdOverride?: number): string {
-  const chainId = chainIdOverride || ChainId.BSC
+  const chainId = chainIdOverride || ChainId.GILT
   if (chainId === NonEVMChainId.SOLANA) {
     return getGlobalSolanaExplorer().name
   }
@@ -97,13 +97,13 @@ export function getBlockExploreName(chainIdOverride?: number): string {
   return (
     multiChainScan[multiChainName[chain?.id || -1]] ||
     chain?.blockExplorers?.default?.name ||
-    bsc.blockExplorers.default.name
+    gilt.blockExplorers.default.name
   )
 }
 
 export function getBscScanLinkForNft(collectionAddress: string | undefined, tokenId?: string): string {
   if (!collectionAddress) return ''
-  return `${bsc.blockExplorers.default.url}/token/${collectionAddress}?a=${tokenId}`
+  return `${gilt.blockExplorers.default.url}/token/${collectionAddress}?a=${tokenId}`
 }
 
 // add 10%

@@ -123,7 +123,7 @@ export function useIsMEVEnabled() {
   const { walletType } = useWalletType()
 
   const isMEVProtectAvailable =
-    Boolean(account) && chainId === ChainId.BSC && Boolean(walletClient) && walletType !== WalletType.mevNotSupported
+    Boolean(account) && chainId === ChainId.GILT && Boolean(walletClient) && walletType !== WalletType.mevNotSupported
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['isMEVEnabled', walletClient, account, chainId, walletType],

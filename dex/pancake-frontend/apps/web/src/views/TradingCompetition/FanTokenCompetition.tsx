@@ -120,7 +120,7 @@ const FanTokenCompetition = () => {
       }
     }
 
-    if (chainId === ChainId.BSC) {
+    if (chainId === ChainId.GILT) {
       fetchCompetitionInfoContract()
       if (account) {
         fetchUserContract()

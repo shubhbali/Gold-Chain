@@ -27,7 +27,7 @@ const useGelatoLimitOrdersLib = (): GelatoLimitOrders | undefined => {
       })
     },
 
-    enabled: Boolean(chainId === ChainId.BSC && connector),
+    enabled: Boolean(chainId === ChainId.GILT && connector),
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   })

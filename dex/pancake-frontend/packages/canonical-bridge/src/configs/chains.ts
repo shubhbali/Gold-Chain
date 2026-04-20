@@ -1,4 +1,4 @@
-import { IChainConfig } from '@bnb-chain/canonical-bridge-widget'
+import { IChainConfig } from '@gilt-chain/canonical-bridge-widget'
 
 export const chains: IChainConfig[] = [
   {
@@ -59,14 +59,14 @@ export const chains: IChainConfig[] = [
   },
   {
     id: 56,
-    name: 'BNB Smart Chain',
+    name: 'GILT Smart Chain',
     chainType: 'evm',
     nativeCurrency: {
-      name: 'BNB Chain Native Token',
-      symbol: 'BNB',
+      name: 'GILT Chain Native Token',
+      symbol: 'GILT',
       decimals: 18,
     },
-    rpcUrls: { default: { http: ['https://bsc-dataseed.bnbchain.org'] } },
+    rpcUrls: { default: { http: ['https://gilt-dataseed.bnbchain.org'] } },
     blockExplorers: {
       default: { name: 'bscscan', url: 'https://bscscan.com' },
     },
@@ -199,14 +199,14 @@ export const chains: IChainConfig[] = [
   },
   {
     id: 204,
-    name: 'opBNB',
+    name: 'opGILT',
     chainType: 'evm',
     nativeCurrency: {
-      name: 'BNB Chain Native Token',
-      symbol: 'BNB',
+      name: 'GILT Chain Native Token',
+      symbol: 'GILT',
       decimals: 18,
     },
-    rpcUrls: { default: { http: ['https://opbnb-mainnet-rpc.bnbchain.org'] } },
+    rpcUrls: { default: { http: ['https://opgilt-mainnet-rpc.bnbchain.org'] } },
     blockExplorers: {
       default: { name: 'opbnbscan', url: 'https://mainnet.opbnbscan.com' },
     },

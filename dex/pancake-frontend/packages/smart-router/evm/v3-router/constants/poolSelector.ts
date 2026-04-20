@@ -13,7 +13,7 @@ export const DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfig = {
 }
 
 export const INFINITY_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     topN: 1,
     topNDirectSwaps: 1,
     topNTokenInOut: 1,
@@ -48,7 +48,7 @@ export const INFINITY_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap =
 }
 
 export const V3_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     topN: 2,
     topNDirectSwaps: 2,
     topNTokenInOut: 2,
@@ -83,7 +83,7 @@ export const V3_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
 }
 
 export const V2_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     topN: 3,
     topNDirectSwaps: 2,
     topNTokenInOut: 2,
@@ -120,7 +120,7 @@ export const V2_DEFAULT_POOL_SELECTOR_CONFIG: PoolSelectorConfigChainMap = {
 // Use to configure pool selector config when getting quote from specific tokens
 // Allow to increase or decrese the number of candidate pools to calculate routes from
 export const V3_TOKEN_POOL_SELECTOR_CONFIG: TokenPoolSelectorConfigChainMap = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     [bscTokens.ankr.address]: {
       topNTokenInOut: 4,
     },
@@ -137,7 +137,7 @@ export const V3_TOKEN_POOL_SELECTOR_CONFIG: TokenPoolSelectorConfigChainMap = {
 }
 
 export const V2_TOKEN_POOL_SELECTOR_CONFIG: TokenPoolSelectorConfigChainMap = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     // GEM
     '0x701F1ed50Aa5e784B8Fb89d1Ba05cCCd627839a7': {
       topNTokenInOut: 4,

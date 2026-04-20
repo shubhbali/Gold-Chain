@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T21:31:52Z",
+  "engine": "codex",
+  "final_answer": "You should have **2 tokens in the product**, but only **1 native chain token** at protocol level.\n\n- `GILT` = native token (gas, validator economics, inflation, base settlement token)\n- `GOLD` = asset token layer (gold exposure, delegation/staking-weight lane, reward-share lane)\n\nSo \u201cone native target\u201d is correct technically.  \nIt does **not** mean \u201conly one token in the ecosystem.\u201d It means one token is protocol-native, the other is contract-based.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "why is there one native target, shouldnt there be 2 tokens: gilt and gold. dont change any code mate",
+  "run_id": "08f104cfdf0a4093b739d154c4dcd4cf",
+  "started_at": "2026-04-15T21:31:42Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T21:31:52Z",
+  "version": 1
+}

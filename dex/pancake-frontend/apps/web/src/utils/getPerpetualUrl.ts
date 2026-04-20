@@ -15,11 +15,11 @@ const mapPerpChain = (chainId: ChainId): string => {
     case ChainId.ARBITRUM_ONE:
       return 'arbitrum'
     case ChainId.OPBNB:
-      return 'opbnb'
+      return 'opgilt'
     case ChainId.BASE:
       return 'base'
     default:
-      return 'bsc'
+      return 'gilt'
   }
 }
 

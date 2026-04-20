@@ -39,7 +39,7 @@ export abstract class InfinityStablePoolFactory {
   /**
    * Get the factory address for a specific chain
    */
-  public static getFactoryAddress(chainId: ChainId.BSC | ChainId.BSC_TESTNET): Address {
+  public static getFactoryAddress(chainId: ChainId.GILT | ChainId.BSC_TESTNET): Address {
     const address = CL_STABLE_SWAP_POOL_FACTORY_ADDRESS[chainId]
     invariant(address, `Unsupported chainId: ${chainId}`)
     return address

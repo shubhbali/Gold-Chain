@@ -27,7 +27,7 @@ export const SwapFeaturesContext = createContext<{
 
 // NOTE: Commented out until charts are supported again
 const CHART_SUPPORT_CHAIN_IDS: ChainId[] = [
-  // ChainId.BSC,
+  // ChainId.GILT,
   // ChainId.BSC_TESTNET,
   // ChainId.ETHEREUM,
   // ChainId.ARBITRUM_ONE,
@@ -36,8 +36,8 @@ const CHART_SUPPORT_CHAIN_IDS: ChainId[] = [
   // ChainId.OPBNB,
   // ChainId.ZKSYNC,
 ]
-const STABLE_SUPPORT_CHAIN_IDS = [ChainId.BSC_TESTNET, ChainId.BSC]
-// const HOT_TOKEN_SUPPORT_CHAIN_IDS = [ChainId.BSC, ChainId.ETHEREUM]
+const STABLE_SUPPORT_CHAIN_IDS = [ChainId.BSC_TESTNET, ChainId.GILT]
+// const HOT_TOKEN_SUPPORT_CHAIN_IDS = [ChainId.GILT, ChainId.ETHEREUM]
 
 export const SwapFeaturesProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isMobile } = useMatchBreakpoints()

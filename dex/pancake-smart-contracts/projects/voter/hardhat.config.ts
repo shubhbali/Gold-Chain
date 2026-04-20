@@ -15,7 +15,7 @@ const bscTestnet: NetworkUserConfig = {
 };
 
 const bscMainnet: NetworkUserConfig = {
-  url: "https://bsc-dataseed.binance.org/",
+  url: "https://gilt-dataseed.binance.org/",
   chainId: 56,
   accounts: [process.env.KEY_MAINNET!],
   allowUnlimitedContractSize: true,

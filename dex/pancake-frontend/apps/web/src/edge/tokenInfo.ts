@@ -28,10 +28,10 @@ const chainNameForQuery = (chain: string) => {
       return 'linea'
     case 'base':
       return 'base'
-    case 'opbnb':
-      return 'opbnb'
+    case 'opgilt':
+      return 'opgilt'
     default:
-      return 'bsc'
+      return 'gilt'
   }
 }
 
@@ -47,9 +47,9 @@ export const queryTokenInfo = async (chain?: string, address?: string, type?: Su
   switch (type) {
     case 'stableSwap':
     case 'swap': {
-      const chainId = getChainIdByChainName(chain) || ChainId.BSC
+      const chainId = getChainIdByChainName(chain) || ChainId.GILT
       const query: V2TokenDataQuery = {
-        chainName: queryChainName as 'bsc' | 'ethereum' | 'arbitrum',
+        chainName: queryChainName as 'gilt' | 'ethereum' | 'arbitrum',
         chainId: parseInt(chainId as any as string),
         address,
         type,

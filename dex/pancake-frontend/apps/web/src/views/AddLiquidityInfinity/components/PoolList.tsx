@@ -415,7 +415,7 @@ export const PoolList = () => {
     <>
       <PoolsHead>
         <Heading as="h3">{isStableMode ? t('Add Stable Liquidity') : t('Add Infinity Liquidity')}</Heading>
-        {isStableMode && chainId === ChainId.BSC ? (
+        {isStableMode && chainId === ChainId.GILT ? (
           <NextLink href={createInfinityStablePoolUrl}>
             <Button variant="secondary" scale="md">
               {t('Create Infinity Stable Pool')}

@@ -73,7 +73,7 @@ const useAllowedTokensForCurrency = (currency?: UnifiedCurrency | null): Allowed
     if (wNativeToken) {
       list.push(wNativeToken)
     }
-    const showNative = normalizedChainId === ChainId.BSC
+    const showNative = normalizedChainId === ChainId.GILT
     return { tokens: list, showNative, isRwa: true }
   }, [currency?.wrapped?.address, isRwa, normalizedChainId, rwaTokens, usdtToken, usdOnToken])
 }

@@ -46,7 +46,7 @@ export const EVMSettingsTab = () => {
         <PreTitle>{t('Transaction Settings')}</PreTitle>
 
         <Box mb="24px">
-          {chainId === ChainId.BSC && (
+          {chainId === ChainId.GILT && (
             <Flex justifyContent="space-between" alignItems="center" mb="16px">
               <GasSettings />
             </Flex>

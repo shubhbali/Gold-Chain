@@ -12,7 +12,7 @@ import { CAKE, STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { BridgeOrderFee, computeBridgeOrderFee } from './Bridge/utils'
 import { computeTradePriceBreakdown, SVMTradePriceBreakdown, TradePriceBreakdown } from './V3Swap/utils/exchange'
 
-export const TWAP_LIMIT_SUPPORTED_CHAINS = [ChainId.BSC, ChainId.ARBITRUM_ONE, ChainId.BASE, ChainId.LINEA]
+export const TWAP_LIMIT_SUPPORTED_CHAINS = [ChainId.GILT, ChainId.ARBITRUM_ONE, ChainId.BASE, ChainId.LINEA]
 
 export const isTwapSupported = (chainId?: ChainId) => {
   return !chainId ? false : TWAP_LIMIT_SUPPORTED_CHAINS.includes(chainId)

@@ -5,8 +5,8 @@ import {Proxy} from "../common/misc/Proxy.sol";
 import {Registry} from "../common/Registry.sol";
 
 contract RootChainProxy is Proxy, RootChainStorage {
-    constructor(address _proxyTo, address _registry, string memory _heimdallId) public Proxy(_proxyTo) {
+    constructor(address _proxyTo, address _registry, string memory _giltconsensusId) public Proxy(_proxyTo) {
         registry = Registry(_registry);
-        heimdallId = keccak256(abi.encodePacked(_heimdallId));
+        giltconsensusId = keccak256(abi.encodePacked(_giltconsensusId));
     }
 }

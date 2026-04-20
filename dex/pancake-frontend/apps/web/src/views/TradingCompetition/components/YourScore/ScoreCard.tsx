@@ -152,16 +152,16 @@ const ScoreCard: React.FC<React.PropsWithChildren<ScoreCardProps>> = ({
       {subgraph && hasRegistered && (
         <Flex p="16px" justifyContent="flex-end">
           <SubgraphHealthIndicator
-            chainId={ChainId.BSC}
+            chainId={ChainId.GILT}
             subgraph={subgraph}
             inline
             obeyGlobalSetting={false}
             customDescriptions={{
               delayed: t(
-                'Subgraph is currently experiencing delays due to BSC issues. Rank and volume data may be inaccurate until subgraph is restored.',
+                'Subgraph is currently experiencing delays due to GILT issues. Rank and volume data may be inaccurate until subgraph is restored.',
               ),
               slow: t(
-                'Subgraph is currently experiencing delays due to BSC issues. Rank and volume data may be inaccurate until subgraph is restored.',
+                'Subgraph is currently experiencing delays due to GILT issues. Rank and volume data may be inaccurate until subgraph is restored.',
               ),
               healthy: t('No issues with the subgraph.'),
             }}

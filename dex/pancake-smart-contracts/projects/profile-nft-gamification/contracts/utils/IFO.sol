@@ -4,8 +4,8 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import "bsc-library/contracts/IBEP20.sol";
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 contract IFO is ReentrancyGuard {
     using SafeMath for uint256;

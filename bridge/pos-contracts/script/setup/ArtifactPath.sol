@@ -14,7 +14,7 @@ abstract contract ArtifactPath {
     string RegistryPath = "out/Registry.sol/Registry.json";
     string GovernancePath = "out/Governance.sol/Governance.json";
     string GovernanceProxyPath = "out/GovernanceProxy.sol/GovernanceProxy.json";
-    string PolygonMigrationPath = "out/PolygonMigration.sol/PolygonMigration.json";
+    string GiltMigrationPath = "out/GiltMigration.sol/GiltMigration.json";
     string ERC20PermitPath = "out/ERC20Permit.sol/ERC20Permit.json";
     string TestTokenPath = "out/TestToken.sol/TestToken.json";
     string RootChainPath = "out/RootChain.sol/RootChain.json";

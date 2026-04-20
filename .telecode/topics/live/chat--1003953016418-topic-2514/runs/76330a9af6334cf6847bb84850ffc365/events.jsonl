@@ -1,0 +1,28 @@
+{"seq": 1, "timestamp": "2026-04-19T22:49:27Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-19T22:49:29Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-19T22:49:29Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && sed -n '1,120p' bridge/heimdall-v2/LICENSE", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && sed -n '1,120p' bridge/heimdall-v2/LICENSE", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && sed -n '1,120p' bridge/pos-contracts/LICENSE", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && sed -n '1,120p' bridge/pos-contracts/LICENSE", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && sed -n '1,120p' bridge/pos-portal/LICENSE", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && sed -n '1,120p' bridge/pos-portal/LICENSE", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && sed -n '1,120p' bridge/bor/COPYING", "metadata": {}}
+{"seq": 11, "timestamp": "2026-04-19T22:49:43Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && sed -n '1,120p' bridge/bor/COPYING", "metadata": {}}
+{"seq": 12, "timestamp": "2026-04-19T22:49:44Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && rg -n --no-heading -S 'SPDX-License-Identifier|license' bridge/genesis-contracts | head -n 120", "metadata": {}}
+{"seq": 13, "timestamp": "2026-04-19T22:49:44Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && rg -n --no-heading -S 'SPDX-License-Identifier|license' bridge/genesis-contracts | head -n 120", "metadata": {}}
+{"seq": 14, "timestamp": "2026-04-19T22:49:53Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && printf 'bridge/heimdall-v2/LICENSE\\\\n' && sed -n '1,3p' bridge/heimdall-v2/LICENSE", "metadata": {}}
+{"seq": 15, "timestamp": "2026-04-19T22:49:53Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && printf 'bridge/heimdall-v2/LICENSE\\\\n' && sed -n '1,3p' bridge/heimdall-v2/LICENSE", "metadata": {}}
+{"seq": 16, "timestamp": "2026-04-19T22:49:53Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && printf 'bridge/bor/COPYING\\\\n' && sed -n '1,3p' bridge/bor/COPYING", "metadata": {}}
+{"seq": 17, "timestamp": "2026-04-19T22:49:53Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && printf 'bridge/bor/COPYING\\\\n' && sed -n '1,3p' bridge/bor/COPYING", "metadata": {}}
+{"seq": 18, "timestamp": "2026-04-19T22:49:53Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && printf 'bridge/pos-contracts/LICENSE\\\\n' && sed -n '1,3p' bridge/pos-contracts/LICENSE", "metadata": {}}
+{"seq": 19, "timestamp": "2026-04-19T22:49:54Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && printf 'bridge/pos-contracts/LICENSE\\\\n' && sed -n '1,3p' bridge/pos-contracts/LICENSE", "metadata": {}}
+{"seq": 20, "timestamp": "2026-04-19T22:49:54Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && printf 'bridge/pos-portal/LICENSE\\\\n' && sed -n '1,3p' bridge/pos-portal/LICENSE", "metadata": {}}
+{"seq": 21, "timestamp": "2026-04-19T22:49:54Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && printf 'bridge/pos-portal/LICENSE\\\\n' && sed -n '1,3p' bridge/pos-portal/LICENSE", "metadata": {}}
+{"seq": 22, "timestamp": "2026-04-19T22:50:07Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && rg --files bridge/bor bridge/heimdall-v2 bridge/pos-contracts bridge/pos-portal bridge/genesis-contracts | rg 'COPYING|LICENSE|license|SPDX'", "metadata": {}}
+{"seq": 23, "timestamp": "2026-04-19T22:50:07Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && rg --files bridge/bor bridge/heimdall-v2 bridge/pos-contracts bridge/pos-portal bridge/genesis-contracts | rg 'COPYING|LICENSE|license|SPDX'", "metadata": {}}
+{"seq": 24, "timestamp": "2026-04-19T22:50:10Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && sed -n '1,20p' bridge/bor/COPYING.LESSER", "metadata": {}}
+{"seq": 25, "timestamp": "2026-04-19T22:50:10Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && sed -n '1,20p' bridge/bor/COPYING.LESSER", "metadata": {}}
+{"seq": 26, "timestamp": "2026-04-19T22:50:15Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && rg -o -N 'SPDX-License-Identifier:\\\\s*[\"'^'\"\\\\r\\\\n]*' bridge | sed 's/.*SPDX-License-Identifier:\\\\s*//' | sort | uniq -c | sort -nr", "metadata": {}}
+{"seq": 27, "timestamp": "2026-04-19T22:50:15Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && rg -o -N 'SPDX-License-Identifier:\\\\s*[\"'^'\"\\\\r\\\\n]*' bridge | sed 's/.*SPDX-License-Identifier:\\\\s*//' | sort | uniq -c | sort -nr", "metadata": {}}
+{"seq": 28, "timestamp": "2026-04-19T22:50:32Z", "type": "run.completed", "text": "Done.", "metadata": {}}

@@ -32,7 +32,7 @@ contract PancakeStableSwapThreePool is Ownable, ReentrancyGuard {
     uint256[N_COINS] public balances;
     uint256 public fee; // fee * 1e10.
     uint256 public admin_fee; // admin_fee * 1e10.
-    uint256 public bnb_gas = 4029; // transfer bnb gas.
+    uint256 public bnb_gas = 4029; // transfer gilt gas.
 
     IPancakeStableSwapLP public token;
 
@@ -269,7 +269,7 @@ contract PancakeStableSwapThreePool is Ownable, ReentrancyGuard {
         //Amounts is amounts of c-tokens
         require(!is_killed, "Killed");
         if (!support_BNB) {
-            require(msg.value == 0, "Inconsistent quantity"); // Avoid sending BNB by mistake.
+            require(msg.value == 0, "Inconsistent quantity"); // Avoid sending GILT by mistake.
         }
         uint256[N_COINS] memory fees;
         uint256 _fee = (fee * N_COINS) / (4 * (N_COINS - 1));
@@ -430,7 +430,7 @@ contract PancakeStableSwapThreePool is Ownable, ReentrancyGuard {
     ) external payable nonReentrant {
         require(!is_killed, "Killed");
         if (!support_BNB) {
-            require(msg.value == 0, "Inconsistent quantity"); // Avoid sending BNB by mistake.
+            require(msg.value == 0, "Inconsistent quantity"); // Avoid sending GILT by mistake.
         }
 
         uint256[N_COINS] memory old_balances = balances;
@@ -659,7 +659,7 @@ contract PancakeStableSwapThreePool is Ownable, ReentrancyGuard {
 
     function _safeTransferBNB(address to, uint256 value) internal {
         (bool success, ) = to.call{gas: bnb_gas, value: value}("");
-        require(success, "BNB transfer failed");
+        require(success, "GILT transfer failed");
     }
 
     // Admin functions

@@ -220,7 +220,7 @@ const EthTag: React.FC<React.PropsWithChildren<TagProps>> = (props) => {
 const BscTag: React.FC<React.PropsWithChildren<TagProps>> = (props) => {
   return (
     <Tag style={{ background: "#08060B" }} startIcon={<BinanceChainIcon width="18px" mr="4px" />} {...props}>
-      BNB
+      GILT
     </Tag>
   );
 };
@@ -228,7 +228,7 @@ const BscTag: React.FC<React.PropsWithChildren<TagProps>> = (props) => {
 const OpBnbTag: React.FC<React.PropsWithChildren<TagProps>> = (props) => {
   return (
     <Tag style={{ background: "#08060B" }} startIcon={<BinanceChainIcon width="18px" mr="4px" />} {...props}>
-      opBNB
+      opGILT
     </Tag>
   );
 };

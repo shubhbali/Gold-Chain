@@ -8,7 +8,7 @@ import crypto from 'crypto'
 chai.use(chaiAsPromised).should()
 
 describe('DepositManager @skip-on-coverage', async function (accounts) {
-  let depositManager, childContracts, maticE20
+  let depositManager, childContracts, legacyTokenE20
   const amount = web3.utils.toBN('10').pow(web3.utils.toBN('18'))
 
   describe('deposits on root and child', async function () {
@@ -23,7 +23,7 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
       const contracts = await deployer.freshDeploy(accounts[0])
       depositManager = contracts.depositManager
       childContracts = await deployer.initializeChildChain()
-      maticE20 = await deployer.deployMaticToken()
+      legacyTokenE20 = await deployer.deployLegacyToken()
     })
 
     it('depositERC20', async function () {
@@ -40,26 +40,26 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
       utils.assertBigNumberEquality(balance, amount)
     })
 
-    describe('Matic Tokens', async function () {
+    describe('Legacy Tokens', async function () {
       it('deposit to EOA', async function () {
         const bob = '0x' + crypto.randomBytes(20).toString('hex')
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(bob), 0)
-        await utils.deposit(depositManager, childContracts.childChain, maticE20.rootERC20, bob, amount, {
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(bob), 0)
+        await utils.deposit(depositManager, childContracts.childChain, legacyTokenE20.rootERC20, bob, amount, {
           rootDeposit: true,
           erc20: true
         })
 
         // assert deposit on child chain
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(bob), amount)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(bob), amount)
       })
 
       it('deposit to non EOA', async function () {
         const scwReceiver = await contractFactories.NativeTokenReceiver.deploy()
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver.address), 0)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver.address), 0)
         const stateSyncTxn = await utils.deposit(
           depositManager,
           childContracts.childChain,
-          maticE20.rootERC20,
+          legacyTokenE20.rootERC20,
           scwReceiver.address,
           amount,
           {
@@ -69,20 +69,20 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
         )
 
         utils.assertInTransaction(stateSyncTxn, contractFactories.NativeTokenReceiver, 'SafeReceived', {
-          sender: maticE20.childToken.address,
+          sender: legacyTokenE20.childToken.address,
           value: amount.toString()
         })
 
         // assert deposit on child chain
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver.address), amount)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver.address), amount)
       })
 
       it('deposit to reverting non EOA', async function () {
         const scwReceiver_Reverts = await contractFactories.NativeTokenReceiver_Reverts.deploy()
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver_Reverts.address), 0)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver_Reverts.address), 0)
         const newDepositBlockEvent = await utils.depositOnRoot(
           depositManager,
-          maticE20.rootERC20,
+          legacyTokenE20.rootERC20,
           scwReceiver_Reverts.address,
           amount.toString(),
           {
@@ -95,26 +95,26 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
             '0xf' /* dummy id */,
             utils.encodeDepositStateSync(
               scwReceiver_Reverts.address,
-              maticE20.rootERC20.address,
+              legacyTokenE20.rootERC20.address,
               amount,
               newDepositBlockEvent.args.depositBlockId
             )
           )
           await tx.wait()
         } catch (error) {
-          // problem with return data decoding on bor rpc & hh
+          // problem with return data decoding on gilt rpc & hh
           chai.assert(error.message.includes('transaction failed'), 'Transaction should have failed')
         }
         // assert deposit did not happen on child chain
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver_Reverts.address), 0)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver_Reverts.address), 0)
       })
 
       it('deposit to reverting with OOG', async function () {
         const scwReceiver_OOG = await contractFactories.NativeTokenReceiver_OOG.deploy()
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver_OOG.address), 0)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver_OOG.address), 0)
         const newDepositBlockEvent = await utils.depositOnRoot(
           depositManager,
-          maticE20.rootERC20,
+          legacyTokenE20.rootERC20,
           scwReceiver_OOG.address,
           amount.toString(),
           {
@@ -127,7 +127,7 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
             '0xb' /* dummy id */,
             utils.encodeDepositStateSync(
               scwReceiver_OOG.address,
-              maticE20.rootERC20.address,
+              legacyTokenE20.rootERC20.address,
               amount,
               newDepositBlockEvent.args.depositBlockId
             )
@@ -136,7 +136,7 @@ describe('DepositManager @skip-on-coverage', async function (accounts) {
         } catch (error) {
           chai.assert(error.message.includes('transaction failed'), 'Transaction should have failed')
         }
-        utils.assertBigNumberEquality(await maticE20.childToken.balanceOf(scwReceiver_OOG.address), 0)
+        utils.assertBigNumberEquality(await legacyTokenE20.childToken.balanceOf(scwReceiver_OOG.address), 0)
       })
     })
   })

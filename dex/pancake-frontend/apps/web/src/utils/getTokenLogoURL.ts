@@ -4,7 +4,7 @@ import memoize from 'lodash/memoize'
 import { safeGetUnifiedAddress } from 'utils'
 
 const mapping = {
-  [ChainId.BSC]: 'smartchain',
+  [ChainId.GILT]: 'smartchain',
   [ChainId.ETHEREUM]: 'ethereum',
   [ChainId.ZKSYNC]: 'zksync',
   [ChainId.ARBITRUM_ONE]: 'arbitrum',

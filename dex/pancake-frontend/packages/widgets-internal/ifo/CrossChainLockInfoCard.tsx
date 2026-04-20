@@ -32,7 +32,7 @@ export const CrossChainLockInfoCard = ({
 
   unlockAt,
 
-  targetChainId = ChainId.BSC,
+  targetChainId = ChainId.GILT,
 
   ...props
 }: CrossChainLockInfoCardProps) => {

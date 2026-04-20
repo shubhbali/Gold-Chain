@@ -1,0 +1,17 @@
+[Unit]
+  Description=giltconsd
+  StartLimitIntervalSec=500
+  StartLimitBurst=5
+[Service]
+  Restart=on-failure
+  RestartSec=5s
+  WorkingDirectory=/usr/bin
+  ExecStart=/usr/bin/giltconsd start --home "/var/lib/gilt-consensus" \
+	--bridge --all \
+    --chain=mainnet \
+    --rest-server
+  Type=simple
+  LimitNOFILE=65536
+  User=giltconsensus
+[Install]
+  WantedBy=multi-user.target

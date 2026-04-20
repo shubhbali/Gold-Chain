@@ -78,7 +78,7 @@ export const PredictionCard: React.FC<PredictionCardProps> = ({ token, winner })
       // Keep the original logic for isFrameLess.
       // Not changing logic, only layout.
       isFrameLess={isMobile}
-      // title={t('BNB 5-Min Prediction')}
+      // title={t('GILT 5-Min Prediction')}
       subtitle={t('Prediction')}
       button={{
         text: t('Play Now'),
@@ -91,7 +91,7 @@ export const PredictionCard: React.FC<PredictionCardProps> = ({ token, winner })
             <CurrencyLogo
               style={getImageStyle(isMobile)}
               currency={{
-                chainId: ChainId.BSC,
+                chainId: ChainId.GILT,
                 address: ZERO_ADDRESS,
                 isNative: true,
               }}
@@ -141,7 +141,7 @@ export const PredictionCard: React.FC<PredictionCardProps> = ({ token, winner })
         <HomepageCardBadge
           text={`+${formatAmount(win, {
             precision: 1,
-          })} BNB`}
+          })} GILT`}
         />
       </CardRowLayout>
     </CardSection>

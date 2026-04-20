@@ -1,12 +1,12 @@
 {
-  "name": "@maticnetwork/pos-portal",
+  "name": "@giltchain/pos-portal",
   "version": "1.5.2",
-  "description": "Contracts to facilitate transfer of assets between Ethereum Main Network and Matic Network, using security of Matic POS layer",
+  "description": "Contracts to facilitate transfer of assets between Ethereum and Gilt Chain using the PoS bridge stack",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "bor:clean": "cd test-blockchain && bash stop-docker.sh",
-    "bor": "cd test-blockchain && bash run-docker.sh",
+    "gilt:clean": "cd test-blockchain && bash stop-docker.sh",
+    "gilt": "cd test-blockchain && bash run-docker.sh",
     "build": "hardhat compile",
     "flatten": "hardhat flatten",
     "fmt:js:check": "prettier --log-level warn scripts/**/*.js test/**/*.js --check",
@@ -23,14 +23,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maticnetwork/pos-portal.git"
+    "url": "git+https://github.com/giltchain/pos-portal.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/maticnetwork/pos-portal/issues"
+    "url": "https://github.com/giltchain/pos-portal/issues"
   },
-  "homepage": "https://github.com/maticnetwork/pos-portal#readme",
+  "homepage": "https://github.com/giltchain/pos-portal#readme",
   "config": {
     "mnemonics": "clock radar mass judge dismiss just intact mind resemble fringe diary casino"
   },

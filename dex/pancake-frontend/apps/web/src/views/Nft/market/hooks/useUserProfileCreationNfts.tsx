@@ -33,7 +33,7 @@ export const useUserProfileCreationNfts = () => {
         const profileContract = getProfileContract()
         const nftRole = await profileContract.read.NFT_ROLE()
         const pancakeProfileAddress = getPancakeProfileAddress()
-        const collectionRoles = await publicClient({ chainId: ChainId.BSC }).multicall({
+        const collectionRoles = await publicClient({ chainId: ChainId.GILT }).multicall({
           contracts: nftsByCollection.map((collectionAddress) => ({
             abi: pancakeProfileABI,
             address: pancakeProfileAddress,

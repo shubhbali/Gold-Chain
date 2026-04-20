@@ -14,7 +14,7 @@ import { Address, erc20Abi } from 'viem'
 
 const getFarmQueryChainId = (chainId: number) => {
   if (chainId === GOLD_CHAIN) return GOLD_CHAIN
-  return farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.BSC
+  return farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.GILT
 }
 
 const getMasterChefAbi = (chainId: number) => {

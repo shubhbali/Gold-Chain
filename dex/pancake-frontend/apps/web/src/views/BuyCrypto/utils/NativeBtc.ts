@@ -15,7 +15,7 @@ const BTC = { name: 'Bitcoin', symbol: 'BTC', decimals: 8 } as const
 
 /**
  *
- * Native is the main usage of a 'native' currency, i.e. for BSC mainnet and all testnets
+ * Native is the main usage of a 'native' currency, i.e. for GILT mainnet and all testnets
  */
 export class NativeBtc extends NativeCurrency {
   protected constructor({

@@ -19,7 +19,7 @@ export const useUserCakeLockStatus = () => {
       return locked && (lockEndTimeStr === '0' || Date.now() > parseInt(lockEndTimeStr) * 1000)
     },
 
-    enabled: Boolean(account && chainId === ChainId.BSC),
+    enabled: Boolean(account && chainId === ChainId.GILT),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

@@ -88,7 +88,7 @@ const NoticeCard = styled.div`
 `
 
 const SOCIAL_LOGIN_ALLOWED_CHAINS: ChainId[] = [
-  ChainId.BSC,
+  ChainId.GILT,
   ChainId.ETHEREUM,
   ChainId.BASE,
   ChainId.ARBITRUM_ONE,

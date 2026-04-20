@@ -14,7 +14,7 @@ export const PANCAKE_ZKSYNC_DEFAULT = 'https://tokens.pancakeswap.finance/pancak
 export const PANCAKE_ARB_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-arbitrum-default.json'
 export const PANCAKE_LINEA_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-linea-default.json'
 export const PANCAKE_BASE_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-base-default.json'
-export const PANCAKE_OPBNB_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-opbnb-default.json'
+export const PANCAKE_OPBNB_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-opgilt-default.json'
 export const PANCAKE_SOLANA_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-solana-default.json'
 export const PANCAKE_MONAD_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-monad-default.json'
 export const PANCAKE_MONAD_TESTNET_DEFAULT = 'https://tokens.pancakeswap.finance/pancakeswap-monad-testnet-default.json'
@@ -95,7 +95,7 @@ export const DEFAULT_ACTIVE_LIST_URLS: string[] = [
 ]
 
 export const MULTI_CHAIN_LIST_URLS: { [chainId: number]: string[] } = {
-  [ChainId.BSC]: BSC_URLS,
+  [ChainId.GILT]: BSC_URLS,
   [ChainId.ETHEREUM]: ETH_URLS,
   [ChainId.ZKSYNC]: ZKSYNC_URLS,
   [ChainId.ARBITRUM_ONE]: ARBITRUM_URLS,

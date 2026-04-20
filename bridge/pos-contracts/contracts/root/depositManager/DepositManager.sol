@@ -14,7 +14,7 @@ import {StateSender} from "../stateSyncer/StateSender.sol";
 import {GovernanceLockable} from "../../common/mixin/GovernanceLockable.sol";
 import {RootChain} from "../RootChain.sol";
 
-interface IPolygonMigration {
+interface IGiltMigration {
     function migrate(uint256 amount) external;
 }
 
@@ -39,24 +39,24 @@ contract DepositManager is DepositManagerStorage, IDepositManager, ERC721Holder 
         depositEther();
     }
 
-    // new: governance function to migrate MATIC to POL
-    function migrateMatic() external onlyGovernance {
-        IERC20 matic = IERC20(registry.contractMap(keccak256("matic")));
-        _migrateMatic(matic.balanceOf(address(this)));
+    // new: governance function to migrate LEGACY_TOKEN to POL
+    function migrateLegacyToken() external onlyGovernance {
+        IERC20 legacyToken = IERC20(registry.contractMap(keccak256("legacyToken")));
+        _migrateLegacyToken(legacyToken.balanceOf(address(this)));
     }
 
-    function _migrateMatic(uint256 _amount) private {
-        IERC20 matic = IERC20(registry.contractMap(keccak256("matic")));
-        address polygonMigration = registry.contractMap(keccak256("polygonMigration"));
+    function _migrateLegacyToken(uint256 _amount) private {
+        IERC20 legacyToken = IERC20(registry.contractMap(keccak256("legacyToken")));
+        address giltMigration = registry.contractMap(keccak256("giltMigration"));
 
         // check that _amount is not too high
-        require(matic.balanceOf(address(this)) >= _amount, "amount exceeds this contract's MATIC balance");
+        require(legacyToken.balanceOf(address(this)) >= _amount, "amount exceeds this contract's legacy-token balance");
 
         // approve
-        matic.approve(polygonMigration, _amount);
+        legacyToken.approve(giltMigration, _amount);
 
         // call migrate function
-        IPolygonMigration(polygonMigration).migrate(_amount);
+        IGiltMigration(giltMigration).migrate(_amount);
     }
 
     function updateMaxErc20Deposit(uint256 maxDepositAmount) public onlyGovernance {
@@ -74,8 +74,8 @@ contract DepositManager is DepositManagerStorage, IDepositManager, ERC721Holder 
             WETH t = WETH(_token);
             t.withdraw(_amountOrNFTId, _user);
         } else {
-            // new: pay out POL when MATIC is withdrawn
-            if (_token == registry.contractMap(keccak256("matic"))) {
+            // new: pay out POL when legacy token is withdrawn
+            if (_token == registry.contractMap(keccak256("legacyToken"))) {
                 require(
                     IERC20(registry.contractMap(keccak256("pol"))).transfer(_user, _amountOrNFTId), "TRANSFER_FAILED"
                 );
@@ -162,15 +162,15 @@ contract DepositManager is DepositManagerStorage, IDepositManager, ERC721Holder 
     }
 
     function _createDepositBlock(address _user, address _token, uint256 _amountOrToken, uint256 _depositId) internal {
-        address matic = registry.contractMap(keccak256("matic"));
+        address legacyToken = registry.contractMap(keccak256("legacyToken"));
 
-        // new: auto-migrate MATIC to POL
-        if (_token == matic) {
-            _migrateMatic(_amountOrToken);
+        // new: auto-migrate legacy token to POL
+        if (_token == legacyToken) {
+            _migrateLegacyToken(_amountOrToken);
         }
-        // new: bridge POL as MATIC, child chain behaviour does not change
+        // new: bridge POL as legacy token, child chain behaviour does not change
         else if (_token == registry.contractMap(keccak256("pol"))) {
-            _token = matic;
+            _token = legacyToken;
         }
 
         deposits[_depositId] = DepositBlock(keccak256(abi.encodePacked(_user, _token, _amountOrToken)), now);

@@ -182,7 +182,7 @@ const SingleHistoricalReward: React.FC<React.PropsWithChildren<SingleHistoricalR
                           )}
                           {reward.approveStatus === 'APPROVED' && !reward.process && (
                             <>
-                              {chainId !== ChainId.BSC ? (
+                              {chainId !== ChainId.GILT ? (
                                 <Text color="textDisabled" textAlign="right">
                                   {t('Claim')}
                                 </Text>

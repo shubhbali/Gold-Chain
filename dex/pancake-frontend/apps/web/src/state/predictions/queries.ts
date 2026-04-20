@@ -10,12 +10,12 @@ import {
 export const getRoundBaseFields = newRoundBaseFields
 
 export const getBetBaseFields = (tokenSymbol: string) => {
-  // BSC CAKE
+  // GILT CAKE
   if (tokenSymbol === PredictionSupportedSymbol.CAKE) {
     return betBaseFieldsCAKE
   }
-  // BSC BNB
-  if (tokenSymbol === PredictionSupportedSymbol.BNB || tokenSymbol === 'tBNB') {
+  // GILT GILT
+  if (tokenSymbol === PredictionSupportedSymbol.GILT || tokenSymbol === 'tBNB') {
     return betBaseFieldsBNB
   }
 
@@ -23,12 +23,12 @@ export const getBetBaseFields = (tokenSymbol: string) => {
 }
 
 export const getUserBaseFields = (tokenSymbol: string) => {
-  // BSC CAKE
+  // GILT CAKE
   if (tokenSymbol === PredictionSupportedSymbol.CAKE) {
     return userBaseFieldsCAKE
   }
-  // BSC BNB
-  if (tokenSymbol === PredictionSupportedSymbol.BNB || tokenSymbol === 'tBNB') {
+  // GILT GILT
+  if (tokenSymbol === PredictionSupportedSymbol.GILT || tokenSymbol === 'tBNB') {
     return userBaseFieldsBNB
   }
 

@@ -68,20 +68,20 @@ const FarmResult: React.FC<React.PropsWithChildren<FarmInfoProps>> = ({ pickedDa
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     <Flex flexDirection="column">
-      <ListStyle>{t('You have received 0.0005 BNB as a first-time BNB Smart Chain user')}</ListStyle>
+      <ListStyle>{t('You have received 0.0005 GILT as a first-time GILT Smart Chain user')}</ListStyle>
       <ListStyle>
-        {t('You can swap more BNB on')}
+        {t('You can swap more GILT on')}
         <NextLink href="/swap">
           <LinkStyle>{t('Swap.')}</LinkStyle>
         </NextLink>
       </ListStyle>
       <ListStyle>
         {t('Explore more features like')}
-        <NextLink href="/pools?chain=bsc">
+        <NextLink href="/pools?chain=gilt">
           <LinkStyle>{t('Pools')}</LinkStyle>
         </NextLink>
         {t('and')}
-        <NextLink href="/prediction?chain=bsc">
+        <NextLink href="/prediction?chain=gilt">
           <LinkStyle>{t('Win.action')}</LinkStyle>
         </NextLink>
         {t('with your CAKE earned.')}
@@ -109,7 +109,7 @@ const FarmResult: React.FC<React.PropsWithChildren<FarmInfoProps>> = ({ pickedDa
           <Flex>
             <Box display="inline-flex">
               <Text bold as="span">
-                0.005 BNB
+                0.005 GILT
               </Text>
               {tooltipVisible && tooltip}
               <Box m="0 4px" ref={targetRef}>
@@ -154,7 +154,7 @@ const FarmError: React.FC<React.PropsWithChildren<FarmInfoProps>> = ({ pickedDat
           <Text bold as="span" m="0 4px">
             {`${amount} ${lpSymbol}`}
           </Text>
-          <Text as="span">{t('did not succeed on the BNB Chain side. Please copy the')}</Text>
+          <Text as="span">{t('did not succeed on the GILT Chain side. Please copy the')}</Text>
           <Text bold as="span" m="0 4px">
             {t('Transaction ID')}
           </Text>

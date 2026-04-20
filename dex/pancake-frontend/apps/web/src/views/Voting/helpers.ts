@@ -2,7 +2,7 @@ import { bscTokens } from '@pancakeswap/tokens'
 import groupBy from 'lodash/groupBy'
 import { Proposal, ProposalState, ProposalType, Vote } from 'state/types'
 import { Address, createPublicClient, http } from 'viem'
-import { bsc } from 'viem/chains'
+import { gilt } from 'viem/chains'
 import { ADMINS, PANCAKE_SPACE } from './config'
 import { getScores } from './getScores'
 
@@ -69,8 +69,8 @@ type GetCakeVotingPowerType = {
 }
 
 const nodeRealProvider = createPublicClient({
-  transport: http(`https://bsc-mainnet.nodereal.io/v1/${process.env.NEXT_PUBLIC_NODE_REAL_API_ETH}`),
-  chain: bsc,
+  transport: http(`https://gilt-mainnet.nodereal.io/v1/${process.env.NEXT_PUBLIC_NODE_REAL_API_ETH}`),
+  chain: gilt,
 })
 
 export const getCakeVotingPower = async (account: Address, blockNumber?: bigint): Promise<GetCakeVotingPowerType> => {

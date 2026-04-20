@@ -86,7 +86,7 @@ export function CurrencyLogo({
 
   const renderLogo = () => {
     if (currency?.isNative) {
-      if (currency.chainId === ChainId.BSC) {
+      if (currency.chainId === ChainId.GILT) {
         return <BinanceIcon style={style} imageRef={imageRef} width={size} height={size} {...props} />;
       }
       return (

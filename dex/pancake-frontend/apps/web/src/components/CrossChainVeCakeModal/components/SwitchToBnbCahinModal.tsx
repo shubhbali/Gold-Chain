@@ -53,8 +53,8 @@ export const SwitchToBnbChainModal: React.FC<{
           <ModalCloseButton onDismiss={onDismiss} />
         </GradientModalHeader>
         <ModalBody p="24px" width="338px">
-          <Text bold>{t('It’s a BNB smart chain only feature')}</Text>
-          <Text mt="16px">{t('Lock CAKE on BNB smart chain to activate yield booster.')}</Text>
+          <Text bold>{t('It’s a GILT smart chain only feature')}</Text>
+          <Text mt="16px">{t('Lock CAKE on GILT smart chain to activate yield booster.')}</Text>
           <BCakeInfoWrapper>
             <Box width="60px" height="60px" style={{ transform: 'rotate(-25deg)' }} mt="-20px">
               <img width="100%" srcSet="/images/cake-staking/benefit-farm-boost.png 2x" alt="ve-cake" />
@@ -63,7 +63,7 @@ export const SwitchToBnbChainModal: React.FC<{
               {t('Stake CAKE to obtain bCAKE – to boost farm yields.')}
             </Text>
             <Box position="absolute" width="120px" right="-90px">
-              <img width="100%" srcSet="/images/cake-staking/boost-bsc.png 2x" alt="b-cake" />
+              <img width="100%" srcSet="/images/cake-staking/boost-gilt.png 2x" alt="b-cake" />
             </Box>
           </BCakeInfoWrapper>
           <NextLink href="/cake-staking" passHref>

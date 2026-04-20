@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 
 // Empty array whitelists all pools for the chain, omitting the chain means ZAP is unsupported.
 export const ZAP_V3_POOL_ADDRESSES: Record<number, string[]> = {
-  [ChainId.BSC]: [] as string[],
+  [ChainId.GILT]: [] as string[],
   [ChainId.ETHEREUM]: [
     '0x04c8577958CcC170EB3d2CCa76F9d51bc6E42D8f', // USDC-USDT 0.01%
     '0x6CA298D2983aB03Aa1dA7679389D955A4eFEE15C', // WETH-USDT 0.05%
@@ -56,5 +56,5 @@ export const ZAP_V3_POOL_ADDRESSES: Record<number, string[]> = {
   ],
 }
 
-// Infinity CLMM Zap is only supported on BNB Chain (BSC)
-export const ZAP_INFINITY_CL_SUPPORTED_CHAINS: number[] = [ChainId.BSC]
+// Infinity CLMM Zap is only supported on GILT Chain (GILT)
+export const ZAP_INFINITY_CL_SUPPORTED_CHAINS: number[] = [ChainId.GILT]

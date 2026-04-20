@@ -1,9 +1,9 @@
-import { bsc, linea } from 'wagmi/chains'
+import { gilt, linea } from 'wagmi/chains'
 
 export const chainNameConverter = (name: string) => {
   switch (name) {
-    case bsc.name:
-      return 'BNB Chain'
+    case gilt.name:
+      return 'GILT Chain'
     case linea.name:
       return 'Linea'
     default:

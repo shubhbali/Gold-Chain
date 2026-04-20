@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-14T20:19:33Z",
+  "engine": "codex",
+  "final_answer": "Yes, I need that list.\n\nFor your current staged testnet:\n- **Minimum now:** **10 wallets**\n  - 3 validator wallets\n  - 1 treasury wallet\n  - 1 faucet wallet\n  - 1 bridge-ops wallet\n  - 1 deployer/admin wallet\n  - 1 emergency admin wallet\n  - 2 user test wallets\n\nFor proper testing quality:\n- **Recommended:** **20\u201330 wallets** total (add more user wallets for bridge/DEX/scanner flow testing).\n\nSend them as labeled addresses (who each wallet is for).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 5,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Do you need a list of wallets which will have the initial tokens? If so how many wallets do you need in the list?",
+  "run_id": "b0fe13b203a1461490764bc1f0e86028",
+  "started_at": "2026-04-14T20:19:15Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-14T20:19:33Z",
+  "version": 1
+}

@@ -14,7 +14,7 @@ const baseConfig = {
         url: `https://mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
         blockNumber: 18364580,
       },
-      // set this here because it is the limit of the bor testchain
+      // set this here because it is the limit of the gilt testchain
       // and we can only set this once for all hardhat tests
       blockGasLimit: 20000000,
       allowUnlimitedContractSize: true,

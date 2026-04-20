@@ -12,7 +12,7 @@ PWD=$(pwd)
 cleanup() {
   echo "Cleaning up"
   pkill -f ganache
-  cd $PWD/test-bor-docker
+  cd $PWD/test-gilt-docker
   bash stop-docker.sh
   cd ..
   echo "Done"
@@ -23,7 +23,7 @@ start_testrpc() {
 }
 
 start_blockchain() {
-  cd $PWD/test-bor-docker
+  cd $PWD/test-gilt-docker
   bash run-docker.sh
   cd ..
 }

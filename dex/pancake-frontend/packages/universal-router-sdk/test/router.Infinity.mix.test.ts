@@ -400,7 +400,7 @@ describe('PancakeSwap Universal Mixed Router Command Generation Test', () => {
       expect(swapParams.poolKey.currency1).toEqual(CAKE.address)
 
       testInfinitySettleAction(actions[1], CAKE, 50n, true)
-      testInfinityTakeAction(actions[2], Ether.onChain(ChainId.BSC), ADDRESS_THIS, ACTION_CONSTANTS.OPEN_DELTA)
+      testInfinityTakeAction(actions[2], Ether.onChain(ChainId.GILT), ADDRESS_THIS, ACTION_CONSTANTS.OPEN_DELTA)
     })
   })
 

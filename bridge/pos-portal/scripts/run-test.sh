@@ -35,7 +35,7 @@ npm run template:process
 echo "Starting our own testrpc instance"
 start_testrpc
 
-echo "Starting our own bor instance"
+echo "Starting our own child-chain instance"
 start_blockchain
 
 # migrate contracts

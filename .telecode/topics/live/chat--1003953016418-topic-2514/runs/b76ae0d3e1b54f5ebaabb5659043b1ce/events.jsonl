@@ -1,0 +1,24 @@
+{"seq": 1, "timestamp": "2026-04-19T19:38:15Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-19T19:38:17Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-19T19:38:17Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-19T19:38:36Z", "type": "progress.event", "text": "Running: rg -n \\\"stakeTokenB|tokenBRewardSplitBps|inflationEnabled|activateTokenBMigration|claimTokenBReward\\\" gilt-genesis-contract/contracts/StakeHub.sol | sed -n '1,120p'", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-19T19:38:36Z", "type": "progress.event", "text": "Finished (0): rg -n \\\"stakeTokenB|tokenBRewardSplitBps|inflationEnabled|activateTokenBMigration|claimTokenBReward\\\" gilt-genesis-contract/contracts/StakeHub.sol | sed -n '1,120p'", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-19T19:38:37Z", "type": "progress.event", "text": "Running: ls -la .live-chain .live-roughnet .testnet-wallets .roughnet-wallets 2>/dev/null", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-19T19:38:37Z", "type": "progress.event", "text": "Finished (2): ls -la .live-chain .live-roughnet .testnet-wallets .roughnet-wallets 2>/dev/null", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-19T19:38:37Z", "type": "progress.event", "text": "Running: git status --short | sed -n '1,220p'", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-19T19:38:37Z", "type": "progress.event", "text": "Running: rg -n --hidden -S \\\"\\\\bPolygon\\\\b|\\\\bMatic\\\\b|\\\\bBSC\\\\b|\\\\bBNB\\\\b|\\\\bpolygon\\\\b|\\\\bmatic\\\\b|\\\\bbsc\\\\b|\\\\bbnb\\\\b\\\" bridge/pos-contracts bridge/pos-portal bridge/genesis-contracts --glob '\"'!**/node_modules/**'\"' --glob '\"'!**/lib/**'\"' --glob '\"'!**/artifacts/**'\"' --glob '\"'!**/cache/**'\"' --glob '\"'!**/dist/**'\"' --glob '\"'!**/build/**'\"' --glob '\"'!**/out/**'\"'", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-19T19:38:37Z", "type": "progress.event", "text": "Finished (1): rg -n --hidden -S \\\"\\\\bPolygon\\\\b|\\\\bMatic\\\\b|\\\\bBSC\\\\b|\\\\bBNB\\\\b|\\\\bpolygon\\\\b|\\\\bmatic\\\\b|\\\\bbsc\\\\b|\\\\bbnb\\\\b\\\" bridge/pos-contracts bridge/pos-portal bridge/genesis-contracts --glob '\"'!**/node_modules/**'\"' --glob '\"'!**/lib/**'\"' --glob '\"'!**/artifacts/**'\"' --glob '\"'!**/cache/**'\"' --glob '\"'!**/dist/**'\"' --glob '\"'!**/build/**'\"' --glob '\"'!**/out/**'\"'", "metadata": {}}
+{"seq": 11, "timestamp": "2026-04-19T19:38:43Z", "type": "progress.event", "text": "Finished (0): git status --short | sed -n '1,220p'", "metadata": {}}
+{"seq": 12, "timestamp": "2026-04-19T19:38:53Z", "type": "progress.event", "text": "Running: ls -la .live-chain/live-bridge-addresses.json .live-chain/node1.log .live-chain/genesis.json 2>/dev/null", "metadata": {}}
+{"seq": 13, "timestamp": "2026-04-19T19:38:53Z", "type": "progress.event", "text": "Finished (2): ls -la .live-chain/live-bridge-addresses.json .live-chain/node1.log .live-chain/genesis.json 2>/dev/null", "metadata": {}}
+{"seq": 14, "timestamp": "2026-04-19T19:38:53Z", "type": "progress.event", "text": "Running: test -f .live-chain/node1.pid && { echo PID=$(cat .live-chain/node1.pid); ps -p $(cat .live-chain/node1.pid) -o pid=,cmd=; } || echo \"no node1.pid\"", "metadata": {}}
+{"seq": 15, "timestamp": "2026-04-19T19:38:53Z", "type": "progress.event", "text": "Finished (0): test -f .live-chain/node1.pid && { echo PID=$(cat .live-chain/node1.pid); ps -p $(cat .live-chain/node1.pid) -o pid=,cmd=; } || echo \"no node1.pid\"", "metadata": {}}
+{"seq": 16, "timestamp": "2026-04-19T19:38:53Z", "type": "progress.event", "text": "Running: test -f wallets.md && sed -n '1,120p' wallets.md || true", "metadata": {}}
+{"seq": 17, "timestamp": "2026-04-19T19:38:54Z", "type": "progress.event", "text": "Finished (0): test -f wallets.md && sed -n '1,120p' wallets.md || true", "metadata": {}}
+{"seq": 18, "timestamp": "2026-04-19T19:39:03Z", "type": "progress.event", "text": "Running: npm run build", "metadata": {}}
+{"seq": 19, "timestamp": "2026-04-19T19:39:04Z", "type": "progress.event", "text": "Running: npm run truffle:compile", "metadata": {}}
+{"seq": 20, "timestamp": "2026-04-19T19:39:04Z", "type": "progress.event", "text": "Running: npx hardhat compile", "metadata": {}}
+{"seq": 21, "timestamp": "2026-04-19T19:39:11Z", "type": "progress.event", "text": "Finished (1): npm run truffle:compile", "metadata": {}}
+{"seq": 22, "timestamp": "2026-04-19T19:39:11Z", "type": "progress.event", "text": "Finished (0): npm run build", "metadata": {}}
+{"seq": 23, "timestamp": "2026-04-19T19:39:12Z", "type": "progress.event", "text": "Finished (0): npx hardhat compile", "metadata": {}}
+{"seq": 24, "timestamp": "2026-04-19T19:39:12Z", "type": "run.stopped", "text": "Stopped.", "metadata": {}}

@@ -18,7 +18,7 @@ export const FeaturesCard = () => {
       <RowLayout style={{ marginTop: '20px' }} sidePadding="16px">
         <CardSection title={t('Featured on PancakeSwap')}>
           <PerpetualCard tokens={tokens.filter((x) => x.symbol === 'BTC' || x.symbol === 'ETH')} />
-          <PredictionCard token={tokens.find((x) => x.symbol === 'BNB')!} winner={topWinner} />
+          <PredictionCard token={tokens.find((x) => x.symbol === 'GILT')!} winner={topWinner} />
         </CardSection>
       </RowLayout>
     )
@@ -37,7 +37,7 @@ export const FeaturesCard = () => {
           }}
         >
           <PerpetualCard tokens={tokens.filter((x) => x.symbol === 'BTC' || x.symbol === 'ETH')} />
-          <PredictionCard token={tokens.find((x) => x.symbol === 'BNB')!} winner={topWinner} />
+          <PredictionCard token={tokens.find((x) => x.symbol === 'GILT')!} winner={topWinner} />
         </RowLayout>
       </>
     )
@@ -56,7 +56,7 @@ export const FeaturesCard = () => {
         }}
       >
         <PerpetualCard tokens={tokens.filter((x) => x.symbol === 'BTC' || x.symbol === 'ETH')} />
-        <PredictionCard token={tokens.find((x) => x.symbol === 'BNB')!} winner={topWinner} />
+        <PredictionCard token={tokens.find((x) => x.symbol === 'GILT')!} winner={topWinner} />
       </RowLayout>
     </>
   )

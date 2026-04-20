@@ -14,7 +14,30 @@ import {
   readArtifact,
 } from './live-bridge-common.mjs';
 
-const walletFile = path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json');
+function firstExistingPath(paths) {
+  for (const candidate of paths) {
+    if (candidate && fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+const liveChainDir = process.env.LIVE_CHAIN_DIR
+  ? path.resolve(REPO_ROOT, process.env.LIVE_CHAIN_DIR)
+  : firstExistingPath([
+      path.join(REPO_ROOT, '.live-chain'),
+      path.join(REPO_ROOT, '.live-roughnet'),
+    ]) || path.join(REPO_ROOT, '.live-roughnet');
+
+const walletFile = process.env.TESTNET_WALLETS_FILE || firstExistingPath([
+  path.join(REPO_ROOT, '.testnet-wallets', 'evm-wallets.json'),
+  path.join(REPO_ROOT, '.roughnet-wallets', 'evm-wallets.json'),
+]);
+
+if (!walletFile) {
+  throw new Error('wallet file not found (.testnet-wallets/evm-wallets.json or .roughnet-wallets/evm-wallets.json)');
+}
 const stateSenderAbi = ['function counter() view returns (uint256)'];
 const ROOT_EXIT_GAS_LIMIT = 4_000_000n;
 
@@ -25,8 +48,8 @@ const portalArtifacts = {
   childErc20: readArtifact(
     'bridge/pos-portal/artifacts/contracts/child/ChildToken/ChildERC20.sol/ChildERC20.json',
   ),
-  maticWeth: readArtifact(
-    'bridge/pos-portal/artifacts/contracts/child/ChildToken/MaticWETH.sol/MaticWETH.json',
+  giltWeth: readArtifact(
+    'bridge/pos-portal/artifacts/contracts/child/ChildToken/GiltWETH.sol/GiltWETH.json',
   ),
   wrappedGilt: readArtifact(
     'bridge/pos-portal/artifacts/contracts/root/RootToken/WrappedGilt.sol/WrappedGilt.json',
@@ -37,8 +60,8 @@ const portalArtifacts = {
 };
 
 const chainArtifacts = {
-  physicalGold1155: readArtifact('bsc-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
-  nativeGiltBridge: readArtifact('bsc-genesis-contract/out/NativeGiltBridge.sol/NativeGiltBridge.json'),
+  physicalGold1155: readArtifact('gilt-genesis-contract/out/PhysicalGold1155.sol/PhysicalGold1155.json'),
+  nativeGiltBridge: readArtifact('gilt-genesis-contract/out/NativeGiltBridge.sol/NativeGiltBridge.json'),
 };
 
 function rootArtifacts() {
@@ -81,9 +104,10 @@ function findLogIndex(receipt, emitter, topic0 = null) {
 
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
-  const roughnetRpc = process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
+  const roughnetRpc = process.env.CHILD_RPC_URL || process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
+  const validatorKeyPath = path.join(liveChainDir, 'validator-ecdsa.key');
   const rawPrivateKey =
-    process.env.PRIVATE_KEY || fs.readFileSync(path.join(REPO_ROOT, '.live-roughnet', 'validator-ecdsa.key'), 'utf8').trim();
+    process.env.PRIVATE_KEY || fs.readFileSync(validatorKeyPath, 'utf8').trim();
   const deployerKey = rawPrivateKey.startsWith('0x') ? rawPrivateKey : `0x${rawPrivateKey}`;
 
   const addressBook = loadAddressBook();
@@ -105,7 +129,7 @@ async function main() {
   const childGold = contractAt(addressBook.child.gold, chainArtifacts.physicalGold1155, roughnetUser);
   const childUsdc = contractAt(addressBook.child.usdc, portalArtifacts.childErc20, roughnetUser);
   const childUsdt = contractAt(addressBook.child.usdt, portalArtifacts.childErc20, roughnetUser);
-  const childWeth = contractAt(addressBook.child.weth, portalArtifacts.maticWeth, roughnetUser);
+  const childWeth = contractAt(addressBook.child.weth, portalArtifacts.giltWeth, roughnetUser);
   const nativeGiltBridge = contractAt(NATIVE_GILT_BRIDGE_ADDRESS, chainArtifacts.nativeGiltBridge, roughnetUser);
   const rootStateSender = new ethers.Contract(addressBook.root.stateSender, stateSenderAbi, sepoliaProvider);
 

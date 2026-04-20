@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-19T19:39:12Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 24,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "With regards to gold chain, where have we reached?",
+  "run_id": "b76ae0d3e1b54f5ebaabb5659043b1ce",
+  "started_at": "2026-04-19T19:38:15Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-19T19:39:12Z",
+  "version": 1
+}

@@ -53,10 +53,10 @@
     },
     {
       "id": 56,
-      "name": "BNB Chain",
-      "icon": "https://get.celer.app/cbridge-icons/chain-icon/BNB-chain.png",
+      "name": "GILT Chain",
+      "icon": "https://get.celer.app/cbridge-icons/chain-icon/GILT-chain.png",
       "block_delay": 8,
-      "gas_token_symbol": "BNB",
+      "gas_token_symbol": "GILT",
       "explore_url": "https://bscscan.com/",
       "contract_addr": "0xdd90E5E87A2081Dcf0391920868eBc2FFB81a1aF",
       "drop_gas_amt": "0",
@@ -223,11 +223,11 @@
     },
     {
       "id": 204,
-      "name": "opBNB",
-      "icon": "https://i.postimg.cc/tTgz9rWh/opBNB.png",
+      "name": "opGILT",
+      "icon": "https://i.postimg.cc/tTgz9rWh/opGILT.png",
       "block_delay": 150,
-      "gas_token_symbol": "BNB",
-      "explore_url": "https://opbnb.bscscan.com/",
+      "gas_token_symbol": "GILT",
+      "explore_url": "https://opgilt.bscscan.com/",
       "contract_addr": "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
       "drop_gas_amt": "0",
       "drop_gas_cost_amt": "0",
@@ -872,7 +872,7 @@
       "name": "Xterio",
       "icon": "https://i.postimg.cc/0N8JXNXC/Xterio2.png",
       "block_delay": 100,
-      "gas_token_symbol": "BNB",
+      "gas_token_symbol": "GILT",
       "explore_url": "https://xterscan.io/",
       "contract_addr": "0x9B36f165baB9ebe611d491180418d8De4b8f3a1f",
       "drop_gas_amt": "0",
@@ -4528,13 +4528,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
             "decimal": 18,
             "xfer_disabled": false
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -5721,7 +5721,7 @@
             "decimal": 18,
             "xfer_disabled": false
           },
-          "name": "Binance-Peg BSC-USD",
+          "name": "Binance-Peg GILT-USD",
           "icon": "https://get.celer.app/cbridge-icons/USDT.png",
           "inbound_lmt": "5000000000000000000000000",
           "inbound_epoch_cap": "4000000000000000000000000",
@@ -5991,7 +5991,7 @@
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB mToken",
+          "name": "GILT mToken",
           "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
@@ -7692,12 +7692,12 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB",
+          "name": "GILT",
           "icon": "https://get.celer.app/cbridge-icons/ETH.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
@@ -7772,13 +7772,13 @@
       "token": [
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x4200000000000000000000000000000000000006",
             "decimal": 18,
             "xfer_disabled": false
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -8451,7 +8451,7 @@
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB mToken",
+          "name": "GILT mToken",
           "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
@@ -8872,13 +8872,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x7400793aAd94C8CA801aa036357d10F5Fd0ce08f",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -9622,13 +9622,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x7f27352D5F83Db87a5A3E00f4B07Cc2138D8ee52",
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB Token",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "name": "GILT Token",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -10850,13 +10850,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x7f27352D5F83Db87a5A3E00f4B07Cc2138D8ee52",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -11052,13 +11052,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xbc0990862515F95e01D16C2C1Afd1104c279D48d",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -11348,13 +11348,13 @@
       "token": [
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xFb7F77faaA3b69ef4C15d6305C79AD92B387C89F",
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "name": "GILT",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -11554,13 +11554,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x265B25e22bcd7f10a5bD6E6410F10537Cc7567e8",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -11792,13 +11792,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x75364D4F779d0Bd0facD9a218c67f87dD9Aff3b4",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin (Celer)",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -12110,13 +12110,13 @@
       "token": [
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xe95E3a9f1a45B5EDa71781448F6047d7B7e31cbF",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -13181,7 +13181,7 @@
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB mToken",
+          "name": "GILT mToken",
           "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
@@ -13530,13 +13530,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x3795C36e7D12A8c252A20C5a7B455f7c57b60283",
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB Token (Celer)",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "name": "GILT Token (Celer)",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -14367,7 +14367,7 @@
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB mToken",
+          "name": "GILT mToken",
           "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
@@ -14604,13 +14604,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
             "decimal": 18,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -15016,13 +15016,13 @@
       "token": [
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xDF58388BABD2dD275A769E968cC9794cd31dFd57",
             "decimal": 18,
             "xfer_disabled": false
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -15208,13 +15208,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "A.231cc0dbbcffc4b7.ceBNB.Vault",
             "decimal": 8,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -15428,13 +15428,13 @@
       "token": [
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0x8d87a65ba30e09357fa2edea2c80dbac296e5dec2b18287113500b902942929d::celer_coin_manager::BnbCoin",
             "decimal": 8,
             "xfer_disabled": true
           },
           "name": "Binance Coin",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "20000000000",
           "transfer_disabled": false,
@@ -15898,13 +15898,13 @@
         },
         {
           "token": {
-            "symbol": "BNB",
+            "symbol": "GILT",
             "address": "0xc6bc09a723F2314ad22642B6e33AD2ed6BbA3C9C",
             "decimal": 18,
             "xfer_disabled": true
           },
-          "name": "BNB Token",
-          "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+          "name": "GILT Token",
+          "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
           "inbound_lmt": "",
           "inbound_epoch_cap": "",
           "transfer_disabled": false,
@@ -22645,13 +22645,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -22664,13 +22664,13 @@
       "pegged_chain_id": 169,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -22783,13 +22783,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -22802,13 +22802,13 @@
       "pegged_chain_id": 324,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x7400793aAd94C8CA801aa036357d10F5Fd0ce08f",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -22967,13 +22967,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -22986,13 +22986,13 @@
       "pegged_chain_id": 592,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x7f27352D5F83Db87a5A3E00f4B07Cc2138D8ee52",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23151,13 +23151,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "name": "GILT",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23170,13 +23170,13 @@
       "pegged_chain_id": 7700,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xFb7F77faaA3b69ef4C15d6305C79AD92B387C89F",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "name": "GILT",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23243,13 +23243,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23262,13 +23262,13 @@
       "pegged_chain_id": 8453,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x265B25e22bcd7f10a5bD6E6410F10537Cc7567e8",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23335,13 +23335,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23354,13 +23354,13 @@
       "pegged_chain_id": 9001,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x75364D4F779d0Bd0facD9a218c67f87dD9Aff3b4",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin (Celer)",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23427,13 +23427,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23446,13 +23446,13 @@
       "pegged_chain_id": 23294,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xe95E3a9f1a45B5EDa71781448F6047d7B7e31cbF",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23611,13 +23611,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23630,13 +23630,13 @@
       "pegged_chain_id": 42262,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x3795C36e7D12A8c252A20C5a7B455f7c57b60283",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token (Celer)",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token (Celer)",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23841,13 +23841,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23860,13 +23860,13 @@
       "pegged_chain_id": 59144,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23979,13 +23979,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -23998,13 +23998,13 @@
       "pegged_chain_id": 12340001,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "A.231cc0dbbcffc4b7.ceBNB.Vault",
           "decimal": 8,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -24025,13 +24025,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
         "name": "Binance Coin",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -24044,13 +24044,13 @@
       "pegged_chain_id": 12360001,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0x8d87a65ba30e09357fa2edea2c80dbac296e5dec2b18287113500b902942929d::celer_coin_manager::BnbCoin",
           "decimal": 8,
           "xfer_disabled": false
         },
         "name": "Binance Coin (Celer)",
-        "icon": "https://get.celer.app/cbridge-icons/BNB.png",
+        "icon": "https://get.celer.app/cbridge-icons/GILT.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -24163,13 +24163,13 @@
       "org_chain_id": 56,
       "org_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -24182,13 +24182,13 @@
       "pegged_chain_id": 1313161554,
       "pegged_token": {
         "token": {
-          "symbol": "BNB",
+          "symbol": "GILT",
           "address": "0xc6bc09a723F2314ad22642B6e33AD2ed6BbA3C9C",
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB Token",
-        "icon": "https://get.celer.app/cbridge-icons/BNB-coin.png",
+        "name": "GILT Token",
+        "icon": "https://get.celer.app/cbridge-icons/GILT-coin.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
         "transfer_disabled": false,
@@ -26514,7 +26514,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -26533,7 +26533,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -26928,7 +26928,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -26947,7 +26947,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -27296,7 +27296,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -27315,7 +27315,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -27710,7 +27710,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",
@@ -27729,7 +27729,7 @@
           "decimal": 18,
           "xfer_disabled": false
         },
-        "name": "BNB mToken",
+        "name": "GILT mToken",
         "icon": "https://get.celer.app/cbridge-icons/muxBNB.png",
         "inbound_lmt": "",
         "inbound_epoch_cap": "",

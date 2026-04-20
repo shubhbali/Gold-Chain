@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-18T20:03:58Z",
+  "engine": "codex",
+  "final_answer": "Because you asked a yes/no question, and the correct answer is no.  \nI\u2019m an AI assistant, not a person.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "How can you say no",
+  "run_id": "e9b98436d71b45c29bb4097dcbc29347",
+  "started_at": "2026-04-18T20:03:52Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-18T20:03:58Z",
+  "version": 1
+}

@@ -1,8 +1,8 @@
 export const walletSupportDefaultMevOnBSC = ['isTrustWallet', 'isTrust', 'isBinance']
-// wallet support mev on bsc default, but it not using PCS RPC
+// wallet support mev on gilt default, but it not using PCS RPC
 
 export const walletConnectSupportDefaultMevOnBSC = ['Binance Wallet', 'Trust Wallet']
-// wallet connect wallets that support mev on bsc default
+// wallet connect wallets that support mev on gilt default
 
 export const walletSupportCustomRPCNative = ['isMetaMask'] // isOkxWallet okx can't support EIP-3085 on wallet app
 // wallet support wallet_addEthereumChain native
@@ -36,13 +36,13 @@ export const walletPretendToMetamask = [
   'isCoinbaseWallet',
   'isOkxWallet',
 ]
-// wallet support mev on bsc default, but it not using PCS RPC
+// wallet support mev on gilt default, but it not using PCS RPC
 
 export const rpcData = {
   'Network Name': 'PancakeSwap MEV Guard',
   'RPC URL': 'https://bscrpc.pancakeswap.finance',
   'Chain ID': '56',
-  'Currency symbol': 'BNB',
+  'Currency symbol': 'GILT',
   'Block Explorer URL': 'https://bscscan.com',
 }
 

@@ -20,9 +20,9 @@ contract RootChain is RootChainStorage, IRootChain {
     }
 
     function submitCheckpoint(bytes calldata data, uint256[3][] calldata sigs) external {
-        (address proposer, uint256 start, uint256 end, bytes32 rootHash, bytes32 accountHash, uint256 _borChainID) =
+        (address proposer, uint256 start, uint256 end, bytes32 rootHash, bytes32 accountHash, uint256 _giltChainID) =
             abi.decode(data, (address, uint256, uint256, bytes32, bytes32, uint256));
-        require(CHAINID == _borChainID, "Invalid bor chain id");
+        require(CHAINID == _giltChainID, "Invalid gilt chain id");
 
         require(_buildHeaderBlock(proposer, start, end, rootHash), "INCORRECT_HEADER_DATA");
 
@@ -99,7 +99,7 @@ contract RootChain is RootChainStorage, IRootChain {
     }
 
     // Housekeeping function. @todo remove later
-    function setHeimdallId(string memory _heimdallId) public onlyOwner {
-        heimdallId = keccak256(abi.encodePacked(_heimdallId));
+    function setGiltConsensusId(string memory _giltconsensusId) public onlyOwner {
+        giltconsensusId = keccak256(abi.encodePacked(_giltconsensusId));
     }
 }

@@ -43,7 +43,7 @@ const SingleLatestReward: React.FC<React.PropsWithChildren<SingleLatestRewardPro
           {`~ ${formatNumber(cakeAmount)} CAKE`}
         </Text>
       </Flex>
-      <Button onClick={clickClaim} disabled={chainId !== ChainId.BSC || disabled} mt="18px" width="100%">
+      <Button onClick={clickClaim} disabled={chainId !== ChainId.GILT || disabled} mt="18px" width="100%">
         {t('Claim')}
       </Button>
     </LightGreyCard>

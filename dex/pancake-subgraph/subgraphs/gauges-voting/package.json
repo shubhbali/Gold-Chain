@@ -9,7 +9,7 @@
     "auth": "graph auth --product hosted-service 'UPDATE_ME'",
     "codegen": "graph codegen subgraph.yaml",
     "build": "graph build subgraph.yaml",
-    "deploy:bsc": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ pancakeswap/gauge-voting-bsc subgraph.yaml",
-    "deploy:chapel": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ chef-huan/gauge-voting-chapel subgraph.yaml"
+    "deploy:gilt": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ pancakeswap/gauge-voting-gilt subgraph.yaml",
+    "deploy:testnet": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ chef-huan/gauge-voting-testnet subgraph.yaml"
   }
 }

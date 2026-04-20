@@ -13,14 +13,14 @@ export const useParamChainId = (paramName: string = 'currency', chainIndex: numb
   const router = useRouter()
 
   const chainId = useMemo(() => {
-    const chain = router.query[paramName]?.[chainIndex].trim() ?? getChainName[ChainId.BSC]
+    const chain = router.query[paramName]?.[chainIndex].trim() ?? getChainName[ChainId.GILT]
     const derivedChainId = !Number.isNaN(+chain) ? +chain : getChainId(chain)
-    return derivedChainId ? (isChainSupported(derivedChainId) ? derivedChainId : ChainId.BSC) : undefined
+    return derivedChainId ? (isChainSupported(derivedChainId) ? derivedChainId : ChainId.GILT) : undefined
   }, [router.query, paramName, chainIndex])
 
   const updateChainId = useCallback(
     (newChainId: ChainId) => {
-      const newChain = getChainName(newChainId) || getChainName(ChainId.BSC)
+      const newChain = getChainName(newChainId) || getChainName(ChainId.GILT)
 
       const newQueryParams = (router.query?.[paramName] as string[]).slice()
       while (newQueryParams.length < chainIndex) {

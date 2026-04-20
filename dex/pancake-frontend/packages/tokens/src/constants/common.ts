@@ -9,7 +9,7 @@ const GOLD_CHAIN_USDT_ADDRESS =
   (process.env.NEXT_PUBLIC_GOLD_CHAIN_USDT_ADDRESS || '0xcbB9911494cE910BA767dC569424659FB875d9c8') as `0x${string}`
 
 export const CAKE_MAINNET = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82',
   18,
   'CAKE',
@@ -27,7 +27,7 @@ export const CAKE_TESTNET = new ERC20Token(
 )
 
 export const USDC_BSC = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
   18,
   'USDC',
@@ -62,7 +62,7 @@ export const USDC_GOERLI = new ERC20Token(
 )
 
 export const USDT_BSC = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   '0x55d398326f99059fF775485246999027B3197955',
   18,
   'USDT',
@@ -71,7 +71,7 @@ export const USDT_BSC = new ERC20Token(
 )
 
 export const USD1_BSC = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   '0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d',
   18,
   'USD1',
@@ -89,7 +89,7 @@ export const USDT_ETH = new ERC20Token(
 )
 
 export const BUSD_BSC = new ERC20Token(
-  ChainId.BSC,
+  ChainId.GILT,
   '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
   18,
   'BUSD',
@@ -127,7 +127,7 @@ export const BUSD_GOERLI = new ERC20Token(
 export const BUSD = {
   [ChainId.ETHEREUM]: BUSD_ETH,
   [ChainId.GOERLI]: BUSD_GOERLI,
-  [ChainId.BSC]: BUSD_BSC,
+  [ChainId.GILT]: BUSD_BSC,
   [ChainId.BSC_TESTNET]: BUSD_TESTNET,
   [ChainId.ZKSYNC]: new ERC20Token(
     ChainId.ZKSYNC,
@@ -164,7 +164,7 @@ export const CAKE = {
     'PancakeSwap Token',
     'https://pancakeswap.finance/',
   ),
-  [ChainId.BSC]: CAKE_MAINNET,
+  [ChainId.GILT]: CAKE_MAINNET,
   [ChainId.BSC_TESTNET]: CAKE_TESTNET,
   [ChainId.ZKSYNC_TESTNET]: new ERC20Token(
     ChainId.ZKSYNC_TESTNET,
@@ -259,7 +259,7 @@ export const CAKE = {
 }
 
 export const USDC = {
-  [ChainId.BSC]: USDC_BSC,
+  [ChainId.GILT]: USDC_BSC,
   [ChainId.BSC_TESTNET]: USDC_TESTNET,
   [ChainId.ETHEREUM]: USDC_ETH,
   [ChainId.GOERLI]: USDC_GOERLI,
@@ -387,11 +387,11 @@ export const USDC = {
 }
 
 export const USD1 = {
-  [ChainId.BSC]: USD1_BSC,
+  [ChainId.GILT]: USD1_BSC,
 }
 
 export const USDT = {
-  [ChainId.BSC]: USDT_BSC,
+  [ChainId.GILT]: USDT_BSC,
   [ChainId.ETHEREUM]: USDT_ETH,
   [ChainId.ARBITRUM_ONE]: new ERC20Token(
     ChainId.ARBITRUM_ONE,
@@ -511,8 +511,8 @@ export const DAI = {
     'Dai Stablecoin',
     'https://www.makerdao.com/',
   ),
-  [ChainId.BSC]: new ERC20Token(
-    ChainId.BSC,
+  [ChainId.GILT]: new ERC20Token(
+    ChainId.GILT,
     '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3',
     18,
     'DAI',
@@ -557,7 +557,7 @@ export const WBTC_ETH = new ERC20Token(
 export const STABLE_COIN = {
   [ChainId.ETHEREUM]: USDT[ChainId.ETHEREUM],
   [ChainId.GOERLI]: USDC[ChainId.GOERLI],
-  [ChainId.BSC]: USDT[ChainId.BSC],
+  [ChainId.GILT]: USDT[ChainId.GILT],
   [ChainId.BSC_TESTNET]: BUSD[ChainId.BSC_TESTNET],
   [ChainId.ARBITRUM_ONE]: USDC[ChainId.ARBITRUM_ONE],
   [ChainId.ARBITRUM_GOERLI]: USDC[ChainId.ARBITRUM_GOERLI],

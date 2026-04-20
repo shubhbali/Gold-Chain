@@ -1,0 +1,14 @@
+#!/bin/bash
+# This is a postinstallation script so the service can be configured and started when requested
+#
+#sudo systemctl daemon-reload
+export GILTCONSENSUS_DIR=/var/lib/gilt-consensus
+sudo adduser --disabled-password --disabled-login --shell /usr/sbin/nologin --quiet --system --no-create-home --home /nonexistent giltconsensus
+if [ -d "$GILTCONSENSUS_DIR" ]
+then
+    echo "Directory $GILTCONSENSUS_DIR exists."
+    sudo chown -R giltconsensus $GILTCONSENSUS_DIR
+else
+    mkdir -p $GILTCONSENSUS_DIR
+    sudo chown -R giltconsensus $GILTCONSENSUS_DIR
+fi

@@ -25,7 +25,7 @@ export const priceHelperTokens = {
   [ChainId.ETHEREUM]: {
     list: [ethereumTokens.weth, ethereumTokens.usdc, ethereumTokens.usdt],
   },
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     list: [
       bscTokens.wbnb,
       bscTokens.usdt,
@@ -67,7 +67,7 @@ export const priceHelperTokens = {
 // for testing purposes
 export const DEFAULT_COMMON_PRICE: Record<FarmV3SupportedChainId, CommonPrice> = {
   [ChainId.ETHEREUM]: {},
-  [ChainId.BSC]: {},
+  [ChainId.GILT]: {},
   [ChainId.BSC_TESTNET]: {
     [bscTestnetTokens.mockA.address]: '10',
     [bscTestnetTokens.usdt.address]: '1',

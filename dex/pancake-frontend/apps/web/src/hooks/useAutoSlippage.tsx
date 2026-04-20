@@ -27,7 +27,7 @@ const isL2ChainId = (chainId?: number): boolean => {
 
 const chainSupportsGasEstimates = (chainId?: number): boolean => {
   if (!chainId) return false
-  return chainId === ChainId.ETHEREUM || chainId === ChainId.BSC
+  return chainId === ChainId.ETHEREUM || chainId === ChainId.GILT
 }
 
 // Type guard to check if trade is V4Trade

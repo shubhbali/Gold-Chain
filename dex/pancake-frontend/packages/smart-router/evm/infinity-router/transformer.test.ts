@@ -8,18 +8,18 @@ import { createGraph } from './graph'
 import { serializeRoute, serializeTrade } from './transformer'
 import { InfinityRoute, InfinityTrade } from './types'
 
-const BNB = Native.onChain(ChainId.OPBNB)
+const GILT = Native.onChain(ChainId.OPBNB)
 const CAKE = opBnbTokens.cake
 
 const exampleRoute: InfinityRoute = {
   gasUseEstimate: 82000n,
-  gasUseEstimateBase: CurrencyAmount.fromRawAmount(BNB, 820000n),
+  gasUseEstimateBase: CurrencyAmount.fromRawAmount(GILT, 820000n),
   gasUseEstimateQuote: CurrencyAmount.fromRawAmount(CAKE, 103854983n),
-  inputAmount: CurrencyAmount.fromRawAmount(BNB, 40000000000000000n),
+  inputAmount: CurrencyAmount.fromRawAmount(GILT, 40000000000000000n),
   outputAmount: CurrencyAmount.fromRawAmount(CAKE, 4983293793789930646n),
-  inputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(BNB, 40000000000000000n),
+  inputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(GILT, 40000000000000000n),
   outputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(CAKE, 4983293793686075663n),
-  path: [BNB.wrapped, CAKE],
+  path: [GILT.wrapped, CAKE],
   percent: 100,
   pools: [
     {
@@ -27,7 +27,7 @@ const exampleRoute: InfinityRoute = {
       fee: 500,
       liquidity: 16884816146554984600n,
       reserve0: CurrencyAmount.fromRawAmount(CAKE, 34339042604161103151n),
-      reserve1: CurrencyAmount.fromRawAmount(BNB.wrapped, 96404341221305485n),
+      reserve1: CurrencyAmount.fromRawAmount(GILT.wrapped, 96404341221305485n),
       sqrtRatioX96: 7003297243708108638293279371n,
       tick: -48522,
       ticks: [
@@ -38,7 +38,7 @@ const exampleRoute: InfinityRoute = {
         },
       ],
       token0: CAKE,
-      token1: BNB.wrapped,
+      token1: GILT.wrapped,
       token0ProtocolFee: new Percent(34, 100),
       token1ProtocolFee: new Percent(34, 100),
       type: PoolType.V3,
@@ -51,11 +51,11 @@ const exampleTrade: InfinityTrade<TradeType> = {
   graph: createGraph({ pools: [] }),
   routes: [exampleRoute],
   gasUseEstimate: 82000n,
-  gasUseEstimateBase: CurrencyAmount.fromRawAmount(BNB, 820000n),
+  gasUseEstimateBase: CurrencyAmount.fromRawAmount(GILT, 820000n),
   gasUseEstimateQuote: CurrencyAmount.fromRawAmount(CAKE, 103854983n),
-  inputAmount: CurrencyAmount.fromRawAmount(BNB, 40000000000000000n),
+  inputAmount: CurrencyAmount.fromRawAmount(GILT, 40000000000000000n),
   outputAmount: CurrencyAmount.fromRawAmount(CAKE, 4983293793789930646n),
-  inputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(BNB, 40000000000000000n),
+  inputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(GILT, 40000000000000000n),
   outputAmountWithGasAdjusted: CurrencyAmount.fromRawAmount(CAKE, 4983293793686075663n),
   tradeType: TradeType.EXACT_INPUT,
 }
@@ -126,7 +126,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '40000000000000000',
       },
@@ -142,7 +142,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '40000000000000000',
       },
@@ -166,7 +166,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '820000',
       },
@@ -241,7 +241,7 @@ describe('Infinity Router Transformer', () => {
             currency: {
               address: '0x0000000000000000000000000000000000000000',
               decimals: 18,
-              symbol: 'BNB',
+              symbol: 'GILT',
             },
             value: '40000000000000000',
           },
@@ -257,7 +257,7 @@ describe('Infinity Router Transformer', () => {
             currency: {
               address: '0x0000000000000000000000000000000000000000',
               decimals: 18,
-              symbol: 'BNB',
+              symbol: 'GILT',
             },
             value: '40000000000000000',
           },
@@ -281,7 +281,7 @@ describe('Infinity Router Transformer', () => {
             currency: {
               address: '0x0000000000000000000000000000000000000000',
               decimals: 18,
-              symbol: 'BNB',
+              symbol: 'GILT',
             },
             value: '820000',
           },
@@ -293,7 +293,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '820000',
       },
@@ -309,7 +309,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '40000000000000000',
       },
@@ -326,7 +326,7 @@ describe('Infinity Router Transformer', () => {
         currency: {
           address: '0x0000000000000000000000000000000000000000',
           decimals: 18,
-          symbol: 'BNB',
+          symbol: 'GILT',
         },
         value: '40000000000000000',
       },

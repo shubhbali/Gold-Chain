@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T22:38:26Z",
+  "engine": "codex",
+  "final_answer": "**Branding-Only Implementation Plan**\n\n1. Lock scope: only names, labels, text, assets, folder/file names, package names, and config keys. No chain behavior/config/tokenomics changes.\n2. Create one naming map first: `Gilt Chain`, `GILT`, `GOLD`, `Gilt Bridge`, `BullSwap`, `GiltScan`; allow `bor` and `heimdall` as explicit exceptions.\n3. Run repo-wide replacement in priority order by impact: DEX first (largest old-brand footprint), then Bridge, then Scanner, then core chain/genesis text.\n4. Update all user-facing branding: UI copy, page titles, metadata, logos/favicons, docs text, README/docs references.\n5. Rename old-branded folders/files/packages (including old `pancake-*` and `bsc/bnb` naming), then immediately fix imports/scripts/CI paths so builds still work.\n6. Bridge cleanup rule: keep `bor/heimdall` naming, but replace other product-facing `Polygon/Matic` branding in bridge code/comments/config/tooling.\n7. Keep legal/vendor attributions untouched (licenses/upstream credits), even if names are old.\n8. Add `branding-exceptions.md` so allowed legacy terms are documented and future edits do not reintroduce confusion.\n9. Verification gate: grep checks must return zero old-brand hits outside the exception list, and each project must pass build/test smoke.\n10. Completion criteria: all visible branding is Gilt/BullSwap/GiltScan, all renamed paths resolve, no leftover old brand terms except documented exceptions.\n\nIf you approve, I\u2019ll execute this exact plan in this order and report phase-by-phase completion.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 16,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "So the whole goal was how to change the old branding to new branding. Read the files and give me an implementation plan based on branding only and nothing else. The configuring a new chain was not part of what I asked. You should have read the bloody prompts that I gave you you idiot.",
+  "run_id": "eae62b1100bd43d58a3baed2e2383ce9",
+  "started_at": "2026-04-16T22:36:42Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T22:38:26Z",
+  "version": 1
+}

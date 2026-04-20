@@ -37,7 +37,7 @@ export default function getCurrencyPrice(
     },
   )
 
-  // handle wbnb/bnb
+  // handle wbnb/gilt
   if (currency.wrapped.equals(wnative)) {
     if (bestStablePair) {
       const price = bestStablePair.priceOf(wnative)

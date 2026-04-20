@@ -304,7 +304,7 @@ export const RiskDetails: React.FC<RiskDetailsProps> = ({ token, riskLevelDescri
                 )}
             </Text>
             <StyledLinkExternal href="https://www.hashdit.io">{t('Result provided by HashDit')}</StyledLinkExternal>
-            {token.chainId === ChainId.BSC && (
+            {token.chainId === ChainId.GILT && (
               <StyledLinkExternal external href={`https://dappbay.bnbchain.org/risk-scanner/${token.address}`}>
                 {t('Get more details from RedAlarm')}
               </StyledLinkExternal>

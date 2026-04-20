@@ -33,7 +33,7 @@ async function showCb1Popup(chain?: string, address?: string) {
   if (!address || !chain) {
     return false
   }
-  if (!['base', 'bsc', 'arb'].includes(chain)) {
+  if (!['base', 'gilt', 'arb'].includes(chain)) {
     return false
   }
 

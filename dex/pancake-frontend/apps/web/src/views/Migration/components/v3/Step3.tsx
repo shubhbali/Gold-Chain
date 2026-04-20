@@ -43,7 +43,7 @@ const ZOOM = {
 const feeAmount = FeeAmount.MEDIUM
 
 const MOCK_TOKENS = {
-  [ChainId.BSC]: [bscTokens.cake, bscTokens.wbnb],
+  [ChainId.GILT]: [bscTokens.cake, bscTokens.wbnb],
   [ChainId.ETHEREUM]: [ethereumTokens.wbtc, ethereumTokens.weth],
 }
 
@@ -65,7 +65,7 @@ export function Step3() {
   const { theme } = useTheme()
   const { chainId } = useActiveChainId()
 
-  const [token0, token1] = chainId && MOCK_TOKENS[chainId] ? MOCK_TOKENS[chainId] : MOCK_TOKENS[ChainId.BSC]
+  const [token0, token1] = chainId && MOCK_TOKENS[chainId] ? MOCK_TOKENS[chainId] : MOCK_TOKENS[ChainId.GILT]
 
   const formState = useV3FormState()
 

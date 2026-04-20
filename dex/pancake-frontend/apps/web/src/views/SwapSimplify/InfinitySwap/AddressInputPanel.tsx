@@ -120,7 +120,7 @@ export default function AddressInputPanel({
                   {t('View on %site%', {
                     site: blockExplorerName,
                   })}
-                  {outputChainId === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />})
+                  {outputChainId === ChainId.GILT && <BscScanIcon color="primary" ml="4px" />})
                 </Link>
               )}
             </FlexGap>

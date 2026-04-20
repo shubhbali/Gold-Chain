@@ -151,12 +151,12 @@ contract ERC721NFTMarketV1 is ERC721Holder, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Buy token with BNB by matching the price of an existing ask order
+     * @notice Buy token with GILT by matching the price of an existing ask order
      * @param _collection: contract address of the NFT
      * @param _tokenId: tokenId of the NFT purchased
      */
     function buyTokenUsingBNB(address _collection, uint256 _tokenId) external payable nonReentrant {
-        // Wrap BNB
+        // Wrap GILT
         IWETH(WBNB).deposit{value: msg.value}();
 
         _buyToken(_collection, _tokenId, msg.value, true);
@@ -604,7 +604,7 @@ contract ERC721NFTMarketV1 is ERC721Holder, Ownable, ReentrancyGuard {
      * @param _collection: contract address of the NFT
      * @param _tokenId: tokenId of the NFT purchased
      * @param _price: price (must match the askPrice from the seller)
-     * @param _withBNB: whether the token is bought with BNB (true) or WBNB (false)
+     * @param _withBNB: whether the token is bought with GILT (true) or WBNB (false)
      */
     function _buyToken(
         address _collection,

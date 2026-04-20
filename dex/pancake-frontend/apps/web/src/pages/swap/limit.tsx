@@ -24,7 +24,7 @@ const LimitPage = dynamic(() => Promise.resolve(View), {
   ssr: false,
 }) as NextPageWithLayout
 
-LimitPage.chains = [ChainId.BSC]
+LimitPage.chains = [ChainId.GILT]
 LimitPage.forceMultipleNetworkModal = true
 LimitPage.screen = true
 LimitPage.Layout = Layout

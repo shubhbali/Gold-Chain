@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-import "bsc-library/contracts/BEP20.sol";
+import "gilt-library/contracts/BEP20.sol";
 
 // DEX token with Governance.
 contract CakeToken is BEP20("Gold Chain DEX", "DEX") {

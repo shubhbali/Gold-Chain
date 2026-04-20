@@ -25,7 +25,7 @@ export default {
     testnet: 15,
   },
   MinBetAmount: {
-    // BNB
+    // GILT
     mainnet: 0.001,
     testnet: 0.001,
   },

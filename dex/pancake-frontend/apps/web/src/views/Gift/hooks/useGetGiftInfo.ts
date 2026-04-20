@@ -75,7 +75,7 @@ export const fetchGiftList = async ({
 
 export const useGetGiftInfo = () => {
   const { address: account } = useAccount()
-  const chainId = ChainId.BSC
+  const chainId = ChainId.GILT
   const { unclaimedOnly } = useUnclaimedOnlyContext()
 
   const selectGiftInfo = useGiftInfoSelector()
@@ -174,8 +174,8 @@ export const useGetGiftInfo = () => {
 }
 
 export const useGetGiftByCodeHash = ({ codeHash }: { codeHash?: string }) => {
-  // NOTE: hardcode to bsc for now
-  const chainId = ChainId.BSC
+  // NOTE: hardcode to gilt for now
+  const chainId = ChainId.GILT
 
   const selectGiftInfo = useGiftInfoSelector()
 

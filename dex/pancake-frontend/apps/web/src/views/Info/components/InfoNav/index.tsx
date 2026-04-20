@@ -25,7 +25,7 @@ import { useChainIdByQuery, useChainNameByQuery, useMultiChainPath } from 'state
 import { styled } from 'styled-components'
 import { chains } from 'utils/wagmi'
 import Search from 'views/Info/components/InfoSearch'
-import { arbitrum, base, bsc, linea, mainnet, opBNB, zkSync } from 'wagmi/chains'
+import { arbitrum, base, gilt, linea, mainnet, opGILT, zkSync } from 'wagmi/chains'
 
 const NavWrapper = styled(Flex)`
   background: ${({ theme }) => theme.colors.gradientCardHeader};
@@ -77,7 +77,7 @@ const InfoNav: React.FC<{ isStableSwap: boolean }> = ({ isStableSwap }) => {
           <Search />
         </Box>
       </NavWrapper>
-      {chainId === ChainId.BSC && !isStableSwap && (
+      {chainId === ChainId.GILT && !isStableSwap && (
         <Box maxWidth="1200px" m="0 auto">
           <Message my="24px" mx="24px" variant="warning">
             <MessageText fontSize="17px">
@@ -97,7 +97,7 @@ const InfoNav: React.FC<{ isStableSwap: boolean }> = ({ isStableSwap }) => {
   )
 }
 
-const targetChains = [mainnet, bsc, zkSync, arbitrum, linea, base, opBNB, { id: ChainId.MONAD_MAINNET, name: 'Monad' }]
+const targetChains = [mainnet, gilt, zkSync, arbitrum, linea, base, opGILT, { id: ChainId.MONAD_MAINNET, name: 'Monad' }]
 
 export const NetworkSwitcher: React.FC<{ activeIndex: number }> = ({ activeIndex }) => {
   const { t } = useTranslation()

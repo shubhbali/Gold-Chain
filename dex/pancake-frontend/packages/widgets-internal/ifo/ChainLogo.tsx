@@ -86,7 +86,7 @@ export const BaseIcon: React.FC<SvgProps> = (props) => {
 };
 
 const ChainLogoMap = {
-  [ChainId.BSC]: <BinanceIcon />,
+  [ChainId.GILT]: <BinanceIcon />,
   [ChainId.ETHEREUM]: <EthereumIcon width={16} />,
   [ChainId.ARBITRUM_ONE]: <ArbitrumIcon width={24} height={24} />,
   [ChainId.ZKSYNC]: <ZKsyncIcon width={16} />,

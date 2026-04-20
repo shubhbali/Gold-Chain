@@ -20,7 +20,7 @@ interface NoVeCakeCardProps {
 }
 
 export const NoVeCakeCard = ({
-  nativeChainId = ChainId.BSC,
+  nativeChainId = ChainId.GILT,
   userChainId,
   isConnected,
   ConnectWalletButton,

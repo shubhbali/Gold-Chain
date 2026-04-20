@@ -1,0 +1,275 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"path/filepath"
+	"time"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/x/tx/signing"
+	common "github.com/cometbft/cometbft/libs/service"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/giltchain/gilt-consensus/app"
+	"github.com/giltchain/gilt-consensus/bridge/broadcaster"
+	"github.com/giltchain/gilt-consensus/bridge/listener"
+	"github.com/giltchain/gilt-consensus/bridge/processor"
+	"github.com/giltchain/gilt-consensus/bridge/queue"
+	"github.com/giltchain/gilt-consensus/bridge/util"
+	"github.com/giltchain/gilt-consensus/helper"
+	checkpointTypes "github.com/giltchain/gilt-consensus/x/checkpoint/types"
+	clerkTypes "github.com/giltchain/gilt-consensus/x/clerk/types"
+	milestoneTypes "github.com/giltchain/gilt-consensus/x/milestone/types"
+	stakeTypes "github.com/giltchain/gilt-consensus/x/stake/types"
+	topupTypes "github.com/giltchain/gilt-consensus/x/topup/types"
+)
+
+const (
+	waitDuration  = 10 * time.Second
+	giltChainIDKey = "gilt-chain-id"
+	logsTypeKey   = "logs-type"
+)
+
+func logger() log.Logger { return helper.Logger.With("module", "bridge/service") }
+
+// AdjustDBValue sets/normalizes viper-config for bridge runtime based on flags present on root/start cmd
+func AdjustDBValue(cmd *cobra.Command) {
+	cometBftNode, _ := cmd.Flags().GetString(helper.CometBFTNodeFlag)
+	withGiltConsensusConfigValue, _ := cmd.Flags().GetString(helper.WithGiltConsensusConfigFlag)
+	bridgeDBValue, _ := cmd.Flags().GetString(util.BridgeDBFlag)
+	giltChainIDValue, _ := cmd.Flags().GetString(giltChainIDKey)
+	logsTypeValue, _ := cmd.Flags().GetString(logsTypeKey)
+
+	// default bridge storage dir: <home>/bridge/storage
+	if bridgeDBValue == "" {
+		home := viper.GetString(flags.FlagHome)
+		if home == "" {
+			home = app.DefaultNodeHome
+		}
+		bridgeDBValue = filepath.Join(home, "bridge", "storage")
+	}
+
+	// set to viper
+	viper.Set(helper.CometBFTNodeFlag, cometBftNode)
+	viper.Set(helper.WithGiltConsensusConfigFlag, withGiltConsensusConfigValue)
+	viper.Set(util.BridgeDBFlag, bridgeDBValue)
+	if giltChainIDValue != "" {
+		viper.Set(giltChainIDKey, giltChainIDValue)
+	}
+	if logsTypeValue != "" {
+		viper.Set(logsTypeKey, logsTypeValue)
+	}
+}
+
+// StartWithCtx starts the bridge runtime as a side service of giltconsd and shuts down gracefully.
+func StartWithCtx(ctx context.Context, clientCtx client.Context) error {
+	// set up the codec and registry
+	cdc, err := makeCodec()
+	if err != nil {
+		panic(err)
+	}
+	clientCtx = attachCodecIfMissing(clientCtx, cdc)
+
+	// setup queue and CometBFT RPC
+	qc := queue.NewQueueConnector(helper.GetConfig().AmqpURL)
+
+	httpClient, err := createAndStartRPC(helper.GetConfig().CometBFTRPCUrl)
+	if err != nil {
+		logger().Error("Bridge: error connecting to server", "err", err)
+		return err
+	}
+
+	// cleanup runs on early-return errors; runServices owns shutdown in the happy path
+	earlyReturn := true
+	defer func() {
+		if !earlyReturn {
+			return
+		}
+		qc.StopWorker()
+		if stopErr := httpClient.Stop(); stopErr != nil {
+			logger().Error("Bridge: httpClient.Stop failed during early cleanup", "err", stopErr)
+		}
+	}()
+
+	// set chain ID
+	chainID, err := resolveChainID(ctx, clientCtx)
+	if err != nil {
+		logger().Error("Bridge: error while determining chain ID", "err", err)
+		return err
+	}
+	clientCtx = clientCtx.WithChainID(chainID)
+	clientCtx.BroadcastMode = flags.BroadcastAsync
+
+	// wait until the node is synced
+	if err := waitUntilSynced(ctx, clientCtx, waitDuration); err != nil {
+		// context canceled while waiting is not an error for shutdown
+		return err
+	}
+
+	// wire bridge services: register tasks before starting worker to avoid race
+	txBroadcaster := broadcaster.NewTxBroadcaster(cdc, ctx, clientCtx, nil)
+	listenerService := listener.NewListenerService(cdc, qc, httpClient)
+	processorService := processor.NewProcessorService(cdc, qc, httpClient, txBroadcaster)
+	processorService.RegisterTasks()
+	qc.StartWorker()
+
+	services := []common.Service{
+		listenerService,
+		processorService,
+	}
+
+	// run services and handle a graceful shutdown
+	earlyReturn = false
+	return runServices(ctx, services, httpClient, qc)
+}
+
+// makeCodec creates a new codec with the necessary interface registry and registers all required interfaces.
+func makeCodec() (codec.Codec, error) {
+	ir, err := codectypes.NewInterfaceRegistryWithOptions(codectypes.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: signing.Options{
+			AddressCodec:          address.HexCodec{},
+			ValidatorAddressCodec: address.HexCodec{},
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("bridge: interface registry: %w", err)
+	}
+
+	cryptocodec.RegisterInterfaces(ir)
+	authTypes.RegisterInterfaces(ir)
+	checkpointTypes.RegisterInterfaces(ir)
+	milestoneTypes.RegisterInterfaces(ir)
+	clerkTypes.RegisterInterfaces(ir)
+	stakeTypes.RegisterInterfaces(ir)
+	topupTypes.RegisterInterfaces(ir)
+
+	return codec.NewProtoCodec(ir), nil
+}
+
+// attachCodecIfMissing checks if the client context has a codec set, and if not, attaches the provided codec.
+func attachCodecIfMissing(clientCtx client.Context, cdc codec.Codec) client.Context {
+	if clientCtx.Codec == nil {
+		return clientCtx.WithCodec(cdc)
+	}
+	return clientCtx
+}
+
+// createAndStartRPC creates and starts a CometBFT HTTP client for the given RPC URL.
+func createAndStartRPC(rpcURL string) (*rpchttp.HTTP, error) {
+	httpClient, err := rpchttp.New(rpcURL, "/websocket")
+	if err != nil {
+		return nil, fmt.Errorf("bridge: creating cometbft http client: %w", err)
+	}
+	if err := httpClient.Start(); err != nil {
+		return nil, fmt.Errorf("bridge: starting cometbft http client: %w", err)
+	}
+	return httpClient, nil
+}
+
+// resolveChainID retrieves the chain ID from the client context or node status.
+func resolveChainID(ctx context.Context, clientCtx client.Context) (string, error) {
+	if cid := clientCtx.ChainID; cid != "" {
+		logger().Info("Bridge: chainID set in clientCtx", "chainId", cid)
+		return cid, nil
+	}
+
+	logger().Info("Bridge: chainID is empty in clientCtx at bridge startup, fetching from node status")
+
+	nodeStatus, err := helper.GetNodeStatus(ctx, clientCtx)
+	if err != nil {
+		return "", fmt.Errorf("bridge: fetching node status: %w", err)
+	}
+	if nodeStatus.NodeInfo.Network == "" {
+		return "", errors.New("bridge: network is empty in node status, cannot determine chain ID")
+	}
+
+	logger().Info("Bridge: chainID fetched from node status", "chainId", nodeStatus.NodeInfo.Network)
+	return nodeStatus.NodeInfo.Network, nil
+}
+
+// waitUntilSynced checks if the node is synced and waits until it is up to date.
+func waitUntilSynced(ctx context.Context, clientCtx client.Context, d time.Duration) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(d):
+			if !util.IsCatchingUp(ctx, clientCtx) {
+				logger().Info("Bridge: node up to date, starting bridge services")
+				return nil
+			}
+			logger().Info("Bridge: waiting for giltconsensus to be synced")
+		}
+	}
+}
+
+// runServices starts all the bridge services and handles graceful shutdown.
+// Uses errgroup.WithContext so that a service Start() failure cancels the
+// group context, which unblocks the shutdown controller and other goroutines.
+func runServices(ctx context.Context, services []common.Service, httpClient *rpchttp.HTTP, qc *queue.Connector) error {
+	g, gCtx := errgroup.WithContext(ctx)
+
+	// start each service
+	for _, svc := range services {
+		s := svc
+		g.Go(func() error {
+			if err := s.Start(); err != nil {
+				logger().Error("Bridge: service.Start failed", "err", err)
+				return err
+			}
+			select {
+			case <-s.Quit():
+			case <-gCtx.Done():
+			}
+			return nil
+		})
+	}
+
+	// shutdown controller: triggers on parent ctx cancellation OR first goroutine error
+	g.Go(func() error {
+		<-gCtx.Done()
+		logger().Info("Bridge: received stop signal - stopping all giltconsensus bridge services")
+
+		qc.StopWorker()
+
+		// stop services
+		for _, s := range services {
+			if s.IsRunning() {
+				if err := s.Stop(); err != nil {
+					logger().Error("Bridge: service.Stop failed", "err", err)
+					return err
+				}
+			}
+		}
+
+		// stop comet client
+		if err := httpClient.Stop(); err != nil {
+			logger().Error("Bridge: httpClient.Stop failed", "err", err)
+			return err
+		}
+
+		// close DB
+		util.CloseBridgeDBInstance()
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		logger().Error("Bridge: stopped", "err", err)
+		return err
+	}
+	return nil
+}

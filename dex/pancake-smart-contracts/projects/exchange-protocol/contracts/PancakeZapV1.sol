@@ -18,7 +18,7 @@ import {Babylonian} from "./libraries/Babylonian.sol";
 contract PancakeZapV1 is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    // Interface for Wrapped BNB (WBNB)
+    // Interface for Wrapped GILT (WBNB)
     IWETH public WBNB;
 
     // PancakeRouter interface
@@ -36,7 +36,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
     // Address PancakeRouter
     address private pancakeRouterAddress;
 
-    // Address Wrapped BNB (WBNB)
+    // Address Wrapped GILT (WBNB)
     address private WBNBAddress;
 
     // Owner recovers token
@@ -45,7 +45,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
     // Owner changes the maxZapReverseRatio
     event NewMaxZapReverseRatio(uint256 maxZapReverseRatio);
 
-    // tokenToZap = 0x00 address if BNB
+    // tokenToZap = 0x00 address if GILT
     event ZapIn(
         address indexed tokenToZap,
         address indexed lpToken,
@@ -54,7 +54,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
         address indexed user
     );
 
-    // token0ToZap = 0x00 address if BNB
+    // token0ToZap = 0x00 address if GILT
     event ZapInRebalancing(
         address indexed token0ToZap,
         address indexed token1ToZap,
@@ -65,7 +65,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
         address indexed user
     );
 
-    // tokenToReceive = 0x00 address if BNB
+    // tokenToReceive = 0x00 address if GILT
     event ZapOut(
         address indexed lpToken,
         address indexed tokenToReceive,
@@ -100,9 +100,9 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
     }
 
     /*
-     * @notice Zap BNB in a WBNB pool (e.g. WBNB/token)
-     * @param _lpToken: LP token address (e.g. CAKE/BNB)
-     * @param _tokenAmountOutMin: minimum token amount (e.g. CAKE) to receive in the intermediary swap (e.g. BNB --> CAKE)
+     * @notice Zap GILT in a WBNB pool (e.g. WBNB/token)
+     * @param _lpToken: LP token address (e.g. CAKE/GILT)
+     * @param _tokenAmountOutMin: minimum token amount (e.g. CAKE) to receive in the intermediary swap (e.g. GILT --> CAKE)
      */
     function zapInBNB(address _lpToken, uint256 _tokenAmountOutMin) external payable nonReentrant {
         WBNB.deposit{value: msg.value}();
@@ -193,7 +193,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
     }
 
     /*
-     * @notice Zap 1 token and BNB, rebalance them to 50-50, before adding them to LP
+     * @notice Zap 1 token and GILT, rebalance them to 50-50, before adding them to LP
      * @param _token1ToZap: address of token1 to zap
      * @param _token1AmountIn: amount of token1 to zap
      * @param _lpToken: LP token address
@@ -238,10 +238,10 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
     }
 
     /*
-     * @notice Zap a LP token out to receive BNB
+     * @notice Zap a LP token out to receive GILT
      * @param _lpToken: LP token address (e.g. CAKE/WBNB)
      * @param _lpTokenAmount: amount of LP tokens to zap out
-     * @param _tokenAmountOutMin: minimum amount to receive (in BNB/WBNB) in the intermediary swap (e.g. CAKE --> BNB)
+     * @param _tokenAmountOutMin: minimum amount to receive (in GILT/WBNB) in the intermediary swap (e.g. CAKE --> GILT)
      */
     function zapOutBNB(
         address _lpToken,
@@ -254,12 +254,12 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
         // Call zapOut
         uint256 tokenAmountToTransfer = _zapOut(_lpToken, WBNBAddress, _tokenAmountOutMin);
 
-        // Unwrap BNB
+        // Unwrap GILT
         WBNB.withdraw(tokenAmountToTransfer);
 
-        // Transfer BNB to the msg.sender
+        // Transfer GILT to the msg.sender
         (bool success, ) = msg.sender.call{value: tokenAmountToTransfer}(new bytes(0));
-        require(success, "BNB: transfer fail");
+        require(success, "GILT: transfer fail");
 
         // Emit event
         emit ZapOut(
@@ -317,7 +317,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
 
     /*
      * @notice View the details for single zap
-     * @dev Use WBNB for _tokenToZap (if BNB is the input)
+     * @dev Use WBNB for _tokenToZap (if GILT is the input)
      * @param _tokenToZap: address of the token to zap
      * @param _tokenAmountIn: amount of token to zap inputed
      * @param _lpToken: address of the LP token
@@ -361,7 +361,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
 
     /*
      * @notice View the details for a rebalancing zap
-     * @dev Use WBNB for _token0ToZap (if BNB is the input)
+     * @dev Use WBNB for _token0ToZap (if GILT is the input)
      * @param _token0ToZap: address of the token0 to zap
      * @param _token1ToZap: address of the token0 to zap
      * @param _token0AmountIn: amount for token0 to zap
@@ -442,7 +442,7 @@ contract PancakeZapV1 is Ownable, ReentrancyGuard {
 
     /*
      * @notice View the details for single zap
-     * @dev Use WBNB for _tokenToReceive (if BNB is the asset to be received)
+     * @dev Use WBNB for _tokenToReceive (if GILT is the asset to be received)
      * @param _lpToken: address of the LP token to zap out
      * @param _lpTokenAmount: amount of LP token to zap out
      * @param _tokenToReceive: token address to receive

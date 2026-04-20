@@ -148,7 +148,7 @@ export const initializeContracts = async () => {
     '0xChildMintableERC1155Address',
     childProvider
   )
-  const MaticWETH = await getContractInstance('MaticWETH', '0xMaticWETHAddress', childProvider)
+  const GiltWETH = await getContractInstance('GiltWETH', '0xGiltWETHAddress', childProvider)
   const TestChildTunnel = await getContractInstance('TestChildTunnel', '0xTestChildTunnelAddress', childProvider)
   const IStateReceiver = await getContractInstance('IStateReceiver', '0xIStateReceiverAddress', childProvider)
   const ChildPotatoFarm = await getContractInstance('ChildPotatoFarm', '0xChildPotatoFarmAddress', childProvider)
@@ -202,7 +202,7 @@ export const initializeContracts = async () => {
     ChildMintableERC721,
     ChildERC1155,
     ChildMintableERC1155,
-    MaticWETH,
+    GiltWETH,
     TestChildTunnel,
     IStateReceiver,
     ChildPotatoFarm,

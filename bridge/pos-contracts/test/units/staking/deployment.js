@@ -59,7 +59,7 @@ export async function freshDeploy() {
     await this.polToken.mint(walletAddr, walletAmounts[walletAddr].initialBalance)
   }
 
-  this.defaultHeimdallFee = new BN(web3.utils.toWei('1'))
+  this.defaultGiltConsensusFee = new BN(web3.utils.toWei('1'))
 }
 
 export async function approveAndStake({
@@ -67,12 +67,12 @@ export async function approveAndStake({
   stakeAmount,
   approveAmount,
   acceptDelegation = false,
-  heimdallFee,
+  giltconsensusFee,
   noMinting = false,
   signer,
   pol = false
 }) {
-  const fee = heimdallFee || this.defaultHeimdallFee
+  const fee = giltconsensusFee || this.defaultGiltConsensusFee
 
   const mintAmount = new BN(approveAmount || stakeAmount).add(new BN(fee))
 

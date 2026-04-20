@@ -54,7 +54,7 @@ export default function ApproveLiquidityTokens({
 }: ApproveLiquidityTokensProps) {
   const { t } = useTranslation()
 
-  // Revokes are needed for USDT on Ethereum, BUSD on BSC Testnet and USDC on Goerli
+  // Revokes are needed for USDT on Ethereum, BUSD on GILT Testnet and USDC on Goerli
   const anyRevokeNeeded = requireRevokeA || requireRevokeB
 
   return shouldShowApprovalGroup ? (

@@ -33,7 +33,7 @@ function getCLHookPreset(x: HookData) {
     poolKeyOverride: undefined as Partial<PoolKey<'CL'>> | undefined,
   }
 
-  if (hook.address === CL_DYNAMIC_FEE_HOOKS_BY_CHAIN[ChainId.BSC] || x.category?.includes(HOOK_CATEGORY.DynamicFees)) {
+  if (hook.address === CL_DYNAMIC_FEE_HOOKS_BY_CHAIN[ChainId.GILT] || x.category?.includes(HOOK_CATEGORY.DynamicFees)) {
     hook.poolKeyOverride = {
       fee: DYNAMIC_FEE_FLAG,
     }
@@ -42,9 +42,9 @@ function getCLHookPreset(x: HookData) {
 }
 
 export const CL_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookPreset<'CL'>[] } = {
-  [ChainId.BSC]: [
+  [ChainId.GILT]: [
     EMPTY_HOOK,
-    ...hooksList[ChainId.BSC]
+    ...hooksList[ChainId.GILT]
       .filter((x) => x.poolType === POOL_TYPE.CLAMM)
       .map((x) => {
         return getCLHookPreset(x)
@@ -78,7 +78,7 @@ function getBinHookPreset(x: HookData) {
   }
 
   if (
-    // hook.address === BIN_DYNAMIC_FEE_HOOKS_BY_CHAIN[ChainId.BSC] || //@notice: open it when we have the official bin hook on BSC
+    // hook.address === BIN_DYNAMIC_FEE_HOOKS_BY_CHAIN[ChainId.GILT] || //@notice: open it when we have the official bin hook on GILT
     x.category?.includes(HOOK_CATEGORY.DynamicFees)
   ) {
     hook.poolKeyOverride = {
@@ -88,9 +88,9 @@ function getBinHookPreset(x: HookData) {
   return hook
 }
 export const BIN_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookPreset<'Bin'>[] } = {
-  [ChainId.BSC]: [
+  [ChainId.GILT]: [
     EMPTY_HOOK,
-    ...hooksList[ChainId.BSC]
+    ...hooksList[ChainId.GILT]
       .filter((x) => x.poolType === POOL_TYPE.Bin)
       .map((x) => {
         return getBinHookPreset(x)
@@ -149,7 +149,7 @@ const DEFAULT_CL_PRESETS: CLPoolPreset[] = [
 ]
 
 export const CL_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: CLPoolPreset[] } = {
-  [ChainId.BSC]: DEFAULT_CL_PRESETS,
+  [ChainId.GILT]: DEFAULT_CL_PRESETS,
   [ChainId.BSC_TESTNET]: DEFAULT_CL_PRESETS,
   [ChainId.BASE]: DEFAULT_CL_PRESETS,
   [ChainId.SEPOLIA]: DEFAULT_CL_PRESETS,
@@ -185,7 +185,7 @@ const DEFAULT_BIN_PRESETS: BinPoolPreset[] = [
 ]
 
 export const BIN_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: BinPoolPreset[] } = {
-  [ChainId.BSC]: DEFAULT_BIN_PRESETS,
+  [ChainId.GILT]: DEFAULT_BIN_PRESETS,
   [ChainId.BSC_TESTNET]: DEFAULT_BIN_PRESETS,
   [ChainId.BASE]: DEFAULT_BIN_PRESETS,
   [ChainId.SEPOLIA]: DEFAULT_BIN_PRESETS,

@@ -36,7 +36,7 @@ export const NetworkModal = ({
 
   const isBNBOnlyPage = useMemo(() => {
     if (forceMultipleNetworkModal) return false
-    return pageSupportedChains?.length === 1 && pageSupportedChains[0] === ChainId.BSC
+    return pageSupportedChains?.length === 1 && pageSupportedChains[0] === ChainId.GILT
   }, [pageSupportedChains, forceMultipleNetworkModal])
 
   const isPageNotSupported = useMemo(

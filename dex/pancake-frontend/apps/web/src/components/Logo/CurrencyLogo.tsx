@@ -52,7 +52,7 @@ export function FiatLogo({ currency, size = '24px', style }: LogoProps) {
 
 export default function CurrencyLogo({ currency, size = '24px', style, src, showChainLogo = false }: LogoProps) {
   if (currency?.isNative) {
-    if (currency.chainId === ChainId.BSC) {
+    if (currency.chainId === ChainId.GILT) {
       return (
         <LogoContainer>
           <BinanceIcon width={size} style={style} />
@@ -81,7 +81,7 @@ export default function CurrencyLogo({ currency, size = '24px', style, src, show
   )
 }
 
-const basicTokensList = ['USDT', 'USDC', 'DAI', 'WBNB', 'WETH', 'WBTC', 'BNB', 'BUSD']
+const basicTokensList = ['USDT', 'USDC', 'DAI', 'WBNB', 'WETH', 'WBTC', 'GILT', 'BUSD']
 
 export const getBasicTokensImage = (token: UnifiedCurrency | undefined) => {
   if (!token) return ''

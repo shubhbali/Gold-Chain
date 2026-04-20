@@ -1,5 +1,5 @@
 import {
-  DEFAULT_HEIMDALL_URL,
+  DEFAULT_GILTCONSENSUS_URL,
   DEFAULT_SEPOLIA_RPC,
   ROOT_ETHER_ADDRESS,
   STATE_RECEIVER_ADDRESS,
@@ -25,8 +25,13 @@ async function safe(fn) {
 async function main() {
   const addressBook = loadAddressBook();
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || addressBook.meta?.sepoliaRpc || DEFAULT_SEPOLIA_RPC;
-  const roughnetRpc = process.env.ROUGHNET_RPC_URL || addressBook.meta?.roughnetRpc || 'http://127.0.0.1:8545';
-  const heimdallUrl = process.env.HEIMDALL_URL || DEFAULT_HEIMDALL_URL;
+  const roughnetRpc =
+    process.env.CHILD_RPC_URL
+    || process.env.ROUGHNET_RPC_URL
+    || addressBook.meta?.childRpc
+    || addressBook.meta?.roughnetRpc
+    || 'http://127.0.0.1:8545';
+  const giltconsensusUrl = process.env.GILTCONSENSUS_URL || DEFAULT_GILTCONSENSUS_URL;
 
   const sepoliaProvider = rpcProviderFor(sepoliaRpc);
   const roughnetProvider = rpcProviderFor(roughnetRpc);
@@ -38,8 +43,8 @@ async function main() {
     checkedAt: new Date().toISOString(),
     rpc: {
       sepolia: sepoliaRpc,
-      roughnet: roughnetRpc,
-      heimdall: heimdallUrl,
+      childChain: roughnetRpc,
+      giltconsensus: giltconsensusUrl,
     },
   };
 
@@ -47,29 +52,29 @@ async function main() {
     await waitForRpc(sepoliaProvider, 'Sepolia', 10000, 1000);
     return true;
   });
-  output.roughnetReachable = await safe(async () => {
-    await waitForRpc(roughnetProvider, 'roughnet', 10000, 1000);
+  output.childChainReachable = await safe(async () => {
+    await waitForRpc(roughnetProvider, 'child chain', 10000, 1000);
     return true;
   });
-  output.heimdallReachable = await safe(async () => {
-    const response = await fetch(new URL('/clerk/event-records/count', heimdallUrl), {
+  output.giltconsensusReachable = await safe(async () => {
+    const response = await fetch(new URL('/clerk/event-records/count', giltconsensusUrl), {
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) {
-      throw new Error(`heimdall returned HTTP ${response.status}`);
+      throw new Error(`giltconsensus returned HTTP ${response.status}`);
     }
     return true;
   });
 
-  if (output.sepoliaReachable === true && output.roughnetReachable === true) {
+  if (output.sepoliaReachable === true && output.childChainReachable === true) {
     output.bridgeProgress = await safe(async () => {
-      const progress = await readBridgeProgress(rootStateSender, childStateReceiver, heimdallUrl);
+      const progress = await readBridgeProgress(rootStateSender, childStateReceiver, giltconsensusUrl);
       return {
         rootStateId: progress.rootStateId.toString(),
-        heimdallLatestRecordId: progress.heimdallLatestRecordId.toString(),
-        heimdallLatestProcessed: progress.heimdallLatestProcessed,
-        heimdallRecordCount: progress.heimdallRecordCount.toString(),
+        giltconsensusLatestRecordId: progress.giltconsensusLatestRecordId.toString(),
+        giltconsensusLatestProcessed: progress.giltconsensusLatestProcessed,
+        giltconsensusRecordCount: progress.giltconsensusRecordCount.toString(),
         childStateId: progress.childStateId.toString(),
       };
     });
@@ -83,8 +88,8 @@ async function main() {
       wrappedGilt: await childChainManager.rootToChildToken(addressBook.root.wrappedGilt),
     }));
   } else {
-    output.bridgeProgress = { skipped: 'requires both Sepolia and roughnet RPCs' };
-    output.childMappings = { skipped: 'requires roughnet RPC' };
+    output.bridgeProgress = { skipped: 'requires both Sepolia and child-chain RPCs' };
+    output.childMappings = { skipped: 'requires child-chain RPC' };
   }
 
   console.log(JSON.stringify(output, null, 2));

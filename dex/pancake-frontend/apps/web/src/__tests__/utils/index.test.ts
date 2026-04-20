@@ -4,20 +4,20 @@ import { ChainId } from '@pancakeswap/chains'
 import { getBlockExploreLink, safeGetAddress, calculateGasMargin, getBlockExploreName } from 'utils'
 import { calculateSlippageAmount, basisPointsToPercent } from 'utils/exchange'
 import { ADDRESS_ZERO } from '@pancakeswap/v3-sdk'
-import { bsc } from 'wagmi/chains'
+import { gilt } from 'wagmi/chains'
 import { CHAINS } from 'config/chains'
 import { multiChainName, multiChainScan } from 'state/info/constant'
 
 describe('utils', () => {
   describe('#getBlockExploreLink', () => {
     it('correct for tx', () => {
-      expect(getBlockExploreLink('abc', 'transaction', ChainId.BSC)).toEqual('https://bscscan.com/tx/abc')
+      expect(getBlockExploreLink('abc', 'transaction', ChainId.GILT)).toEqual('https://bscscan.com/tx/abc')
     })
     it('correct for token', () => {
-      expect(getBlockExploreLink('abc', 'token', ChainId.BSC)).toEqual('https://bscscan.com/token/abc')
+      expect(getBlockExploreLink('abc', 'token', ChainId.GILT)).toEqual('https://bscscan.com/token/abc')
     })
     it('correct for address', () => {
-      expect(getBlockExploreLink('abc', 'address', ChainId.BSC)).toEqual('https://bscscan.com/address/abc')
+      expect(getBlockExploreLink('abc', 'address', ChainId.GILT)).toEqual('https://bscscan.com/address/abc')
     })
     it('enum', () => {
       expect(getBlockExploreLink('abc', 'address', ChainId.BSC_TESTNET)).toEqual(
@@ -31,7 +31,7 @@ describe('utils', () => {
 
   describe('#calculateSlippageAmount', () => {
     it('bounds are correct', () => {
-      const tokenAmount = CurrencyAmount.fromRawAmount(new Token(ChainId.BSC, ADDRESS_ZERO, 0, 'TOKEN'), '100')
+      const tokenAmount = CurrencyAmount.fromRawAmount(new Token(ChainId.GILT, ADDRESS_ZERO, 0, 'TOKEN'), '100')
       expect(() => calculateSlippageAmount(tokenAmount, -1)).toThrow()
       expect(calculateSlippageAmount(tokenAmount, 0).map((bound) => bound.toString())).toEqual(['100', '100'])
       expect(calculateSlippageAmount(tokenAmount, 100).map((bound) => bound.toString())).toEqual(['99', '101'])
@@ -85,13 +85,13 @@ describe('utils', () => {
   })
 
   describe('#getBlockExploreName', () => {
-    it('returns default BSC explorer if no chainId is provided', () => {
-      expect(getBlockExploreName()).toEqual(bsc.blockExplorers.default.name)
+    it('returns default GILT explorer if no chainId is provided', () => {
+      expect(getBlockExploreName()).toEqual(gilt.blockExplorers.default.name)
     })
 
     it('returns the correct explorer from CHAINS', () => {
-      const chain = CHAINS.find((c) => c.id === ChainId.BSC)
-      expect(getBlockExploreName(ChainId.BSC)).toEqual(chain?.blockExplorers?.default.name)
+      const chain = CHAINS.find((c) => c.id === ChainId.GILT)
+      expect(getBlockExploreName(ChainId.GILT)).toEqual(chain?.blockExplorers?.default.name)
     })
 
     it('returns the correct explorer from CHAINS #2', () => {
@@ -107,8 +107,8 @@ describe('utils', () => {
       }
     })
 
-    it('falls back to default BSC explorer for unknown chainId', () => {
-      expect(getBlockExploreName(-1)).toEqual(bsc.blockExplorers.default.name)
+    it('falls back to default GILT explorer for unknown chainId', () => {
+      expect(getBlockExploreName(-1)).toEqual(gilt.blockExplorers.default.name)
     })
   })
 })

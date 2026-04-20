@@ -52,7 +52,7 @@ const uniqueTokenList = (tokens?: Token[]) => {
 }
 
 const defaultStableBaseToken: Record<number, { address: string } | undefined> = {
-  [ChainId.BSC]: USDT[ChainId.BSC],
+  [ChainId.GILT]: USDT[ChainId.GILT],
   [ChainId.ETHEREUM]: ethereumTokens.wbtc,
   [ChainId.ARBITRUM_ONE]: arbitrumTokens.wbtc,
 }

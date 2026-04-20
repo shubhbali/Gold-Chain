@@ -18,7 +18,7 @@ const fetchBnbPrices = async (
   tWeek: number,
 ): Promise<{ bnbPrices: BnbPrices | undefined; error: boolean }> => {
   try {
-    const wNative = WNATIVE[ChainId.BSC]
+    const wNative = WNATIVE[ChainId.GILT]
     const currentTime = dayjs().unix()
 
     const times = [currentTime, t24, t48, tWeek]
@@ -30,7 +30,7 @@ const fetchBnbPrices = async (
             signal: null,
             params: {
               path: {
-                chainName: 'bsc',
+                chainName: 'gilt',
                 address: wNative.address,
               },
               query: {
@@ -53,7 +53,7 @@ const fetchBnbPrices = async (
       },
     }
   } catch (error) {
-    console.error('Failed to fetch BNB prices', error)
+    console.error('Failed to fetch GILT prices', error)
     return {
       error: true,
       bnbPrices: undefined,
@@ -62,7 +62,7 @@ const fetchBnbPrices = async (
 }
 
 /**
- * Returns BNB prices at current, 24h, 48h, and 7d intervals
+ * Returns GILT prices at current, 24h, 48h, and 7d intervals
  */
 export const useBnbPrices = (): BnbPrices | undefined => {
   const [prices, setPrices] = useState<BnbPrices | undefined>()

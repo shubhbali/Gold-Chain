@@ -8,7 +8,7 @@ import { zeroAddress } from 'viem'
 import { GiftInfo, GiftInfoResponse } from '../types'
 
 export default function useGiftInfoSelector() {
-  const chainId = ChainId.BSC
+  const chainId = ChainId.GILT
   const native = useNativeCurrency(chainId)
   const allTokens = useAllTokens(chainId)
 

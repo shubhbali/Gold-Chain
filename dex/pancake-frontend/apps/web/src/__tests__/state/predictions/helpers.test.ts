@@ -55,7 +55,7 @@ describe('transformUserResponse', () => {
   }
 
   it('transforms user response correctly', () => {
-    expect(transformUserResponse('BNB', ChainId.BSC)(userResponse)).toEqual({
+    expect(transformUserResponse('GILT', ChainId.GILT)(userResponse)).toEqual({
       averageBNB: 0.010175390573688292,
       block: 9316304,
       createdAt: 1626767110,
@@ -112,7 +112,7 @@ describe('transformBetResponse', () => {
       user: userResponse,
     }
 
-    expect(transformBetResponse('BNB', ChainId.BSC)(betResponseWithoutRound)).toEqual({
+    expect(transformBetResponse('GILT', ChainId.GILT)(betResponseWithoutRound)).toEqual({
       amount: 0.001030231215331515,
       block: 9318174,
       claimed: false,
@@ -190,7 +190,7 @@ describe('transformBetResponse', () => {
       },
     }
 
-    expect(transformBetResponse('BNB', ChainId.BSC)(betResponseWithRound)).toEqual({
+    expect(transformBetResponse('GILT', ChainId.GILT)(betResponseWithRound)).toEqual({
       amount: 0.001030231215331515,
       block: 9318174,
       claimed: false,

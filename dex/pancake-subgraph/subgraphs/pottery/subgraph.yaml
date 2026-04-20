@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Pottery
-    network: bsc
+    network: gilt
     source:
       address: '0x01871991587d5671f3A2d4E2BcDC22F4E026396e'
       abi: PotteryDraw
@@ -33,7 +33,7 @@ dataSources:
 templates:
   - name: PotteryVault
     kind: ethereum/contract
-    network: bsc
+    network: gilt
     source:
       abi: PancakeSwapPotteryVault
     mapping:

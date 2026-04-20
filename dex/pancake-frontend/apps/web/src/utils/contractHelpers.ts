@@ -115,7 +115,7 @@ export type GetContractFn<TAbi extends Abi | readonly unknown[], TWalletClient e
 export const getContract = <TAbi extends Abi | readonly unknown[], TWalletClient extends WalletClient>({
   abi,
   address,
-  chainId = ChainId.BSC,
+  chainId = ChainId.GILT,
   publicClient,
   signer,
 }: {
@@ -160,7 +160,7 @@ export const getPointCenterIfoContract = (signer?: WalletClient) => {
 export const getCakeContract = (chainId?: number) => {
   return getContract({
     abi: erc20Abi,
-    address: chainId ? CAKE[chainId]?.address : CAKE[ChainId.BSC].address,
+    address: chainId ? CAKE[chainId]?.address : CAKE[ChainId.GILT].address,
     chainId,
   })
 }
@@ -278,7 +278,7 @@ export const getPancakeSquadContract = (signer?: WalletClient) => {
 }
 
 export const getIfoCreditAddressContract = (signer?: WalletClient) => {
-  return getIfoCreditAddressContract_(ChainId.BSC, getViemClients, signer)
+  return getIfoCreditAddressContract_(ChainId.GILT, getViemClients, signer)
 }
 
 export const getBCakeFarmBoosterContract = (signer?: WalletClient) => {
@@ -501,7 +501,7 @@ export const getVeCakeContract: GetContractFn<typeof veCakeABI, WalletClient> = 
 ) => {
   return getContract({
     abi: veCakeABI,
-    address: getVeCakeAddress(chainId) ?? getVeCakeAddress(ChainId.BSC),
+    address: getVeCakeAddress(chainId) ?? getVeCakeAddress(ChainId.GILT),
     signer,
     chainId,
   })
@@ -510,7 +510,7 @@ export const getVeCakeContract: GetContractFn<typeof veCakeABI, WalletClient> = 
 export const getPancakeVeSenderV2Contract = (signer?: WalletClient, chainId?: number) => {
   return getContract({
     abi: pancakeVeSenderV2ABI,
-    address: getPancakeVeSenderV2Address(chainId) ?? getPancakeVeSenderV2Address(ChainId.BSC),
+    address: getPancakeVeSenderV2Address(chainId) ?? getPancakeVeSenderV2Address(ChainId.GILT),
     signer,
     chainId,
   })
@@ -519,7 +519,7 @@ export const getPancakeVeSenderV2Contract = (signer?: WalletClient, chainId?: nu
 export const getRevenueSharingCakePoolContract = (signer?: WalletClient, chainId?: number) => {
   return getContract({
     abi: revenueSharingPoolProxyABI,
-    address: getRevenueSharingCakePoolAddress(chainId) ?? getRevenueSharingCakePoolAddress(ChainId.BSC),
+    address: getRevenueSharingCakePoolAddress(chainId) ?? getRevenueSharingCakePoolAddress(ChainId.GILT),
     signer,
     chainId,
   })
@@ -528,7 +528,7 @@ export const getRevenueSharingCakePoolContract = (signer?: WalletClient, chainId
 export const getRevenueSharingVeCakeContract = (signer?: WalletClient, chainId?: number) => {
   return getContract({
     abi: revenueSharingPoolProxyABI,
-    address: getRevenueSharingVeCakeAddress(chainId) ?? getRevenueSharingVeCakeAddress(ChainId.BSC),
+    address: getRevenueSharingVeCakeAddress(chainId) ?? getRevenueSharingVeCakeAddress(ChainId.GILT),
     signer,
     chainId,
   })
@@ -540,7 +540,7 @@ export const getRevenueSharingPoolGatewayContract: GetContractFn<typeof revenueS
 ) => {
   return getContract({
     abi: revenueSharingPoolGatewayABI,
-    address: getRevenueSharingPoolGatewayAddress(chainId) ?? getRevenueSharingPoolGatewayAddress(ChainId.BSC),
+    address: getRevenueSharingPoolGatewayAddress(chainId) ?? getRevenueSharingPoolGatewayAddress(ChainId.GILT),
     signer,
     chainId,
   })
@@ -552,7 +552,7 @@ export const getCakePoolContract: GetContractFn<typeof cakePoolAbi, WalletClient
 ) => {
   return getContract({
     abi: cakePoolAbi,
-    address: getCakePoolAddress(ChainId.BSC),
+    address: getCakePoolAddress(ChainId.GILT),
     signer,
     chainId,
   })
@@ -564,7 +564,7 @@ export const getCakePoolV1Contract: GetContractFn<typeof cakeVaultV1ABI, WalletC
 ) => {
   return getContract({
     abi: cakeVaultV1ABI,
-    address: getCakeVaultV1Address(ChainId.BSC),
+    address: getCakeVaultV1Address(ChainId.GILT),
     signer,
     chainId,
   })

@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: TradingCompetitionV2
-    network: bsc
+    network: gilt
     source:
       address: '0x9b872C05C38A3563393668839659bA336Cc969B2'
       abi: TradingCompetitionV2
@@ -39,7 +39,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pair
-    network: bsc
+    network: gilt
     source:
       abi: Pair
     mapping:

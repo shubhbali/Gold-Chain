@@ -6,11 +6,11 @@ import { CHAINS } from './constants/chains'
 const account = mnemonicToAccount('test test test test test test test test test test test junk')
 
 const PUBLIC_NODES: Record<string, string[]> = {
-  [ChainId.BSC]: [
-    'https://bsc.publicnode.com',
+  [ChainId.GILT]: [
+    'https://gilt.publicnode.com',
     // 'https://binance.llamarpc.com',
-    'https://bsc-dataseed1.defibit.io',
-    'https://bsc-dataseed1.bnbchain.org',
+    'https://gilt-dataseed1.defibit.io',
+    'https://gilt-dataseed1.bnbchain.org',
   ],
   [ChainId.ARBITRUM_ONE]: [
     'https://arbitrum-one.publicnode.com',

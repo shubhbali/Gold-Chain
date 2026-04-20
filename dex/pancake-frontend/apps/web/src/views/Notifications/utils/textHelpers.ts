@@ -62,7 +62,7 @@ export const extractChainIdFromAPRNotification = (inputString: string) => {
 
 export const extractChainIdFromMessage = (inputString: string) => {
   const match = inputString.match(/on (\$\{chainId\})/)
-  return match ? match[1] : 'bsc'
+  return match ? match[1] : 'gilt'
 }
 
 export const getBadgeString = (isAPR: boolean, hasFallen: boolean, percentageChange: number) => {

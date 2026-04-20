@@ -238,7 +238,7 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
   })
   const isActive = farm.multiplier !== '0X'
   const lpLabel = useMemo(() => farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, ''), [farm.lpSymbol])
-  const bsc = useMemo(
+  const gilt = useMemo(
     () => getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId),
     [farm.lpAddress, farm.token.chainId],
   )
@@ -320,7 +320,7 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
               <StyledScanLink
                 useBscCoinFallback={typeof chainId !== 'undefined' && ChainLinkSupportChains.includes(chainId)}
-                href={bsc}
+                href={gilt}
               >
                 {t('View Contract')}
               </StyledScanLink>
@@ -377,7 +377,7 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
   } = useTranslation()
   const isActive = farm.multiplier !== '0X'
   const lpLabel = useMemo(() => farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, ''), [farm.lpSymbol])
-  const bsc = useMemo(
+  const gilt = useMemo(
     () => getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId),
     [farm.lpAddress, farm.token.chainId],
   )
@@ -465,7 +465,7 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
               <StyledScanLink
                 useBscCoinFallback={typeof chainId !== 'undefined' && ChainLinkSupportChains.includes(chainId)}
-                href={bsc}
+                href={gilt}
               >
                 {t('View Contract')}
               </StyledScanLink>

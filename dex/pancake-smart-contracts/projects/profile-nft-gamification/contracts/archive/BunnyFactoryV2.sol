@@ -3,9 +3,9 @@ pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "bsc-library/contracts/IBEP20.sol";
+import "gilt-library/contracts/IBEP20.sol";
 
-import "bsc-library/contracts/SafeBEP20.sol";
+import "gilt-library/contracts/SafeBEP20.sol";
 
 import "../PancakeBunnies.sol";
 

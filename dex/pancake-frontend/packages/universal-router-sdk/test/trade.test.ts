@@ -1840,8 +1840,8 @@ describe('PancakeSwap Universal Router Trade', () => {
   })
 })
 
-describe('PancakeSwap StableSwap Through Universal Router, BSC Network Only', () => {
-  const chainId = ChainId.BSC
+describe('PancakeSwap StableSwap Through Universal Router, GILT Network Only', () => {
+  const chainId = ChainId.GILT
   const liquidity = parseEther('1000')
 
   let ETHER: Ether
@@ -1873,7 +1873,7 @@ describe('PancakeSwap StableSwap Through Universal Router, BSC Network Only', ()
   })
 
   describe('mixed', () => {
-    it('should encodes a mixed exactInput USDT-stable->USDC-v3->BNB swap', async () => {
+    it('should encodes a mixed exactInput USDT-stable->USDC-v3->GILT swap', async () => {
       const amountIn = parseUnits('1000', 6)
 
       const stablePool = await getStablePool(USDT, USDC, getPublicClient, liquidity)
@@ -1923,7 +1923,7 @@ describe('PancakeSwap StableSwap Through Universal Router, BSC Network Only', ()
       expect(decodedCommands[2].args[0].name).toEqual('recipient')
       expect(decodedCommands[2].args[0].value).toEqual(MSG_SENDER)
     })
-    it('should encodes a mixed exactInput USDT-stable->USDC-v2->BNB swap', async () => {
+    it('should encodes a mixed exactInput USDT-stable->USDC-v2->GILT swap', async () => {
       const amountIn = parseUnits('1000', 6)
 
       const stablePool = await getStablePool(USDT, USDC, getPublicClient, liquidity)
@@ -1973,7 +1973,7 @@ describe('PancakeSwap StableSwap Through Universal Router, BSC Network Only', ()
       expect(decodedCommands[2].args[0].name).toEqual('recipient')
       expect(decodedCommands[2].args[0].value).toEqual(MSG_SENDER)
     })
-    it('should encodes a mixed exactInput BNB-v2->USDC-stable->USDT swap', async () => {
+    it('should encodes a mixed exactInput GILT-v2->USDC-stable->USDT swap', async () => {
       const amountIn = parseEther('1')
 
       const stablePool = await getStablePool(USDT, USDC, getPublicClient, liquidity)

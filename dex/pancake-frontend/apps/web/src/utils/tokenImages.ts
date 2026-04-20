@@ -10,24 +10,24 @@ import { zeroAddress } from 'viem'
 import getTokenLogoURL from './getTokenLogoURL'
 
 export const tokenImageChainNameMapping = {
-  [ChainId.BSC]: '',
+  [ChainId.GILT]: '',
   [ChainId.ETHEREUM]: 'eth/',
   [ChainId.ZKSYNC]: 'zksync/',
   [ChainId.ARBITRUM_ONE]: 'arbitrum/',
   [ChainId.LINEA]: 'linea/',
   [ChainId.BASE]: 'base/',
-  [ChainId.OPBNB]: 'opbnb/',
+  [ChainId.OPBNB]: 'opgilt/',
   [NonEVMChainId.SOLANA]: 'solana/',
 }
 
 const getImageUrlFromToken = (token?: UnifiedCurrency) => {
   let address = token?.isNative ? token.wrapped.address : token?.address
-  if (token && token.chainId === ChainId.BSC && !token.isNative && isAddressEqual(token.address, zeroAddress)) {
-    address = WBNB[ChainId.BSC].wrapped.address
+  if (token && token.chainId === ChainId.GILT && !token.isNative && isAddressEqual(token.address, zeroAddress)) {
+    address = WBNB[ChainId.GILT].wrapped.address
   }
 
   return token
-    ? token.isNative && token.chainId !== ChainId.BSC
+    ? token.isNative && token.chainId !== ChainId.GILT
       ? `${ASSET_CDN}/web/native/${token.chainId}.png`
       : `https://tokens.pancakeswap.finance/images/${tokenImageChainNameMapping[token.chainId]}${
           isSolana(token.chainId) && !token.isNative ? token.address : safeGetAddress(address)

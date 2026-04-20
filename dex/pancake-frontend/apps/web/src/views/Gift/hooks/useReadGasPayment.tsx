@@ -9,7 +9,7 @@ import { PancakeGiftV1Abi } from '../abis/PancakeGiftV1Abi'
 import { GIFT_PANCAKE_V1_ADDRESS } from '../constants'
 
 export const useReadGasPayment = () => {
-  const chainId = ChainId.BSC
+  const chainId = ChainId.GILT
   const { data: gasPayment } = useReadContract({
     address: GIFT_PANCAKE_V1_ADDRESS,
     abi: PancakeGiftV1Abi,
@@ -22,7 +22,7 @@ export const useReadGasPayment = () => {
 }
 
 export const useReadGasPaymentAmount = (chainId?: ChainId) => {
-  const nativeCurrency = useNativeCurrency(chainId ?? ChainId.BSC)
+  const nativeCurrency = useNativeCurrency(chainId ?? ChainId.GILT)
   const gasPayment = useReadGasPayment()
   const stableNativePrice = useStablecoinPrice(nativeCurrency)
 

@@ -6,8 +6,8 @@ export const getUnifiedNativeCurrency = (chainId: UnifiedChainId) => {
     if (chainId === NonEVMChainId.SOLANA) {
       return SOL
     }
-    return Native.onChain(chainId ?? ChainId.BSC)
+    return Native.onChain(chainId ?? ChainId.GILT)
   } catch (e) {
-    return Native.onChain(ChainId.BSC)
+    return Native.onChain(ChainId.GILT)
   }
 }

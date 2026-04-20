@@ -234,7 +234,7 @@ export const useMultichainAddressBalance = () => {
     balances: evmBalances,
     isLoading: isEvmLoading,
     totalBalanceUsd: evmTotalBalanceUsd,
-  } = useAddressBalance(evmAccount, ChainId.BSC, {
+  } = useAddressBalance(evmAccount, ChainId.GILT, {
     includeSpam: false,
     onlyWithPrice: false,
     enabled: Boolean(evmAccount),

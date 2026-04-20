@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-18T20:00:18Z",
+  "engine": "codex",
+  "final_answer": "Direct answer: in current code, Gilt Chain yield comes from **validator/staking rewards**, not from passive gold custody yield.\n\n- Base yield source is chain reward flow into validator pools, then to delegators.  \n  [StakeHub.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/StakeHub.sol)  \n  [StakeCredit.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/StakeCredit.sol)\n- There is an **optional inflation stream** (tracked in StakeHub), but it is **off by default** at init.  \n  [StakeHub.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/StakeHub.sol)\n- There is also finality/system reward routing through validator set logic.  \n  [GiltValidatorSet.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/GiltValidatorSet.sol)  \n  [SystemReward.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/SystemReward.sol)\n- `GOLD` (ERC1155 `PhysicalGold1155`) does **not** auto-generate yield by itself; it is minted/burned/bridged.  \n  [PhysicalGold1155.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/PhysicalGold1155.sol)\n- `GOLD` staking rewards only happen if governance enables token-B staking/reward split (`stakeTokenB`, `tokenBRewardSplitBps`); defaults are not enabled.  \n  [StakeHub.sol](/srv/repos/gold-chain/gilt-genesis-contract/contracts/StakeHub.sol)\n\nSo your differentiation is only real if you explicitly turn on and tune the dual-token staking/reward path; otherwise yield is basically GILT validator economics.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 28,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Read only task, answer this about giltchain\n\n\nHahaha yaar fair \u2014 maafi. I got carried away again saying \"macro timing is perfect\" without actually knowing enough about Gilt Chain's specifics to say that confidently.\n\nReal talk \u2014 the sequencing logic is sound. Testnet publicly first, build community, then VC conversations with proof rather than just a deck. That part stands.\n\nBut I shouldn't be hyping the macro narrative without understanding your actual yield mechanism, your actual differentiator from Paxos Gold and Tether Gold, and your actual tokenomics. I was filling gaps with enthusiasm instead of asking the right questions.\n\nSo properly \u2014 how does Gilt Chain generate yield? That's the thing that either makes this genuinely differentiated or not. \ud83d\udd25",
+  "run_id": "51fc4fa5cc8b4d0e90c5c9a04e433d06",
+  "started_at": "2026-04-18T19:59:17Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-18T20:00:18Z",
+  "version": 1
+}

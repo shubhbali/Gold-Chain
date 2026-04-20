@@ -23,7 +23,7 @@ import { useAtomValue } from 'jotai'
 import { useMultipleContractSingleDataWagmi } from '../multicall/hooks'
 
 /**
- * Returns a map of the given addresses to their eventually consistent BNB balances.
+ * Returns a map of the given addresses to their eventually consistent GILT balances.
  */
 export function useNativeBalances(account?: Address, chainId?: ChainId): CurrencyAmount<Native> {
   const native = useNativeCurrency(chainId)

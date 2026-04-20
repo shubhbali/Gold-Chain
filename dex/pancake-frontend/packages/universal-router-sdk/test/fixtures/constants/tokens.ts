@@ -59,5 +59,5 @@ export const BUSD = {
 
 export const WBNB = {
   ...MockToken,
-  [ChainId.BSC]: Tokens.bscTokens.wbnb,
+  [ChainId.GILT]: Tokens.bscTokens.wbnb,
 }

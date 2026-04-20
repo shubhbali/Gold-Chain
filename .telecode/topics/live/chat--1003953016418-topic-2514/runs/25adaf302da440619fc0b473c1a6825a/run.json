@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-16T20:39:32Z",
+  "engine": "codex",
+  "final_answer": "Not all done. Read-only audit found partials/gaps in the rename pass.\n\nTop-level rename is done (`bsc -> gilt-chain`, `bsc-genesis-contract -> gilt-genesis-contract`), but these gaps remain:\n\n- 17 staged DEX paths still carry `BNB/opBNB` naming (so full rename is incomplete), e.g. [useBNBPrice.ts](/srv/repos/gold-chain/dex/pancake-frontend/apps/gamification/hooks/useBNBPrice.ts), [opBNB.ts](/srv/repos/gold-chain/dex/pancake-frontend/packages/tokens/src/constants/opBNB.ts), [WBNB.sol](/srv/repos/gold-chain/dex/pancake-smart-contracts/projects/exchange-protocol/contracts/libraries/WBNB.sol).\n- Scan branding changes are inconsistent: label changed to GILT but links still point to BSC, e.g. [zetaChainCCTXConfig.ts](/srv/repos/gold-chain/scan/blockscout-frontend/mocks/zetaChain/zetaChainCCTXConfig.ts) (`chain_name` is GILT, `instance_url` is `testnet.bscscan.com`) and [mockEnvs.ts](/srv/repos/gold-chain/scan/blockscout-frontend/playwright/fixtures/mockEnvs.ts) (`short_title` GILT but title/URL still Binance/BSC).\n- Likely accidental asset corruption risk in [fonts.css](/srv/repos/gold-chain/scan/blockscout-frontend/playwright/fonts.css): embedded base64 font data was modified by text replacement.\n- Huge cache trees are still part of staged rename churn: 4,690 staged files under [gilt-chain/.gocache](/srv/repos/gold-chain/gilt-chain/.gocache), [gilt-chain/.gomodcache](/srv/repos/gold-chain/gilt-chain/.gomodcache), [gilt-chain/.localcache](/srv/repos/gold-chain/gilt-chain/.localcache). This is not a functional rename gap, but it is a major cleanup/maintainability gap.\n\nNo code was changed in this audit.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 114,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Read only task, don't change code. Go through fine tooth comb of what you just implemented and check for gaps or partial implementation and report back please. Dont be overzealous and go on tangents, remain in the confines of the scope of this task, there might be times where you might have to say all done nothing left, which would also be an acceptable response",
+  "run_id": "25adaf302da440619fc0b473c1a6825a",
+  "started_at": "2026-04-16T20:33:55Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-16T20:39:32Z",
+  "version": 1
+}

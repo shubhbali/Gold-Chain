@@ -3,7 +3,7 @@ import { ChainId } from '@pancakeswap/chains'
 // @see https://layerzero.gitbook.io/docs/technical-reference/mainnet/supported-chain-ids
 export const LZ_CHAIN_MAP = {
   [ChainId.ETHEREUM]: 101,
-  [ChainId.BSC]: 102,
+  [ChainId.GILT]: 102,
   [ChainId.ZKSYNC]: 165,
   [ChainId.ARBITRUM_ONE]: 110,
 
@@ -14,7 +14,7 @@ export const LZ_CHAIN_MAP = {
 
 export const LZ_CHAIN_MAP_V2 = {
   [ChainId.ETHEREUM]: 30101,
-  [ChainId.BSC]: 30102,
+  [ChainId.GILT]: 30102,
   [ChainId.ZKSYNC]: 30165,
   [ChainId.ARBITRUM_ONE]: 30110,
   [ChainId.BASE]: 30184,

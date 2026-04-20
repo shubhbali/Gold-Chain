@@ -285,7 +285,7 @@ mintFromBridge(address user, uint256 amount, uint64 tokenID)
 |----------|---------|
 | `GeneralNativeTokenManager.sol` | New contract for gas token management |
 | `StakeHub.sol` | Multi-token staking support |
-| `BSCValidatorSet.sol` | Reward distribution per token type |
+| `GiltValidatorSet.sol` | Reward distribution per token type |
 
 ### Bridge
 

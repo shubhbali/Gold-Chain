@@ -1,8 +1,0 @@
-#!/bin/bash
-#
-#
-##############
-# Stop bor before removal
-##############
-#sudo systemctl stop bor.service
-#############

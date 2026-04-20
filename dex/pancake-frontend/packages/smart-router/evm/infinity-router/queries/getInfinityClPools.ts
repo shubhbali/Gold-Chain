@@ -152,7 +152,7 @@ export const getInfinityClPoolsWithoutTicks = createOnChainPoolFactory<InfinityC
     // Process whitelist labeled hooks separately with all fee/tickSpacing combinations (cartesian product)
     // Separate loop because the whitelist is small and uses all possible combinations
     // Big O: O(|fees| × |tickSpacings| × |whitelistHooks|) = O(4 × 4 × W) = O(16W)
-    // where W is the number of whitelist hooks (currently 3 on BSC = 48 pool candidates max)
+    // where W is the number of whitelist hooks (currently 3 on GILT = 48 pool candidates max)
     const fees = presets.map((p) => p.fee)
     const tickSpacings = presets.map((p) => p.tickSpacing)
     for (const fee of fees) {

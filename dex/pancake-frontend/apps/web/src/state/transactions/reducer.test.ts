@@ -21,7 +21,7 @@ describe('transaction reducer', () => {
       const beforeTime = Date.now()
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.GILT,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -29,9 +29,9 @@ describe('transaction reducer', () => {
         }),
       )
       const txs = store.getState()
-      expect(txs[ChainId.BSC]).toBeTruthy()
-      expect(txs[ChainId.BSC]?.['0x0']).toBeTruthy()
-      const tx = txs[ChainId.BSC]?.['0x0']
+      expect(txs[ChainId.GILT]).toBeTruthy()
+      expect(txs[ChainId.GILT]?.['0x0']).toBeTruthy()
+      const tx = txs[ChainId.GILT]?.['0x0']
       expect(tx).toBeTruthy()
       expect(tx?.hash).toEqual('0x0')
       expect(tx?.summary).toEqual('hello world')
@@ -168,7 +168,7 @@ describe('transaction reducer', () => {
     it('removes all transactions for the chain', () => {
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.GILT,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -185,13 +185,13 @@ describe('transaction reducer', () => {
         }),
       )
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual(['0x0'])
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.GILT), String(ChainId.BSC_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.GILT] ?? {})).toEqual(['0x0'])
       expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
-      store.dispatch(clearAllChainTransactions({ chainId: ChainId.BSC }))
+      store.dispatch(clearAllChainTransactions({ chainId: ChainId.GILT }))
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual([])
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.GILT), String(ChainId.BSC_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.GILT] ?? {})).toEqual([])
       expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
     })
   })
@@ -200,7 +200,7 @@ describe('transaction reducer', () => {
     it('removes all transactions for all chains', () => {
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.GILT,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -217,8 +217,8 @@ describe('transaction reducer', () => {
         }),
       )
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual(['0x0'])
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.GILT), String(ChainId.BSC_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.GILT] ?? {})).toEqual(['0x0'])
       expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
       store.dispatch(clearAllTransactions())
       expect(Object.keys(store.getState())).toHaveLength(0)

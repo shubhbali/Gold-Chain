@@ -276,7 +276,7 @@ contract('ChildChainManager', async (accounts) => {
     })
   })
 
-  describe('Deposit MaticWETH on receiving state', async () => {
+  describe('Deposit GiltWETH on receiving state', async () => {
     const depositAmount = mockValues.amounts[0]
     const depositReceiver = mockValues.addresses[4]
     const syncId = mockValues.numbers[0]
@@ -285,16 +285,16 @@ contract('ChildChainManager', async (accounts) => {
 
     before(async () => {
       contracts = await deployInitializedContracts(accounts)
-      oldAccountBalance = await contracts.child.maticWETH.balanceOf(depositReceiver)
+      oldAccountBalance = await contracts.child.giltWETH.balanceOf(depositReceiver)
     })
 
-    it('Can receive MaticWETH deposit sync', async () => {
+    it('Can receive GiltWETH deposit sync', async () => {
       const depositData = abi.encode(['uint256'], [depositAmount.toString()])
       const syncData = abi.encode(['address', 'address', 'bytes'], [depositReceiver, etherAddress, depositData])
       const syncType = await contracts.child.childChainManager.DEPOSIT()
       const syncBytes = abi.encode(['bytes32', 'bytes'], [syncType, syncData])
       await expect(contracts.child.childChainManager.onStateReceive(syncId, syncBytes, { from: accounts[0] }))
-        .to.emit(contracts.child.maticWETH, 'Transfer')
+        .to.emit(contracts.child.giltWETH, 'Transfer')
         .withArgs(mockValues.zeroAddress, depositReceiver, depositAmount)
     })
 
@@ -308,7 +308,7 @@ contract('ChildChainManager', async (accounts) => {
     // describe('Correct values should be emitted in Transfer log', () => {
     //   it('Event should be emitted by correct contract', () => {
     //     transferLog.address.should.equal(
-    //       contracts.child.maticWETH.target.toLowerCase()
+    //       contracts.child.giltWETH.target.toLowerCase()
     //     )
     //   })
 
@@ -327,7 +327,7 @@ contract('ChildChainManager', async (accounts) => {
     // })
 
     it('Deposit amount should be credited to deposit receiver', async () => {
-      const newAccountBalance = await contracts.child.maticWETH.balanceOf(depositReceiver)
+      const newAccountBalance = await contracts.child.giltWETH.balanceOf(depositReceiver)
       expect(newAccountBalance).to.be.equal(oldAccountBalance + depositAmount)
     })
   })

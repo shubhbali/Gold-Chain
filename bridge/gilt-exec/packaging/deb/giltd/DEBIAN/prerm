@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+#
+##############
+# Stop gilt before removal
+##############
+#sudo systemctl stop gilt.service
+#############
+

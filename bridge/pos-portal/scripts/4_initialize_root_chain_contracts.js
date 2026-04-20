@@ -159,7 +159,7 @@ export default async () => {
   console.log('Mapping Ether')
   await RootChainManagerInstance.mapToken(
     '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-    contractAddresses.child.MaticWETH,
+    contractAddresses.child.GiltWETH,
     EtherType
   )
 }

@@ -112,7 +112,7 @@ const ExistingLimitOrderTable = ({ orders }: { orders: ExistingOrder[] }) => {
                       <Link
                         external
                         small
-                        href={getBlockExploreLink(order.transactionHash, 'transaction', ChainId.BSC)}
+                        href={getBlockExploreLink(order.transactionHash, 'transaction', ChainId.GILT)}
                       >
                         {isMobile ? truncateHash(order.transactionHash) : order.transactionHash}
                         <BscScanIcon color="invertedContrast" ml="4px" />

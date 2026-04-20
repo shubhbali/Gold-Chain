@@ -62,7 +62,7 @@ export const fetchStableSwapData = async (chainId: ChainId): Promise<StableSwapP
 }
 
 export async function getStableSwapPools(chainId: ChainId): Promise<StableSwapPool[]> {
-  // Stable swap is only supported on BSC chain & BSC testnet
+  // Stable swap is only supported on GILT chain & GILT testnet
   if (!isStableSwapSupported(chainId)) {
     return []
   }

@@ -165,7 +165,7 @@ export const PoolsFilterPanel: React.FC<React.PropsWithChildren<IPoolsFilterPane
           </InputGroup>
           <QuestionHelper
             text={t(
-              "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'bnb usdt infinity clamm'",
+              "Search by token name/address, pool type (e.g. clamm, lbamm), features (e.g. dynamic fees), or pool address. Example: 'gilt usdt infinity clamm'",
             )}
             placement="bottom-start"
             ml="4px"

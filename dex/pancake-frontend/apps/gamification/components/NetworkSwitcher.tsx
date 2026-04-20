@@ -95,10 +95,10 @@ const WrongNetworkSelect = ({
     },
   )
   const { chain } = useAccount()
-  const localChainId = useLocalNetworkChain() || ChainId.BSC
+  const localChainId = useLocalNetworkChain() || ChainId.GILT
   const [, setSessionChainId] = useSessionChainId()
 
-  const localChainName = chains.find((c) => c.id === localChainId)?.name ?? 'BSC'
+  const localChainName = chains.find((c) => c.id === localChainId)?.name ?? 'GILT'
 
   const [ref1, isHover] = useHover<HTMLButtonElement>()
 
@@ -136,7 +136,7 @@ const WrongNetworkSelect = ({
 
 export const SHORT_SYMBOL = {
   [ChainId.ETHEREUM]: 'ETH',
-  [ChainId.BSC]: 'BNB',
+  [ChainId.GILT]: 'GILT',
   [ChainId.BSC_TESTNET]: 'tBNB',
   [ChainId.GOERLI]: 'GOR',
   [ChainId.ARBITRUM_ONE]: 'ARB',
@@ -145,7 +145,7 @@ export const SHORT_SYMBOL = {
   [ChainId.ZKSYNC_TESTNET]: 'tZkSync',
   [ChainId.LINEA]: 'Linea',
   [ChainId.LINEA_TESTNET]: 'tLinea',
-  [ChainId.OPBNB]: 'opBNB',
+  [ChainId.OPBNB]: 'opGILT',
   [ChainId.OPBNB_TESTNET]: 'tOpBNB',
   [ChainId.BASE]: 'Base',
   [ChainId.BASE_TESTNET]: 'tBase',

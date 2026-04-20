@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { styled } from 'styled-components'
 import ARB_WARNING_LIST from './arbitrum'
 import BASE_WARNING_LIST from './base'
-import BSC_WARNING_LIST from './bsc'
+import BSC_WARNING_LIST from './gilt'
 import ETH_WARNING_LIST from './mainnet'
 import ZKSYNC_WARNING_LIST from './zksync'
 
@@ -32,7 +32,7 @@ const SwapWarningModal: React.FC<React.PropsWithChildren<SwapWarningModalProps>>
 
   const TOKEN_WARNINGS = {
     [ChainId.ETHEREUM]: ETH_WARNING_LIST,
-    [ChainId.BSC]: BSC_WARNING_LIST,
+    [ChainId.GILT]: BSC_WARNING_LIST,
     [ChainId.ZKSYNC]: ZKSYNC_WARNING_LIST,
     [ChainId.BASE]: BASE_WARNING_LIST,
     [ChainId.ARBITRUM_ONE]: ARB_WARNING_LIST,

@@ -1,0 +1,20 @@
+{
+  "name": "jsutils",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "jsUtils for Gilt Chain",
+  "main": "index.js",
+  "scripts": {
+    "startMainnet": "node getvalidatorversion.js --Rpc https://rpc-mainnet.giltchain.com --Num 21",
+    "startTestnet": "node getvalidatorversion.js --Rpc https://rpc-testnet.giltchain.com --Num 7",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx}\""
+  },
+  "dependencies": {
+    "commander": "^3.0.1",
+    "ethers": "^6.2.3"
+  },
+  "author": "Gilt Chain",
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

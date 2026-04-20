@@ -66,18 +66,18 @@ describe('stake', function () {
       stakeTokenUser = this.stakeToken.connect(this.stakeToken.provider.getSigner(user))
       stakeManagerUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(user))
 
-      await stakeTokenUser.approve(this.stakeManager.address, new BN(amount).add(this.defaultHeimdallFee).toString())
+      await stakeTokenUser.approve(this.stakeManager.address, new BN(amount).add(this.defaultGiltConsensusFee).toString())
     })
 
     it('must revert', async function () {
       if (unspecified) {
         await expectRevert(
-          stakeManagerUser.stakeFor(user, stakeAmount, this.defaultHeimdallFee.toString(), false, userPubkey),
+          stakeManagerUser.stakeFor(user, stakeAmount, this.defaultGiltConsensusFee.toString(), false, userPubkey),
           'no more slots'
         )
       } else {
         await expectRevert(
-          stakeManagerUser.stakeFor(user, stakeAmount, this.defaultHeimdallFee.toString(), false, userPubkey),
+          stakeManagerUser.stakeFor(user, stakeAmount, this.defaultGiltConsensusFee.toString(), false, userPubkey),
           'Invalid signer'
         )
       }
@@ -93,7 +93,7 @@ describe('stake', function () {
     let stakeTokenUser, stakeManagerUser
     before('Approve', async function () {
       this.user = user
-      this.fee = new BN(fee || this.defaultHeimdallFee)
+      this.fee = new BN(fee || this.defaultGiltConsensusFee)
 
       stakeTokenUser = this.stakeToken.connect(this.stakeToken.provider.getSigner(user))
       stakeManagerUser = this.stakeManager.connect(this.stakeManager.provider.getSigner(user))
@@ -306,7 +306,7 @@ describe('stake', function () {
     })
   })
 
-  describe('stake with heimdall fee', function () {
+  describe('stake with giltconsensus fee', function () {
     before(async function() {
       await freshDeploy.call(this)
     })
@@ -762,11 +762,11 @@ describe('unstakeClaim', function () {
         })
       })
 
-      it('must have pre-stake + reward - heimdall fee balance', async function () {
+      it('must have pre-stake + reward - giltconsensus fee balance', async function () {
         let balance = await this.stakeToken.balanceOf(user)
         assertBigNumberEquality(
           balance,
-          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultHeimdallFee)
+          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultGiltConsensusFee)
         )
       })
     })
@@ -793,11 +793,11 @@ describe('unstakeClaim', function () {
         })
       })
 
-      it('must have pre-stake + reward - heimdall fee balance', async function () {
+      it('must have pre-stake + reward - giltconsensus fee balance', async function () {
         let balance = await this.stakeToken.balanceOf(user)
         assertBigNumberEquality(
           balance,
-          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultHeimdallFee)
+          new BN(walletAmounts[user].initialBalance).add(new BN(this.reward.toString())).sub(this.defaultGiltConsensusFee)
         )
       })
     })

@@ -236,7 +236,7 @@ export const arbitrumTokens = {
     '0xa9004A5421372E1D83fB1f85b0fc986c912f91f3',
     18,
     'WBNB',
-    'Wrapped BNB',
+    'Wrapped GILT',
     'https://www.bnbchain.org/en',
   ),
   usdv: new ERC20Token(

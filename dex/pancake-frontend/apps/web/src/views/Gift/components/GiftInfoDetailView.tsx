@@ -30,8 +30,8 @@ export const GiftInfoDetailView = () => {
   const isCancelSuccessful = !isLoadingCancelGift && !!txHash && !error
 
   const handleCancelGift = useCallback(() => {
-    if (chainId !== ChainId.BSC) {
-      switchNetwork(ChainId.BSC)
+    if (chainId !== ChainId.GILT) {
+      switchNetwork(ChainId.GILT)
     } else {
       cancelGift({ codeHash })
     }
@@ -165,7 +165,7 @@ export const GiftInfoDetailView = () => {
             disabled={!codeHash || isLoadingCancelGift}
             isLoading={isLoadingCancelGift}
           >
-            {chainId === ChainId.BSC ? (isLoadingCancelGift ? t('Cancelling...') : t('Cancel')) : t('Switch Network')}
+            {chainId === ChainId.GILT ? (isLoadingCancelGift ? t('Cancelling...') : t('Cancel')) : t('Switch Network')}
           </Button>
         )
       )}

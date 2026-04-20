@@ -18,7 +18,7 @@ import {StakeManagerStorageExtension} from "./StakeManagerStorageExtension.sol";
 import {IGovernance} from "../../common/governance/IGovernance.sol";
 import {Initializable} from "../../common/mixin/Initializable.sol";
 import {StakeManagerExtension} from "./StakeManagerExtension.sol";
-import {IPolygonMigration} from "../../common/misc/IPolygonMigration.sol";
+import {IGiltMigration} from "../../common/misc/IGiltMigration.sol";
 
 contract StakeManager is
     StakeManagerStorage,
@@ -85,8 +85,8 @@ contract StakeManager is
         registry = _registry;
         rootChain = _rootchain;
         token = IERC20(_token);
-        tokenMatic = IERC20(_tokenLegacy);
-        migration = IPolygonMigration(_migration);
+        tokenLegacyToken = IERC20(_tokenLegacy);
+        migration = IGiltMigration(_migration);
         NFTContract = StakingNFT(_NFTContract);
         logger = StakingInfo(_stakingLogger);
         validatorShareFactory = ValidatorShareFactory(_validatorShareFactory);
@@ -97,7 +97,7 @@ contract StakeManager is
         dynasty = 886; // unit: epoch 50 days
         CHECKPOINT_REWARD = 20_188 * (10 ** 18); // update via governance
         minDeposit = (10 ** 18); // in ERC20 token
-        minHeimdallFee = (10 ** 18); // in ERC20 token
+        minGiltConsensusFee = (10 ** 18); // in ERC20 token
         checkPointBlockInterval = 1024;
         signerUpdateLimit = 100;
 
@@ -109,7 +109,7 @@ contract StakeManager is
 
     function isOwner() public view returns (bool) {
         address _owner;
-        bytes32 position = keccak256("matic.network.proxy.owner");
+        bytes32 position = keccak256("gilt.network.proxy.owner");
         assembly {
             _owner := sload(position)
         }
@@ -283,16 +283,16 @@ contract StakeManager is
         signerUpdateLimit = _limit;
     }
 
-    function updateMinAmounts(uint256 _minDeposit, uint256 _minHeimdallFee) public onlyGovernance {
+    function updateMinAmounts(uint256 _minDeposit, uint256 _minGiltConsensusFee) public onlyGovernance {
         minDeposit = _minDeposit;
-        minHeimdallFee = _minHeimdallFee;
+        minGiltConsensusFee = _minGiltConsensusFee;
     }
 
     /**
      * Public Methods
      */
-    function topUpForFee(address user, uint256 heimdallFee) public onlyWhenUnlocked {
-        _transferAndTopUp(user, msg.sender, heimdallFee, 0, true);
+    function topUpForFee(address user, uint256 giltconsensusFee) public onlyWhenUnlocked {
+        _transferAndTopUp(user, msg.sender, giltconsensusFee, 0, true);
     }
 
     function claimFee(uint256 accumFeeAmount, uint256 index, bytes memory proof) public {
@@ -301,7 +301,7 @@ contract StakeManager is
             "Wrong acc proof"
         );
         uint256 withdrawAmount = accumFeeAmount.sub(userFeeExit[msg.sender]);
-        totalHeimdallFee = totalHeimdallFee.sub(withdrawAmount);
+        totalGiltConsensusFee = totalGiltConsensusFee.sub(withdrawAmount);
         logger.logClaimFee(msg.sender, withdrawAmount);
         userFeeExit[msg.sender] = accumFeeAmount;
         _transferToken(msg.sender, withdrawAmount, true);
@@ -343,7 +343,7 @@ contract StakeManager is
 
     function _transferFunds(uint256 validatorId, uint256 amount, address delegator, bool pol) internal returns (bool) {
         require(validators[validatorId].contractAddress == msg.sender, "not allowed");
-        if (!pol) _convertPOLToMatic(amount);
+        if (!pol) _convertPOLToLegacyToken(amount);
         IERC20 token_ = _getToken(pol);
         return token_.transfer(delegator, amount);
     }
@@ -367,41 +367,41 @@ contract StakeManager is
     function _delegationDeposit(uint256 amount, address delegator, bool pol) internal returns (bool) {
         IERC20 token_ = _getToken(pol);
         bool result = token_.transferFrom(delegator, address(this), amount);
-        if (!pol) _convertMaticToPOL(amount);
+        if (!pol) _convertLegacyTokenToPOL(amount);
         return result;
     }
 
     function stakeFor(
         address user,
         uint256 amount,
-        uint256 heimdallFee,
+        uint256 giltconsensusFee,
         bool acceptDelegation,
         bytes memory signerPubkey
     ) public onlyWhenUnlocked {
-        _stakeFor(user, amount, heimdallFee, acceptDelegation, signerPubkey, false);
+        _stakeFor(user, amount, giltconsensusFee, acceptDelegation, signerPubkey, false);
     }
 
     function stakeForPOL(
         address user,
         uint256 amount,
-        uint256 heimdallFee,
+        uint256 giltconsensusFee,
         bool acceptDelegation,
         bytes memory signerPubkey
     ) public onlyWhenUnlocked {
-        _stakeFor(user, amount, heimdallFee, acceptDelegation, signerPubkey, true);
+        _stakeFor(user, amount, giltconsensusFee, acceptDelegation, signerPubkey, true);
     }
 
     function _stakeFor(
         address user,
         uint256 amount,
-        uint256 heimdallFee,
+        uint256 giltconsensusFee,
         bool acceptDelegation,
         bytes memory signerPubkey,
         bool pol
     ) internal {
         require(currentValidatorSetSize() < validatorThreshold, "no more slots");
         require(amount >= minDeposit, "not enough deposit");
-        _transferAndTopUp(user, msg.sender, heimdallFee, amount, pol);
+        _transferAndTopUp(user, msg.sender, giltconsensusFee, amount, pol);
         _stakeFor(user, amount, acceptDelegation, signerPubkey);
     }
 
@@ -801,7 +801,7 @@ contract StakeManager is
         Validator storage _proposer = validators[proposerId];
         _proposer.reward = _proposer.reward.add(_proposerBonus);
 
-        // update stateMerkleTree root for accounts balance on heimdall chain
+        // update stateMerkleTree root for accounts balance on giltconsensus chain
         accountStateRoot = stateRoot;
 
         uint256 newRewardPerStake =
@@ -1039,7 +1039,7 @@ contract StakeManager is
     }
 
     function _transferToken(address destination, uint256 amount, bool pol) private {
-        if (!pol) _convertPOLToMatic(amount);
+        if (!pol) _convertPOLToLegacyToken(amount);
         IERC20 token_ = _getToken(pol);
         require(token_.transfer(destination, amount), "transfer failed");
     }
@@ -1048,13 +1048,13 @@ contract StakeManager is
     function _transferTokenFrom(address from, address destination, uint256 amount, bool pol) private {
         IERC20 token_ = _getToken(pol);
         require(token_.transferFrom(from, destination, amount), "transfer from failed");
-        if (!pol && destination == address(this)) _convertMaticToPOL(amount);
+        if (!pol && destination == address(this)) _convertLegacyTokenToPOL(amount);
     }
 
     function _transferAndTopUp(address user, address from, uint256 fee, uint256 additionalAmount, bool pol) private {
-        require(fee >= minHeimdallFee, "fee too small");
+        require(fee >= minGiltConsensusFee, "fee too small");
         _transferTokenFrom(from, address(this), fee.add(additionalAmount), pol);
-        totalHeimdallFee = totalHeimdallFee.add(fee);
+        totalGiltConsensusFee = totalGiltConsensusFee.add(fee);
         logger.logTopUpFee(user, fee);
     }
 
@@ -1093,23 +1093,23 @@ contract StakeManager is
         signers.length = totalSigners - 1;
     }
 
-    function convertMaticToPOL(uint256 amount) external onlyGovernance {
-        _convertMaticToPOL(amount);
+    function convertLegacyTokenToPOL(uint256 amount) external onlyGovernance {
+        _convertLegacyTokenToPOL(amount);
     }
 
-    function _convertMaticToPOL(uint256 amount) internal {
-        require(tokenMatic.balanceOf(address(this)) >= amount, "Lacking MATIC");
-        tokenMatic.approve(address(migration), amount);
+    function _convertLegacyTokenToPOL(uint256 amount) internal {
+        require(tokenLegacyToken.balanceOf(address(this)) >= amount, "Lacking LEGACY_TOKEN");
+        tokenLegacyToken.approve(address(migration), amount);
         migration.migrate(amount);
     }
 
-    function _convertPOLToMatic(uint256 amount) internal {
+    function _convertPOLToLegacyToken(uint256 amount) internal {
         require(token.balanceOf(address(this)) >= amount, "Lacking POL");
         token.approve(address(migration), amount);
         migration.unmigrate(amount);
     }
 
     function _getToken(bool pol) internal view returns (IERC20 token_) {
-        token_ = pol ? token : tokenMatic;
+        token_ = pol ? token : tokenLegacyToken;
     }
 }

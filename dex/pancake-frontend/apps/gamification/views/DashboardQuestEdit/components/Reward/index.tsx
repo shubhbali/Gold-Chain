@@ -35,7 +35,7 @@ interface RewardProps {
 export const Reward: React.FC<RewardProps> = ({ state, actionComponent, updateValue }) => {
   const { t } = useTranslation()
   const { reward, completionStatus } = state
-  const localChainName = chains.find((c) => c.id === reward?.currency?.network)?.name ?? 'BSC'
+  const localChainName = chains.find((c) => c.id === reward?.currency?.network)?.name ?? 'GILT'
 
   return (
     <RewardContainer>

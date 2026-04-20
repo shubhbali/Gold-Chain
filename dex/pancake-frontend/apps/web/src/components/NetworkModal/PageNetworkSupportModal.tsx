@@ -42,7 +42,7 @@ export function PageNetworkSupportModal() {
   return (
     <Modal title={title || t('Check your network')} hideCloseButton headerBackground="gradientCardHeader">
       <Grid style={{ gap: '16px' }} maxWidth={['100%', null, '336px']}>
-        <Text bold>{t('It’s a BNB Smart Chain only feature')}</Text>
+        <Text bold>{t('It’s a GILT Smart Chain only feature')}</Text>
 
         {image && (
           <Box mx="auto" my="8px" position="relative" width="100%" minHeight="250px">
@@ -51,16 +51,16 @@ export function PageNetworkSupportModal() {
         )}
         <Text small>
           {t(
-            'Our Limit, Trading Competition, Lottery and NFTs features are currently available only on BNB Chain! Come over and join the community in the fun!',
+            'Our Limit, Trading Competition, Lottery and NFTs features are currently available only on GILT Chain! Come over and join the community in the fun!',
           )}
         </Text>
         {canSwitch ? (
           <Button
             variant={foundChain && lastValidPath ? 'secondary' : 'primary'}
             isLoading={isLoading}
-            onClick={() => switchNetwork(ChainId.BSC)}
+            onClick={() => switchNetwork(ChainId.GILT)}
           >
-            {t('Switch to %chain%', { chain: 'BNB Chain' })}
+            {t('Switch to %chain%', { chain: 'GILT Chain' })}
           </Button>
         ) : (
           <Message variant="danger">

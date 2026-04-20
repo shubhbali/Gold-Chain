@@ -154,9 +154,9 @@ const WrongNetworkSelect = ({ switchNetwork, chainId, onDismiss }: WrongNetworkS
     },
   )
   const { chain } = useAccount()
-  const localChainId = getQueryChainId() || ChainId.BSC
+  const localChainId = getQueryChainId() || ChainId.GILT
 
-  const localChainName = Chains.find((c) => c.id === localChainId)?.fullName ?? 'BSC'
+  const localChainName = Chains.find((c) => c.id === localChainId)?.fullName ?? 'GILT'
 
   const [ref1, isHover] = useHover<HTMLButtonElement>()
 

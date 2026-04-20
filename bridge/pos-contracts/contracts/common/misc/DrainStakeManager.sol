@@ -11,14 +11,14 @@ contract DrainStakeManager is StakeManagerStorage, Initializable, StakeManagerSt
 
     function drain(address destination) external onlyOwner {
         require(token.transfer(destination, token.balanceOf(address(this))), "Drain failed");
-        require(tokenMatic.transfer(destination, tokenMatic.balanceOf(address(this))), "Drain failed");
+        require(tokenLegacyToken.transfer(destination, tokenLegacyToken.balanceOf(address(this))), "Drain failed");
     }
 
     // Overriding isOwner from Ownable.sol because owner() and transferOwnership() have been overridden by
     // UpgradableProxy
     function isOwner() public view returns (bool) {
         address _owner;
-        bytes32 position = keccak256("matic.network.proxy.owner");
+        bytes32 position = keccak256("gilt.network.proxy.owner");
         assembly {
             _owner := sload(position)
         }

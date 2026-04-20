@@ -6,13 +6,13 @@ import { getAddress } from "viem";
 import { CurrencyInfo } from "./types";
 
 const mapping: { [key: number]: string } = {
-  [ChainId.BSC]: "smartchain",
+  [ChainId.GILT]: "smartchain",
   [ChainId.ETHEREUM]: "ethereum",
   [ChainId.ARBITRUM_ONE]: "arbitrum",
   [ChainId.ZKSYNC]: "zksync",
   [ChainId.BASE]: "base",
   [ChainId.LINEA]: "linea",
-  [ChainId.OPBNB]: "opbnb",
+  [ChainId.OPBNB]: "opgilt",
   [ChainId.MONAD_MAINNET]: "monad",
 };
 
@@ -41,13 +41,13 @@ export const getTokenLogoURLByAddress = memoize(
 );
 
 export const chainName: { [key: number]: string } = {
-  [ChainId.BSC]: "",
+  [ChainId.GILT]: "",
   [ChainId.ETHEREUM]: "eth",
   [ChainId.ARBITRUM_ONE]: "arbitrum",
   [ChainId.ZKSYNC]: "zksync",
   [ChainId.LINEA]: "linea",
   [ChainId.BASE]: "base",
-  [ChainId.OPBNB]: "opbnb",
+  [ChainId.OPBNB]: "opgilt",
   [ChainId.MONAD_MAINNET]: "monad",
   [ChainId.MONAD_TESTNET]: "monad-testnet",
   [NonEVMChainId.SOLANA]: "solana",
@@ -60,7 +60,7 @@ export const getTokenListBaseURL = (chainId: number) =>
 export const getTokenListTokenUrl = (token: Pick<Token, "chainId"> & { address: string }) =>
   Object.keys(chainName).includes(String(token.chainId))
     ? `https://tokens.pancakeswap.finance/images/${
-        token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`
+        token.chainId === ChainId.GILT ? "" : `${chainName[token.chainId]}/`
       }${token.address}.png`
     : null;
 
@@ -71,7 +71,7 @@ const commonCurrencySymbols = [
   bscTokens.usdv,
   ethereumTokens.wbtc,
   ethereumTokens.weth,
-  NATIVE[ChainId.BSC],
+  NATIVE[ChainId.GILT],
   bscTokens.busd,
   ethereumTokens.dai,
 ].map(({ symbol }) => symbol);

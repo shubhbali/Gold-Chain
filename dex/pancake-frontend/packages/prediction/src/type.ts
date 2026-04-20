@@ -18,7 +18,7 @@ export enum PredictionContractVersion {
 }
 
 export enum PredictionSupportedSymbol {
-  BNB = 'BNB',
+  GILT = 'GILT',
   CAKE = 'CAKE',
   ETH = 'ETH',
   WBTC = 'WBTC',

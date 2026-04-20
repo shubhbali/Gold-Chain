@@ -4,7 +4,7 @@ export const THE_GRAPH_PROXY_API = 'https://thegraph.pancakeswap.com'
 
 export const GRAPH_API_PROFILE = `${THE_GRAPH_PROXY_API}/profile`
 
-export const GRAPH_API_LOTTERY = `${THE_GRAPH_PROXY_API}/lottery-bsc`
+export const GRAPH_API_LOTTERY = `${THE_GRAPH_PROXY_API}/lottery-gilt`
 export const SNAPSHOT_BASE_URL = process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL
 export const API_PROFILE = 'https://profile.pancakeswap.com'
 export const API_NFT = 'https://nft.pancakeswap.com/api/v1'
@@ -15,13 +15,13 @@ export const NOTIFICATION_HUB_BASE_URL = 'https://notification-hub.pancakeswap.c
 /**
  * V1 will be deprecated but is still used to claim old rounds
  */
-export const GRAPH_API_PREDICTION_V1 = `${THE_GRAPH_PROXY_API}/prediction-v1-bsc`
+export const GRAPH_API_PREDICTION_V1 = `${THE_GRAPH_PROXY_API}/prediction-v1-gilt`
 
 export const V3_BSC_INFO_CLIENT = `https://open-platform.nodereal.io/${
   process.env.NEXT_PUBLIC_NODE_REAL_API_INFO || process.env.NEXT_PUBLIC_NODE_REAL_API_ETH
 }/pancakeswap-v3/graphql`
 
-export const GRAPH_API_NFTMARKET = `${THE_GRAPH_PROXY_API}/nft-marketplace-bsc`
+export const GRAPH_API_NFTMARKET = `${THE_GRAPH_PROXY_API}/nft-marketplace-gilt`
 export const GRAPH_HEALTH = 'https://indexer.upgrade.thegraph.com/status'
 
 export const TC_MOBOX_SUBGRAPH = `${THE_GRAPH_PROXY_API}/trading-competition-v3`
@@ -37,11 +37,11 @@ export const V2_SUBGRAPH_URLS = {
   ...V2_SUBGRAPHS,
   [ChainId.BASE]: `${THE_GRAPH_PROXY_API}/exchange-v2-base`,
   [ChainId.ETHEREUM]: `${THE_GRAPH_PROXY_API}/exchange-v2-eth`,
-  [ChainId.BSC]: `${THE_GRAPH_PROXY_API}/exchange-v2-bsc`,
+  [ChainId.GILT]: `${THE_GRAPH_PROXY_API}/exchange-v2-gilt`,
   [ChainId.ARBITRUM_ONE]: `${THE_GRAPH_PROXY_API}/exchange-v2-arb`,
   [ChainId.ZKSYNC]: `${THE_GRAPH_PROXY_API}/exchange-v2-zksync`,
   [ChainId.LINEA]: `${THE_GRAPH_PROXY_API}/exchange-v2-linea`,
-  [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v2-opbnb`,
+  [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v2-opgilt`,
   [GOLD_CHAIN]: process.env.NEXT_PUBLIC_GOLD_CHAIN_V2_SUBGRAPH || '',
 }
 
@@ -51,16 +51,16 @@ export const V3_SUBGRAPH_URLS = {
   ...V3_SUBGRAPHS,
   [ChainId.BASE]: `${THE_GRAPH_PROXY_API}/exchange-v3-base`,
   [ChainId.ETHEREUM]: `${THE_GRAPH_PROXY_API}/exchange-v3-eth`,
-  [ChainId.BSC]: `${THE_GRAPH_PROXY_API}/exchange-v3-bsc`,
+  [ChainId.GILT]: `${THE_GRAPH_PROXY_API}/exchange-v3-gilt`,
   [ChainId.ARBITRUM_ONE]: `${THE_GRAPH_PROXY_API}/exchange-v3-arb`,
   [ChainId.ZKSYNC]: `${THE_GRAPH_PROXY_API}/exchange-v3-zksync`,
   [ChainId.LINEA]: `${THE_GRAPH_PROXY_API}/exchange-v3-linea`,
-  [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v3-opbnb`,
+  [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v3-opgilt`,
 }
 
 export const STABLESWAP_SUBGRAPHS_URLS = {
   ...STABLESWAP_SUBGRAPHS,
-  [ChainId.BSC]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-bsc`,
+  [ChainId.GILT]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-gilt`,
   [ChainId.ARBITRUM_ONE]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-arb`,
   [ChainId.ETHEREUM]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-eth`,
 }

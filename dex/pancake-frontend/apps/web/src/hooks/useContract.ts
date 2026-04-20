@@ -109,7 +109,7 @@ export const useERC20 = (address?: Address, options?: UseContractOptions) => {
 export const useCake = () => {
   const { chainId } = useActiveChainId()
 
-  return useContract((chainId && CAKE[chainId]?.address) ?? CAKE[ChainId.BSC].address, erc20Abi)
+  return useContract((chainId && CAKE[chainId]?.address) ?? CAKE[ChainId.GILT].address, erc20Abi)
 }
 
 export const useBunnyFactory = () => {

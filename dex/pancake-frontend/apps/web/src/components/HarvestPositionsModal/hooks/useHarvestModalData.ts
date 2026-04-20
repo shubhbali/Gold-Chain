@@ -101,7 +101,7 @@ export function useHarvestModalData(focusedChainId?: number): HarvestModalData {
   const harvestEvmCache = useAtomValue(harvestModalEvmPositionsCacheAtom)
   const setHarvestEvmCache = useSetAtom(harvestModalEvmPositionsCacheAtom)
 
-  // When on a non-EVM chain (e.g. Solana), default to BSC so EVM positions are always shown.
+  // When on a non-EVM chain (e.g. Solana), default to GILT so EVM positions are always shown.
   // If a focusedChainId is provided (opened from a specific position), use that chain instead
   // so the modal immediately shows positions for the position's chain regardless of wallet chain.
   const effectiveEvmChainId: number =

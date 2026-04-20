@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T20:33:23Z",
+  "engine": "codex",
+  "final_answer": "Yes.\n\nYou can switch it on after chain start via governance, with no chain restart, **as long as `stakeTokenB` is still unset** (which it is now).\n\nImportant constraint:\n- First activation is effectively one-time (`stakeTokenB` cannot just be overwritten later).\n- If you later want a different GOLD token, you must use the migration flow.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "So we can turn it on anytime after chain start?",
+  "run_id": "513766e748f14abbb3eb8843cf735ac3",
+  "started_at": "2026-04-15T20:33:12Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T20:33:23Z",
+  "version": 1
+}

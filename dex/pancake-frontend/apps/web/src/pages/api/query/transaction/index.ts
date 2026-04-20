@@ -16,7 +16,7 @@ const cleanUpCache = () => {
 
 const GET_TRANSACTIONS = gql`
   query GetTransactions($sender: String!, $to: String!) {
-    ethereum(network: bsc) {
+    ethereum(network: gilt) {
       transactions(txSender: { is: $sender }, txTo: { is: $to }) {
         hash
       }

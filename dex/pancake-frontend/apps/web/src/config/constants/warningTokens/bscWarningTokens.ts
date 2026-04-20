@@ -2,9 +2,9 @@ import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token } from '@pancakeswap/sdk'
 
 export const bscWarningTokens = {
-  pokemoney: new ERC20Token(ChainId.BSC, '0x32ff5b4C3B1744F0344D96fA2f87799Ed2805749', 18, 'PMY', 'Pokemoney Coin', ''),
+  pokemoney: new ERC20Token(ChainId.GILT, '0x32ff5b4C3B1744F0344D96fA2f87799Ed2805749', 18, 'PMY', 'Pokemoney Coin', ''),
   free: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x880BCe9321c79cAc1D290De6d31DDE722C606165',
     8,
     'FREE',
@@ -12,7 +12,7 @@ export const bscWarningTokens = {
     '',
   ),
   safemoon: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3',
     9,
     'SAFEMOON',
@@ -20,7 +20,7 @@ export const bscWarningTokens = {
     'https://safemoon.net/',
   ),
   gala: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x7dDEE176F665cD201F93eEDE625770E2fD911990',
     18,
     'GALA',
@@ -28,7 +28,7 @@ export const bscWarningTokens = {
     'https://games.gala.com/',
   ),
   xcad: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x431e0cD023a32532BF3969CddFc002c00E98429d',
     18,
     'XCAD',
@@ -36,7 +36,7 @@ export const bscWarningTokens = {
     'https://xcadnetwork.com/',
   ),
   lusd: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x23e8a70534308a4AAF76fb8C32ec13d17a3BD89e',
     18,
     'lUSD',
@@ -44,7 +44,7 @@ export const bscWarningTokens = {
     'https://linear.finance/',
   ),
   nfp: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x75E8ddB518bB757b4282cd5b83bb70d4101D12FB',
     18,
     'NFP',
@@ -52,14 +52,14 @@ export const bscWarningTokens = {
     'https://nfprompt.io/',
   ),
   pundiai: new ERC20Token(
-    ChainId.BSC,
+    ChainId.GILT,
     '0x67AA700Ab0110Cc52bf7F308fe25068E87a0f581',
     18,
     'PUNDIAI',
     'PundiAI Token',
     'https://twitter.com/PundiAI',
   ),
-  nmt: new ERC20Token(ChainId.BSC, '0x03AA6298F1370642642415EDC0db8b957783e8D6', 18, 'NMT', 'NetMind Token'),
-  uniBTC: new ERC20Token(ChainId.BSC, '0x6B2a01A5f79dEb4c2f3c0eDa7b01DF456FbD726a', 8, 'uniBTC', 'uniBTC'),
-  town: new ERC20Token(ChainId.BSC, '0x973253D0C12366e0fA5AFb9F9E2e9486ECA69c01', 18, 'TOWN', 'Alt.town'),
+  nmt: new ERC20Token(ChainId.GILT, '0x03AA6298F1370642642415EDC0db8b957783e8D6', 18, 'NMT', 'NetMind Token'),
+  uniBTC: new ERC20Token(ChainId.GILT, '0x6B2a01A5f79dEb4c2f3c0eDa7b01DF456FbD726a', 8, 'uniBTC', 'uniBTC'),
+  town: new ERC20Token(ChainId.GILT, '0x973253D0C12366e0fA5AFb9F9E2e9486ECA69c01', 18, 'TOWN', 'Alt.town'),
 }

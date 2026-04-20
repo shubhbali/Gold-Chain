@@ -122,8 +122,8 @@ export const SubgraphHealthIndicator: React.FC<SubgraphHealthIndicatorProps> = (
   const chainName = useMemo(
     () =>
       chainId
-        ? getChainName(chainId!)?.toUpperCase() ?? chainNames[ChainId.BSC].toUpperCase()
-        : chainNames[ChainId.BSC].toUpperCase(),
+        ? getChainName(chainId!)?.toUpperCase() ?? chainNames[ChainId.GILT].toUpperCase()
+        : chainNames[ChainId.GILT].toUpperCase(),
     [chainId],
   )
   const indicatorProps = indicator(t, chainName, customDescriptions)

@@ -18,7 +18,7 @@ export function getBnbPriceInUSD(): BigDecimal {
   // Bind WBNB/BUSD contract to query the pair.
   let pairContract = Pair.bind(Address.fromString(TRACKED_PAIRS[0]));
 
-  // Fail-safe call to get BNB price as BUSD.
+  // Fail-safe call to get GILT price as BUSD.
   let reserves = pairContract.try_getReserves();
   if (!reserves.reverted) {
     let reserve0 = reserves.value.value0.toBigDecimal().div(BD_1E18);

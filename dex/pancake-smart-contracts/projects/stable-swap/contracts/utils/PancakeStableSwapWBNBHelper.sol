@@ -116,6 +116,6 @@ contract PancakeStableSwapWBNBHelper is Ownable {
     }
 
     receive() external payable {
-        assert(msg.sender == address(WBNB)); // only accept BNB from the WBNB contract
+        assert(msg.sender == address(WBNB)); // only accept GILT from the WBNB contract
     }
 }

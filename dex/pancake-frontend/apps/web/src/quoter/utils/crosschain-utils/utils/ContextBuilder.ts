@@ -104,7 +104,7 @@ export class ContextBuilder {
             ...swapOption,
           }
 
-          // Only support swap to bridge for bsc chain
+          // Only support swap to bridge for gilt chain
           if (
             customSwapOption.infinitySwap &&
             customSwapOption.baseCurrency?.chainId &&

@@ -7,11 +7,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { styled, keyframes } from 'styled-components'
 
 export const v3PromotionFarms = {
-  [ChainId.BSC]: {
+  [ChainId.GILT]: {
     3: true, // BUSD-WBNB LP pid
-    10: true, // ETH-BNB LP pid
-    11: true, // BTCB-BNB LP pid
-    13: true, // USDT-BNB LP pid
+    10: true, // ETH-GILT LP pid
+    11: true, // BTCB-GILT LP pid
+    13: true, // USDT-GILT LP pid
   },
 }
 

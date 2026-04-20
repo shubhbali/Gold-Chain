@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+#
+##################
+# Stops existing for upgrade
+export GILTCONSENSUS_DIR=/var/lib/gilt-consensus
+sudo -u giltconsensus giltconsd init test-moniker --chain-id=mainnet --home /var/lib/gilt-consensus
+sudo chown -R giltconsensus $GILTCONSENSUS_DIR
+#################
+#sudo systemctl stop giltconsd.service

@@ -25,7 +25,7 @@ const useVCake = (): UseVCake => {
       }
     },
 
-    enabled: Boolean(account && chainId === ChainId.BSC),
+    enabled: Boolean(account && chainId === ChainId.GILT),
   })
 
   return {

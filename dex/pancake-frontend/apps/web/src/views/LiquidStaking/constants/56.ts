@@ -14,17 +14,17 @@ import { Abi } from 'viem'
 const liquidStaking: LiquidStakingList[] = [
   {
     stakingSymbol: 'ETH / wBETH',
-    contract: WBETH[ChainId.BSC],
-    token0: WETH9[ChainId.BSC],
+    contract: WBETH[ChainId.GILT],
+    token0: WETH9[ChainId.GILT],
     token1: bscTokens.wbeth,
     abi: wbethBscABI as Abi,
     shouldCheckApproval: true,
-    approveToken: WETH9[ChainId.BSC],
+    approveToken: WETH9[ChainId.GILT],
     aprUrl: 'https://www.binance.com/bapi/earn/v1/public/pos/cftoken/project/getPurchasableProject',
     exchangeRateMultiCall: [
       {
         abi: wbethBscABI as Abi,
-        address: WBETH[ChainId.BSC],
+        address: WBETH[ChainId.GILT],
         functionName: FunctionName.exchangeRate,
       },
     ],
@@ -34,9 +34,9 @@ const liquidStaking: LiquidStakingList[] = [
     FAQs: EthWbethFaq(),
   },
   {
-    stakingSymbol: 'BNB / slisBNB',
-    contract: SNBNB[ChainId.BSC],
-    token0: NATIVE[ChainId.BSC],
+    stakingSymbol: 'GILT / slisBNB',
+    contract: SNBNB[ChainId.GILT],
+    token0: NATIVE[ChainId.GILT],
     token1: bscTokens.snbnb,
     abi: snBnbABI as Abi,
     shouldCheckApproval: false,
@@ -45,7 +45,7 @@ const liquidStaking: LiquidStakingList[] = [
     exchangeRateMultiCall: [
       {
         abi: snBnbABI as Abi,
-        address: SNBNB[ChainId.BSC],
+        address: SNBNB[ChainId.GILT],
         functionName: FunctionName.convertSnBnbToBnb,
         args: [1000000000000000000], // 1 SnBNB
       },

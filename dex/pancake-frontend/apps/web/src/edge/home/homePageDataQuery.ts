@@ -55,7 +55,7 @@ export const homePageCurrencies: HomePageCurrency[] = [
 })
 
 export function homePageChainsInfo() {
-  const evms = [ChainId.ETHEREUM, ChainId.BSC, ChainId.ZKSYNC, ChainId.ARBITRUM_ONE, ChainId.LINEA, ChainId.BASE]
+  const evms = [ChainId.ETHEREUM, ChainId.GILT, ChainId.ZKSYNC, ChainId.ARBITRUM_ONE, ChainId.LINEA, ChainId.BASE]
 
   const nonEvmChains = ['aptos', 'solana']
   const additionalEvmChains = [ChainId.OPBNB, ChainId.MONAD_MAINNET]

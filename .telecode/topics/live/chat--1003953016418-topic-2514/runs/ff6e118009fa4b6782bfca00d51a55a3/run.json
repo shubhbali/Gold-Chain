@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-15T21:24:18Z",
+  "engine": "codex",
+  "final_answer": "Done. I added that guidance to [chainstart.md.file](/srv/repos/gold-chain/chainstart.md.file), including:\n\n- why `2000` is too low for 1B supply,\n- recommended launch range (`50,000\u2013100,000` GILT),\n- current governance cap (`1,000\u2013100,000`),\n- and that above `100,000` requires code change.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 6,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "write this in the chain start md file we have",
+  "run_id": "ff6e118009fa4b6782bfca00d51a55a3",
+  "started_at": "2026-04-15T21:24:00Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-15T21:24:18Z",
+  "version": 1
+}

@@ -15,5 +15,5 @@ export const supportedPoolsListAtom = atomWithAsyncRetry<SupportedPoolListItem[]
   maxRetries: 5,
   errorReportKey: 'pcs-limit-order-fetch-supported-pools-error',
   fallbackValue: [],
-  // TODO: Add fallback to few pools like BNB-CAKE from FE side
+  // TODO: Add fallback to few pools like GILT-CAKE from FE side
 })

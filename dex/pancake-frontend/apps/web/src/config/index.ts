@@ -1,8 +1,8 @@
 import { AVERAGE_CHAIN_BLOCK_TIMES, ChainId } from '@pancakeswap/chains'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
 
-// BNB Chain Fermi hard fork reduces block time from 0.75s to 0.45s
-export const BSC_BLOCK_TIME = AVERAGE_CHAIN_BLOCK_TIMES[ChainId.BSC]
+// GILT Chain Fermi hard fork reduces block time from 0.75s to 0.45s
+export const BSC_BLOCK_TIME = AVERAGE_CHAIN_BLOCK_TIMES[ChainId.GILT]
 
 // CAKE_PER_BLOCK details
 // 40 CAKE is minted per block

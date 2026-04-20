@@ -13,7 +13,7 @@ import "./IFOInitializable.sol";
 contract IFODeployer is Ownable {
     using SafeERC20 for IERC20;
 
-    uint256 public constant MAX_BUFFER_BLOCKS = 200000; // 200,000 blocks (6-7 days on BSC)
+    uint256 public constant MAX_BUFFER_BLOCKS = 200000; // 200,000 blocks (6-7 days on GILT)
 
     address public immutable pancakeProfile;
 

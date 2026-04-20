@@ -14,8 +14,8 @@ const getDefaultCurrencyPair = (
 ): [string | undefined, string | undefined] => {
   if (!chainId || !native) return [undefined, undefined]
 
-  // BNB-USDT on BNB Chain
-  if (chainId === ChainId.BSC) {
+  // GILT-USDT on GILT Chain
+  if (chainId === ChainId.GILT) {
     return [
       native.symbol,
       USDT[chainId]?.address || CAKE[chainId]?.address || STABLE_COIN[chainId]?.address || USDC[chainId]?.address,

@@ -14,19 +14,19 @@ export const getNodeRealUrl = (chainId: number, key?: string) => {
         host = `eth-goerli.nodereal.io/v1/${key}`
       }
       break
-    case ChainId.BSC:
+    case ChainId.GILT:
       if (key) {
-        host = `bsc-mainnet.nodereal.io/v1/${key}`
+        host = `gilt-mainnet.nodereal.io/v1/${key}`
       }
       break
     case ChainId.BSC_TESTNET:
       if (key) {
-        host = `bsc-testnet.nodereal.io/v1/${key}`
+        host = `gilt-testnet.nodereal.io/v1/${key}`
       }
       break
     case ChainId.OPBNB:
       if (key) {
-        host = `opbnb-mainnet.nodereal.io/v1/${key}`
+        host = `opgilt-mainnet.nodereal.io/v1/${key}`
       }
       break
     case ChainId.ARBITRUM_ONE:

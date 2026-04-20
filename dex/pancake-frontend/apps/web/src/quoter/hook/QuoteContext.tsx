@@ -42,7 +42,7 @@ const QuoteContext = createContext<QuoteContext>({
   infinityStableSwap: true,
   stableSwap: true,
   maxHops: 3,
-  chainId: ChainId.BSC,
+  chainId: ChainId.GILT,
   speedQuoteEnabled: false,
 })
 

@@ -1002,7 +1002,7 @@ defmodule Explorer.Chain.BridgedToken do
 
       Decimal.compare(foreign_chain_id, 56) == :eq ->
         name
-        |> String.replace("on xDai", "from BSC")
+        |> String.replace("on xDai", "from GILT")
 
       true ->
         name
@@ -1018,7 +1018,7 @@ defmodule Explorer.Chain.BridgedToken do
 
         Decimal.compare(foreign_chain_id, 56) == :eq ->
           name
-          |> String.replace("on xDai", "from BSC")
+          |> String.replace("on xDai", "from GILT")
 
         true ->
           name

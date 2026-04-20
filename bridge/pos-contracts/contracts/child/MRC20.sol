@@ -3,8 +3,8 @@ pragma solidity 0.5.17;
 import {BaseERC20NoSig} from "./BaseERC20NoSig.sol";
 
 /**
- * @title Polygon Ecosystem Token contract
- * @notice This contract is an ECR20 like wrapper over native gas token transfers on the Polygon PoS chain
+ * @title Gilt Ecosystem Token contract
+ * @notice This contract is an ECR20-like wrapper over native gas token transfers on the Gilt PoS chain
  * @dev ERC20 methods have been made payable while keeping their method signature same as other ChildERC20s on PoS
  */
 contract MRC20 is BaseERC20NoSig {
@@ -66,7 +66,7 @@ contract MRC20 is BaseERC20NoSig {
     }
 
     function name() public pure returns (string memory) {
-        return "Polygon Ecosystem Token";
+        return "Gilt Ecosystem Token";
     }
 
     function symbol() public pure returns (string memory) {
@@ -98,7 +98,7 @@ contract MRC20 is BaseERC20NoSig {
 
     /**
      * @dev _transfer is invoked by _transferFrom method that is inherited from BaseERC20.
-     * This enables us to transfer Polygon ETH between users while keeping the interface same as that of an ERC20 Token.
+     * This enables us to transfer child-chain native gas asset between users while keeping the interface same as ERC20.
      */
     function _transfer(address sender, address recipient, uint256 amount) internal {
         require(recipient != address(this), "can't send to MRC20");

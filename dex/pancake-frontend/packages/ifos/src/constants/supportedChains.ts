@@ -4,7 +4,7 @@ import { ChainId } from '@pancakeswap/chains'
 export const CROSS_CHAIN_ONLY_SUPPORTED_CHAIN_IDS = [ChainId.GOERLI, ChainId.ARBITRUM_ONE] as const
 
 // Chains that support native ifo. Shouldn't overlap with cross chain only chains
-export const PROFILE_SUPPORTED_CHAIN_IDS = [ChainId.BSC, ChainId.BSC_TESTNET] as const
+export const PROFILE_SUPPORTED_CHAIN_IDS = [ChainId.GILT, ChainId.BSC_TESTNET] as const
 
 // CROSS_CHAIN_ONLY_SUPPORTED_CHAIN_IDS + PROFILE_SUPPORTED_CHAIN_IDS = SUPPORTED_CHAIN_IDS
 export const SUPPORTED_CHAIN_IDS = [...PROFILE_SUPPORTED_CHAIN_IDS, ...CROSS_CHAIN_ONLY_SUPPORTED_CHAIN_IDS] as const
@@ -18,7 +18,7 @@ export type CrossChainOnlySupportedChainId = (typeof CROSS_CHAIN_ONLY_SUPPORTED_
 // A mapping of destination chain to the source chain
 export const SOURCE_CHAIN_MAP: Record<CrossChainOnlySupportedChainId, ProfileSupportedChainId> = {
   [ChainId.GOERLI]: ChainId.BSC_TESTNET,
-  [ChainId.ARBITRUM_ONE]: ChainId.BSC,
+  [ChainId.ARBITRUM_ONE]: ChainId.GILT,
 }
 
 export const SOURCE_CHAIN_TO_DEST_CHAINS = Object.keys(SOURCE_CHAIN_MAP).reduce((map, destChain) => {

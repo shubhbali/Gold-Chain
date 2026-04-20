@@ -13,7 +13,7 @@ export const useExplorerChainNameByQuery = (): ExplorerApiQueryChain => {
     const queryChainName = query?.chainName ?? query.chain
     switch (queryChainName) {
       case 'bscTestnet':
-      case 'bsc-testnet':
+      case 'gilt-testnet':
         return chainIdToExplorerInfoChainName[ChainId.BSC_TESTNET]
       case 'eth':
         return 'ethereum'
@@ -27,8 +27,8 @@ export const useExplorerChainNameByQuery = (): ExplorerApiQueryChain => {
         return 'linea'
       case 'base':
         return 'base'
-      case 'opbnb':
-        return 'opbnb'
+      case 'opgilt':
+        return 'opgilt'
       case 'monad':
         return chainIdToExplorerInfoChainName[ChainId.MONAD_MAINNET]
       case 'solana':
@@ -37,7 +37,7 @@ export const useExplorerChainNameByQuery = (): ExplorerApiQueryChain => {
         // For now, let's implement a temporary workaround.
         return 'sol' as any
       default:
-        return 'bsc'
+        return 'gilt'
     }
   }, [query])
 

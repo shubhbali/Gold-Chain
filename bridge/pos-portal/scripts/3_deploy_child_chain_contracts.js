@@ -10,7 +10,7 @@ const ChildMintableERC721 = artifacts.require('ChildMintableERC721')
 const ChildERC1155 = artifacts.require('ChildERC1155')
 const ChildMintableERC1155 = artifacts.require('ChildMintableERC1155')
 
-const MaticWETH = artifacts.require('MaticWETH')
+const GiltWETH = artifacts.require('GiltWETH')
 import { getContractAddresses, writeContractAddresses } from './utils'
 
 export default async (deployer, network, accounts) => {
@@ -34,7 +34,7 @@ export default async (deployer, network, accounts) => {
     await deployer.deploy(ChildERC1155, 'Dummy ERC1155', ChildChainManagerProxy.address)
     await deployer.deploy(ChildMintableERC1155, 'Dummy Mintable ERC1155', ChildChainManagerProxy.address)
 
-    await deployer.deploy(MaticWETH, ChildChainManagerProxy.address)
+    await deployer.deploy(GiltWETH, ChildChainManagerProxy.address)
 
     const contractAddresses = getContractAddresses()
 
@@ -50,7 +50,7 @@ export default async (deployer, network, accounts) => {
     contractAddresses.child.DummyERC1155 = ChildERC1155.address
     contractAddresses.child.DummyMintableERC1155 = ChildMintableERC1155.address
 
-    contractAddresses.child.MaticWETH = MaticWETH.address
+    contractAddresses.child.GiltWETH = GiltWETH.address
 
     writeContractAddresses(contractAddresses)
   })

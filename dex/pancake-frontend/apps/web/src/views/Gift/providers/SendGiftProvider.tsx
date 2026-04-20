@@ -36,7 +36,7 @@ export const SendGiftProvider = ({ children }: { children: React.ReactNode }) =>
   const [isSendGift, setIsSendGift] = useState(false)
   const [nativeAmount, setNativeAmount] = useState<CurrencyAmount<NativeCurrency> | undefined>(undefined)
   const [includeStarterGas, setIncludeStarterGas] = useState(false)
-  const { balance: nativeCurrencyBalance } = useGetNativeTokenBalance(ChainId.BSC)
+  const { balance: nativeCurrencyBalance } = useGetNativeTokenBalance(ChainId.GILT)
 
   const isUserInsufficientBalance = useMemo(() => {
     return Boolean(nativeAmount?.greaterThan(nativeCurrencyBalance))

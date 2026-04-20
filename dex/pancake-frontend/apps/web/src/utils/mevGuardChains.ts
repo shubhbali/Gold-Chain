@@ -1,8 +1,8 @@
 import type { Chain } from 'viem'
-import { bsc } from 'viem/chains'
+import { gilt } from 'viem/chains'
 
 export const BSCMevGuardChain = {
-  ...bsc,
+  ...gilt,
   rpcUrls: {
     default: {
       http: ['https://bscrpc.pancakeswap.finance'],

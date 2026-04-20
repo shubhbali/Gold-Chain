@@ -103,7 +103,7 @@ function useWallchainSDK() {
       })
     },
 
-    enabled: Boolean(chainId === ChainId.BSC && walletClient && WALLCHAIN_ENABLED),
+    enabled: Boolean(chainId === ChainId.GILT && walletClient && WALLCHAIN_ENABLED),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
@@ -144,7 +144,7 @@ export function useWallchainApi(
       setStatus('not-found')
       return
     }
-    if (trade.routes.length === 0 || trade.inputAmount.currency.chainId !== ChainId.BSC) return
+    if (trade.routes.length === 0 || trade.inputAmount.currency.chainId !== ChainId.GILT) return
     if (lastUpdate > Date.now() - 2000) return
     const includesToken = trade.routes.some((route) => {
       const goodSrc =

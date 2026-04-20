@@ -50,7 +50,7 @@ export const useGetCollectionDistributionPB = () => {
       // Use on chain data to get most updated totalSupply and bunnyCount data. Nft Api Data not updated frequently.
       const tokenIds = Object.keys(apiResponse.attributesDistribution)
       try {
-        const response = await publicClient({ chainId: ChainId.BSC }).multicall({
+        const response = await publicClient({ chainId: ChainId.GILT }).multicall({
           contracts: tokenIds.map(
             (tokenId) =>
               ({
