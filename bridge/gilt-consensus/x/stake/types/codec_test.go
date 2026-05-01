@@ -82,9 +82,11 @@ func TestRegisterInterfaces(t *testing.T) {
 		t.Parallel()
 
 		// Verify at compile time
+		var _ sdk.Msg = &types.MsgApproveValidator{}
 		var _ sdk.Msg = &types.MsgValidatorJoin{}
 		var _ sdk.Msg = &types.MsgStakeUpdate{}
 		var _ sdk.Msg = &types.MsgSignerUpdate{}
 		var _ sdk.Msg = &types.MsgValidatorExit{}
+		var _ sdk.Msg = &types.MsgWithdrawValidatorStake{}
 	})
 }

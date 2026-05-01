@@ -48,7 +48,6 @@ const (
 	DividendAccountRootURL  = "/topup/dividend-account-root"
 	ValidatorURL            = "/stake/validator/%v"
 	CurrentValidatorSetURL  = "/stake/validators-set"
-	StakingTxStatusURL      = "/stake/is-old-tx"
 	TopupTxStatusURL        = "/topup/is-old-tx"
 	ClerkTxStatusURL        = "/clerk/is-old-tx"
 	ClerkEventRecordURL     = "/clerk/event-records/%d"
@@ -62,9 +61,8 @@ const (
 
 	mempoolTxnCountDivisor = 1000
 
-	StakingEvent BridgeEvent = "staking"
-	TopupEvent   BridgeEvent = "topup"
-	ClerkEvent   BridgeEvent = "clerk"
+	TopupEvent BridgeEvent = "topup"
+	ClerkEvent BridgeEvent = "clerk"
 
 	BridgeDBFlag = "bridge-db"
 

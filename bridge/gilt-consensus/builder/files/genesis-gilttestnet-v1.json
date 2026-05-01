@@ -111,8 +111,6 @@
         "maticchain_tx_confirmations": "10",
         "chain_params": {
           "gilt_chain_id": "80002",
-          "matic_token_address": "0x3fd0A53F4Bf853985a95F4Eb3F9C9FDE1F8e2b53",
-          "staking_manager_address": "0x4AE8f648B1Ec892B6cc68C89cc088583964d08bE",
           "slash_manager_address": "0x9e699267858ce513eACF3b66420334785f9c8E4c",
           "root_chain_address": "0xbd07D7E1E93c8d4b2a261327F3C28a8EA7167209",
           "staking_info_address": "0x5E3111a5d928D24718c1A7897261D0B9087002ed",

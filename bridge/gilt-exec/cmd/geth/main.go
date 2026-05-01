@@ -18,19 +18,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"os/signal"
 	"slices"
 	"sort"
 	"strconv"
-	"syscall"
 	"time"
 
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	giltconsensusApp "github.com/giltchain/gilt-consensus/app"
-	giltconsd "github.com/giltchain/gilt-consensus/cmd/giltconsd/cmd"
 	"go.uber.org/automaxprocs/maxprocs"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -348,20 +342,6 @@ func prepare(ctx *cli.Context) {
 func geth(ctx *cli.Context) error {
 	if args := ctx.Args().Slice(); len(args) > 0 {
 		return fmt.Errorf("invalid command: %q", args[0])
-	}
-
-	if ctx.Bool(utils.RunGiltConsensusFlag.Name) {
-		_, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-		defer stop()
-
-		// TODO: Running giltconsensus from gilt is not tested yet.
-		go func() {
-			rootCmd := giltconsd.NewRootCmd()
-			if err := svrcmd.Execute(rootCmd, "HD", giltconsensusApp.DefaultNodeHome); err != nil {
-				_, _ = fmt.Fprintln(rootCmd.OutOrStderr(), err)
-				os.Exit(1)
-			}
-		}()
 	}
 
 	prepare(ctx)

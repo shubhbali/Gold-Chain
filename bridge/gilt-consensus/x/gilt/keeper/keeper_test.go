@@ -34,7 +34,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx                sdk.Context
-	giltKeeper          keeper.Keeper
+	giltKeeper         keeper.Keeper
 	chainManagerKeeper *gilttestutil.MockChainManagerKeeper
 	stakeKeeper        *gilttestutil.MockStakeKeeper
 	milestoneKeeper    *gilttestutil.MockMilestoneKeeper
@@ -332,7 +332,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 			EndBlock:          256,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                1,
@@ -340,7 +340,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 			EndBlock:          6656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                2,
@@ -348,7 +348,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 			EndBlock:          16656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                3,
@@ -356,7 +356,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 			EndBlock:          26656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 	}
 
@@ -373,6 +373,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 	s.contractCaller.On("GetGiltChainBlockAuthor", big.NewInt(int64(seedBlock1))).Return(&val2Addr, nil)
 
 	seedBlock2 := spans[1].EndBlock - giltParams.SprintDuration
+	seedBlock2End := spans[1].EndBlock
 	s.contractCaller.On("GetGiltChainBlockAuthor", big.NewInt(int64(spans[1].EndBlock))).Return(&val2Addr, nil)
 	s.contractCaller.On("GetGiltChainBlockAuthor", big.NewInt(int64(seedBlock2))).Return(&val1Addr, nil)
 	for block := spans[1].EndBlock - (2 * giltParams.SprintDuration); block >= spans[1].StartBlock; block -= giltParams.SprintDuration {
@@ -395,6 +396,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 	blockHash1 := blockHeader1.Hash()
 	blockHeader2 := ethTypes.Header{Number: big.NewInt(int64(seedBlock2))}
 	blockHash2 := blockHeader2.Hash()
+	blockHeader2End := ethTypes.Header{Number: big.NewInt(int64(seedBlock2End))}
 	blockHeader3 := ethTypes.Header{Number: big.NewInt(int64(seedBlock3))}
 	blockHash3 := blockHeader3.Hash()
 	blockHeader4 := ethTypes.Header{Number: big.NewInt(int64(seedBlock4))}
@@ -402,6 +404,7 @@ func (s *KeeperTestSuite) TestFetchNextSpanSeed() {
 
 	s.contractCaller.On("GetGiltChainBlock", mock.Anything, big.NewInt(int64(seedBlock1))).Return(&blockHeader1, nil)
 	s.contractCaller.On("GetGiltChainBlock", mock.Anything, big.NewInt(int64(seedBlock2))).Return(&blockHeader2, nil)
+	s.contractCaller.On("GetGiltChainBlock", mock.Anything, big.NewInt(int64(seedBlock2End))).Return(&blockHeader2End, nil)
 	s.contractCaller.On("GetGiltChainBlock", mock.Anything, big.NewInt(int64(seedBlock3))).Return(&blockHeader3, nil)
 	s.contractCaller.On("GetGiltChainBlock", mock.Anything, big.NewInt(int64(seedBlock4))).Return(&blockHeader4, nil)
 
@@ -477,7 +480,7 @@ func (s *KeeperTestSuite) TestProposeSpanOne() {
 		EndBlock:          256,
 		ValidatorSet:      valSet,
 		SelectedProducers: vals,
-		GiltChainId:        "test-chain",
+		GiltChainId:       "test-chain",
 	})
 	require.NoError(err)
 
@@ -661,7 +664,7 @@ func (s *KeeperTestSuite) genTestSpans(num uint64) []*types.Span {
 			EndBlock:          endBlock,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		}
 		spans = append(spans, &span)
 	}
@@ -674,6 +677,7 @@ func (s *KeeperTestSuite) genTestValidators() (staketypes.ValidatorSet, []staket
 
 	validators := make([]*staketypes.Validator, 0, len(keeper.TestValidators))
 	for _, v := range keeper.TestValidators {
+		v.NormalizeLifecycleAccounting()
 		validators = append(validators, &v)
 	}
 	valSet := staketypes.ValidatorSet{

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -23,13 +22,6 @@ var (
 		Subsystem: helper.GetConfig().Chain,
 		Name:      "StateSynced",
 		Help:      "The total number of missing StateSynced events processed",
-	})
-
-	stakeUpdateCounter = promauto.NewCounter(prometheus.CounterOpts{
-		Namespace: "self_healing",
-		Subsystem: helper.GetConfig().Chain,
-		Name:      "StakeUpdate",
-		Help:      "The total number of missing StakeUpdate events processed",
 	})
 
 	checkpointAckCounter = promauto.NewCounter(prometheus.CounterOpts{
@@ -57,7 +49,6 @@ func (rl *RootChainListener) startSelfHealing(ctx context.Context) {
 		httpClient: &http.Client{Timeout: 5 * time.Second},
 	}
 
-	stakeUpdateTicker := time.NewTicker(helper.GetConfig().SHStakeUpdateInterval)
 	stateSyncedTicker := time.NewTicker(helper.GetConfig().SHStateSyncedInterval)
 	checkpointAckTicker := time.NewTicker(helper.GetConfig().SHCheckpointAckInterval)
 
@@ -65,15 +56,12 @@ func (rl *RootChainListener) startSelfHealing(ctx context.Context) {
 
 	for {
 		select {
-		case <-stakeUpdateTicker.C:
-			rl.processStakeUpdate(ctx)
 		case <-stateSyncedTicker.C:
 			rl.processStateSynced(ctx)
 		case <-checkpointAckTicker.C:
 			rl.processCheckpointAck(ctx)
 		case <-ctx.Done():
 			rl.Logger.Info("Self-healing: stopping")
-			stakeUpdateTicker.Stop()
 			stateSyncedTicker.Stop()
 			checkpointAckTicker.Stop()
 
@@ -173,74 +161,6 @@ func (rl *RootChainListener) processCheckpointAck(ctx context.Context) {
 	// Send the checkpoint ACK task.
 	rl.SendTaskWithDelay("sendCheckpointAckToGiltConsensus", helper.NewHeaderBlockEvent, logBytes, 0, nil)
 	rl.Logger.Info("Self-healing: successfully queued checkpoint ACK task", "headerBlockId", l1HeaderBlockId, "logIndex", latestL1Checkpoint.LogIndex, "txHash", targetLog.TxHash.Hex())
-}
-
-// processStakeUpdate checks if validators are in sync, otherwise syncs them by broadcasting missing events
-func (rl *RootChainListener) processStakeUpdate(ctx context.Context) {
-	// Fetch all giltconsensus validators
-	validatorSet, err := util.GetValidatorSet(rl.cliCtx.Codec)
-	if err != nil {
-		rl.Logger.Error("Self-healing: failed to fetch validator set from giltconsensus", "error", err)
-		return
-	}
-
-	rl.Logger.Info("Self-healing: fetched validator list from giltconsensus", "validatorCount", len(validatorSet.Validators))
-
-	// Make sure each validator is in sync
-	var wg sync.WaitGroup
-	for _, validator := range validatorSet.Validators {
-		wg.Add(1)
-
-		go func(id uint64) {
-			defer wg.Done()
-
-			nonce, err := util.GetValidatorNonce(id, rl.cliCtx.Codec)
-			if err != nil {
-				rl.Logger.Error("Self-healing: failed to fetch nonce for validator from GiltConsensus", "validatorId", id, "error", err)
-				return
-			}
-
-			var ethereumNonce uint64
-
-			if err = helper.ExponentialBackoff(func() error {
-				ethereumNonce, err = rl.getLatestNonce(ctx, id)
-				return err
-			}, 3, time.Second); err != nil {
-				rl.Logger.Error("Self-healing: failed to fetch latest nonce from Ethereum (L1) for validator", "validatorId", id, "error", err)
-				return
-			}
-			rl.Logger.Info("Self-healing: retrieved nonces for validator", "validatorId", id, "ethereumNonce", ethereumNonce, "giltconsensusNonce", nonce)
-
-			if ethereumNonce <= nonce {
-				return
-			}
-
-			nonce++
-
-			rl.Logger.Info("Self-healing: validator is behind; processing missing stake update", "validatorId", id, "ethereumNonce", ethereumNonce, "nextExpectedNonce", nonce)
-
-			var stakeUpdate *types.Log
-
-			if err = helper.ExponentialBackoff(func() error {
-				stakeUpdate, err = rl.getStakeUpdate(ctx, id, nonce)
-				return err
-			}, 3, time.Second); err != nil {
-				rl.Logger.Error("Self-healing: failed to retrieve StakeUpdate event from subgraph", "validatorId", id, "nonce", nonce, "error", err)
-				return
-			}
-			rl.Logger.Info("Self-healing: fetched StakeUpdate event from Ethereum", "validatorId", id, "nonce", nonce, "blockNumber", stakeUpdate.BlockNumber, "txHash", stakeUpdate.TxHash.Hex())
-
-			stakeUpdateCounter.Inc()
-
-			if _, err = rl.processEvent(ctx, stakeUpdate); err != nil {
-				rl.Logger.Error("Self-healing: failed to process StakeUpdate event", "validatorId", id, "nonce", nonce, "error", err)
-			} else {
-				rl.Logger.Info("Self-healing: successfully processed StakeUpdate event", "validatorId", id, "nonce", nonce)
-			}
-		}(validator.ValId)
-	}
-
-	wg.Wait()
 }
 
 // processStateSynced checks if chains are in sync, otherwise syncs them by broadcasting missing events
@@ -357,14 +277,12 @@ func (rl *RootChainListener) processEvent(ctx context.Context, vLog *types.Log) 
 		return true, err
 	}
 
-	topic := vLog.Topics[0].Bytes()
-	for _, abiObject := range rl.abis {
-		selectedEvent := helper.EventByID(abiObject, topic)
-		if selectedEvent == nil {
-			continue
+	if len(vLog.Topics) > 0 {
+		topic := vLog.Topics[0].Bytes()
+		selectedEvent := rl.supportedRootEventByTopic(topic)
+		if selectedEvent != nil {
+			rl.handleLog(*vLog, selectedEvent)
 		}
-
-		rl.handleLog(*vLog, selectedEvent)
 	}
 
 	return false, nil

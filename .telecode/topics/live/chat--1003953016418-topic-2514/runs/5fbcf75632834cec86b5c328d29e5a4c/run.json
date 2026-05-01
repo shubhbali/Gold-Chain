@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T09:21:36Z",
+  "engine": "codex",
+  "final_answer": "Do not delete the entire test suite first; remove stale/bypass tests, then rebuild a production-focused suite before mainnet launch.\n\nWhy it matters: running only on a live chain without pre-launch test gates is how critical bugs in `GOLD` accounting, bridge finality handling, and redemption safety reach production.\n\nWhat should be done next:\n1. Delete only invalid tests now: tests that depend on bypass/mock-only behavior you already rejected.\n2. Keep/add deterministic pre-launch tests for critical invariants: bridge finality, `PAXG`/`XAUT` custody/release flow, `GOLD` mint/burn accounting, validator flow, and replay/reorg safety.\n3. Stand up a full-stack pre-mainnet environment (real execution+consensus processes, no bypass flags) and run integration tests there.\n4. After that, run live-chain smoke tests as a final gate, not as the only gate.\n5. Treat test migration as a tracked workstream: remove old tests, add replacement tests, enforce pass gates before launch.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Okay, now explain to me what needs to be done with the tests. I feel like we should remove all this test suite and then we should turn on the chain and then write fresh tests to test the actual running mainnet.",
+  "run_id": "5fbcf75632834cec86b5c328d29e5a4c",
+  "started_at": "2026-04-27T09:21:12Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T09:21:36Z",
+  "version": 1
+}

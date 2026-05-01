@@ -7,16 +7,16 @@ const (
 	GetSignerByAddressMethod     = "GetSignerByAddress"
 	GetValidatorByIdMethod       = "GetValidatorById"
 	GetTotalPowerMethod          = "GetTotalPower"
-	IsStakeTxOldMethod           = "IsStakeTxOld"
 	GetCurrentProposerMethod     = "GetCurrentProposer"
 	GetProposersByTimesMethod    = "GetProposersByTimes"
 
 	// Transaction API methods.
 
-	ValidatorJoinMethod = "ValidatorJoin"
-	StakeUpdateMethod   = "StakeUpdate"
-	SignerUpdateMethod  = "SignerUpdate"
-	ValidatorExitMethod = "ValidatorExit"
+	ApproveValidatorMethod = "ApproveValidator"
+	ValidatorJoinMethod    = "ValidatorJoin"
+	StakeUpdateMethod      = "StakeUpdate"
+	SignerUpdateMethod     = "SignerUpdate"
+	ValidatorExitMethod    = "ValidatorExit"
 
 	// Side message handler methods.
 

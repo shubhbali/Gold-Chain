@@ -1,0 +1,30 @@
+=============== Apr 26, 2026 (CEST) ===============
+08:54:06.513884 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+08:54:06.537794 db@open opening
+08:54:06.538536 version@stat F·[] S·0B[] Sc·[]
+08:54:06.541776 db@janitor F·2 G·0
+08:54:06.541809 db@open done T·3.731898ms
+08:54:11.458822 db@close closing
+08:54:11.458934 db@close done T·119.39µs
+=============== Apr 26, 2026 (CEST) ===============
+08:54:58.014866 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+08:54:58.015046 version@stat F·[] S·0B[] Sc·[]
+08:54:58.015067 db@open opening
+08:54:58.015112 journal@recovery F·1
+08:54:58.015238 journal@recovery recovering @1
+08:54:58.049979 memdb@flush created L0@2 N·2 S·181B "loc..seq,v2":"version,v1"
+08:54:58.085645 version@stat F·[1] S·181B[181B] Sc·[0.25]
+08:54:58.122266 db@janitor F·3 G·0
+08:54:58.122301 db@open done T·107.225433ms
+09:00:33.201611 db@close closing
+09:00:33.201873 db@close done T·260.333µs
+=============== Apr 26, 2026 (CEST) ===============
+09:05:07.103169 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:05:07.103351 version@stat F·[1] S·181B[181B] Sc·[0.25]
+09:05:07.103365 db@open opening
+09:05:07.103416 journal@recovery F·1
+09:05:07.103582 journal@recovery recovering @3
+09:05:07.116911 memdb@flush created L0@5 N·1 S·162B "loc..seq,v4":"loc..seq,v4"
+09:05:07.117210 version@stat F·[2] S·343B[343B] Sc·[0.50]
+09:05:07.134451 db@janitor F·4 G·0
+09:05:07.134486 db@open done T·31.110446ms

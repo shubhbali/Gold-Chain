@@ -73,10 +73,6 @@ func TestRootChainListener_handleLog(t *testing.T) {
 		// We verify this by checking that different event names exist
 		eventNames := []string{
 			helper.NewHeaderBlockEvent,
-			helper.StakedEvent,
-			helper.StakeUpdateEvent,
-			helper.SignerChangeEvent,
-			helper.UnstakeInitEvent,
 			helper.StateSyncedEvent,
 			helper.TopUpFeeEvent,
 			helper.SlashedEvent,
@@ -84,7 +80,7 @@ func TestRootChainListener_handleLog(t *testing.T) {
 		}
 
 		// Verify all event names are defined
-		require.Len(t, eventNames, 9)
+		require.Len(t, eventNames, 5)
 		for _, name := range eventNames {
 			require.NotEmpty(t, name)
 		}
@@ -380,10 +376,6 @@ func TestRootChainListener_EventConstants(t *testing.T) {
 
 		// These constants should be defined in the helper package
 		require.NotEmpty(t, helper.NewHeaderBlockEvent)
-		require.NotEmpty(t, helper.StakedEvent)
-		require.NotEmpty(t, helper.StakeUpdateEvent)
-		require.NotEmpty(t, helper.SignerChangeEvent)
-		require.NotEmpty(t, helper.UnstakeInitEvent)
 		require.NotEmpty(t, helper.StateSyncedEvent)
 		require.NotEmpty(t, helper.TopUpFeeEvent)
 		require.NotEmpty(t, helper.SlashedEvent)
@@ -419,8 +411,6 @@ func TestRootChainListener_LogHandlingEdgeCases(t *testing.T) {
 			listener.handleLog(vLog, selectedEvent)
 		})
 	})
-
-	// "handles zero block number" test removed - calls handleStakedLog with invalid ABI data
 
 	t.Run("handles maximum uint64 block number", func(t *testing.T) {
 		t.Parallel()

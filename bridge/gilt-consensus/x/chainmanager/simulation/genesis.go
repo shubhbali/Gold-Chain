@@ -16,10 +16,8 @@ import (
 
 const (
 	MainChainTxConfirmations = "main_chain_tx_confirmations"
-	GiltChainTxConfirmations  = "gilt_chain_tx_confirmations"
-	GiltChainID               = "gilt_chain_id"
-	PolTokenAddress          = "pol_token_address" //nolint:gosec // not a hardcoded credential, just a key name for simulation
-	StakingManagerAddress    = "staking_manager_address"
+	GiltChainTxConfirmations = "gilt_chain_tx_confirmations"
+	GiltChainID              = "gilt_chain_id"
 	SlashManagerAddress      = "slash_manager_address"
 	RootChainAddress         = "root_chain_address"
 	StakingInfoAddress       = "staking_info_address"
@@ -56,11 +54,9 @@ func genAddress(r *rand.Rand) string {
 func RandomizedGenState(simState *module.SimulationState) {
 	var (
 		mainChainTxConfirmations uint64
-		giltChainTxConfirmations  uint64
-		giltChainID               string
-		giltconsensusChainID          string
-		polTokenAddress          string
-		stakingManagerAddress    string
+		giltChainTxConfirmations uint64
+		giltChainID              string
+		giltconsensusChainID     string
 		slashManagerAddress      string
 		rootChainAddress         string
 		stakingInfoAddress       string
@@ -83,14 +79,6 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	simState.AppParams.GetOrGenerate(giltconsensusChainID, &giltconsensusChainID, simState.Rand, func(_ *rand.Rand) {
 		giltconsensusChainID = genGiltConsensusChainId(giltChainID)
-	})
-
-	simState.AppParams.GetOrGenerate(PolTokenAddress, &polTokenAddress, simState.Rand, func(r *rand.Rand) {
-		polTokenAddress = genAddress(r)
-	})
-
-	simState.AppParams.GetOrGenerate(StakingManagerAddress, &stakingManagerAddress, simState.Rand, func(r *rand.Rand) {
-		stakingManagerAddress = genAddress(r)
 	})
 
 	simState.AppParams.GetOrGenerate(SlashManagerAddress, &slashManagerAddress, simState.Rand, func(r *rand.Rand) {
@@ -118,16 +106,14 @@ func RandomizedGenState(simState *module.SimulationState) {
 	})
 
 	chainParams := types.ChainParams{
-		GiltChainId:            giltChainID,
-		GiltConsensusChainId:       giltconsensusChainID,
-		PolTokenAddress:       polTokenAddress,
-		StakingManagerAddress: stakingManagerAddress,
-		SlashManagerAddress:   slashManagerAddress,
-		RootChainAddress:      rootChainAddress,
-		StakingInfoAddress:    stakingInfoAddress,
-		StateSenderAddress:    stateSenderAddress,
-		StateReceiverAddress:  stateReceiverAddress,
-		ValidatorSetAddress:   validatorSetAddress,
+		GiltChainId:          giltChainID,
+		GiltConsensusChainId: giltconsensusChainID,
+		SlashManagerAddress:  slashManagerAddress,
+		RootChainAddress:     rootChainAddress,
+		StakingInfoAddress:   stakingInfoAddress,
+		StateSenderAddress:   stateSenderAddress,
+		StateReceiverAddress: stateReceiverAddress,
+		ValidatorSetAddress:  validatorSetAddress,
 	}
 
 	params := types.NewParams(mainChainTxConfirmations, giltChainTxConfirmations, chainParams)

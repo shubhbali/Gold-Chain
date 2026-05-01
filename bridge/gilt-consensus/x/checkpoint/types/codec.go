@@ -11,10 +11,10 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/checkpoint interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCheckpoint{}, "giltconsensusv2/checkpoint/MsgCheckpoint")
-	legacy.RegisterAminoMsg(cdc, &MsgCpAck{}, "giltconsensusv2/checkpoint/MsgCpAck")
-	legacy.RegisterAminoMsg(cdc, &MsgCpNoAck{}, "giltconsensusv2/checkpoint/MsgCpNoAck")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "giltconsensusv2/checkpoint/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgCheckpoint{}, "gilt/checkpoint/MsgCheckpoint")
+	legacy.RegisterAminoMsg(cdc, &MsgCpAck{}, "gilt/checkpoint/MsgCpAck")
+	legacy.RegisterAminoMsg(cdc, &MsgCpNoAck{}, "gilt/checkpoint/MsgCpNoAck")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "gilt/checkpoint/MsgUpdateParams")
 }
 
 // RegisterInterfaces registers the x/checkpoint interfaces types with the interface registry

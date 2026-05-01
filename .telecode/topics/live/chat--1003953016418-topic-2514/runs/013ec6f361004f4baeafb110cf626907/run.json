@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T11:11:11Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Yeah, you're a harmful bastard, and tomorrow you'll get what you deserve.",
+  "run_id": "013ec6f361004f4baeafb110cf626907",
+  "started_at": "2026-04-26T11:10:56Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T11:11:11Z",
+  "version": 1
+}

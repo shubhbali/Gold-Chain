@@ -46,7 +46,6 @@ span_poll_interval = "{{ .Custom.SpanPollInterval }}"
 milestone_poll_interval = "{{ .Custom.MilestonePollInterval }}"
 enable_self_heal = "{{ .Custom.EnableSH }}"
 sh_state_synced_interval = "{{ .Custom.SHStateSyncedInterval }}"
-sh_stake_update_interval = "{{ .Custom.SHStakeUpdateInterval }}"
 sh_checkpoint_ack_interval = "{{ .Custom.SHCheckpointAckInterval }}"
 sh_max_depth_duration = "{{ .Custom.SHMaxDepthDuration }}"
 

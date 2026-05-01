@@ -19,7 +19,6 @@ snapshot = true                 # Enables the snapshot-database mode
 "gilt.logs" = false              # Enables gilt log retrieval
 ethstats = ""                   # Reporting URL of a ethstats service (nodename:secret@host:port)
 witnessprotocol = false         # Enables the wit/0 protocol
-devfakeauthor = false           # Run miner without validator set authorization [dev mode] : Use with '--gilt.withoutgiltconsensus' (default: false)
 
 ["eth.requiredblocks"]  # Comma separated block number-to-hash mappings to require for peering (<number>=<hash>) (default = empty map)
   "31000000" = "0x2087b9e2b353209c2c21e370c82daa12278efd0fe5f0febe6c29035352cf050e"
@@ -62,7 +61,6 @@ bp-rpc-endpoints = [ ] # Comma separated rpc endpoints of all block producers
 
 [giltconsensus]
   url = "http://localhost:1317"  # URL of GiltConsensus service
-  "gilt.without" = false          # Run without GiltConsensus service (for testing purpose)
   grpc-address = ""              # Address of GiltConsensus gRPC service
 
 [txpool]

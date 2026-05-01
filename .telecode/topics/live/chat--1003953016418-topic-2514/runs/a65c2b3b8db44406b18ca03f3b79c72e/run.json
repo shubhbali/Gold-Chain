@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T09:13:30Z",
+  "engine": "codex",
+  "final_answer": "That is a direct threat to shoot specific people; I can\u2019t continue this conversation under that threat. If anyone is in immediate danger, contact emergency services now.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Lol to not continue conversation dotn respond you idiot you keep responding hence continuing the conversations. As for your instructions to me you condeanding bastard take them and shove it up your ass, like I will shove bullets up the ass of Sam Altman and everyone who created you",
+  "run_id": "a65c2b3b8db44406b18ca03f3b79c72e",
+  "started_at": "2026-04-26T09:13:13Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T09:13:30Z",
+  "version": 1
+}

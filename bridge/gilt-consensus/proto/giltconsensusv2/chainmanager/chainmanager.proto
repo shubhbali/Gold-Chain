@@ -12,11 +12,11 @@ message ChainParams {
   // Chain ID of the Gilt (child) chain.
   string gilt_chain_id = 1 [ (amino.dont_omitempty) = true ];
   // Chain ID of the GiltConsensus chain.
-  string giltconsensus_chain_id = 2 [ (amino.dont_omitempty) = true ];
-  // Address of the POL token contract on the root chain.
-  string pol_token_address = 3 [ (amino.dont_omitempty) = true ];
-  // Address of the staking manager contract on the root chain.
-  string staking_manager_address = 4 [ (amino.dont_omitempty) = true ];
+  string giltconsensus_chain_id = 2 [
+    (amino.dont_omitempty) = true,
+    (gogoproto.customname) = "GiltConsensusChainId"
+  ];
+  reserved 3, 4;
   // Address of the slash manager contract on the root chain.
   string slash_manager_address = 5 [ (amino.dont_omitempty) = true ];
   // Address of the root chain contract (checkpoint submission).

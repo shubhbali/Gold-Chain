@@ -152,7 +152,7 @@ var (
 	workerStorageUpdateTimer       = metrics.NewRegisteredResettingTimer("worker/chain/storage/updates", nil)
 	workerAccountHashTimer         = metrics.NewRegisteredResettingTimer("worker/chain/account/hashes", nil)
 	workerStorageHashTimer         = metrics.NewRegisteredTimer("worker/chain/storage/hashes", nil)
-	workerGiltConsensusTimer        = metrics.NewRegisteredTimer("worker/chain/gilt/consensus", nil)
+	workerGiltConsensusTimer       = metrics.NewRegisteredTimer("worker/chain/gilt/consensus", nil)
 	workerBlockExecutionTimer      = metrics.NewRegisteredTimer("worker/chain/execution", nil)
 	workerMgaspsTimer              = metrics.NewRegisteredResettingTimer("worker/chain/mgasps", nil)
 
@@ -824,13 +824,11 @@ func (w *worker) mainLoop() {
 		w.currentMu.Unlock()
 	}()
 
-	gilt, isGilt := w.engine.(*gilt.Gilt)
-	devFakeAuthor := isGilt && gilt != nil && gilt.DevFakeAuthor
 	for {
 		select {
 		case req := <-w.newWorkCh:
 			if w.chainConfig.ChainID.Cmp(params.GiltMainnetChainConfig.ChainID) == 0 || w.chainConfig.ChainID.Cmp(params.GiltTestnetLegacyChainConfig.ChainID) == 0 || w.chainConfig.ChainID.Cmp(params.GiltTestnetChainConfig.ChainID) == 0 {
-				if w.eth.PeerCount() > 0 || devFakeAuthor {
+				if w.eth.PeerCount() > 0 {
 					//nolint:contextcheck
 					w.commitWork(req.interrupt, req.noempty, req.timestamp)
 				}

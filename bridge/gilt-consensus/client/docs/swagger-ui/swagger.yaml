@@ -1606,14 +1606,6 @@ paths:
                       giltconsensus_chain_id:
                         type: string
                         description: Chain ID of the GiltConsensus chain.
-                      pol_token_address:
-                        type: string
-                        description: Address of the POL token contract on the root chain.
-                      staking_manager_address:
-                        type: string
-                        description: >-
-                          Address of the staking manager contract on the root
-                          chain.
                       slash_manager_address:
                         type: string
                         description: >-
@@ -3365,34 +3357,6 @@ paths:
           format: uint64
       tags:
         - Query
-  /stake/is-old-tx:
-    get:
-      summary: IsStakeTxOld checks if a stake transaction has already been processed.
-      operationId: IsStakeTxOld
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              is_old:
-                type: boolean
-                description: True if this stake transaction has already been processed.
-            description: >-
-              QueryStakeIsOldTxResponse is the response type for the
-              IsStakeTxOld query.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
               details:
                 type: array
                 items:
@@ -5991,12 +5955,6 @@ definitions:
       giltconsensus_chain_id:
         type: string
         description: Chain ID of the GiltConsensus chain.
-      pol_token_address:
-        type: string
-        description: Address of the POL token contract on the root chain.
-      staking_manager_address:
-        type: string
-        description: Address of the staking manager contract on the root chain.
       slash_manager_address:
         type: string
         description: Address of the slash manager contract on the root chain.
@@ -6029,12 +5987,6 @@ definitions:
           giltconsensus_chain_id:
             type: string
             description: Chain ID of the GiltConsensus chain.
-          pol_token_address:
-            type: string
-            description: Address of the POL token contract on the root chain.
-          staking_manager_address:
-            type: string
-            description: Address of the staking manager contract on the root chain.
           slash_manager_address:
             type: string
             description: Address of the slash manager contract on the root chain.
@@ -6079,12 +6031,6 @@ definitions:
               giltconsensus_chain_id:
                 type: string
                 description: Chain ID of the GiltConsensus chain.
-              pol_token_address:
-                type: string
-                description: Address of the POL token contract on the root chain.
-              staking_manager_address:
-                type: string
-                description: Address of the staking manager contract on the root chain.
               slash_manager_address:
                 type: string
                 description: Address of the slash manager contract on the root chain.
@@ -7382,13 +7328,6 @@ definitions:
           Validators are responsible for producing blocks on the Gilt chain and
           securing the network through Proof-of-Stake consensus.
     description: QuerySignerResponse is the response type for the GetSignerByAddress query.
-  giltconsensusv2.stake.QueryStakeIsOldTxResponse:
-    type: object
-    properties:
-      is_old:
-        type: boolean
-        description: True if this stake transaction has already been processed.
-    description: QueryStakeIsOldTxResponse is the response type for the IsStakeTxOld query.
   giltconsensusv2.stake.QueryTotalPowerResponse:
     type: object
     properties:

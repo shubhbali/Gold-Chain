@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"errors"
@@ -16,9 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/giltchain/gilt-consensus/contracts/erc20"
 	"github.com/giltchain/gilt-consensus/contracts/rootchain"
-	"github.com/giltchain/gilt-consensus/contracts/stakemanager"
 )
 
 const errUnableToCreateAuthObj = "unable to create auth object"
@@ -190,74 +187,6 @@ func (c *ContractCaller) SendCheckpoint(signedData []byte, sigs [][3]*big.Int, r
 	}
 
 	Logger.Info("Submitted new checkpoint to rootChain successfully", "txHash", tx.Hash().String())
-
-	return nil
-}
-
-// StakeFor stakes for a validator
-func (c *ContractCaller) StakeFor(val common.Address, stakeAmount *big.Int, feeAmount *big.Int, acceptDelegation bool, stakeManagerAddress common.Address, stakeManagerInstance *stakemanager.Stakemanager) error {
-	signerPubKey := GetPubKey()
-
-	prefix := make([]byte, 1)
-	prefix[0] = byte(0x04)
-
-	if !bytes.Equal(prefix, signerPubKey[0:1]) {
-		Logger.Error("Public key first byte mismatch", "expected", "0x04", "received", signerPubKey[0:1])
-		return errors.New("public key first byte mismatch")
-	}
-	// pack data based on method definition
-	data, err := c.StakeManagerABI.Pack("stakeFor", val, stakeAmount, feeAmount, acceptDelegation, signerPubKey.Bytes())
-	if err != nil {
-		Logger.Error("Unable to pack tx for stakeFor", "error", err)
-		return err
-	}
-
-	auth, err := GenerateAuthObj(GetMainClient(), stakeManagerAddress, data)
-	if err != nil {
-		Logger.Error(errUnableToCreateAuthObj, "error", err)
-		return err
-	}
-
-	// stake for stake manager
-	tx, err := stakeManagerInstance.StakeFor(
-		auth,
-		val,
-		stakeAmount,
-		feeAmount,
-		acceptDelegation,
-		signerPubKey,
-	)
-	if err != nil {
-		Logger.Error("Error while submitting stake", "error", err)
-		return err
-	}
-
-	Logger.Info("Submitted stakeFor tx successfully", "txHash", tx.Hash().String())
-
-	return nil
-}
-
-// ApproveTokens approves pol token for stake
-func (c *ContractCaller) ApproveTokens(amount *big.Int, stakeManager common.Address, tokenAddress common.Address, tokenInstance *erc20.Erc20) error {
-	data, err := c.PolTokenABI.Pack("approve", stakeManager, amount)
-	if err != nil {
-		Logger.Error("Unable to pack tx for approve", "error", err)
-		return err
-	}
-
-	auth, err := GenerateAuthObj(GetMainClient(), tokenAddress, data)
-	if err != nil {
-		Logger.Error(errUnableToCreateAuthObj, "error", err)
-		return err
-	}
-
-	tx, err := tokenInstance.Approve(auth, stakeManager, amount)
-	if err != nil {
-		Logger.Error("Error while approving tokens", "error", err)
-		return err
-	}
-
-	Logger.Info("Sent tokens approve tx successfully", "txHash", tx.Hash().String())
 
 	return nil
 }

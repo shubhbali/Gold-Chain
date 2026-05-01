@@ -70,7 +70,6 @@ func (s *KeeperTestSuite) TestHandleMsgEventRecord() {
 		)
 		require.NoError(t, err)
 
-		ck.ChainKeeper.(*testutil.MockChainKeeper).EXPECT().GetParams(gomock.Any()).Return(chainmanagertypes.DefaultParams(), nil).Times(1)
 		_, err = msgServer.HandleMsgEventRecord(ctx, &msg)
 		require.Error(t, err)
 		require.Equal(t, types.ErrEventRecordAlreadySynced, err)

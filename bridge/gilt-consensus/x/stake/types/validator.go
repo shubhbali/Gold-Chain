@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"math/big"
 	"sort"
 	"strings"
@@ -28,15 +27,19 @@ func NewValidator(
 	pubKey cryptotypes.PubKey,
 	signer string,
 ) (*Validator, error) {
-	return &Validator{
+	validator := &Validator{
 		ValId:       id,
 		StartEpoch:  startEpoch,
 		EndEpoch:    endEpoch,
 		Nonce:       nonce,
 		VotingPower: power,
 		PubKey:      pubKey.Bytes(),
-		Signer:      signer,
-	}, nil
+		Signer:      util.FormatAddress(signer),
+		Operator:    util.FormatAddress(signer),
+	}
+	validator.NormalizeLifecycleAccounting()
+
+	return validator, nil
 }
 
 // SortValidatorByAddress sorts a slice of validators by address.
@@ -60,15 +63,21 @@ func (v *Validator) IsCurrentValidator(ackCount uint64) bool {
 
 // ValidateBasic validates a validator struct
 func (v *Validator) ValidateBasic() error {
-	if bytes.Equal(v.PubKey, EmptyPubKey[:]) {
+	v.NormalizeLifecycleAccounting()
+
+	if v.ValId == 0 {
 		return ErrInvalidMsg
 	}
 
-	pk := secp256k1.PubKey{
-		Key: v.PubKey,
+	if err := validateMatchingSigner(v.PubKey, v.Signer); err != nil {
+		return err
 	}
 
-	if util.FormatAddress(v.Signer) != util.FormatAddress(pk.Address().String()) {
+	if err := validateAccountAddress(v.OperatorAddress()); err != nil {
+		return err
+	}
+
+	if v.SelfGiltStake.IsNegative() || v.DelegatedGiltStake.IsNegative() || v.DelegatedGoldStake.IsNegative() {
 		return ErrInvalidMsg
 	}
 
@@ -78,6 +87,7 @@ func (v *Validator) ValidateBasic() error {
 // Copy creates a new copy of the validator, so we can mutate accum
 func (v *Validator) Copy() *Validator {
 	vCopy := *v
+	vCopy.NormalizeLifecycleAccounting()
 	return &vCopy
 }
 
@@ -145,11 +155,6 @@ func (v *Validator) GetBondedTokens() math.Int {
 	return math.NewInt(v.VotingPower)
 }
 
-// GetOperator implements types.ValidatorI.
-func (v *Validator) GetOperator() string {
-	return v.Signer
-}
-
 // CmtConsPublicKey casts Validator.ConsensusPubkey to cmtprotocrypto.PubKey.
 func (v Validator) CmtConsPublicKey() (cmtprotocrypto.PublicKey, error) {
 	pk, err := v.ConsPubKey()
@@ -171,6 +176,49 @@ type MinimalVal struct {
 	ID          uint64         `json:"ID"`
 	VotingPower uint64         `json:"power"`
 	Signer      common.Address `json:"signer"`
+}
+
+// OperatorAddress returns the native account authorized to manage validator lifecycle.
+func (v *Validator) OperatorAddress() string {
+	if v.Operator == "" {
+		return util.FormatAddress(v.Signer)
+	}
+	return util.FormatAddress(v.Operator)
+}
+
+// NormalizeLifecycleAccounting standardizes validator addresses and accounting fields.
+func (v *Validator) NormalizeLifecycleAccounting() {
+	v.Signer = util.FormatAddress(v.Signer)
+	if v.Operator == "" {
+		v.Operator = v.Signer
+	} else {
+		v.Operator = util.FormatAddress(v.Operator)
+	}
+	v.NormalizeRewardAccounting()
+}
+
+// Normalize standardizes a native approval record before storage.
+func (a *ValidatorApproval) Normalize() {
+	a.Operator = util.FormatAddress(a.Operator)
+	a.MaxGiltStake = normalizeInt(a.MaxGiltStake)
+}
+
+// ValidateBasic validates a native validator approval record.
+func (a *ValidatorApproval) ValidateBasic() error {
+	a.Normalize()
+	if a.ValId == 0 {
+		return ErrInvalidMsg
+	}
+	if err := validateAccountAddress(a.Operator); err != nil {
+		return err
+	}
+	if err := validateSignerPubKeyBytes("validator approval signer public key", a.SignerPubKey); err != nil {
+		return err
+	}
+	if !a.MaxGiltStake.IsPositive() {
+		return ErrInvalidMsg
+	}
+	return nil
 }
 
 // The following functions are implemented to support cosmos validator interface

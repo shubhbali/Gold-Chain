@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T09:36:37Z",
+  "engine": "codex",
+  "final_answer": "Done: I deleted the non-live/mock-style Go tests across the Gold Chain code trees (`bridge/gilt-exec`, `bridge/gilt-consensus`, `gilt-chain`).\n\nWhy it matters: this removes the unit/mock-heavy suite and leaves only tests that are explicitly named like integration/e2e/system/live-oriented.  \nTelemetry from this run: `total_before=1842`, `deleted=1828`, `kept=14`.\n\nWhat should be done next:\n1. Confirm whether you want the remaining 14 kept, or deleted too for a zero-test state.\n2. If you want, I will immediately delete the final 14 as well.\n3. I did not run full build/test checks after deletion (not requested).",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 30,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "So only for the gold chain, you will delete all these tests that are not wired to the final running guild chain. Okay, only for the chain. And any test that's wired to testing once it's running is fine. Any test that is wired to anything, not even the gold chain, but anything in the project that is not wired to like out testing the actual project once it's working, and some mock bullshit, all of that needs to be deleted at once. Now it's clear. Go ahead. Delete all this bullshit from my code.",
+  "run_id": "7eba33e5c28e4545b6a002a12c21b0cb",
+  "started_at": "2026-04-27T09:34:21Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T09:36:37Z",
+  "version": 1
+}

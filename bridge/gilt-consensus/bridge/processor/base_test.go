@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/giltchain/gilt-consensus/bridge/util"
 	"github.com/giltchain/gilt-consensus/helper"
 	helperMocks "github.com/giltchain/gilt-consensus/helper/mocks"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
@@ -34,10 +34,6 @@ func TestBaseProcessor_String(t *testing.T) {
 		{
 			name:          "clerk processor",
 			processorName: "clerk",
-		},
-		{
-			name:          "stake processor",
-			processorName: "stake",
 		},
 		{
 			name:          "topup_fee processor",
@@ -67,7 +63,6 @@ func TestProcessorInterface_Methods(t *testing.T) {
 		var _ Processor = (*CheckpointProcessor)(nil)
 		var _ Processor = (*SpanProcessor)(nil)
 		var _ Processor = (*ClerkProcessor)(nil)
-		var _ Processor = (*StakingProcessor)(nil)
 		var _ Processor = (*FeeProcessor)(nil)
 	})
 }
@@ -228,14 +223,6 @@ func TestBaseProcessor_EventTypeRouting(t *testing.T) {
 		require.NotEmpty(t, string(eventType))
 	})
 
-	t.Run("validates staking event type", func(t *testing.T) {
-		t.Parallel()
-
-		eventType := util.StakingEvent
-		require.Equal(t, util.BridgeEvent("staking"), eventType)
-		require.NotEmpty(t, string(eventType))
-	})
-
 	t.Run("validates topup event type", func(t *testing.T) {
 		t.Parallel()
 
@@ -249,7 +236,6 @@ func TestBaseProcessor_EventTypeRouting(t *testing.T) {
 
 		eventTypes := []util.BridgeEvent{
 			util.ClerkEvent,
-			util.StakingEvent,
 			util.TopupEvent,
 		}
 
@@ -262,7 +248,7 @@ func TestBaseProcessor_EventTypeRouting(t *testing.T) {
 			seen[str] = true
 		}
 
-		require.Len(t, seen, 3)
+		require.Len(t, seen, 2)
 	})
 }
 
@@ -345,18 +331,6 @@ func TestBaseProcessor_APIEndpoints(t *testing.T) {
 		require.Equal(t, expected, actual)
 	})
 
-	t.Run("constructs staking is-old-tx endpoint", func(t *testing.T) {
-		t.Parallel()
-
-		baseURL := "http://localhost:1317"
-		txHash := "0x789abc"
-		logIndex := uint64(15)
-
-		expected := "http://localhost:1317/staking/is-old-tx?logindex=15&txhash=0x789abc"
-		actual := fmt.Sprintf("%s/staking/is-old-tx?logindex=%d&txhash=%s", baseURL, logIndex, txHash)
-
-		require.Equal(t, expected, actual)
-	})
 }
 
 // TestBaseProcessor_EventUniqueness tests event identification

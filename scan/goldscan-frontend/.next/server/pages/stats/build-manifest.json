@@ -1,0 +1,35 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/stats": [
+      "static/chunks/832599d570645496.js",
+      "static/chunks/729b12f18b0ceb59.js",
+      "static/chunks/7d596d2741a68dba.js",
+      "static/chunks/ff8aa0efc41789a8.js",
+      "static/chunks/95359a4d753c3865.js",
+      "static/chunks/4063f1d072d755c1.js",
+      "static/chunks/b68089fc8b40ab46.js",
+      "static/chunks/7aeada7b085c71a8.js",
+      "static/chunks/6d97c2972e70ac0f.js",
+      "static/chunks/d947e8ca2662efe8.js",
+      "static/chunks/0c33909a1508bc6d.js",
+      "static/chunks/c40848c36739416b.js",
+      "static/chunks/5d5ca08e1566a584.js",
+      "static/chunks/5669a57916cfb67a.js",
+      "static/chunks/c99cdbfacc103706.js",
+      "static/chunks/3f5fb17709da91c2.js",
+      "static/chunks/a742e4db5bf686e6.js",
+      "static/chunks/5808db25ad62a8cd.js",
+      "static/chunks/d8754e15de5fee78.js",
+      "static/chunks/2cc32db8d5bd311c.js",
+      "static/chunks/8ce60c20c18c6c11.js",
+      "static/chunks/ea8fa4e699fdd7f9.js",
+      "static/chunks/turbopack-bc055eee83875e03.js"
+    ]
+  },
+  "ampFirstPages": []
+}

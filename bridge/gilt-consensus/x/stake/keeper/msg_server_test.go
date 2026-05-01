@@ -1,279 +1,547 @@
 package keeper_test
 
 import (
-	"math/rand"
-	"time"
-
 	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/golang/mock/gomock"
 
 	util "github.com/giltchain/gilt-consensus/common/hex"
-	"github.com/giltchain/gilt-consensus/helper"
-	"github.com/giltchain/gilt-consensus/x/stake/testutil"
 	"github.com/giltchain/gilt-consensus/x/stake/types"
-	stakingtypes "github.com/giltchain/gilt-consensus/x/stake/types"
 )
 
-const (
-	TxHash1 = "0x000000000000000000000000000000000000000000000000000000000000dead"
-)
+var oneGilt = math.NewInt(1000000000000000000)
 
-func (s *KeeperTestSuite) TestMsgValidatorJoin() {
+const TxHash1 = "0x000000000000000000000000000000000000000000000000000000000000dead"
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalAndJoin() {
 	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
 
-	pk1 := ed25519.GenPrivKey().PubKey()
-	require.NotNil(pk1)
-
-	// Msg with the wrong public key
-	msgValJoin := stakingtypes.MsgValidatorJoin{
-		From:            pk1.Address().String(),
-		ValId:           uint64(1),
-		ActivationEpoch: uint64(1),
-		Amount:          math.NewInt(int64(1000000000000000000)),
-		SignerPubKey:    pk1.Bytes(),
-		TxHash:          common.FromHex(TxHash1),
-		LogIndex:        uint64(1),
-		BlockNumber:     uint64(0),
-		Nonce:           uint64(1),
-	}
-
-	require.Panics(func() {
-		_, _ = msgServer.ValidatorJoin(ctx, &msgValJoin)
-	})
-
-	pk1 = secp256k1.GenPrivKey().PubKey()
-	require.NotNil(pk1)
-
-	msgValJoin = stakingtypes.MsgValidatorJoin{
-		From:            pk1.Address().String(),
-		ValId:           uint64(1),
-		ActivationEpoch: uint64(1),
-		Amount:          math.NewInt(int64(1000000000000000000)),
-		SignerPubKey:    pk1.Bytes(),
-		TxHash:          common.FromHex(TxHash1),
-		LogIndex:        uint64(1),
-		BlockNumber:     uint64(0),
-		Nonce:           uint64(1),
-	}
-
-	_, err := msgServer.ValidatorJoin(ctx, &msgValJoin)
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+	approveMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 5, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
 	require.NoError(err)
 
-	_, err = keeper.GetValidatorFromValID(ctx, uint64(1))
-	require.NotNilf(err, "Should not add validator")
-
-	votingPower, err := helper.GetPowerFromAmount(msgValJoin.Amount.BigInt())
+	joinMsg, err := types.NewMsgValidatorJoin(operator, 5, 1, oneGilt, joinPubKey, 1)
 	require.NoError(err)
-
-	newValidator := types.Validator{
-		ValId:       msgValJoin.ValId,
-		StartEpoch:  msgValJoin.ActivationEpoch,
-		EndEpoch:    0,
-		Nonce:       msgValJoin.Nonce,
-		VotingPower: votingPower.Int64(),
-		PubKey:      msgValJoin.SignerPubKey,
-		Signer:      msgValJoin.From,
-		LastUpdated: "",
-	}
-
-	err = keeper.AddValidator(ctx, newValidator)
-	require.NoError(err)
-
-	_, err = msgServer.ValidatorJoin(ctx, &msgValJoin)
-	require.NotNil(err)
-}
-
-func (s *KeeperTestSuite) TestHandleMsgSignerUpdate() {
-	ctx, msgServer, keeper, require, checkpointKeeper := s.ctx, s.msgServer, s.stakeKeeper, s.Require(), s.checkpointKeeper
-
-	// pass 0 as time alive to generate the non-deactivated validators
-	testutil.LoadRandomValidatorSet(require, 4, keeper, ctx, false, 0, 0)
-	checkpointKeeper.EXPECT().GetAckCount(ctx).AnyTimes().Return(uint64(1), nil)
-
-	oldValSet, err := keeper.GetValidatorSet(ctx)
-	require.NoError(err)
-
-	oldSigner := oldValSet.Validators[0]
-	newSigner := testutil.GenRandomVals(1, 0, 10, 10, false, 1, 0)
-	newSigner[0].ValId = oldSigner.ValId
-	newSigner[0].VotingPower = oldSigner.VotingPower
-
-	msgSignerUpdateSameKey := stakingtypes.MsgSignerUpdate{
-		From:            oldSigner.Signer,
-		ValId:           oldSigner.ValId,
-		NewSignerPubKey: oldSigner.GetPubKey(),
-		TxHash:          common.FromHex(TxHash1),
-		LogIndex:        uint64(0),
-		BlockNumber:     uint64(0),
-		Nonce:           uint64(1),
-	}
-
-	result, err := msgServer.SignerUpdate(ctx, &msgSignerUpdateSameKey)
+	_, err = msgServer.ValidatorJoin(ctx, joinMsg)
 	require.Error(err)
-	require.Contains(err.Error(), "newSigner same as oldSigner")
+	require.Contains(err.Error(), "pending 2/3 vote finalization")
 
-	msgSignerUpdate := stakingtypes.MsgSignerUpdate{
-		From:            newSigner[0].Signer,
-		ValId:           uint64(1),
-		NewSignerPubKey: newSigner[0].GetPubKey(),
-		TxHash:          common.FromHex(TxHash1),
-		LogIndex:        uint64(0),
-		BlockNumber:     uint64(0),
-		Nonce:           uint64(1),
-	}
-
-	result, err = msgServer.SignerUpdate(ctx, &msgSignerUpdate)
-
-	require.NoErrorf(err, "expected validator update to be ok, got %v", result)
-
-	newValidators := keeper.GetCurrentValidators(ctx)
-	require.Equal(len(oldValSet.Validators), len(newValidators), "Number of current validators should be equal")
-
-	setUpdates := types.GetUpdatedValidators(&oldValSet, keeper.GetAllValidators(ctx), 5)
-
-	err = oldValSet.UpdateWithChangeSet(setUpdates)
+	approveMsg, err = types.NewMsgApproveValidator(validators[1].OperatorAddress(), 5, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
 	require.NoError(err)
 
-	err = keeper.UpdateValidatorSetInStore(ctx, oldValSet)
+	approveMsg, err = types.NewMsgApproveValidator(validators[2].OperatorAddress(), 5, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
 	require.NoError(err)
 
-	ValFrmID, err := keeper.GetValidatorFromValID(ctx, oldSigner.ValId)
-	require.Nilf(err, "signer should be found, got %v", err)
-	require.NotEqual(oldSigner.Signer, newSigner[0].Signer, "Should not update state")
-	require.Equalf(ValFrmID.VotingPower, oldSigner.VotingPower, "VotingPower of new signer %v should be equal to old signer %v", ValFrmID.VotingPower, oldSigner.VotingPower)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
+		Return(nil).
+		Times(1)
 
-	removedVal, err := keeper.GetValidatorInfo(ctx, oldSigner.Signer)
-	require.Empty(err)
-	require.NotEqual(removedVal.VotingPower, int64(0), "should not update state")
+	_, err = msgServer.ValidatorJoin(ctx, joinMsg)
+	require.NoError(err)
+
+	validator, err := keeper.GetValidatorFromValID(ctx, 5)
+	require.NoError(err)
+	require.Equal(util.FormatAddress(operator), validator.OperatorAddress())
+	require.Equal(oneGilt, validator.SelfGiltStake)
 }
 
-func (s *KeeperTestSuite) TestHandleMsgValidatorExit() {
-	ctx, msgServer, keeper, require, checkpointKeeper := s.ctx, s.msgServer, s.stakeKeeper, s.Require(), s.checkpointKeeper
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsDuplicateVote() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
 
-	// pass 0 as time alive to generate the non-deactivated validators
-	testutil.LoadRandomValidatorSet(require, 4, keeper, ctx, false, 0, 0)
-	checkpointKeeper.EXPECT().GetAckCount(ctx).AnyTimes().Return(uint64(1), nil)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
 
-	validators := keeper.GetCurrentValidators(ctx)
-	msgTxHash := common.FromHex(TxHash1)
+	approveMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 10, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
+	require.NoError(err)
 
-	validators[0].EndEpoch = 10
-	msgValidatorExit := stakingtypes.MsgValidatorExit{
-		From:              validators[0].Signer,
-		ValId:             uint64(1),
-		DeactivationEpoch: validators[0].EndEpoch,
-		TxHash:            msgTxHash,
-		LogIndex:          uint64(0),
-		BlockNumber:       uint64(0),
-		Nonce:             uint64(1),
-	}
-
-	_, err := msgServer.ValidatorExit(ctx, &msgValidatorExit)
-	require.NoError(err, "expected validator exit to be ok")
-
-	updatedValInfo, err := keeper.GetValidatorInfo(ctx, validators[0].Signer)
-	require.NoErrorf(err, "Unable to get validator info from val address, valAddr: %v error: %v ", validators[0].Signer, err)
-	require.NotEqual(updatedValInfo.EndEpoch, validators[0].EndEpoch, "should not update deactivation epoch")
-
-	_, err = keeper.GetValidatorFromValID(ctx, validators[0].ValId)
-	require.Nilf(err, "Validator should be present even after deactivation")
-
-	_, err = msgServer.ValidatorExit(ctx, &msgValidatorExit)
-	require.NoError(err, "should not fail, as state is not updated for validatorExit")
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "already voted")
 }
 
-func (s *KeeperTestSuite) TestHandleMsgStakeUpdate() {
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRequiresActiveValidatorVoter() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	s.seedNativeValidators(4)
+
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+	outsider := secp256k1.GenPrivKey().PubKey().Address().String()
+
+	approveMsg, err := types.NewMsgApproveValidator(outsider, 10, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, approveMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "only active validators can vote")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRequiresStrictlyMoreThanTwoThirdsPower() {
 	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(3)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
 
-	// pass 0 as time alive to generate the non-deactivated validators
-	testutil.LoadRandomValidatorSet(require, 4, keeper, ctx, false, 0, 0)
-	oldValSet, err := keeper.GetValidatorSet(ctx)
+	voteMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 15, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, voteMsg)
 	require.NoError(err)
 
-	oldVal := oldValSet.Validators[0]
+	voteMsg, err = types.NewMsgApproveValidator(validators[1].OperatorAddress(), 15, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, voteMsg)
+	require.NoError(err)
 
-	msgTxHash := common.FromHex(TxHash1)
-	newAmount := math.NewInt(2000000000000000000)
+	yesPower, totalPower, finalized, err := keeper.GetValidatorApprovalVoteStatus(ctx, 15)
+	require.NoError(err)
+	require.Equal(uint64(2), yesPower)
+	require.Equal(uint64(3), totalPower)
+	require.False(finalized)
 
-	msgStakeUpdate := stakingtypes.MsgStakeUpdate{
-		From:        oldVal.Signer,
-		ValId:       oldVal.ValId,
-		NewAmount:   newAmount,
-		TxHash:      msgTxHash,
-		LogIndex:    uint64(0),
-		BlockNumber: uint64(0),
-		Nonce:       uint64(1),
-	}
+	joinMsg, err := types.NewMsgValidatorJoin(operator, 15, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ValidatorJoin(ctx, joinMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "pending 2/3 vote finalization")
 
-	_, err = msgServer.StakeUpdate(ctx, &msgStakeUpdate)
-	require.NoError(err, "expected validator stake update to be ok")
+	voteMsg, err = types.NewMsgApproveValidator(validators[2].OperatorAddress(), 15, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, voteMsg)
+	require.NoError(err)
 
-	updatedVal, err := keeper.GetValidatorInfo(ctx, oldVal.Signer)
-	require.NoErrorf(err, "unable to fetch validator info %v", err)
-	require.NotEqualf(newAmount.Int64(), updatedVal.VotingPower, "Validator VotingPower should not be updated to %v", newAmount.Int64())
+	yesPower, totalPower, finalized, err = keeper.GetValidatorApprovalVoteStatus(ctx, 15)
+	require.NoError(err)
+	require.Equal(uint64(3), yesPower)
+	require.Equal(uint64(3), totalPower)
+	require.True(finalized)
+
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
+		Return(nil).
+		Times(1)
+
+	_, err = msgServer.ValidatorJoin(ctx, joinMsg)
+	require.NoError(err)
 }
 
-func (s *KeeperTestSuite) TestExitedValidatorJoiningAgain() {
-	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsNextNonceWhilePending() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(3)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	voteMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 16, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, voteMsg)
+	require.NoError(err)
 
-	pk1 := secp256k1.GenPrivKey().PubKey()
-	require.NotNil(pk1)
+	nextNonceMsg, err := types.NewMsgApproveValidator(validators[1].OperatorAddress(), 16, operator, 1, oneGilt, joinPubKey, 2)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, nextNonceMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "still pending and not finalized")
+}
 
-	addr := pk1.Address().String()
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsMismatchedPendingPayload() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(3)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
 
-	index := simulation.RandIntBetween(r, 0, 100)
-	logIndex := uint64(index)
+	voteMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 17, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, voteMsg)
+	require.NoError(err)
 
-	validatorId := uint64(1)
-	validator, err := types.NewValidator(
-		validatorId,
-		10,
-		15,
+	mismatchedMsg, err := types.NewMsgApproveValidator(validators[1].OperatorAddress(), 17, operator, 1, oneGilt.MulRaw(2), joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, mismatchedMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "payload does not match existing pending proposal")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalNewNonceForExistingValidatorRequiresOperatorProposal() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	target := validators[0]
+	nonOperatorVoter := validators[1]
+	msg, err := types.NewMsgApproveValidator(
+		nonOperatorVoter.OperatorAddress(),
+		target.ValId,
+		target.OperatorAddress(),
+		target.StartEpoch,
+		target.SelfGiltStake,
+		secp256k1.GenPrivKey().PubKey(),
 		1,
-		int64(0), // power
-		pk1,
-		addr,
 	)
-
 	require.NoError(err)
 
-	err = keeper.AddValidator(ctx, *validator)
-
-	require.NoError(err)
-
-	isCurrentValidator := validator.IsCurrentValidator(14)
-	require.False(isCurrentValidator)
-
-	totalValidators := keeper.GetAllValidators(ctx)
-	require.Equal(totalValidators[0].Signer, addr)
-	msgValJoin := stakingtypes.MsgValidatorJoin{
-		From:            addr,
-		ValId:           validatorId,
-		ActivationEpoch: uint64(1),
-		Amount:          math.NewInt(int64(100000)),
-		SignerPubKey:    pk1.Bytes(),
-		TxHash:          common.FromHex(TxHash1),
-		LogIndex:        logIndex,
-		BlockNumber:     uint64(0),
-		Nonce:           uint64(1),
-	}
-
-	_, err = msgServer.ValidatorJoin(ctx, &msgValJoin)
-	require.NotNil(err)
+	_, err = msgServer.ApproveValidator(ctx, msg)
+	require.Error(err)
+	require.Contains(err.Error(), "only the validator operator can propose updates for an existing validator")
 }
 
-func (s *KeeperTestSuite) TestValidatorPubKey() {
+func (s *KeeperTestSuite) TestNativeValidatorApprovalSnapshotVoterCanVoteAfterSetDrift() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(3)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+
+	firstVote, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 18, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, firstVote)
+	require.NoError(err)
+
+	currentSet, err := keeper.GetValidatorSet(ctx)
+	require.NoError(err)
+	drifted := make([]*types.Validator, 0, len(currentSet.Validators)-1)
+	for _, validator := range currentSet.Validators {
+		if validator.ValId == validators[1].ValId {
+			continue
+		}
+		drifted = append(drifted, validator.Copy())
+	}
+	s.overwriteNativeValidatorSet(drifted)
+
+	removedSnapshotVoterVote, err := types.NewMsgApproveValidator(validators[1].OperatorAddress(), 18, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, removedSnapshotVoterVote)
+	require.NoError(err)
+
+	yesPower, totalPower, finalized, err := keeper.GetValidatorApprovalVoteStatus(ctx, 18)
+	require.NoError(err)
+	require.Equal(uint64(2), yesPower)
+	require.Equal(uint64(3), totalPower)
+	require.False(finalized)
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsPostSnapshotValidator() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(3)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+
+	firstVote, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 19, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, firstVote)
+	require.NoError(err)
+
+	postSnapshotPubKey := secp256k1.GenPrivKey().PubKey()
+	postSnapshotValidator, err := types.NewValidator(90, 1, 0, 1, 1, postSnapshotPubKey, postSnapshotPubKey.Address().String())
+	require.NoError(err)
+	postSnapshotValidator.SelfGiltStake = oneGilt
+	postSnapshotValidator.NormalizeLifecycleAccounting()
+	require.NoError(keeper.AddValidator(ctx, *postSnapshotValidator))
+
+	currentSet, err := keeper.GetValidatorSet(ctx)
+	require.NoError(err)
+	drifted := make([]*types.Validator, 0, len(currentSet.Validators)+1)
+	for _, validator := range currentSet.Validators {
+		drifted = append(drifted, validator.Copy())
+	}
+	drifted = append(drifted, postSnapshotValidator.Copy())
+	s.overwriteNativeValidatorSet(drifted)
+
+	postSnapshotVote, err := types.NewMsgApproveValidator(postSnapshotValidator.OperatorAddress(), 19, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, postSnapshotVote)
+	require.Error(err)
+	require.Contains(err.Error(), "not eligible in this approval snapshot")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalFinalizesUnderValidatorSetDrift() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+	operator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+
+	firstVote, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 20, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, firstVote)
+	require.NoError(err)
+
+	postSnapshotPubKey := secp256k1.GenPrivKey().PubKey()
+	postSnapshotValidator, err := types.NewValidator(91, 1, 0, 1, 1, postSnapshotPubKey, postSnapshotPubKey.Address().String())
+	require.NoError(err)
+	postSnapshotValidator.SelfGiltStake = oneGilt
+	postSnapshotValidator.NormalizeLifecycleAccounting()
+	require.NoError(keeper.AddValidator(ctx, *postSnapshotValidator))
+
+	currentSet, err := keeper.GetValidatorSet(ctx)
+	require.NoError(err)
+	drifted := make([]*types.Validator, 0, len(currentSet.Validators))
+	for _, validator := range currentSet.Validators {
+		if validator.ValId == validators[1].ValId {
+			continue
+		}
+		drifted = append(drifted, validator.Copy())
+	}
+	drifted = append(drifted, postSnapshotValidator.Copy())
+	s.overwriteNativeValidatorSet(drifted)
+
+	secondVote, err := types.NewMsgApproveValidator(validators[1].OperatorAddress(), 20, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, secondVote)
+	require.NoError(err)
+
+	thirdVote, err := types.NewMsgApproveValidator(validators[2].OperatorAddress(), 20, operator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, thirdVote)
+	require.NoError(err)
+
+	yesPower, totalPower, finalized, err := keeper.GetValidatorApprovalVoteStatus(ctx, 20)
+	require.NoError(err)
+	require.Equal(uint64(3), yesPower)
+	require.Equal(uint64(4), totalPower)
+	require.True(finalized)
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsOperatorConflictWithActiveValidator() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	conflictingOperator := validators[2].OperatorAddress()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+	msg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 21, conflictingOperator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+
+	_, err = msgServer.ApproveValidator(ctx, msg)
+	require.Error(err)
+	require.Contains(err.Error(), "already controls active validator")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorApprovalRejectsOperatorConflictWithPendingProposal() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	targetOperator := secp256k1.GenPrivKey().PubKey().Address().String()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+
+	firstMsg, err := types.NewMsgApproveValidator(validators[0].OperatorAddress(), 22, targetOperator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, firstMsg)
+	require.NoError(err)
+
+	secondMsg, err := types.NewMsgApproveValidator(validators[1].OperatorAddress(), 23, targetOperator, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+	_, err = msgServer.ApproveValidator(ctx, secondMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "already has pending validator approval")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorJoinRejectsOperatorConflictWithActiveValidator() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	conflictingOperator := validators[1].OperatorAddress()
+	joinPubKey := secp256k1.GenPrivKey().PubKey()
+	require.NoError(keeper.SetValidatorApproval(ctx, types.ValidatorApproval{
+		ValId:           24,
+		Operator:        conflictingOperator,
+		ActivationEpoch: 1,
+		MaxGiltStake:    oneGilt,
+		SignerPubKey:    joinPubKey.Bytes(),
+		Nonce:           1,
+	}))
+
+	joinMsg, err := types.NewMsgValidatorJoin(conflictingOperator, 24, 1, oneGilt, joinPubKey, 1)
+	require.NoError(err)
+
+	_, err = msgServer.ValidatorJoin(ctx, joinMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "already controls active validator")
+}
+
+func (s *KeeperTestSuite) TestNativeStakeUpdateOnlyIncreasesApprovedGiltStake() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(6)
+	s.checkpointKeeper.EXPECT().GetAckCount(gomock.Any()).AnyTimes().Return(uint64(0), nil)
+
+	approval := types.ValidatorApproval{
+		ValId:           validators[0].ValId,
+		Operator:        validators[0].OperatorAddress(),
+		ActivationEpoch: validators[0].StartEpoch,
+		MaxGiltStake:    oneGilt.MulRaw(2),
+		SignerPubKey:    validators[0].PubKey,
+		Nonce:           1,
+	}
+	require.NoError(keeper.SetValidatorApproval(ctx, approval))
+
+	msg, err := types.NewMsgStakeUpdate(validators[0].OperatorAddress(), validators[0].ValId, oneGilt.MulRaw(2), 2)
+	require.NoError(err)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
+		Return(nil).
+		Times(1)
+
+	_, err = msgServer.StakeUpdate(ctx, msg)
+	require.NoError(err)
+
+	updated, err := keeper.GetValidatorFromValID(ctx, validators[0].ValId)
+	require.NoError(err)
+	require.Equal(oneGilt.MulRaw(2), updated.SelfGiltStake)
+	require.Equal(int64(2), updated.VotingPower)
+}
+
+func (s *KeeperTestSuite) TestNativeSignerUpdateUsesOperator() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	newSignerPubKey := secp256k1.GenPrivKey().PubKey()
+	require.NoError(keeper.SetValidatorApproval(ctx, types.ValidatorApproval{
+		ValId:           validators[0].ValId,
+		Operator:        validators[0].OperatorAddress(),
+		ActivationEpoch: validators[0].StartEpoch,
+		MaxGiltStake:    validators[0].SelfGiltStake,
+		SignerPubKey:    newSignerPubKey.Bytes(),
+		Nonce:           2,
+	}))
+	msg, err := types.NewMsgSignerUpdate(validators[0].OperatorAddress(), validators[0].ValId, newSignerPubKey.Bytes(), 2)
+	require.NoError(err)
+
+	_, err = msgServer.SignerUpdate(ctx, msg)
+	require.NoError(err)
+
+	updated, err := keeper.GetValidatorFromValID(ctx, validators[0].ValId)
+	require.NoError(err)
+	require.Equal(util.FormatAddress(newSignerPubKey.Address().String()), updated.Signer)
+
+	old, err := keeper.GetValidatorInfo(ctx, validators[0].Signer)
+	require.NoError(err)
+	require.Equal(int64(0), old.VotingPower)
+	require.True(old.SelfGiltStake.IsZero())
+}
+
+func (s *KeeperTestSuite) TestNativeSignerUpdateRequiresApprovedSigner() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
+
+	newSignerPubKey := secp256k1.GenPrivKey().PubKey()
+	msg, err := types.NewMsgSignerUpdate(validators[0].OperatorAddress(), validators[0].ValId, newSignerPubKey.Bytes(), 2)
+	require.NoError(err)
+
+	_, err = msgServer.SignerUpdate(ctx, msg)
+	require.Error(err)
+	require.Contains(err.Error(), "validator signer approval is missing")
+}
+
+func (s *KeeperTestSuite) TestNativeStakeUpdateAfterSignerUpdateRespectsPowerCap() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+	s.checkpointKeeper.EXPECT().GetAckCount(gomock.Any()).AnyTimes().Return(uint64(0), nil)
+
+	newSignerPubKey := secp256k1.GenPrivKey().PubKey()
+	require.NoError(keeper.SetValidatorApproval(ctx, types.ValidatorApproval{
+		ValId:           validators[0].ValId,
+		Operator:        validators[0].OperatorAddress(),
+		ActivationEpoch: validators[0].StartEpoch,
+		MaxGiltStake:    oneGilt.MulRaw(2),
+		SignerPubKey:    newSignerPubKey.Bytes(),
+		Nonce:           2,
+	}))
+	signerMsg, err := types.NewMsgSignerUpdate(validators[0].OperatorAddress(), validators[0].ValId, newSignerPubKey.Bytes(), 2)
+	require.NoError(err)
+	_, err = msgServer.SignerUpdate(ctx, signerMsg)
+	require.NoError(err)
+
+	stakeMsg, err := types.NewMsgStakeUpdate(validators[0].OperatorAddress(), validators[0].ValId, oneGilt.MulRaw(2), 3)
+	require.NoError(err)
+	_, err = msgServer.StakeUpdate(ctx, stakeMsg)
+	require.Error(err)
+	require.Contains(err.Error(), "exceeds max voting power cap")
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorExitRespectsMinimumActiveSet() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(5)
+	s.checkpointKeeper.EXPECT().GetAckCount(gomock.Any()).AnyTimes().Return(uint64(0), nil)
+
+	msg, err := types.NewMsgValidatorExit(validators[0].OperatorAddress(), validators[0].ValId, 2)
+	require.NoError(err)
+
+	_, err = msgServer.ValidatorExit(ctx, msg)
+	require.NoError(err)
+
+	updated, err := keeper.GetValidatorFromValID(ctx, validators[0].ValId)
+	require.NoError(err)
+	require.Equal(int64(0), updated.VotingPower)
+	require.Equal(uint64(3), updated.EndEpoch)
+}
+
+func (s *KeeperTestSuite) TestNativeValidatorExitRejectsDroppingBelowMinimumActiveSet() {
+	ctx, msgServer, require := s.ctx, s.msgServer, s.Require()
+	validators := s.seedNativeValidators(4)
+	s.checkpointKeeper.EXPECT().GetAckCount(gomock.Any()).AnyTimes().Return(uint64(0), nil)
+
+	msg, err := types.NewMsgValidatorExit(validators[0].OperatorAddress(), validators[0].ValId, 2)
+	require.NoError(err)
+
+	_, err = msgServer.ValidatorExit(ctx, msg)
+	require.Error(err)
+	require.Contains(err.Error(), "below minimum")
+}
+
+func (s *KeeperTestSuite) TestWithdrawValidatorStakeAfterUnbonding() {
+	ctx, msgServer, keeper, require := s.ctx, s.msgServer, s.stakeKeeper, s.Require()
+	validators := s.seedNativeValidators(4)
+	validators[0].VotingPower = 0
+	validators[0].EndEpoch = 2
+	require.NoError(keeper.AddValidator(ctx, validators[0]))
+	s.checkpointKeeper.EXPECT().GetAckCount(gomock.Any()).AnyTimes().Return(uint64(3), nil)
+
+	msg := types.NewMsgWithdrawValidatorStake(validators[0].OperatorAddress(), validators[0].ValId)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromModuleToAccount(gomock.Any(), types.ModuleName, gomock.Any(), gomock.Any()).
+		Return(nil).
+		Times(1)
+
+	_, err := msgServer.WithdrawValidatorStake(ctx, msg)
+	require.NoError(err)
+
+	updated, err := keeper.GetValidatorFromValID(ctx, validators[0].ValId)
+	require.NoError(err)
+	require.True(updated.SelfGiltStake.IsZero())
+}
+
+func (s *KeeperTestSuite) seedNativeValidators(count int) []types.Validator {
 	ctx, keeper, require := s.ctx, s.stakeKeeper, s.Require()
-	testutil.LoadRandomValidatorSet(require, 1, keeper, ctx, false, 0, 0)
-	valPubKey := keeper.GetAllValidators(ctx)[0].GetPubKey()
-	valAddr := keeper.GetAllValidators(ctx)[0].Signer
-	modPubKey := secp256k1.PubKey{Key: valPubKey}
-	require.Equal(valPubKey, modPubKey.Bytes())
-	genAddress := util.FormatAddress(modPubKey.Address().String())
-	require.Equal(valAddr, genAddress)
+	validators := make([]types.Validator, 0, count)
+	setValidators := make([]*types.Validator, 0, count)
+
+	for i := 0; i < count; i++ {
+		pubKey := secp256k1.GenPrivKey().PubKey()
+		validator, err := types.NewValidator(uint64(i+1), 1, 0, 1, 1, pubKey, pubKey.Address().String())
+		require.NoError(err)
+		validator.SelfGiltStake = oneGilt
+		validator.NormalizeLifecycleAccounting()
+
+		require.NoError(keeper.AddValidator(ctx, *validator))
+		validators = append(validators, *validator)
+		setValidators = append(setValidators, validator)
+	}
+
+	validatorSet := types.NewValidatorSet(setValidators)
+	require.NoError(keeper.UpdateValidatorSetInStore(ctx, *validatorSet))
+	require.NoError(keeper.UpdatePreviousBlockValidatorSetInStore(ctx, *validatorSet))
+	require.NoError(keeper.UpdatePenultimateBlockValidatorSetInStore(ctx, *validatorSet))
+	return validators
+}
+
+func (s *KeeperTestSuite) overwriteNativeValidatorSet(validators []*types.Validator) {
+	ctx, keeper, require := s.ctx, s.stakeKeeper, s.Require()
+	validatorSet := types.NewValidatorSet(validators)
+	require.NoError(keeper.UpdateValidatorSetInStore(ctx, *validatorSet))
+	require.NoError(keeper.UpdatePreviousBlockValidatorSetInStore(ctx, *validatorSet))
+	require.NoError(keeper.UpdatePenultimateBlockValidatorSetInStore(ctx, *validatorSet))
 }

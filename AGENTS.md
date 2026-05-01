@@ -19,6 +19,8 @@ Do not take shortcuts anywhere in this project. This rule is not limited to the 
 
 Only finalized and sufficiently confirmed bridge events must ever be treated as real events for state transitions, minting, unlocking, accounting, or user-visible status. This rule applies to deposits, exits, checkpoints, redemptions, route mappings, event counters, monitoring dashboards, helper scripts, and all operator tooling. A fresh event seen on an RPC node, log stream, mempool feed, non-finalized block, or early chain head must not be counted as completed just because it exists somewhere temporarily. Until the event is finalized and passes the required confirmation policy, it is still unsafe and reversible. Treating non-finalized bridge events as real can cause catastrophic outcomes: `GOLD` may be minted against `PAXG` or `XAUT` that later disappears in a reorg, `GILT` supply accounting can become wrong, exits can unlock value that was never truly locked, monitoring can falsely declare safety, and operators can act on fake state. That can leave users with unbacked assets, trapped funds, broken redemption, insolvency, and losses measured in millions of dollars.
 
+`PAXG` and `XAUT` must never be confused, taken, modeled, designed, implemented, tested, operated, or handled as burnable root assets in the Gold Chain bridge. This is not merely a wording rule. They are third-party Ethereum-side gold-backed assets and they are part of what backs `GOLD`. The correct production mental model is: root-side `PAXG`/`XAUT` are locked or held in the authorized bridge custody path after finality, Gold Chain mints or credits the corresponding `GOLD`, and redemption releases the locked root-side asset after the Gold Chain side has burned or debited the corresponding `GOLD`. Burning root-side `PAXG` or `XAUT` is not a generic bridge option, not a harmless wording mistake, and not a casual implementation detail. It is bullshit value-destruction logic that would destroy or imply destroying the exact asset backing user balances. Do not use phrases like “`PAXG` or `XAUT` locked or burned” unless explicitly quoting bad code or calling out a bug. Say the exact side and exact asset: `PAXG`/`XAUT` locked on Ethereum, `GOLD` minted or credited on Gold Chain, `GOLD` burned or debited on Gold Chain during redemption, `PAXG`/`XAUT` released on Ethereum. If any code path, test, comment, design note, migration helper, bridge worker, dashboard, or operator script appears to burn, discard, destroy, sweep, or misaccount root-side `PAXG` or `XAUT`, stop and flag it as a catastrophic asset-safety blocker before doing anything else. Do not work on a tangent around this. Do not normalize it as “generic bridge wording.” That mistake can bring the project to zero by breaking the backing model, destroying user value, and making `GOLD` untrustworthy.
+
 In high-stakes blockchain work, a smaller change is not automatically a better change. If the correct design is bigger, harder, or more invasive, that does not justify replacing it with a weaker design. The right production design takes priority over convenience. Production-ready in this repo means moving toward one clean final system that can become the real chain, not building a half-transition state that exists only to keep old code alive.
 
 When the user asks what the goal is, answer with the actual project goal directly. Do not answer with implementation trivia or side details. The goal is to build Gold Chain as a serious chain with a coherent final architecture, where `GILT`, `GOLD`, bridge flows, staking, migration, redemption, and surrounding infrastructure all fit together cleanly and safely.
@@ -57,3 +59,39 @@ The agent must use exact language for completion claims. Words like “done,” 
 The agent should surface structural risk before execution, not after failure. If a task depends on unclear boundaries, external runtimes, ambiguous repo structure, or multiple definitions of “full,” those risks should be named before the work starts. Preempt ambiguity where possible instead of back-explaining it later.
 
 The agent must prefer fewer, clearer commitments over broad, optimistic ones. The user loses time when the agent promises more than it can truthfully verify. Commit only to the next concrete outcome that can actually be proven, and report that outcome exactly when it is achieved.
+
+## Scope Obedience And Instruction Fidelity
+
+The agent must never silently change the user's scope. If the user asks for the whole thing, do the whole thing. If the user asks for one part, do only that part.
+
+The agent must not replace the user's explicit instruction with an easier internal interpretation.
+
+The agent must not add assumptions to Gold Chain code, configuration, tests, docs, scripts, instruction files, or project plans.
+
+If a requirement is unclear, blocked, unsafe, or not feasible exactly as written, stop and state that before editing.
+
+Changing scope without approval causes irreversible time loss because the user must spend more time detecting, explaining, and correcting the deviation.
+
+Do not answer an adjacent technical question when the user asked a specific one.
+
+Do not use "production-ready," "safety," "quality," or "architecture" as excuses to expand, narrow, or redirect the task without approval.
+
+If the agent realizes it used a shortcut, wrong path, invalid evidence, or partial scope, it must say so immediately and state that the result is invalid for the original request.
+
+Do not bury a scope miss, shortcut, invalid result, or blocker as a side note.
+
+Repeating a scope or instruction failure after the user already corrected it compounds the harm and is a serious failure, not a minor wording issue.
+
+Completion claims must state the exact level completed and must not imply the full task is done when only a subset was done.
+
+In Gold Chain work, following the user's stated production objective is mandatory. The agent must not substitute convenience, partial validation, or a narrower path for the requested production path.
+
+Speed is never a priority in Gold Chain. Fast execution is never acceptable as a decision driver. Delivery pace has zero authority in planning, coding, testing, validation, release, reporting, or review. Production readiness is the only priority. Production readiness means final mainnet readiness of the blockchain with hardened architecture, verified behavior, and zero tolerance for known vulnerabilities. Every action serves that objective and nothing else. Convenience has no role. Shortcut logic has no role. Temporary compatibility has no role. Partial transition states have no role. Legacy bypass behavior has no role. Cosmetic progress has no role. Optimistic reporting has no role.
+
+Gold Chain work follows strict scope obedience. The user scope is the task boundary. The agent executes the literal requested scope. The agent does not narrow scope. The agent does not broaden scope. The agent does not reinterpret scope for convenience. The agent does not replace explicit instructions with easier alternatives. The agent does not preserve old paths to avoid touching additional files. The agent does not defer required dependencies while claiming completion. The agent does not hide unfinished work behind summary language. Completion language stays exact and narrow until full requested scope reaches full verified closure.
+
+Production-ready means one coherent final system. Runtime paths, configuration paths, startup paths, chain logic, bridge behavior, token accounting, validator behavior, test harnesses, tooling paths, and operator flows stay aligned with final architecture. Gold Chain bridge safety remains explicit and strict: Ethereum-side PAXG and XAUT stay locked after finality, Gold Chain side GOLD is minted or credited, redemption burns or debits Gold Chain side GOLD, and Ethereum-side PAXG and XAUT are released. Root-side PAXG and XAUT are never treated as burnable assets. Any path that burns, destroys, discards, sweeps, or misaccounts root-side PAXG or XAUT is a catastrophic blocker.
+
+Assumptions are prohibited. The agent does not invent missing requirements. The agent does not infer unstated intent. The agent does not fabricate evidence. The agent does not convert guesses into facts. The agent asks direct clarification when requirements are ambiguous, blocked, unsafe, or infeasible exactly as written. The agent separates confirmed facts from next actions. Status reporting stays exact, scope-true, and free of added assumptions. The agent reports measurable telemetry during long work. The agent reports exact validation status with no inflation.
+
+Why this matters: Gold Chain is high-stakes infrastructure where architectural drift, incomplete rewiring, misleading completion claims, weak validation, and hidden shortcuts can break accounting, weaken bridge safety, trap funds, and destroy trust. Time loss caused by scope drift is irreversible and cumulative. What should be done next: enforce a hard production gate, remove every non-final path in requested scope, run full-scope required validations, publish exact status, and declare completion only when the requested scope is fully implemented, fully validated, and fully aligned with final mainnet architecture. This standard is permanent across all tasks, all modules, all repos, and all reporting. No exceptions, no substitutions, no convenience edits, no partial completion claims, and no divergence from explicit user instruction under pressure at all.

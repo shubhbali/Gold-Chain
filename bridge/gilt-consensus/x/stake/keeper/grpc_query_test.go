@@ -1,13 +1,7 @@
 package keeper_test
 
 import (
-	"math/big"
-	"math/rand"
-	"time"
-
-	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/ethereum/go-ethereum/common"
-	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/golang/mock/gomock"
 
 	"github.com/giltchain/gilt-consensus/x/stake/testutil"
@@ -110,38 +104,6 @@ func (s *KeeperTestSuite) TestHandleQueryValidatorStatus() {
 	res, err = queryClient.GetValidatorStatusByAddress(ctx, req)
 	require.NotNil(err)
 	require.Nil(res)
-}
-
-func (s *KeeperTestSuite) TestHandleQueryStakingSequence() {
-	ctx, keeper, queryClient, require, contractCaller := s.ctx, s.stakeKeeper, s.queryClient, s.Require(), s.contractCaller
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	chainParams, err := s.cmKeeper.GetParams(ctx)
-	require.NoError(err)
-
-	txReceipt := &ethTypes.Receipt{BlockNumber: big.NewInt(10)}
-
-	logIndex := uint64(simulation.RandIntBetween(r, 0, 100))
-
-	req := &types.QueryStakeIsOldTxRequest{
-		TxHash:   TxHash1,
-		LogIndex: logIndex,
-	}
-
-	sequence := new(big.Int).Mul(txReceipt.BlockNumber, big.NewInt(types.DefaultLogIndexUnit))
-	sequence.Add(sequence, new(big.Int).SetUint64(logIndex))
-
-	err = keeper.SetStakingSequence(ctx, sequence.String())
-	require.NoError(err)
-
-	contractCaller.On("GetConfirmedTxReceipt", common.BytesToHash(common.FromHex(TxHash1)), chainParams.MainChainTxConfirmations).Return(txReceipt, nil)
-
-	res, err := queryClient.IsStakeTxOld(ctx, req)
-
-	require.NoError(err)
-	require.NotNil(res)
-	require.True(res.IsOld)
 }
 
 func (s *KeeperTestSuite) TestHandleCurrentQueryProposer() {

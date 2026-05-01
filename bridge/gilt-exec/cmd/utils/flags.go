@@ -2452,15 +2452,11 @@ func MakeChain(ctx *cli.Context, stack *node.Node, readonly bool) (*core.BlockCh
 	}
 
 	configs := &ethconfig.Config{
-		Genesis:             gspec,
+		Genesis:                  gspec,
 		GiltConsensusURL:         ctx.String(GiltConsensusURLFlag.Name),
 		GiltConsensusTimeout:     ctx.Duration(GiltConsensusTimeoutFlag.Name),
-		WithoutGiltConsensus:     ctx.Bool(WithoutGiltConsensusFlag.Name),
 		GiltConsensusgRPCAddress: ctx.String(GiltConsensusgRPCAddressFlag.Name),
 		GiltConsensusWSAddress:   ctx.String(GiltConsensusWSAddressFlag.Name),
-		RunGiltConsensus:         ctx.Bool(RunGiltConsensusArgsFlag.Name),
-		RunGiltConsensusArgs:     ctx.String(RunGiltConsensusArgsFlag.Name),
-		UseGiltConsensusApp:      ctx.Bool(UseGiltConsensusAppFlag.Name),
 	}
 	_ = CreateGiltEthereum(configs)
 	engine, err := ethconfig.CreateConsensusEngine(config, configs, chainDb, nil)

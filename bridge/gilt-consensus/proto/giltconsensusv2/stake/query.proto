@@ -38,11 +38,6 @@ service Query {
     option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/stake/total-power";
   }
-  // IsStakeTxOld checks if a stake transaction has already been processed.
-  rpc IsStakeTxOld(QueryStakeIsOldTxRequest)
-      returns (QueryStakeIsOldTxResponse) {
-    option (google.api.http).get = "/stake/is-old-tx";
-  }
   // GetCurrentProposer queries the validator currently designated as proposer.
   rpc GetCurrentProposer(QueryCurrentProposerRequest)
       returns (QueryCurrentProposerResponse) {
@@ -115,20 +110,6 @@ message QueryValidatorStatusRequest {
 // GetValidatorStatusByAddress query.
 message QueryValidatorStatusResponse {
   // True if the validator is no longer active (exited or not yet joined).
-  bool is_old = 1 [ (amino.dont_omitempty) = true ];
-}
-
-// QueryStakeIsOldTxRequest is the request type for the IsStakeTxOld query.
-message QueryStakeIsOldTxRequest {
-  // Transaction hash on the root chain.
-  string tx_hash = 1 [ (amino.dont_omitempty) = true ];
-  // Log index within the transaction.
-  uint64 log_index = 2 [ (amino.dont_omitempty) = true ];
-}
-
-// QueryStakeIsOldTxResponse is the response type for the IsStakeTxOld query.
-message QueryStakeIsOldTxResponse {
-  // True if this stake transaction has already been processed.
   bool is_old = 1 [ (amino.dont_omitempty) = true ];
 }
 

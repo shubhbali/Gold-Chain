@@ -18,6 +18,7 @@ import (
 // AddValidator adds validator indexed with address
 func (k *Keeper) AddValidator(ctx context.Context, validator types.Validator) error {
 	k.PanicIfSetupIsIncomplete()
+	validator.NormalizeLifecycleAccounting()
 	// store validator with address prefixed with the validator key as index
 	err := k.validators.Set(ctx, util.FormatAddress(validator.Signer), validator)
 	if err != nil {
@@ -61,6 +62,7 @@ func (k *Keeper) GetValidatorInfo(ctx context.Context, address string) (validato
 	if err != nil {
 		return validator, fmt.Errorf("error while fetching the validator from the store %w", err)
 	}
+	validator.NormalizeRewardAccounting()
 
 	return validator, nil
 }
@@ -183,6 +185,7 @@ func (k *Keeper) IterateValidatorsAndApplyFn(ctx context.Context, f func(validat
 			k.Logger(ctx).Error("Error in getting validator from iterator", "err", err)
 			return
 		}
+		validator.NormalizeRewardAccounting()
 
 		// call function and return if required
 		if err = f(validator); err != nil {
@@ -228,6 +231,7 @@ func (k *Keeper) UpdateSigner(ctx context.Context, newSigner string, newPubKey [
 // UpdateValidatorSetInStore adds validator set to store
 func (k *Keeper) UpdateValidatorSetInStore(ctx context.Context, newValidatorSet types.ValidatorSet) error {
 	k.PanicIfSetupIsIncomplete()
+	newValidatorSet.NormalizeRewardAccounting()
 	// set validator set with CurrentValidatorSetKey as the key in store
 	err := k.validatorSet.Set(ctx, types.CurrentValidatorSetKey, newValidatorSet)
 	if err != nil {
@@ -247,6 +251,7 @@ func (k *Keeper) GetValidatorSet(ctx context.Context) (validatorSet types.Valida
 		k.Logger(ctx).Error("Error in fetching current validator set from store", "error", err)
 		return validatorSet, err
 	}
+	validatorSet.NormalizeRewardAccounting()
 
 	// return validator set
 	return validatorSet, nil
@@ -255,6 +260,7 @@ func (k *Keeper) GetValidatorSet(ctx context.Context) (validatorSet types.Valida
 // UpdatePreviousBlockValidatorSetInStore adds the previous block's validator set to store
 func (k *Keeper) UpdatePreviousBlockValidatorSetInStore(ctx context.Context, newValidatorSet types.ValidatorSet) error {
 	k.PanicIfSetupIsIncomplete()
+	newValidatorSet.NormalizeRewardAccounting()
 	// set validator set with CurrentValidatorSetKey as the key in store
 	err := k.validatorSet.Set(ctx, types.PreviousBlockValidatorSetKey, newValidatorSet)
 	if err != nil {
@@ -274,6 +280,7 @@ func (k *Keeper) GetPreviousBlockValidatorSet(ctx context.Context) (validatorSet
 		k.Logger(ctx).Error("Error in fetching the previous block's validator set from store", "error", err)
 		return validatorSet, err
 	}
+	validatorSet.NormalizeRewardAccounting()
 
 	// return validator set
 	return validatorSet, nil
@@ -282,6 +289,7 @@ func (k *Keeper) GetPreviousBlockValidatorSet(ctx context.Context) (validatorSet
 // UpdatePenultimateBlockValidatorSetInStore adds the validator set from 2 blocks ago to store
 func (k *Keeper) UpdatePenultimateBlockValidatorSetInStore(ctx context.Context, newValidatorSet types.ValidatorSet) error {
 	k.PanicIfSetupIsIncomplete()
+	newValidatorSet.NormalizeRewardAccounting()
 	// set validator set with PenultimateBlockValidatorSetKey as the key in store
 	err := k.validatorSet.Set(ctx, types.PenultimateBlockValidatorSetKey, newValidatorSet)
 	if err != nil {
@@ -301,6 +309,7 @@ func (k *Keeper) GetPenultimateBlockValidatorSet(ctx context.Context) (validator
 		k.Logger(ctx).Error("Error in fetching the validator set from 2 blocks ago from store", "error", err)
 		return validatorSet, err
 	}
+	validatorSet.NormalizeRewardAccounting()
 
 	// return validator set
 	return validatorSet, nil

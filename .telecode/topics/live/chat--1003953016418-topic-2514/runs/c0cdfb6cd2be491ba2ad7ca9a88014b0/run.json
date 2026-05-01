@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T20:24:37Z",
+  "engine": "codex",
+  "final_answer": "I keep failing because I keep giving high-level summaries instead of the exact execution trace you asked for per subpoint.\n\nWhy it matters: that format mismatch hides the real mechanics you want (who sends what, exact validation checks, exact state writes, exact reject paths, and exact authority limits), so it wastes your time.\n\nWhat should be done next: I will switch to one strict format only for each point: `Trigger -> Preconditions -> Validation -> State Change -> Reject Conditions -> Who can/cannot do it`, one subpoint at a time, no abstraction.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "youu have just give me a fucking paragraph form of the saeme, stop refining the answer and talk to me, why od you keep failing in this, what isnt clear to you?",
+  "run_id": "c0cdfb6cd2be491ba2ad7ca9a88014b0",
+  "started_at": "2026-04-27T20:24:07Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T20:24:37Z",
+  "version": 1
+}

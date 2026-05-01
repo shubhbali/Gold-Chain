@@ -59,7 +59,7 @@ func TestValidateBasic(t *testing.T) {
 		msg     string
 	}{
 		{
-			in:      Validator{StartEpoch: 1, EndEpoch: 5, Nonce: 0, PubKey: pks[0], Signer: accounts[0].PubKey.Address().String()},
+			in:      Validator{ValId: 1, StartEpoch: 1, EndEpoch: 5, Nonce: 0, PubKey: pks[0], Signer: accounts[0].PubKey.Address().String()},
 			expFail: false,
 			msg:     "Valid basic validator test",
 		},
@@ -71,7 +71,6 @@ func TestValidateBasic(t *testing.T) {
 	}
 
 	for _, c := range tc {
-		fmt.Println(c.in.Signer)
 		out := c.in.ValidateBasic()
 		if c.expFail {
 			require.NotNil(t, out)

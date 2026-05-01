@@ -4,6 +4,7 @@ package gilt
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
@@ -26,6 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/gilt"
 	"github.com/ethereum/go-ethereum/consensus/gilt/clerk" //nolint:typecheck
+	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/checkpoint"
+	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/milestone"
 	giltSpan "github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/span"
 	"github.com/ethereum/go-ethereum/consensus/gilt/valset"
 	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
@@ -51,8 +54,8 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 	"github.com/ethereum/go-ethereum/triedb"
 
-	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 )
 
 var (
@@ -140,7 +143,7 @@ func buildEthereumInstance(t *testing.T, db ethdb.Database, updateGenesis ...fun
 
 	ethConf := &eth.Config{
 		Genesis:     gen,
-		GiltLogs:     true,
+		GiltLogs:    true,
 		StateScheme: "hash",
 	}
 	ethConf.Genesis.MustCommit(db, triedb.NewDatabase(db, triedb.HashDefaults))
@@ -459,7 +462,7 @@ func createMockSpan(address common.Address, chainId string) giltTypes.Span {
 		EndBlock:          255,
 		ValidatorSet:      giltSpan.ConvertGiltValSetToGiltConsensusValSet(&validatorSet),
 		SelectedProducers: giltSpan.ConvertGiltValidatorsToGiltConsensusValidators([]*valset.Validator{&validator}),
-		GiltChainId:        chainId,
+		GiltChainId:       chainId,
 	}
 
 	return span0
@@ -480,6 +483,71 @@ func createMockGiltConsensus(ctrl *gomock.Controller, span0, span1 *giltTypes.Sp
 
 	return h
 }
+
+type staticGiltConsensusClient struct {
+	span0 *giltTypes.Span
+	span1 *giltTypes.Span
+}
+
+func newStaticGiltConsensusClient(signer common.Address, chainID *big.Int) gilt.IGiltConsensusClient {
+	chainIDStr := ""
+	if chainID != nil {
+		chainIDStr = chainID.String()
+	}
+
+	span := createMockSpan(signer, chainIDStr)
+	span0 := span
+	span1 := span
+	span1.Id = 1
+	span1.StartBlock = 256
+	span1.EndBlock = 511
+
+	return &staticGiltConsensusClient{
+		span0: &span0,
+		span1: &span1,
+	}
+}
+
+func (s *staticGiltConsensusClient) StateSyncEvents(context.Context, uint64, int64) ([]*clerk.EventRecordWithTime, error) {
+	return []*clerk.EventRecordWithTime{}, nil
+}
+
+func (s *staticGiltConsensusClient) GetSpan(_ context.Context, spanID uint64) (*giltTypes.Span, error) {
+	switch spanID {
+	case 0:
+		return s.span0, nil
+	case 1:
+		return s.span1, nil
+	default:
+		return s.span1, nil
+	}
+}
+
+func (s *staticGiltConsensusClient) GetLatestSpan(context.Context) (*giltTypes.Span, error) {
+	return s.span1, nil
+}
+
+func (s *staticGiltConsensusClient) FetchCheckpoint(context.Context, int64) (*checkpoint.Checkpoint, error) {
+	return nil, errors.New("no checkpoint")
+}
+
+func (s *staticGiltConsensusClient) FetchCheckpointCount(context.Context) (int64, error) {
+	return 0, nil
+}
+
+func (s *staticGiltConsensusClient) FetchMilestone(context.Context) (*milestone.Milestone, error) {
+	return nil, errors.New("no milestone")
+}
+
+func (s *staticGiltConsensusClient) FetchMilestoneCount(context.Context) (int64, error) {
+	return 0, nil
+}
+
+func (s *staticGiltConsensusClient) FetchStatus(context.Context) (*ctypes.SyncInfo, error) {
+	return &ctypes.SyncInfo{CatchingUp: false}, nil
+}
+
+func (s *staticGiltConsensusClient) Close() {}
 
 func getMockedSpanner(t *testing.T, validators []*valset.Validator) *gilt.MockSpanner {
 	t.Helper()
@@ -576,8 +644,8 @@ func InitGenesis(t *testing.T, faucets []*ecdsa.PrivateKey, fileLocation string,
 	return genesis
 }
 
-func InitMiner(genesis *core.Genesis, privKey *ecdsa.PrivateKey, withoutGiltConsensus bool) (*node.Node, *eth.Ethereum, error) {
-	return InitMinerWithOptions(genesis, privKey, withoutGiltConsensus, 0, nil)
+func InitMiner(genesis *core.Genesis, privKey *ecdsa.PrivateKey, useStaticGiltConsensus bool) (*node.Node, *eth.Ethereum, error) {
+	return InitMinerWithOptions(genesis, privKey, useStaticGiltConsensus, 0, nil)
 }
 
 // InitMinerWithGiltConsensus creates a miner node with a mock GiltConsensusClient injected during initialization.
@@ -596,7 +664,7 @@ type DynamicGasLimitConfig struct {
 }
 
 // InitMinerWithDynamicGasLimit creates a miner with dynamic gas limit configuration
-func InitMinerWithDynamicGasLimit(genesis *core.Genesis, privKey *ecdsa.PrivateKey, withoutGiltConsensus bool, dynamicConfig DynamicGasLimitConfig) (*node.Node, *eth.Ethereum, error) {
+func InitMinerWithDynamicGasLimit(genesis *core.Genesis, privKey *ecdsa.PrivateKey, useStaticGiltConsensus bool, dynamicConfig DynamicGasLimitConfig) (*node.Node, *eth.Ethereum, error) {
 	// Define the basic configurations for the Ethereum node
 	datadir, err := os.MkdirTemp("", "InitMiner-"+uuid.New().String())
 	if err != nil {
@@ -639,7 +707,6 @@ func InitMinerWithDynamicGasLimit(genesis *core.Genesis, privKey *ecdsa.PrivateK
 			TargetBaseFee:         dynamicConfig.TargetBaseFee,
 			BaseFeeBuffer:         dynamicConfig.BaseFeeBuffer,
 		},
-		WithoutGiltConsensus: withoutGiltConsensus,
 	})
 
 	if err != nil {
@@ -673,12 +740,12 @@ func InitMinerWithDynamicGasLimit(genesis *core.Genesis, privKey *ecdsa.PrivateK
 	return stack, ethBackend, err
 }
 
-func InitMinerWithBlockTime(genesis *core.Genesis, privKey *ecdsa.PrivateKey, withoutGiltConsensus bool, blockTime time.Duration) (*node.Node, *eth.Ethereum, error) {
-	return InitMinerWithOptions(genesis, privKey, withoutGiltConsensus, blockTime, nil)
+func InitMinerWithBlockTime(genesis *core.Genesis, privKey *ecdsa.PrivateKey, useStaticGiltConsensus bool, blockTime time.Duration) (*node.Node, *eth.Ethereum, error) {
+	return InitMinerWithOptions(genesis, privKey, useStaticGiltConsensus, blockTime, nil)
 }
 
 // InitMinerWithOptions is the base function for creating miner nodes with various options.
-func InitMinerWithOptions(genesis *core.Genesis, privKey *ecdsa.PrivateKey, withoutGiltConsensus bool, blockTime time.Duration, giltconsensusClient gilt.IGiltConsensusClient) (*node.Node, *eth.Ethereum, error) {
+func InitMinerWithOptions(genesis *core.Genesis, privKey *ecdsa.PrivateKey, useStaticGiltConsensus bool, blockTime time.Duration, giltconsensusClient gilt.IGiltConsensusClient) (*node.Node, *eth.Ethereum, error) {
 	// Define the basic configurations for the Ethereum node
 	datadir, err := os.MkdirTemp("", "InitMiner-"+uuid.New().String())
 	if err != nil {
@@ -718,8 +785,6 @@ func InitMinerWithOptions(genesis *core.Genesis, privKey *ecdsa.PrivateKey, with
 			BlockTime:           blockTime,
 			CommitInterruptFlag: true,
 		},
-		WithoutGiltConsensus:        withoutGiltConsensus,
-		OverrideGiltConsensusClient: giltconsensusClient,
 	})
 
 	if err != nil {

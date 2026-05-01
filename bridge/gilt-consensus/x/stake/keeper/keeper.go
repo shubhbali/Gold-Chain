@@ -23,15 +23,24 @@ type Keeper struct {
 
 	checkpointKeeper      types.CheckpointKeeper
 	bankKeeper            types.BankKeeper
+	pricefeedKeeper       types.PricefeedKeeper
 	cmKeeper              cmKeeper.Keeper
 	validatorAddressCodec addresscodec.Codec
 	contractCaller        helper.IContractCaller
 
-	validators   collections.Map[string, types.Validator]
-	validatorSet collections.Map[[]byte, types.ValidatorSet]
-	signer       collections.Map[uint64, string]
-	sequences    collections.Map[string, bool]
-	lastBlockTxs collections.Item[types.LastBlockTxs]
+	validators               collections.Map[string, types.Validator]
+	validatorSet             collections.Map[[]byte, types.ValidatorSet]
+	goldDelegations          collections.Map[string, types.GoldDelegation]
+	validatorApprovals       collections.Map[uint64, types.ValidatorApproval]
+	validatorApprovalVotes   collections.Map[string, bool]
+	validatorApprovalPowers  collections.Map[string, uint64]
+	validatorApprovalTotal   collections.Map[uint64, uint64]
+	validatorApprovalYes     collections.Map[uint64, uint64]
+	validatorApprovalDone    collections.Map[uint64, bool]
+	validatorLifecycleParams collections.Item[types.ValidatorLifecycleParams]
+	signer                   collections.Map[uint64, string]
+	sequences                collections.Map[string, bool]
+	lastBlockTxs             collections.Item[types.LastBlockTxs]
 
 	setupComplete bool
 }
@@ -55,11 +64,19 @@ func NewKeeper(
 		validatorAddressCodec: validatorAddressCodec,
 		contractCaller:        contractCaller,
 
-		validators:   collections.NewMap(sb, types.ValidatorsKey, "validator", collections.StringKey, codec.CollValue[types.Validator](cdc)),
-		validatorSet: collections.NewMap(sb, types.ValidatorSetKey, "validator_set", collections.BytesKey, codec.CollValue[types.ValidatorSet](cdc)),
-		sequences:    collections.NewMap(sb, types.StakeSequenceKey, "stake_sequence", collections.StringKey, collections.BoolValue),
-		signer:       collections.NewMap(sb, types.SignerKey, "signer", collections.Uint64Key, collections.StringValue),
-		lastBlockTxs: collections.NewItem(sb, types.LastBlockTxsKey, "last_block_txs", codec.CollValue[types.LastBlockTxs](cdc)),
+		validators:               collections.NewMap(sb, types.ValidatorsKey, "validator", collections.StringKey, codec.CollValue[types.Validator](cdc)),
+		validatorSet:             collections.NewMap(sb, types.ValidatorSetKey, "validator_set", collections.BytesKey, codec.CollValue[types.ValidatorSet](cdc)),
+		goldDelegations:          collections.NewMap(sb, types.GoldDelegationKey, "gold_delegation", collections.StringKey, codec.CollValue[types.GoldDelegation](cdc)),
+		validatorApprovals:       collections.NewMap(sb, types.ValidatorApprovalKey, "validator_approval", collections.Uint64Key, codec.CollValue[types.ValidatorApproval](cdc)),
+		validatorApprovalVotes:   collections.NewMap(sb, types.ValidatorApprovalVoteKey, "validator_approval_vote", collections.StringKey, collections.BoolValue),
+		validatorApprovalPowers:  collections.NewMap(sb, types.ValidatorApprovalVoterPowerKey, "validator_approval_power", collections.StringKey, collections.Uint64Value),
+		validatorApprovalTotal:   collections.NewMap(sb, types.ValidatorApprovalSnapshotKey, "validator_approval_total_power", collections.Uint64Key, collections.Uint64Value),
+		validatorApprovalYes:     collections.NewMap(sb, types.ValidatorApprovalYesPowerKey, "validator_approval_yes_power", collections.Uint64Key, collections.Uint64Value),
+		validatorApprovalDone:    collections.NewMap(sb, types.ValidatorApprovalFinalizedKey, "validator_approval_finalized", collections.Uint64Key, collections.BoolValue),
+		validatorLifecycleParams: collections.NewItem(sb, types.ValidatorLifecycleParamsKey, "validator_lifecycle_params", codec.CollValue[types.ValidatorLifecycleParams](cdc)),
+		sequences:                collections.NewMap(sb, types.StakeSequenceKey, "stake_sequence", collections.StringKey, collections.BoolValue),
+		signer:                   collections.NewMap(sb, types.SignerKey, "signer", collections.Uint64Key, collections.StringValue),
+		lastBlockTxs:             collections.NewItem(sb, types.LastBlockTxsKey, "last_block_txs", codec.CollValue[types.LastBlockTxs](cdc)),
 
 		setupComplete: false,
 	}
@@ -100,6 +117,11 @@ func (k Keeper) GetLastBlockTxs(ctx context.Context) (types.LastBlockTxs, error)
 func (k *Keeper) SetCheckpointKeeper(checkpointKeeper types.CheckpointKeeper) {
 	k.checkpointKeeper = checkpointKeeper
 	k.setupComplete = true
+}
+
+// SetPricefeedKeeper sets the pricefeed keeper used for reward-weight calculation.
+func (k *Keeper) SetPricefeedKeeper(pricefeedKeeper types.PricefeedKeeper) {
+	k.pricefeedKeeper = pricefeedKeeper
 }
 
 // PanicIfSetupIsIncomplete panics if the setup is incomplete, meaning that the checkpointKeeper is not set

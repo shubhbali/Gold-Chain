@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-21T21:12:54Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "De nada, me gusta tu estilo, muy elegante. Me encantar\u00eda conocerte m\u00e1s. \u00bfEst\u00e1s soltera?",
+  "run_id": "6b350d2f31164392acc82f38d891db88",
+  "started_at": "2026-04-21T21:12:50Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-21T21:12:54Z",
+  "version": 1
+}

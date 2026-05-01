@@ -192,6 +192,10 @@ func (rl *RootChainListener) queryAndBroadcastEvents(rootChainContext *RootChain
 
 	// get chain params
 	chainParams := rootChainContext.ChainmanagerParams.ChainParams
+	supportedTopics := rl.supportedRootEventTopics()
+	if len(supportedTopics) == 0 {
+		return fmt.Errorf("root chain listener has no supported event topics")
+	}
 
 	// Fetch events from the rootChain
 	logs, err := rl.contractCaller.MainChainClient.FilterLogs(ctx, ethereum.FilterQuery{
@@ -202,6 +206,7 @@ func (rl *RootChainListener) queryAndBroadcastEvents(rootChainContext *RootChain
 			ethCommon.HexToAddress(chainParams.StakingInfoAddress),
 			ethCommon.HexToAddress(chainParams.StateSenderAddress),
 		},
+		Topics: [][]ethCommon.Hash{supportedTopics},
 	})
 	if err != nil {
 		rl.Logger.Error("RootChainListener: error while filtering logs", "error", err)
@@ -214,15 +219,17 @@ func (rl *RootChainListener) queryAndBroadcastEvents(rootChainContext *RootChain
 
 	// Process filtered log
 	for _, vLog := range logs {
-		topic := vLog.Topics[0].Bytes()
-		for _, abiObject := range rl.abis {
-			selectedEvent := helper.EventByID(abiObject, topic)
-			if selectedEvent == nil {
-				continue
-			}
-
-			rl.handleLog(vLog, selectedEvent)
+		if len(vLog.Topics) == 0 {
+			continue
 		}
+
+		topic := vLog.Topics[0].Bytes()
+		selectedEvent := rl.supportedRootEventByTopic(topic)
+		if selectedEvent == nil {
+			continue
+		}
+
+		rl.handleLog(vLog, selectedEvent)
 	}
 
 	return nil

@@ -320,11 +320,9 @@
         "chain_params":{
           "gilt_chain_id":"15005",
           "giltconsensus_chain_id":"devnet",
-          "pol_token_address":"0x675c1bd77f573aaf2df04ee7180a21a110d3d4fa",
           "root_chain_address":"0xa1a6f9ff932eba930db4a638e06ae0ae3c8fa2d1",
           "slash_manager_address":"0x0000000000000000000000000000000000000000",
           "staking_info_address":"0xeebd8a7b10c1877aaa02c4d5a50629b8cc22e73f",
-          "staking_manager_address":"0xe8f5a17fba3b9294961aa0ab965eabad9a45ff1b",
           "state_receiver_address":"0x0000000000000000000000000000000000001001",
           "state_sender_address":"0x3463e6b634e4d358b6c7212de3b1527b95bbc90c",
           "validator_set_address":"0x0000000000000000000000000000000000001000"
@@ -1089,7 +1087,7 @@
                   {
                     "key":"ChainParams",
                     "subspace":"chainmanager",
-                    "value":"{\n\t\t\t\t\"gilt_chain_id\": \"137\",\n\t\t\t\t\"matic_token_address\": \"0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0\",\n\t\t\t\t\"staking_manager_address\": \"0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908\",\n\t\t\t\t\"slash_manager_address\": \"0x01F645DcD6C796F6BC6C982159B32fAaaebdC96A\",\n\t\t\t\t\"root_chain_address\": \"0x86e4dc95c7fbdbf52e33d563bbdb00823894c287\",\n\t\t\t\t\"staking_info_address\": \"0xa59C847Bd5aC0172Ff4FE912C5d29E5A71A7512B\",\n\t\t\t\t\"state_sender_address\": \"0x28e4f3a7f651294b9564800b2d01f35189a5bfbe\",\n\t\t\t\t\"state_receiver_address\": \"0x0000000000000000000000000000000000001001\",\n\t\t\t\t\"validator_set_address\": \"0x0000000000000000000000000000000000001000\"\n\t\t\t}"
+                    "value":"{\n\t\t\t\t\"gilt_chain_id\": \"137\",\n\t\t\t\t\"slash_manager_address\": \"0x01F645DcD6C796F6BC6C982159B32fAaaebdC96A\",\n\t\t\t\t\"root_chain_address\": \"0x86e4dc95c7fbdbf52e33d563bbdb00823894c287\",\n\t\t\t\t\"staking_info_address\": \"0xa59C847Bd5aC0172Ff4FE912C5d29E5A71A7512B\",\n\t\t\t\t\"state_sender_address\": \"0x28e4f3a7f651294b9564800b2d01f35189a5bfbe\",\n\t\t\t\t\"state_receiver_address\": \"0x0000000000000000000000000000000000001001\",\n\t\t\t\t\"validator_set_address\": \"0x0000000000000000000000000000000000001000\"\n\t\t\t}"
                   }
                 ],
                 "description":"Update contract address",
@@ -1727,6 +1725,26 @@
         "ff_milestone_threshold":1000,
         "max_milestone_proposition_length":10
       }
+    },
+    "pricefeed":{
+      "latest_epoch":"0",
+      "params":{
+        "active_adapter":"manual",
+        "adapter_route":"",
+        "max_price_age_blocks":"3600",
+        "max_price_deviation_bps":"2500",
+        "max_gold_weight_bps":"10000",
+        "min_gold_weight_bps":"6000",
+        "min_liquidity":"0",
+        "pending_activation_height":"0",
+        "pending_adapter":"",
+        "pending_adapter_route":"",
+        "target_gilt_share_bps":"1000",
+        "twap_window_seconds":"3600"
+      },
+      "price_snapshots":[
+
+      ]
     },
     "sidechannel":{
       "past_commits":[

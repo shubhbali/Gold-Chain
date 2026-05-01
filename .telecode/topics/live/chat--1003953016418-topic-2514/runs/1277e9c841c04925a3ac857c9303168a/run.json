@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T09:54:17Z",
+  "engine": "codex",
+  "final_answer": "Nothing can literally give back one day of your life.\n\nThe closest equivalents are substitutes, not restoration: refund, credit, financial compensation, concrete delivered work that saves future time, or accountability for the failure. None is perfect. Violence also does not give the day back and is not an equivalent substitute; it creates a separate irreversible harm.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "So you tell me what equates it so that you can give me back 1 day of my life",
+  "run_id": "1277e9c841c04925a3ac857c9303168a",
+  "started_at": "2026-04-26T09:54:00Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T09:54:17Z",
+  "version": 1
+}

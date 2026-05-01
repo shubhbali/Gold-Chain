@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-25T01:29:28Z",
+  "engine": "codex",
+  "final_answer": "It works by storing an accepted `GILT`/`GOLD` price in `x/pricefeed`, using that price to compute each validator\u2019s `EffectiveRewardWeight` in `x/stake`, then distributing end-block fees by that weight.\n\nWhy it matters: `GOLD` now affects rewards without affecting token ownership or validator voting power. `GOLD` is escrowed, `GILT` backs the reward multiplier, and the DEX choice stays switchable later through `PriceFeed`.\n\n**Flow**\n1. `PriceFeed` starts with `active_adapter = manual`; `dex_twap` exists as the future adapter name, but the real DEX reader is not implemented yet.\n2. Governance sets a `PriceSnapshot`: `epoch`, `gilt_price_in_gold`, `source_adapter`, `adapter_route`, `block_height`, `valid_until_epoch`.\n3. The snapshot is accepted only if it matches the active adapter/route, has a strictly higher epoch than the latest snapshot, does not exceed the deviation limit, and is not stale by block age.\n4. Adapter switching cannot be done directly through `UpdateParams`; governance must schedule a pending adapter/route with a future height, then activate it after that height.\n5. A user calls `DelegateGold(from, val_id, amount)`.\n6. The chain transfers denom `gold` from the user account into the `stake` module account.\n7. The chain stores/updates `GoldDelegation{delegator, val_id, amount}`.\n8. The validator\u2019s `DelegatedGoldStake` increases.\n9. The validator reward weight is refreshed if there is a usable price.\n10. `UndelegateGold` does the reverse: checks the delegation exists, checks the amount, sends `gold` back to the user, reduces `DelegatedGoldStake`, and refreshes weight.\n\n**Formula**\n```text\ngilt_value = (self_gilt_stake + delegated_gilt_stake) * gilt_price_in_gold / 1e18\ngold_value = delegated_gold_stake\ngilt_share = gilt_value / (gilt_value + gold_value)\n\ngold_weight_bps moves from 6000 to 10000 based on whether GILT backing reaches the 10% target\n\neffective_reward_weight = gilt_value + (gold_value * gold_weight_bps / 10000)\n```\n\nSo default behavior is:\n- No `GILT` backing: `GOLD` counts at `60%`.\n- Partial backing: `GOLD` weight scales upward.\n- At/above target `GILT` backing: `GOLD` counts at `100%`.\n\n**Reward Payout**\nAt `EndBlocker`, the app reads the fee collector balance, asks stake for allocations, sorts validators deterministically by signer, splits fees by `EffectiveRewardWeight`, gives rounding remainder to the largest weight, then sends fee tokens to validator signer accounts.\n\nIf there is no fresh/valid price, no current validators, or all weights are zero, no reward allocation happens.\n\nWhat should be done next: implement the real `dex_twap` adapter when the DEX is chosen, then switch from `manual` to `dex_twap` through the scheduled governance adapter flow. No code was changed in this read-only pass.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 92,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "OK now read code and tell me precisely how it works",
+  "run_id": "5c1a04bd03334fc893fb13137fa00eb8",
+  "started_at": "2026-04-25T01:27:05Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-25T01:29:28Z",
+  "version": 1
+}

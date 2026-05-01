@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T06:44:32Z",
+  "engine": "codex",
+  "final_answer": "Yes. There is still non-production bypass/legacy code left.\n\nWhy it matters: those paths can reintroduce invalid \u201cprogress\u201d signals and keep dead architecture alive, even if CLI flags are now blocked.\n\nWhat should be done next:\n1. Remove the core execution-client bypass branch (`WithoutGiltConsensus` / `DevFakeAuthor`) from consensus-engine creation, not just from CLI entrypoints.\n2. Remove those fields from config schemas and generated config code, then update defaults/testdata accordingly.\n3. Refactor tests that depend on bypass mode to use explicit mock/stub `GiltConsensus` clients instead.\n4. Clean remaining template/packaging legacy references (`devfakeauthor`, `gilt.without`) so operators cannot copy old patterns.\n5. Decide on `rungiltconsensus/usegiltconsensusapp` path: either productionize fully or remove it as non-production/untested.\n\nIf you want, I\u2019ll do this full purge now end-to-end.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "OK any other non production bullshit in the chain left?",
+  "run_id": "261bb042fc3f40a1bda54b86cf5572a4",
+  "started_at": "2026-04-27T06:44:03Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T06:44:32Z",
+  "version": 1
+}

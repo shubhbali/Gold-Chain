@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"testing"
 	"time"
@@ -25,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
+	addressUtils "github.com/giltchain/gilt-consensus/common/hex"
 	"github.com/giltchain/gilt-consensus/helper"
 	"github.com/giltchain/gilt-consensus/sidetxs"
 	hmTypes "github.com/giltchain/gilt-consensus/types"
@@ -54,7 +56,7 @@ func SetupApp(t *testing.T, numOfVals uint64) SetupAppResult {
 	t.Helper()
 
 	// generate validators, accounts and balances
-	validatorPrivKeys, validators, accounts, balances := generateValidators(t, numOfVals)
+	validatorPrivKeys, validators, accounts, balances := generateValidators(t, productionValidatorCount(numOfVals))
 
 	// set up the app with a validator set and respective accounts
 	app, db, logger, privKeys := setupAppWithValidatorSet(t, validatorPrivKeys, validators, accounts, balances)
@@ -73,6 +75,7 @@ func SetupAppWithPrivKey(t *testing.T, numOfVals uint64, priv cryptotypes.PrivKe
 	t.Helper()
 
 	// generate validators, accounts and balances
+	numOfVals = productionValidatorCount(numOfVals)
 	validatorPrivKeys, validators, accounts, balances := generateValidators(t, numOfVals)
 
 	addr := sdk.AccAddress(priv.PubKey().Address())
@@ -82,6 +85,8 @@ func SetupAppWithPrivKey(t *testing.T, numOfVals uint64, priv cryptotypes.PrivKe
 		Address: genAcc.GetAddress().String(),
 		Coins: sdk.NewCoins(
 			sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewIntWithDecimal(1, 30)), // 1 * 10^30
+			sdk.NewCoin(stakeTypes.GiltDenom, sdkmath.NewIntWithDecimal(1, 30)),
+			sdk.NewCoin(stakeTypes.GoldDenom, sdkmath.NewIntWithDecimal(1, 30)),
 		),
 	}
 
@@ -102,6 +107,8 @@ func SetupAppWithPrivKey(t *testing.T, numOfVals uint64, priv cryptotypes.PrivKe
 func generateValidators(t *testing.T, numOfVals uint64) ([]cmtcrypto.PrivKey, []*stakeTypes.Validator, []authtypes.GenesisAccount, []banktypes.Balance) {
 	t.Helper()
 
+	numOfVals = productionValidatorCount(numOfVals)
+
 	validatorPrivKeys := make([]cmtcrypto.PrivKey, 0, numOfVals)
 	validators := make([]*stakeTypes.Validator, 0, numOfVals)
 	accounts := make([]authtypes.GenesisAccount, 0, numOfVals)
@@ -117,7 +124,7 @@ func generateValidators(t *testing.T, numOfVals uint64) ([]cmtcrypto.PrivKey, []
 		}
 
 		// create the validator set
-		val, _ := stakeTypes.NewValidator(i, 0, 0, i, 100, pk, pubKey.Address().String())
+		val, _ := stakeTypes.NewValidator(i+1, 0, 0, i, 100, pk, pubKey.Address().String())
 
 		validatorPrivKeys = append(validatorPrivKeys, privKey)
 		validators = append(validators, val)
@@ -126,7 +133,11 @@ func generateValidators(t *testing.T, numOfVals uint64) ([]cmtcrypto.PrivKey, []
 		acc := authtypes.NewBaseAccount(senderPubKey.Address().Bytes(), senderPubKey, i+1, 0) // fee_collector is the first initialized (module) account (AccountNumber = 0)
 		balance := banktypes.Balance{
 			Address: acc.GetAddress().String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000000000))),
+			Coins: sdk.NewCoins(
+				sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewIntWithDecimal(1, 30)),
+				sdk.NewCoin(stakeTypes.GiltDenom, sdkmath.NewIntWithDecimal(1, 30)),
+				sdk.NewCoin(stakeTypes.GoldDenom, sdkmath.NewIntWithDecimal(1, 30)),
+			),
 		}
 
 		accounts = append(accounts, acc)
@@ -134,6 +145,13 @@ func generateValidators(t *testing.T, numOfVals uint64) ([]cmtcrypto.PrivKey, []
 	}
 
 	return validatorPrivKeys, validators, accounts, balances
+}
+
+func productionValidatorCount(requested uint64) uint64 {
+	if requested < stakeTypes.DefaultMinActiveValidators {
+		return stakeTypes.DefaultMinActiveValidators
+	}
+	return requested
 }
 
 func setupAppWithValidatorSet(t *testing.T, validatorPrivKeys []cmtcrypto.PrivKey, validators []*stakeTypes.Validator, accounts []authtypes.GenesisAccount, balances []banktypes.Balance, testOpts ...*helper.TestOpts) (*GiltConsensusApp, *dbm.MemDB, log.Logger, []cmtcrypto.PrivKey) {
@@ -183,7 +201,17 @@ func setupAppWithValidatorSet(t *testing.T, validatorPrivKeys []cmtcrypto.PrivKe
 	_, err = app.Commit()
 	require.NoError(t, err)
 
-	return app, db, logger, validatorPrivKeys
+	return app, db, logger, sortValidatorPrivKeysBySigner(validatorPrivKeys)
+}
+
+func sortValidatorPrivKeysBySigner(privKeys []cmtcrypto.PrivKey) []cmtcrypto.PrivKey {
+	sorted := append([]cmtcrypto.PrivKey(nil), privKeys...)
+	sort.Slice(sorted, func(i, j int) bool {
+		left := addressUtils.FormatAddress(sorted[i].PubKey().Address().String())
+		right := addressUtils.FormatAddress(sorted[j].PubKey().Address().String())
+		return left < right
+	})
+	return sorted
 }
 
 func RequestFinalizeBlock(t *testing.T, app *GiltConsensusApp, height int64) {
@@ -277,6 +305,8 @@ func GenesisStateWithValSet(codec codec.Codec, genesisState map[string]json.RawM
 	// Give each validator a default spendable balance if it doesn't already have one.
 	defaultCoins := sdk.NewCoins(
 		sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewIntWithDecimal(1, 30)), // 1 * 10^30
+		sdk.NewCoin(stakeTypes.GiltDenom, sdkmath.NewIntWithDecimal(1, 30)),
+		sdk.NewCoin(stakeTypes.GoldDenom, sdkmath.NewIntWithDecimal(1, 30)),
 	)
 
 	for _, val := range valSet.Validators {
@@ -315,18 +345,31 @@ func GenesisStateWithValSet(codec codec.Codec, genesisState map[string]json.RawM
 	validators := make([]*stakeTypes.Validator, 0, len(valSet.Validators))
 	seqs := make([]string, 0, len(valSet.Validators))
 
+	genesisValidatorStake := sdkmath.ZeroInt()
 	for i, val := range valSet.Validators {
+		val.NormalizeLifecycleAccounting()
+		valID := val.ValId
+		if valID == 0 {
+			valID = uint64(i + 1)
+		}
 
 		validator := stakeTypes.Validator{
-			ValId:       uint64(i),
+			ValId:       valID,
 			StartEpoch:  0,
 			EndEpoch:    0,
-			Nonce:       uint64(i),
-			VotingPower: 100,
+			Nonce:       val.Nonce,
+			VotingPower: val.VotingPower,
 			PubKey:      val.PubKey,
 			Signer:      val.Signer,
+			Operator:    val.OperatorAddress(),
 			LastUpdated: time.Now().String(),
 		}
+		validator.NormalizeLifecycleAccounting()
+		if validator.VotingPower == 0 {
+			validator.VotingPower = 100
+			validator.NormalizeLifecycleAccounting()
+		}
+		genesisValidatorStake = genesisValidatorStake.Add(validator.SelfGiltStake)
 
 		validators = append(validators, &validator)
 
@@ -341,7 +384,26 @@ func GenesisStateWithValSet(codec codec.Codec, genesisState map[string]json.RawM
 
 	// set validators and delegations
 	stakingGenesis := stakeTypes.NewGenesisState(validators, *valSet, seqs)
+	if len(validators) > 0 {
+		stakingGenesis.ValidatorLifecycleParams.ApprovalAuthority = validators[0].OperatorAddress()
+	}
 	genesisState[stakeTypes.ModuleName] = codec.MustMarshalJSON(stakingGenesis)
+	if _, err := stakeTypes.SetGenesisStateToAppState(codec, genesisState, validators, *valSet); err != nil {
+		return nil, err
+	}
+
+	if genesisValidatorStake.IsPositive() {
+		stakeModuleAddr := authtypes.NewModuleAddress(stakeTypes.ModuleName).String()
+		existing := balanceByAddr[stakeModuleAddr]
+		existing.Address = stakeModuleAddr
+		existing.Coins = existing.Coins.Add(sdk.NewCoin(stakeTypes.GiltDenom, genesisValidatorStake))
+		balanceByAddr[stakeModuleAddr] = existing
+
+		balances = make([]banktypes.Balance, 0, len(balanceByAddr))
+		for _, bal := range balanceByAddr {
+			balances = append(balances, bal)
+		}
+	}
 
 	// Ensure the topup module has dividend accounts for all validator signer addresses.
 	// This keeps checkpoint-related handlers (which query dividend accounts) from seeing an empty set.

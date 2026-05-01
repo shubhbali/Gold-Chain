@@ -1,0 +1,83 @@
+syntax = "proto3";
+package giltconsensusv2.pricefeed;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "giltconsensusv2/pricefeed/pricefeed.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/giltchain/gilt-consensus/x/pricefeed/types";
+
+// Msg defines the gRPC message service for the pricefeed module.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams updates pricefeed parameters by governance.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  // SetPriceSnapshot accepts a governance-controlled manual/test price
+  // snapshot.
+  rpc SetPriceSnapshot(MsgSetPriceSnapshot)
+      returns (MsgSetPriceSnapshotResponse);
+  // ScheduleAdapterUpdate schedules a future adapter switch.
+  rpc ScheduleAdapterUpdate(MsgScheduleAdapterUpdate)
+      returns (MsgScheduleAdapterUpdateResponse);
+  // ActivateAdapterUpdate activates a previously scheduled adapter switch.
+  rpc ActivateAdapterUpdate(MsgActivateAdapterUpdate)
+      returns (MsgActivateAdapterUpdateResponse);
+}
+
+message MsgUpdateParams {
+  option (amino.name) = "gilt/pricefeed/MsgUpdateParams";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (amino.dont_omitempty) = true
+  ];
+  Params params = 2
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message MsgUpdateParamsResponse {}
+
+message MsgSetPriceSnapshot {
+  option (amino.name) = "gilt/pricefeed/MsgSetPrice";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (amino.dont_omitempty) = true
+  ];
+  PriceSnapshot price = 2
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message MsgSetPriceSnapshotResponse {}
+
+message MsgScheduleAdapterUpdate {
+  option (amino.name) = "gilt/pricefeed/MsgScheduleAdapter";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (amino.dont_omitempty) = true
+  ];
+  string adapter = 2 [ (amino.dont_omitempty) = true ];
+  string adapter_route = 3 [ (amino.dont_omitempty) = true ];
+  uint64 activation_height = 4 [ (amino.dont_omitempty) = true ];
+}
+
+message MsgScheduleAdapterUpdateResponse {}
+
+message MsgActivateAdapterUpdate {
+  option (amino.name) = "gilt/pricefeed/MsgActivateAdapter";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (amino.dont_omitempty) = true
+  ];
+}
+
+message MsgActivateAdapterUpdateResponse {}

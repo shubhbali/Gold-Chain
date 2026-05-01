@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T21:18:44Z",
+  "engine": "codex",
+  "final_answer": "It is a **permissioned PoS chain with BFT finality**, not a permissionless DPoS chain.\n\nWhy it matters: this defines who can become a validator and who controls chain security, which is core to Gold Chain\u2019s production trust model.\n\nWhat the code behavior means in practice:\n- **PoS**: validator voting power is derived from staked `GILT`.\n- **Not classic DPoS**: validators are not freely elected by open token voting; there is an explicit approval gate.\n- **Permissioned validator admission**: a validator must first be approved by the configured approval authority, then submit join with matching approved fields (operator, signer key, activation epoch, nonce, and stake cap checks).\n- **Not instant add**: after join, inclusion in active consensus set depends on epoch/validator-set update rules.\n- **Delegation nuance**: `GOLD` delegation exists for reward-weight accounting; validator admission still uses the approval + self-stake flow.\n\nWhat should be done next:\n1. Lock the official label in docs: \u201cpermissioned PoS (CometBFT finality), not permissionless DPoS.\u201d\n2. Publish a strict validator admission policy (who controls approval authority, rotation/revocation rules).\n3. If you want permissionless validator onboarding, that is a separate architecture change and should be explicitly designed, not assumed.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 10,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "In the consensus mechanism, what kind of a chain is it? Is it proof of stake or is it delegated proof of stake and how do you view where they just get added? Is this like a permission system or not a permissionless system? How does that work? Read the code please before you respond.",
+  "run_id": "1004c1c6404e4daf94115f116cd16034",
+  "started_at": "2026-04-27T21:17:51Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-38036",
+  "updated_at": "2026-04-27T21:18:44Z",
+  "version": 1
+}

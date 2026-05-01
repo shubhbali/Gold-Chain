@@ -1,0 +1,21 @@
+{
+  "chat_id": -1003953016418,
+  "created_at": "2026-04-28T17:19:24Z",
+  "engine": "codex",
+  "last_run_id": "3f9333b170a84cfb813fbda2b4e79921",
+  "migrated_from_state": true,
+  "profile": "",
+  "project": "gold-chain",
+  "repo_path": "/srv/repos/gold-chain",
+  "sessions": {
+    "claude": null,
+    "codex": "019dd51a-6b96-7742-a9a4-e0937aa0953b",
+    "opencode": null
+  },
+  "status": "active",
+  "thread_id": 38781,
+  "title": "Gold5",
+  "topic_key": "chat--1003953016418-topic-38781",
+  "updated_at": "2026-05-01T19:57:29Z",
+  "version": 1
+}

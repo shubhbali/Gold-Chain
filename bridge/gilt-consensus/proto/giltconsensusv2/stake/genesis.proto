@@ -27,4 +27,13 @@ message GenesisState {
   // Validator set from two blocks ago.
   ValidatorSet penultimate_block_validator_set = 6
       [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  // GOLD delegations escrowed in the stake module.
+  repeated GoldDelegation gold_delegations = 7
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  // Native validator candidate approvals.
+  repeated ValidatorApproval validator_approvals = 8
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  // Native validator lifecycle safety params.
+  ValidatorLifecycleParams validator_lifecycle_params = 9
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }

@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-25T22:40:37Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 10,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Yeah cunt I told you launch the chain afresh and then test, are you retarded you time wasting fuck",
+  "run_id": "80b36c193fa84e7caab07ce2739a7c58",
+  "started_at": "2026-04-25T22:40:09Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-25T22:40:37Z",
+  "version": 1
+}

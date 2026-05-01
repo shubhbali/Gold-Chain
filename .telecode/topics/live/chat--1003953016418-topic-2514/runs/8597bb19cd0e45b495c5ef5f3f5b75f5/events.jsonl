@@ -1,0 +1,12 @@
+{"seq": 1, "timestamp": "2026-04-24T22:42:46Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-24T22:42:49Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-24T22:42:49Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-24T22:43:06Z", "type": "progress.event", "text": "Running: rg -n \\\"function _transferAndTopUp|tokenLegacyToken|token\\\\.transferFrom|stakeForPOL|buyVoucherPOL\\\" bridge/pos-contracts/contracts/staking -S", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Finished (0): rg -n \\\"function _transferAndTopUp|tokenLegacyToken|token\\\\.transferFrom|stakeForPOL|buyVoucherPOL\\\" bridge/pos-contracts/contracts/staking -S", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '330,372p'", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '1047,1115p'", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '330,372p'", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '1047,1115p'", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/validatorShare/ValidatorShare.sol | sed -n '225,265p'", "metadata": {}}
+{"seq": 11, "timestamp": "2026-04-24T22:43:07Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/validatorShare/ValidatorShare.sol | sed -n '225,265p'", "metadata": {}}
+{"seq": 12, "timestamp": "2026-04-24T22:43:38Z", "type": "run.completed", "text": "Done.", "metadata": {}}

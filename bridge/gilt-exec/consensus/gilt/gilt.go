@@ -244,7 +244,7 @@ func GiltRLP(header *types.Header, c *params.GiltConfig) []byte {
 // Gilt is the gilt-gilt consensus engine
 type Gilt struct {
 	chainConfig *params.ChainConfig // Chain config
-	config      *params.GiltConfig   // Consensus engine configuration parameters for gilt consensus
+	config      *params.GiltConfig  // Consensus engine configuration parameters for gilt consensus
 	db          ethdb.Database      // Database to store and retrieve snapshot checkpoints
 
 	recents               *ttlcache.Cache[common.Hash, *Snapshot]     // Snapshots for recent block to speed up reorgs
@@ -256,15 +256,14 @@ type Gilt struct {
 	ethAPI                 api.Caller
 	spanner                Spanner
 	GenesisContractsClient GenesisContract
-	GiltConsensusClient         IGiltConsensusClient
-	GiltConsensusWSClient       IGiltConsensusWSClient
+	GiltConsensusClient    IGiltConsensusClient
+	GiltConsensusWSClient  IGiltConsensusWSClient
 
 	spanStore            *SpanStore // Store to save previous span data from giltconsensus
 	latestMilestoneBlock atomic.Uint64
 
 	// The fields below are for testing only
-	fakeDiff      bool // Skip difficulty verifications
-	DevFakeAuthor bool
+	fakeDiff bool // Skip difficulty verifications
 
 	// The block time defined by the miner. Needs to be larger or equal to the consensus block time. If not set (default = 0), the miner will use the consensus block time.
 	blockTime time.Duration
@@ -294,7 +293,6 @@ func New(
 	giltconsensusClient IGiltConsensusClient,
 	giltconsensusWSClient IGiltConsensusWSClient,
 	genesisContracts GenesisContract,
-	devFakeAuthor bool,
 	blockTime time.Duration,
 ) *Gilt {
 	// get gilt config
@@ -334,10 +332,9 @@ func New(
 		signatures:             signatures,
 		spanner:                spanner,
 		GenesisContractsClient: genesisContracts,
-		GiltConsensusClient:         giltconsensusClient,
-		GiltConsensusWSClient:       giltconsensusWSClient,
+		GiltConsensusClient:    giltconsensusClient,
+		GiltConsensusWSClient:  giltconsensusWSClient,
 		spanStore:              spanStore,
-		DevFakeAuthor:          devFakeAuthor,
 		blockTime:              blockTime,
 		quit:                   make(chan struct{}),
 		ctx:                    ctx,
@@ -682,18 +679,6 @@ func (c *Gilt) verifyCascadingFields(chain consensus.ChainHeaderReader, header *
 // nolint:gocognit
 func (c *Gilt) snapshot(chain consensus.ChainHeaderReader, targetHeader *types.Header, parents []*types.Header, checkNewSpan bool) (snap *Snapshot, err error) {
 	// Search for a snapshot in memory or on disk for checkpoints
-	signer := common.BytesToAddress(c.authorizedSigner.Load().signer.Bytes())
-	if c.DevFakeAuthor && signer.String() != "0x0000000000000000000000000000000000000000" {
-		log.Info("👨‍💻Using DevFakeAuthor", "signer", signer)
-
-		val := valset.NewValidator(signer, 1000)
-		validatorset := valset.NewValidatorSet([]*valset.Validator{val})
-
-		snapshot := newSnapshot(c.chainConfig, c.signatures, targetHeader.Number.Uint64(), targetHeader.Hash(), validatorset.Validators)
-
-		return snapshot, nil
-	}
-
 	if c.config.IsRio(targetHeader.Number) {
 		return c.getVeBlopSnapshot(chain, targetHeader, parents, checkNewSpan)
 	}
@@ -1043,6 +1028,9 @@ func (c *Gilt) Prepare(chain consensus.ChainHeaderReader, header *types.Header, 
 	if IsSprintStart(number+1, c.config.CalculateSprint(number)) && !c.config.IsRio(header.Number) {
 		newValidators, err := c.spanner.GetCurrentValidatorsByHash(context.Background(), header.ParentHash, number+1)
 		if err != nil {
+			return errUnknownValidators
+		}
+		if len(newValidators) == 0 {
 			return errUnknownValidators
 		}
 

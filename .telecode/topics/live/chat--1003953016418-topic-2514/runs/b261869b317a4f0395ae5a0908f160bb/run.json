@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T08:32:24Z",
+  "engine": "codex",
+  "final_answer": "No, it is not fully done yet; there are still partial gaps.\n\nConfirmed gaps from the read-only audit:\n- A real regression/panic exists: the shared test setup now always injects a default `GiltConsensusClient` ([bridge/gilt-exec/consensus/gilt/gilt_test.go#L219](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt_test.go#L219)), but `TestFinalize_SprintBlockWithCommitSpan` still assumes no client ([bridge/gilt-exec/consensus/gilt/gilt_test.go#L3214](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt_test.go#L3214)). That path now reaches `CommitStates` and panics on nil `GenesisContractsClient` at ([bridge/gilt-exec/consensus/gilt/gilt.go#L1730](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt.go#L1730)).\n- Test behavior is partially adapted: VeBlop tests expect two validators ([bridge/gilt-exec/consensus/gilt/gilt_test.go#L647](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt_test.go#L647)), but the default injected span is single-validator in the new shared setup ([bridge/gilt-exec/consensus/gilt/gilt_test.go#L212](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt_test.go#L212)).\n- `eth` checkpoint test path is also partial: a test client type was added ([bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go#L40](/srv/repos/gold-chain/bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go#L40)) but not wired into node startup config ([bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go#L555](/srv/repos/gold-chain/bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go#L555)), and `TestCheckpointMismatch_DoesNotRewind` times out waiting for head growth.\n\nWhy this matters:\n- Runtime cleanup of non-production flags/hooks is mostly in place, but the validation surface is not fully green yet, so this is still a partial finish state.\n\nWhat should be done next:\n1. Fix `consensus/gilt` tests to align with the new \u201calways require real/mock GiltConsensus client\u201d behavior (especially shared setup assumptions).\n2. Wire deterministic test GiltConsensus client into `eth` checkpoint verifier startup path so block production can progress in tests.\n3. Re-run: `go test ./consensus/gilt`, `go test ./eth -run TestCheckpointMismatch_DoesNotRewind`, then broader package checks.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 82,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Read only task, don't change code. Go through fine tooth comb of what you just implemented and check for gaps or partial implementation and report back please. Dont be overzealous and go on tangents, remain in the confines of the scope of this task, there might be times where you might have to say all done nothing left, which would also be an acceptable response",
+  "run_id": "b261869b317a4f0395ae5a0908f160bb",
+  "started_at": "2026-04-27T08:21:36Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T08:32:24Z",
+  "version": 1
+}

@@ -4,8 +4,6 @@ The ```gilt server``` command runs the Gilt client.
 
 ## Options
 
-- ```gilt.devfakeauthor```: Run miner without validator set authorization [dev mode] : Use with '--gilt.withoutgiltconsensus' (default: false)
-
 - ```gilt.giltconsensus```: URL of GiltConsensus service (comma-separated for failover: "url1,url2") (default: http://localhost:1317)
 
 - ```gilt.giltconsensusWS```: Address of GiltConsensus WS subscription service (comma-separated for failover: "addr1,addr2")
@@ -15,14 +13,6 @@ The ```gilt server``` command runs the Gilt client.
 - ```gilt.giltconsensustimeout```: Timeout period for gilt's outgoing requests to giltconsensus (default: 5s)
 
 - ```gilt.logs```: Enables gilt log retrieval (default: false)
-
-- ```gilt.rungiltconsensus```: Run GiltConsensus service as a child process (default: false)
-
-- ```gilt.rungiltconsensusargs```: Arguments to pass to GiltConsensus service
-
-- ```gilt.usegiltconsensusapp```: Use child giltconsensus process to fetch data, Only works when gilt.rungiltconsensus is true (default: false)
-
-- ```gilt.withoutgiltconsensus```: Run without GiltConsensus service (for testing purpose) (default: false)
 
 - ```chain```: Name of the chain to sync ('gilttestnet', 'gilttestnet-legacy', 'mainnet') or path to a genesis file (default: mainnet)
 

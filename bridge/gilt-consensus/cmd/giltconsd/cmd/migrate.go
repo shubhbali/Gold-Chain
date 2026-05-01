@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -29,6 +30,8 @@ import (
 	"github.com/giltchain/gilt-consensus/cmd/giltconsd/cmd/migration/utils"
 	"github.com/giltchain/gilt-consensus/cmd/giltconsd/cmd/migration/verify"
 	milestoneTypes "github.com/giltchain/gilt-consensus/x/milestone/types"
+	pricefeedTypes "github.com/giltchain/gilt-consensus/x/pricefeed/types"
+	stakeTypes "github.com/giltchain/gilt-consensus/x/stake/types"
 )
 
 var (
@@ -297,6 +300,13 @@ func performMigrations(genesisFileV1, chainId, genesisTime string, initialHeight
 	}
 	logger.Info(fmt.Sprintf("migrateStakeModule took %.2f minutes", time.Since(start).Minutes()))
 
+	// migratePricefeedModule
+	start = time.Now()
+	if err := migratePricefeedModule(genesisData); err != nil {
+		return nil, err
+	}
+	logger.Info(fmt.Sprintf("migratePricefeedModule took %.2f minutes", time.Since(start).Minutes()))
+
 	// Set final values
 	genesisData["chain_id"] = chainId
 	genesisData["genesis_time"] = genesisTime
@@ -305,6 +315,22 @@ func performMigrations(genesisFileV1, chainId, genesisTime string, initialHeight
 	logger.Info(fmt.Sprintf("performMigrations took %.2f minutes", time.Since(globalStart).Minutes()))
 
 	return genesisData, nil
+}
+
+// migratePricefeedModule adds default pricefeed genesis for migrated chains
+// that predate native GILT/GOLD reward-weight accounting.
+func migratePricefeedModule(genesisData map[string]interface{}) error {
+	appState, ok := genesisData["app_state"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("app_state is missing or invalid")
+	}
+
+	if _, exists := appState[pricefeedTypes.ModuleName]; exists {
+		return nil
+	}
+
+	appState[pricefeedTypes.ModuleName] = appCodec.MustMarshalJSON(pricefeedTypes.DefaultGenesisState())
+	return nil
 }
 
 // saveGenesisFile saves the migrated genesis data to a new file.
@@ -377,9 +403,149 @@ func migrateStakeModule(genesisData map[string]interface{}) error {
 		return fmt.Errorf("failed to add empty last_block_txs to stake module: %w", err)
 	}
 
+	if err := addNativeValidatorLifecycleToMigratedStake(stakeData, currentValidatorSet); err != nil {
+		return err
+	}
+
 	logger.Info("Stake module migration completed successfully")
 
 	return nil
+}
+
+func addNativeValidatorLifecycleToMigratedStake(stakeData map[string]interface{}, currentValidatorSet map[string]interface{}) error {
+	validators, err := migratedValidatorMaps(stakeData["validators"])
+	if err != nil {
+		return err
+	}
+	currentValidators, err := migratedValidatorMaps(currentValidatorSet["validators"])
+	if err != nil {
+		return err
+	}
+
+	if proposer, ok := currentValidatorSet["proposer"].(map[string]interface{}); ok {
+		normalizeMigratedNativeValidator(proposer)
+	}
+
+	var approvalAuthority string
+	if len(validators) > 0 {
+		approvalAuthority = normalizeMigratedNativeValidator(validators[0])
+	}
+
+	for _, validator := range validators {
+		normalizeMigratedNativeValidator(validator)
+	}
+	for _, validator := range currentValidators {
+		normalizeMigratedNativeValidator(validator)
+	}
+
+	if _, exists := stakeData["validator_lifecycle_params"]; !exists {
+		stakeData["validator_lifecycle_params"] = map[string]interface{}{
+			"approval_authority":         approvalAuthority,
+			"min_active_validators":      strconv.FormatUint(stakeTypes.DefaultMinActiveValidators, 10),
+			"max_validator_power_bps":    strconv.FormatUint(stakeTypes.DefaultMaxValidatorPowerBps, 10),
+			"validator_unbonding_epochs": strconv.FormatUint(stakeTypes.DefaultValidatorUnbondingEpochs, 10),
+		}
+	}
+
+	approvals := make([]interface{}, 0, len(validators))
+	for _, validator := range validators {
+		approval, err := migratedValidatorApproval(validator)
+		if err != nil {
+			return err
+		}
+		approvals = append(approvals, approval)
+	}
+	stakeData["validator_approvals"] = approvals
+
+	return nil
+}
+
+func migratedValidatorMaps(validatorsInterface interface{}) ([]map[string]interface{}, error) {
+	validators, ok := validatorsInterface.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("failed to cast validators")
+	}
+
+	result := make([]map[string]interface{}, 0, len(validators))
+	for i, validator := range validators {
+		validatorMap, ok := validator.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("failed to cast validator data at index %d", i)
+		}
+		result = append(result, validatorMap)
+	}
+	return result, nil
+}
+
+func normalizeMigratedNativeValidator(validator map[string]interface{}) string {
+	operator := stringValue(validator["operator"])
+	if operator == "" {
+		operator = stringValue(validator["signer"])
+		validator["operator"] = operator
+	}
+	if stringValue(validator["self_gilt_stake"]) == "" {
+		if amount := migratedValidatorMaxGiltStake(validator); amount != "" {
+			validator["self_gilt_stake"] = amount
+		}
+	}
+	return operator
+}
+
+func migratedValidatorApproval(validator map[string]interface{}) (map[string]interface{}, error) {
+	amount := stringValue(validator["self_gilt_stake"])
+	if amount == "" {
+		amount = migratedValidatorMaxGiltStake(validator)
+	}
+	if amount == "" {
+		return nil, fmt.Errorf("failed to derive migrated validator GILT stake")
+	}
+
+	return map[string]interface{}{
+		"val_id":           stringValue(validator["val_id"]),
+		"operator":         stringValue(validator["operator"]),
+		"activation_epoch": firstStringValue(validator, "start_epoch", "startEpoch"),
+		"max_gilt_stake":   amount,
+		"signer_pub_key":   firstStringValue(validator, "pub_key", "pubKey"),
+		"nonce":            stringValue(validator["nonce"]),
+	}, nil
+}
+
+func migratedValidatorMaxGiltStake(validator map[string]interface{}) string {
+	powerStr := stringValue(validator["voting_power"])
+	if powerStr == "" {
+		return ""
+	}
+	power, ok := new(big.Int).SetString(powerStr, 10)
+	if !ok || power.Sign() <= 0 {
+		return ""
+	}
+	return power.Mul(power, big.NewInt(pricefeedTypes.PriceScale)).String()
+}
+
+func firstStringValue(data map[string]interface{}, keys ...string) string {
+	for _, key := range keys {
+		if value := stringValue(data[key]); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func stringValue(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case int:
+		return strconv.Itoa(v)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case uint64:
+		return strconv.FormatUint(v, 10)
+	case float64:
+		return strconv.FormatUint(uint64(v), 10)
+	default:
+		return ""
+	}
 }
 
 // migrateChainManagerModule renames the chainmanager module params fields to match the new naming convention.
@@ -402,10 +568,6 @@ func migrateChainManagerModule(genesisData map[string]interface{}, chainId strin
 
 	if err := utils.RenameProperty(chainmanagerData, "params", "maticchain_tx_confirmations", "gilt_chain_tx_confirmations"); err != nil {
 		return fmt.Errorf("failed to rename mainchain_tx_timeout field: %w", err)
-	}
-
-	if err := utils.RenameProperty(chainmanagerData, "params.chain_params", "matic_token_address", "pol_token_address"); err != nil {
-		return fmt.Errorf("failed to rename matic_token_address field: %w", err)
 	}
 
 	if err := utils.AddProperty(chainmanagerData, "params.chain_params", "giltconsensus_chain_id", chainId); err != nil {

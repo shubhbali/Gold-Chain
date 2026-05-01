@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-21T19:23:12Z",
+  "engine": "codex",
+  "final_answer": "Because your codebase is a **modified fork**, not a strict BSC-parity fork.\n\nWhy it matters: a fork only gives you a starting snapshot; once validator onboarding flow, consensus wiring, bridge integration, and staking/economic parameters are changed, chain behavior will diverge even if ancestry is BSC. That is exactly what happened here: your stack has custom consensus+bridge handling and different validator/economic defaults, so it no longer behaves like vanilla BSC validator admission.\n\nWhat to do next:\n1. Decide whether you want **BSC parity** or **Gold Chain custom behavior** for validator lifecycle.\n2. Freeze a parity checklist: join, activation, validator count, stake minimums, fees, rotation, exit/slash.\n3. For each mismatch, either explicitly keep it (as intentional design) or revert it to BSC behavior.  \nIf you want, I can give you a strict read-only parity gap list next.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "if we forked bsc why is ours different?",
+  "run_id": "e2ee0f5060a24a7ea1084b2b791d70df",
+  "started_at": "2026-04-21T19:22:51Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-21T19:23:12Z",
+  "version": 1
+}

@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T21:45:50Z",
+  "engine": "codex",
+  "final_answer": "There is no single standard: most permissioned chains use **`>2/3` for block finality** and a separate **`k-of-n` rule for validator admission**.\n\nFrom docs:\n\n1. **Hyperledger Besu (QBFT)**: block finality needs a supermajority (`>=2/3`) signatures; adding a validator (block-header mode) needs **more than 50%** of existing validators voting yes.  \n[QBFT docs](https://besu.hyperledger.org/private-networks/how-to/configure/consensus/qbft) | [PoA overview](https://besu.hyperledger.org/private-networks/concepts/poa)\n\n2. **CometBFT (Tendermint family)**: consensus progresses/commits on **`+2/3` prevotes/precommits**.  \n[CometBFT consensus spec](https://docs.cometbft.com/v0.37/spec/consensus/consensus)\n\n3. **Hyperledger Fabric**: endorsement is explicitly configurable with `AND/OR/OutOf(k, \u2026)` (true `k-of-n`), and default channel policy is majority of channel members.  \n[Fabric endorsement policies](https://hyperledger-fabric.readthedocs.io/en/release-2.5/endorsement-policies.html)\n\n4. **Sawtooth PBFT**: commit path uses **`2f+1`** prepare/commit messages (classic PBFT threshold).  \n[Sawtooth PBFT architecture](https://sawtooth.splinter.dev/docs/1.2/pbft/architecture.html)\n\nWhy this matters for Gold Chain: your concern is correct; a single key for validator admission is weak governance.\n\nWhat to do next:\n1. Set validator admission to multisig `k-of-n` (for example `3-of-5`).\n2. Keep consensus finality at `>=2/3`.\n3. Write both thresholds explicitly in chain params/governance docs so they are enforceable, not informal.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "ok read docs of toher permissioned chains and then tell me how they do it?? what is their N of M model mate",
+  "run_id": "f1b0121c2e604edf95af306b7c18a947",
+  "started_at": "2026-04-27T21:44:26Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-38036",
+  "updated_at": "2026-04-27T21:45:50Z",
+  "version": 1
+}

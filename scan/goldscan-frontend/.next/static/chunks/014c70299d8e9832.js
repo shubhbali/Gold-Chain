@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/sprite", [
+  "static/chunks/c16414717ee7b363.js",
+  "static/chunks/832599d570645496.js",
+  "static/chunks/ff8aa0efc41789a8.js",
+  "static/chunks/f7e1746610b526f6.js",
+  "static/chunks/a742e4db5bf686e6.js",
+  "static/chunks/7d596d2741a68dba.js",
+  "static/chunks/7aeada7b085c71a8.js",
+  "static/chunks/88f42e9a499b0b2f.js",
+  "static/chunks/d75ca77b55631226.js",
+  "static/chunks/c40848c36739416b.js",
+  "static/chunks/8ce60c20c18c6c11.js",
+  "static/chunks/5808db25ad62a8cd.js",
+  "static/chunks/b68089fc8b40ab46.js",
+  "static/chunks/ea8fa4e699fdd7f9.js",
+  "static/chunks/643ec9b145be6666.js",
+  "static/chunks/3f5fb17709da91c2.js",
+  "static/chunks/turbopack-febdbd7ae7497177.js"
+])

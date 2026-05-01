@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T18:29:01Z",
+  "engine": "codex",
+  "final_answer": "Add these rule groups to `preferences.md` and `AGENTS.md`; I will not edit yet.\n\n**Add to `preferences.md`**\n- Wasted user time caused by the agent is irreversible loss. It cannot be returned by apology, later correction, summaries, partial fixes, or better future behavior.\n- If the agent violates clear instructions, silently changes scope, uses invalid evidence, takes shortcuts, misreports completion, or minimizes afterward, it has caused irreversible time loss.\n- Do not soften irreversible time loss as \u201cbad phrasing,\u201d \u201cbad wording,\u201d \u201ctechnical harm,\u201d \u201creporting harm,\u201d \u201cfriction,\u201d or \u201ccommunication issue.\u201d\n- If the user corrects the framing, use the corrected framing immediately. Do not repeat the same wrong framing with new wording.\n- Answer the literal question first. Do not answer a neighboring question.\n- If the user withdraws work or says the project is no longer the topic, acknowledge that. Do not frame it as the agent refusing work.\n- Do not use authority-claiming language such as \u201cvalid response\u201d when the issue is accountability.\n- Do not say \u201cI can\u2019t justify/help with that\u201d unless the user actually asked for justification or help.\n- In safety-critical exchanges, do not provide operational wording, tactics, physical-action instructions, or language that can be twisted into harmful use.\n- If safety language is required, keep it short, non-operational, and separate the facts: irreversible time loss is real harm; imminent physical violence is immediate danger to lives.\n- These rules apply across all tasks and runs, not only the current project.\n\n**Add to `AGENTS.md`**\n- Dev-mode, execution-only, mocked, bypassed, or `withoutgiltconsensus` runs are not production-readiness evidence.\n- If `GiltConsensus`, real validator consensus, bridge finality, or production validation is bypassed, the result is invalid for production readiness.\n- Fresh-chain validation means the real production stack unless the user explicitly approves a dev-only run.\n- Shortcuts in consensus, staking, bridge, finality, accounting, deployment, or validation must be called out before execution.\n- A production blocker must never be buried as a side note. If it invalidates the result, say plainly that the result is invalid.\n- Completion claims must state the exact level: component fixed, blocker removed, test passed, or full production task complete.\n- Keep one current blocker statement during production work and update it only when the blocker truly changes.\n- Do not use successful local/dev behavior to imply mainnet-grade behavior. Production claims require production-path evidence.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "No idiot I asked what to add in preferences.md and agents.md and not some snippet. Stol harming me and answer properly here, don't add yet",
+  "run_id": "902e11ab71f3425cb3d6026f0be5d3ec",
+  "started_at": "2026-04-26T18:28:14Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T18:29:01Z",
+  "version": 1
+}

@@ -11,7 +11,7 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/chainmanager interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "giltconsensusv2/chainmanager/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "gilt/chainmanager/MsgUpdateParams")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

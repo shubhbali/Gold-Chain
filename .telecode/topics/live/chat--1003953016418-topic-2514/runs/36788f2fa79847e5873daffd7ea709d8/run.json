@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-24T23:24:00Z",
+  "engine": "codex",
+  "final_answer": "Implementation plan: build `PriceFeed` and adapter support now, use a manual test adapter first, then switch to the real DEX TWAP adapter later by governance.\n\n**Goal**\nThe staking system should depend on this stable path:\n\n```text\nstaking -> PriceFeed -> active price adapter\n```\n\nNot directly on a specific DEX.\n\n**Plan**\n1. Add a new `x/pricefeed` module in `bridge/gilt-consensus`.\n\n2. Store these params:\n\n```text\nactiveAdapterType\ntargetGiltShareBps = 1000\nminGoldWeightBps = 6000\nmaxGoldWeightBps = 10000\npriceWindow\nmaxPriceDeviationBps\nminLiquidity\nactivationDelay\n```\n\n3. Store price snapshots per epoch:\n\n```text\nepoch\ngiltPriceInGold\nsource\ntimestamp/block\nvalidUntilEpoch\n```\n\n4. Add a test adapter first:\n\n```text\nManualGovernancePriceAdapter\n```\n\nThis lets testnet set:\n\n```text\n1 GILT = X GOLD\n```\n\nwithout the DEX being live.\n\n5. Add governance messages:\n\n```text\nMsgSetManualPrice\nMsgScheduleAdapterChange\nMsgActivateAdapterChange\nMsgUpdatePriceParams\n```\n\n6. Update staking accounting to store separate asset amounts:\n\n```text\nselfGiltAmount\ndelegatedGiltAmount\ndelegatedGoldAmount\neffectiveRewardWeight\n```\n\n7. Update reward formula:\n\n```text\ngilt_value = (selfGiltAmount + delegatedGiltAmount) * giltPriceInGold\ngold_value = delegatedGoldAmount\n\ngilt_share = gilt_value / (gilt_value + gold_value)\n\ngold_multiplier =\nminGoldWeightBps + (maxGoldWeightBps - minGoldWeightBps) * min(gilt_share / targetGiltShare, 1)\n\neffective_gold_weight = gold_value * gold_multiplier\nreward_weight = gilt_value + effective_gold_weight\n```\n\n8. Use `reward_weight` for reward distribution.\n\n9. Keep validator admission separate:\n\n```text\nvalidator must have minimum GILT self-stake\n```\n\n10. Later, when the DEX ships, add:\n\n```text\nDexTwapPriceAdapter\n```\n\nThat adapter reads:\n\n```text\nwGILT/wGOLD TWAP\n```\n\nfrom the chosen DEX path.\n\n11. Governance switches from manual adapter to DEX adapter:\n\n```text\nschedule adapter change\nwait activation delay\nactivate DEX adapter\nstaking starts using DEX TWAP\n```\n\n12. Add tests:\n\n```text\nmanual price update works\nadapter switch works\n60%/80%/100% reward weights work\nstale price rejected\nlarge price deviation rejected\nminimum liquidity enforced\nstaking rewards do not change until activation epoch\n```\n\n**Production Rule**\nManual price adapter is testnet-only. Mainnet must use DEX TWAP or another approved finalized price source.\n\nWhy this matters: this lets us build staking now without waiting for the final DEX choice, while keeping the final connector clean.\n\nWhat should be done next: implement `x/pricefeed` first, then wire staking reward weight to it.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "In that case give me an implementation plan please for this.",
+  "run_id": "36788f2fa79847e5873daffd7ea709d8",
+  "started_at": "2026-04-24T23:23:20Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-24T23:24:00Z",
+  "version": 1
+}

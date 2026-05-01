@@ -36,9 +36,21 @@ func TestValidateVoteExtensions(t *testing.T) {
 
 	valSet, err := hApp.StakeKeeper.GetPreviousBlockValidatorSet(ctx)
 	require.NoError(t, err)
-	cometVal := abci.Validator{
-		Address: valAddr,
-		Power:   vals[0].VotingPower,
+	_ = valAddr
+
+	privKeysBySigner := validatorPrivKeysBySigner(validatorPrivKeys)
+	validVoteInfos := make([]abci.ExtendedVoteInfo, 0, len(vals))
+	for _, val := range vals {
+		privKey, ok := privKeysBySigner[util.FormatAddress(val.Signer)]
+		require.Truef(t, ok, "missing private key for validator signer %s", val.Signer)
+		validVoteInfos = append(validVoteInfos, setupExtendedVoteInfo(
+			t,
+			cmtTypes.BlockIDFlagCommit,
+			common.FromHex(TxHash1),
+			common.FromHex(TxHash2),
+			abci.Validator{Address: common.FromHex(val.Signer), Power: val.VotingPower},
+			privKey,
+		))
 	}
 
 	tests := []struct {
@@ -52,21 +64,17 @@ func TestValidateVoteExtensions(t *testing.T) {
 		expectedErr     string
 	}{
 		{
-			name: "ves disabled with non-empty vote extension",
-			ctx:  setupContextWithVoteExtensionsEnableHeight(ctx, 0),
-			extVoteInfo: []abci.ExtendedVoteInfo{
-				setupExtendedVoteInfo(t, cmtTypes.BlockIDFlagCommit, common.FromHex(TxHash1), common.FromHex(TxHash2), cometVal, validatorPrivKeys[0]),
-			},
+			name:        "ves disabled with non-empty vote extension",
+			ctx:         setupContextWithVoteExtensionsEnableHeight(ctx, 0),
+			extVoteInfo: validVoteInfos,
 			round:       1,
 			valSet:      valSet,
 			shouldError: true,
 		},
 		{
-			name: "function executed and signature verified successfully",
-			ctx:  setupContextWithVoteExtensionsEnableHeight(ctx, 1),
-			extVoteInfo: []abci.ExtendedVoteInfo{
-				setupExtendedVoteInfo(t, cmtTypes.BlockIDFlagCommit, common.FromHex(TxHash1), common.FromHex(TxHash2), cometVal, validatorPrivKeys[0]),
-			},
+			name:        "function executed and signature verified successfully",
+			ctx:         setupContextWithVoteExtensionsEnableHeight(ctx, 1),
+			extVoteInfo: validVoteInfos,
 			round:       1,
 			valSet:      valSet,
 			shouldError: false,

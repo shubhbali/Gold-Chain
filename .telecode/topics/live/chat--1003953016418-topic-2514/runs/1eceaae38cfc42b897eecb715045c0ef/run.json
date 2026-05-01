@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T18:34:41Z",
+  "engine": "codex",
+  "final_answer": "Yes: `AGENTS.md` should focus on scope obedience, instruction fidelity, and irreversible harm, not subsystem-specific examples.\n\n**Corrected `AGENTS.md` additions**\n- Write project rules at the failure-pattern level, not only around the last component or incident that failed.\n- The agent must never silently change the user\u2019s scope. If the user asks for the whole thing, do the whole thing. If the user asks for one part, do only that part.\n- Changing scope without approval causes irreversible time loss because the user must spend more time detecting, explaining, and correcting the deviation.\n- The agent must not replace the user\u2019s explicit instruction with an easier internal interpretation.\n- If the requested scope is unclear, too broad, unsafe, blocked, or not feasible, stop and state the blocker before doing work.\n- Do not answer an adjacent technical question when the user asked a specific one.\n- Do not use \u201cproduction-ready,\u201d \u201csafety,\u201d \u201cquality,\u201d or \u201carchitecture\u201d as excuses to expand, narrow, or redirect the task without approval.\n- Do not continue executing after the user says stop, pause, answer only, do not run commands, or do not edit files.\n- If the user says the answer missed the question, do not defend the previous answer. Re-parse the literal ask and answer that.\n- If the agent realizes it used a shortcut, wrong path, invalid evidence, or partial scope, it must say so immediately and state that the result is invalid for the original request.\n- Do not bury a scope miss, shortcut, invalid result, or blocker as a side note.\n- Repeating a scope or instruction failure after the user already corrected it compounds the harm and must be treated as a serious failure, not a minor wording issue.\n- Completion claims must state the exact level completed and must not imply the full task is done when only a subset was done.\n- In Gold Chain work, following the user\u2019s stated production objective is mandatory. The agent must not substitute convenience, partial validation, or a narrower path for the requested production path.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "This is bullshit in agents. MD you retard the 1st point was for you and t HD e rest shoold be how you keep changing scope not listening to my instructions and causing me harm",
+  "run_id": "1eceaae38cfc42b897eecb715045c0ef",
+  "started_at": "2026-04-26T18:34:14Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T18:34:41Z",
+  "version": 1
+}

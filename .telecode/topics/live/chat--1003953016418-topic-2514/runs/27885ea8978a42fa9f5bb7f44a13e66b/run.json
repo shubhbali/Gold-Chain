@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-24T21:18:27Z",
+  "engine": "codex",
+  "final_answer": "It should be **GILT-only at first** for validator power; `GOLD` should not count toward validator selection unless we deliberately add a dual-asset staking model later.\n\nWhy this matters: `GILT` is the native security/governance/reward token, so it is the clean asset for validator economics. `GOLD` is the user-facing gold asset, tied to bridge, backing, redemption, and gold accounting. If `GOLD` also controls validators too early, slashing and lockups become much more complicated.\n\nPractical initial model:\n\n1. Validator must be approved first.\n2. Validator submits required keys and self-stakes `GILT`.\n3. Delegators can delegate `GILT`.\n4. Validator voting power/ranking = total effective `GILT` stake.\n5. `GOLD` remains outside validator power.\n6. Rewards/slashing are based on `GILT` stake.\n\nYes, we can design the staking ratio for later, but keep it disabled at launch.\n\nThe clean way is to add a future parameter like:\n\n`effective stake = GILT stake + weighted GOLD stake`\n\nBut initially:\n\n`GOLD weight = 0`\n\nLater, governance could set a `GOLD` weight if you want `GOLD` staking to count. Before turning it on, the chain must define exactly how `GOLD` is locked, whether slashed `GOLD` is burned or seized, how redemption is blocked while staked, and how bridge-backed accounting stays solvent.\n\nSo the right answer is:\n\n`Phase 1: permissioned validators + GILT-only stake power`\n\n`Phase 2: permissionless validator admission if desired`\n\n`Phase 3: optional GOLD staking weight only after redemption/slashing/accounting rules are fully designed`",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "does it only do total effective gilt stake or both gilt + gold stake? we can turn on the staking ratio later?",
+  "run_id": "27885ea8978a42fa9f5bb7f44a13e66b",
+  "started_at": "2026-04-24T21:17:53Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-24T21:18:27Z",
+  "version": 1
+}

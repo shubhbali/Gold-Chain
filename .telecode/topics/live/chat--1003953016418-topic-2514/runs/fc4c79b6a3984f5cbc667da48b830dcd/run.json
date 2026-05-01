@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T02:18:57Z",
+  "engine": "codex",
+  "final_answer": "I touched bridge code only because the old bridge staking processor was still creating validator join/update/exit messages from Ethereum events.\n\nWhy it matters: once validator lifecycle becomes native Gold Chain logic, the bridge must **not** keep a second path that can add/update/exit validators from L1 event logs. That would preserve the exact \u201cbridge event magic\u201d problem we are removing.\n\nWhat I changed there: I disabled the bridge staking lifecycle processor from mutating validator state. It should only ignore/drain old queued staking events, not create native validator transactions. This does **not** mean GOLD/PAXG/XAUT bridge asset logic should be removed.\n\nNext: I should continue only if you agree that validator lifecycle must be removed from bridge control. If you want zero bridge files touched, say that directly and I will adjust the implementation path.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "What is this thing you are doing with the bridge code?",
+  "run_id": "fc4c79b6a3984f5cbc667da48b830dcd",
+  "started_at": "2026-04-26T02:18:40Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T02:18:57Z",
+  "version": 1
+}

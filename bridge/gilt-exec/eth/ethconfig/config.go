@@ -26,14 +26,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
+	"github.com/ethereum/go-ethereum/consensus/clique"
+	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/consensus/gilt"
-	"github.com/ethereum/go-ethereum/consensus/gilt/contract"
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient" //nolint:typecheck
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/span"
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusgrpc"
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusws"
-	"github.com/ethereum/go-ethereum/consensus/clique"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
+	"github.com/ethereum/go-ethereum/consensus/gilt/contract"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/history"
 	"github.com/ethereum/go-ethereum/core/txpool/blobpool"
@@ -235,27 +235,11 @@ type Config struct {
 	// timeout in giltconsensus requests
 	GiltConsensusTimeout time.Duration
 
-	// No giltconsensus service
-	WithoutGiltConsensus bool
-
 	// Address to connect to GiltConsensus gRPC server (comma-separated for failover: "addr1,addr2")
 	GiltConsensusgRPCAddress string
 
 	// Address to connect to GiltConsensus WS subscription server (comma-separated for failover: "addr1,addr2")
 	GiltConsensusWSAddress string
-
-	// Run giltconsensus service as a child process
-	RunGiltConsensus bool
-
-	// Arguments to pass to giltconsensus service
-	RunGiltConsensusArgs string
-
-	// Use child giltconsensus process to fetch data, Only works when RunGiltConsensus is true
-	UseGiltConsensusApp bool
-
-	// OverrideGiltConsensusClient allows injecting a mock GiltConsensusClient for testing.
-	// When set, this client is used instead of creating one from GiltConsensusURL/GiltConsensusgRPCAddress.
-	OverrideGiltConsensusClient gilt.IGiltConsensusClient `toml:"-"`
 
 	// Gilt logs flag
 	GiltLogs bool
@@ -271,9 +255,6 @@ type Config struct {
 
 	// SyncAndProduceWitnesses enables producing witnesses while syncing
 	SyncAndProduceWitnesses bool
-
-	// Develop Fake Author mode to produce blocks without authorisation
-	DevFakeAuthor bool `hcl:"devfakeauthor,optional" toml:"devfakeauthor,optional"`
 
 	// OverrideOsaka (TODO: remove after the fork)
 	OverrideOsaka *big.Int `toml:",omitempty"`
@@ -339,92 +320,74 @@ func CreateConsensusEngine(chainConfig *params.ChainConfig, ethConfig *Config, d
 		genesisContractsClient := contract.NewGenesisContractsClient(chainConfig, chainConfig.Gilt.ValidatorContract, chainConfig.Gilt.StateReceiverContract, blockchainAPI)
 		spanner := span.NewChainSpanner(blockchainAPI, contract.ValidatorSet(), chainConfig, common.HexToAddress(chainConfig.Gilt.ValidatorContract))
 
-		log.Info("Creating consensus engine", "withoutGiltConsensus", ethConfig.WithoutGiltConsensus)
 		log.Info("Using custom miner block time", "blockTime", ethConfig.Miner.BlockTime)
 
-		if ethConfig.WithoutGiltConsensus {
-			return gilt.New(chainConfig, db, blockchainAPI, spanner, nil, nil, genesisContractsClient, ethConfig.DevFakeAuthor, ethConfig.Miner.BlockTime), nil
-		} else {
-			if ethConfig.DevFakeAuthor {
-				log.Warn("Sanitizing DevFakeAuthor", "Use DevFakeAuthor with", "--gilt.withoutgiltconsensus")
-			}
+		var giltconsensusClient gilt.IGiltConsensusClient
+		httpURLs := parseURLs(ethConfig.GiltConsensusURL)
+		grpcAddrs := parseURLs(ethConfig.GiltConsensusgRPCAddress)
 
-			var giltconsensusClient gilt.IGiltConsensusClient
-			// Use override client if provided (for testing)
-			if ethConfig.OverrideGiltConsensusClient != nil {
-				giltconsensusClient = ethConfig.OverrideGiltConsensusClient
-			} else if ethConfig.RunGiltConsensus && ethConfig.UseGiltConsensusApp {
-				// TODO: Running giltconsensus from gilt is not tested yet.
-				// giltconsensusClient = giltconsensusapp.NewGiltConsensusAppClient()
-				panic("Running giltconsensus from gilt is not implemented yet. Please use giltconsensus gRPC or HTTP client instead.")
-			} else {
-				httpURLs := parseURLs(ethConfig.GiltConsensusURL)
-				grpcAddrs := parseURLs(ethConfig.GiltConsensusgRPCAddress)
+		// Build one client per endpoint.
+		// gRPC takes priority where configured; falls back to HTTP.
+		var giltconsensusClients []giltconsensus.Endpoint
 
-				// Build one client per endpoint.
-				// gRPC takes priority where configured; falls back to HTTP.
-				var giltconsensusClients []giltconsensus.Endpoint
+		n := max(len(httpURLs), len(grpcAddrs))
+		for i := 0; i < n; i++ {
+			if i < len(grpcAddrs) && grpcAddrs[i] != "" {
+				var httpURL string
+				if len(httpURLs) > 0 {
+					httpURL = httpURLs[min(i, len(httpURLs)-1)]
+				}
 
-				n := max(len(httpURLs), len(grpcAddrs))
-				for i := 0; i < n; i++ {
-					if i < len(grpcAddrs) && grpcAddrs[i] != "" {
-						var httpURL string
-						if len(httpURLs) > 0 {
-							httpURL = httpURLs[min(i, len(httpURLs)-1)]
-						}
+				grpcClient, err := giltconsensusgrpc.NewGiltConsensusGRPCClient(grpcAddrs[i], httpURL, ethConfig.GiltConsensusTimeout)
+				if err != nil {
+					log.Error("Failed to initialize GiltConsensus gRPC client; falling back to HTTP",
+						"index", i, "grpc", grpcAddrs[i], "err", err)
 
-						grpcClient, err := giltconsensusgrpc.NewGiltConsensusGRPCClient(grpcAddrs[i], httpURL, ethConfig.GiltConsensusTimeout)
-						if err != nil {
-							log.Error("Failed to initialize GiltConsensus gRPC client; falling back to HTTP",
-								"index", i, "grpc", grpcAddrs[i], "err", err)
-
-							if i < len(httpURLs) {
-								giltconsensusClients = append(giltconsensusClients, giltconsensus.NewGiltConsensusClient(httpURLs[i], ethConfig.GiltConsensusTimeout))
-							}
-
-							continue
-						}
-
-						giltconsensusClients = append(giltconsensusClients, grpcClient)
-					} else if i < len(httpURLs) {
+					if i < len(httpURLs) {
 						giltconsensusClients = append(giltconsensusClients, giltconsensus.NewGiltConsensusClient(httpURLs[i], ethConfig.GiltConsensusTimeout))
 					}
+
+					continue
 				}
 
-				if len(giltconsensusClients) == 0 {
-					giltconsensusClient = giltconsensus.NewGiltConsensusClient(ethConfig.GiltConsensusURL, ethConfig.GiltConsensusTimeout)
-				} else if len(giltconsensusClients) == 1 {
-					giltconsensusClient = giltconsensusClients[0]
-				} else {
-					multiClient, err := giltconsensus.NewMultiGiltConsensusClient(giltconsensusClients...)
-					if err != nil {
-						return nil, fmt.Errorf("failed to create giltconsensus failover client: %w", err)
-					}
-
-					giltconsensusClient = multiClient
-					log.Info("GiltConsensus failover enabled with multiple endpoints", "endpoints", len(giltconsensusClients))
-				}
+				giltconsensusClients = append(giltconsensusClients, grpcClient)
+			} else if i < len(httpURLs) {
+				giltconsensusClients = append(giltconsensusClients, giltconsensus.NewGiltConsensusClient(httpURLs[i], ethConfig.GiltConsensusTimeout))
 			}
-
-			// WS client
-			wsAddrs := parseURLs(ethConfig.GiltConsensusWSAddress)
-
-			var giltconsensusWSClient gilt.IGiltConsensusWSClient
-			var err error
-
-			if len(wsAddrs) > 0 {
-				giltconsensusWSClient, err = giltconsensusws.NewGiltConsensusWSClient(wsAddrs...)
-				if err != nil {
-					return nil, err
-				}
-
-				if len(wsAddrs) > 1 {
-					log.Info("GiltConsensus WS failover enabled with multiple endpoints", "endpoints", len(wsAddrs))
-				}
-			}
-
-			return gilt.New(chainConfig, db, blockchainAPI, spanner, giltconsensusClient, giltconsensusWSClient, genesisContractsClient, false, ethConfig.Miner.BlockTime), nil
 		}
+
+		if len(giltconsensusClients) == 0 {
+			giltconsensusClient = giltconsensus.NewGiltConsensusClient(ethConfig.GiltConsensusURL, ethConfig.GiltConsensusTimeout)
+		} else if len(giltconsensusClients) == 1 {
+			giltconsensusClient = giltconsensusClients[0]
+		} else {
+			multiClient, err := giltconsensus.NewMultiGiltConsensusClient(giltconsensusClients...)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create giltconsensus failover client: %w", err)
+			}
+
+			giltconsensusClient = multiClient
+			log.Info("GiltConsensus failover enabled with multiple endpoints", "endpoints", len(giltconsensusClients))
+		}
+
+		// WS client
+		wsAddrs := parseURLs(ethConfig.GiltConsensusWSAddress)
+
+		var giltconsensusWSClient gilt.IGiltConsensusWSClient
+		var err error
+
+		if len(wsAddrs) > 0 {
+			giltconsensusWSClient, err = giltconsensusws.NewGiltConsensusWSClient(wsAddrs...)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(wsAddrs) > 1 {
+				log.Info("GiltConsensus WS failover enabled with multiple endpoints", "endpoints", len(wsAddrs))
+			}
+		}
+
+		return gilt.New(chainConfig, db, blockchainAPI, spanner, giltconsensusClient, giltconsensusWSClient, genesisContractsClient, ethConfig.Miner.BlockTime), nil
 	}
 	return beacon.New(ethash.NewFaker()), nil
 }

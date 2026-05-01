@@ -131,7 +131,10 @@ message LatestRecordIdResponse {
   // Latest event record ID from the root chain.
   uint64 latest_record_id = 1 [ (amino.dont_omitempty) = true ];
   // True if this record has been processed by GiltConsensus.
-  bool is_processed_by_giltconsensus = 2 [ (amino.dont_omitempty) = true ];
+  bool is_processed_by_giltconsensus = 2 [
+    (amino.dont_omitempty) = true,
+    (gogoproto.customname) = "IsProcessedByGiltConsensus"
+  ];
 }
 
 // RecordCountRequest is the request type for the GetRecordCount query.

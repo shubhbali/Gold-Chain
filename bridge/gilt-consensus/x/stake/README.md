@@ -11,40 +11,27 @@
 
 ## Overview
 
-This module manages the validators' related transactions and state for GiltConsensus.  
-Validators stake their tokens on the Ethereum chain
-and send the transactions on GiltConsensus using the necessary parameters to acknowledge the Ethereum stake change.  
-Once the majority of the validators agree on the change on the stake,
-this module saves the validator information on GiltConsensus state.  
+This module manages the validators' related transactions and state for GiltConsensus.
+Validators are approved by Gold Chain and then submit native `GILT` stake and validator keys directly on GiltConsensus.
+Ethereum staking events must not add validators, update validator stake, change signer keys, or start validator exit in the final Gold Chain validator lifecycle.
+The bridge remains responsible for valid asset, checkpoint, and state-sync flows, not for controlling validator admission.
 
 ![Stake Flow.png](stake_flow.png)
 
 ## Flow
 
-The x/stake module manages validator-related transactions and validator set management for GiltConsensus v2.  
-Validators stake their tokens on the Ethereum chain to participate in consensus.  
-To synchronize these changes with GiltConsensus, the bridge processor broadcasts the corresponding transaction for an Ethereum-emitted event, choosing from one of the following messages each with the necessary parameters:  
-- `MsgValidatorJoin`: This message is triggered when a new validator joins the system by interacting with `StakingManager.sol` on Ethereum. The action emits a `Staked` event to recognize and process the validator’s participation.  
-- `MsgStakeUpdate`: Used to handle stake modifications, this message is sent when a validator re-stakes or receives additional delegation. Both scenarios trigger a `StakeUpdate` event on Ethereum, ensuring GiltConsensus accurately updates the validator’s stake information.  
-- `MsgValidatorExit`: When a validator decides to exit, they initiate the process on Ethereum, leading to the emission of a `UnstakeInit` event. This message ensures that GiltConsensus records the validator’s departure accordingly.  
-- `MsgSignerUpdate`: This message is responsible for processing changes to a validator’s signer key. When a validator updates their signer key on Ethereum, it emits a `SignerUpdate` event, prompting GiltConsensus to reflect the new signer key in its records.  
-Each of these transactions in GiltConsensus v2 follows the same processing mechanisms, leveraging ABCI++ phases.  
-During the `PreCommit` phase, side transaction handlers are triggered, and a vote is injected after validating the Ethereum-emitted event and ensuring its alignment with the data in the processed message.  
-Once a majority of validators confirm that the action described in the message has occurred on Ethereum, the x/stake module updates the validator’s state in GiltConsensus during the `FinalizeBlock`’s `PreBlocker` execution.  
+The x/stake module manages validator-related transactions and validator set management for GiltConsensus v2.
+Validator lifecycle messages are native Gold Chain transactions:
+- `MsgApproveValidator`: records Gold Chain approval for a validator candidate.
+- `MsgValidatorJoin`: adds a validator only when the submitted operator, signer key, activation epoch, and `GILT` stake match a prior approval.
+- `MsgStakeUpdate`: increases native self-staked `GILT` under Gold Chain rules.
+- `MsgValidatorExit`: starts native validator exit under Gold Chain rules.
+- `MsgSignerUpdate`: updates the signer key only under native validation and approval rules.
+These messages are not proofs of Ethereum staking events.
 
 ### Replay Prevention Mechanism
-GiltConsensus v2 employs a replay prevention mechanism in the post-tx handler functions to ensure that validator update messages derived from Ethereum events are not processed multiple times.  
-This mechanism prevents replay attacks by assigning a unique sequence number to each transaction and verifying whether it has already been processed.  
-The sequence number is constructed using the Ethereum block number and log index, following the formula:  
-- `sequence = (block number × DefaultLogIndexUnit) + log index`
-where:  
-- `msg.BlockNumber` represents the Ethereum block where the event was emitted.  
-- `msg.LogIndex` is the position of the log entry within that block.  
-- `DefaultLogIndexUnit` ensures uniqueness when combining block numbers and log indexes.  
-Before processing a transaction, GiltConsensus checks its stake keeper to determine if the sequence number has been recorded.
-If the sequence is found, the transaction is rejected as a duplicate.  
-Once the post-tx handler completes successfully, the sequence is stored, ensuring that any future message with the same sequence is recognized and ignored.  
-This approach guarantees that GiltConsensus only processes each valid Ethereum signer update once, preventing unintended state changes due to replayed messages.  
+Native validator lifecycle messages use validator nonce checks and approval state instead of Ethereum block-number/log-index replay keys.
+This prevents duplicate or out-of-order validator lifecycle changes without depending on Ethereum staking events.
 
 ### Updating the Validator Set
 In the x/stake `EndBlocker`, GiltConsensus updates the validator set (through the `ApplyAndReturnValidatorSetUpdates`function), ensuring consensus reflects the latest validator changes.  
@@ -59,6 +46,36 @@ These mechanisms collectively ensure efficient and fair validator rotation, main
 ![Stake ABCI_Diagram.png](stake_diagram.png)
 
 ## Messages
+
+### MsgApproveValidator
+
+`MsgApproveValidator` defines the native Gold Chain approval gate for validator admission.
+
+```protobuf
+message MsgApproveValidator {
+  option (cosmos.msg.v1.signer) = "from";
+  option (amino.name) = "giltconsensusv2/stake/MsgApproveValidator";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = true;
+  string from = 1 [
+    (amino.dont_omitempty) = true,
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+  uint64 val_id = 2 [ (amino.dont_omitempty) = true ];
+  string operator = 3 [
+    (amino.dont_omitempty) = true,
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+  uint64 activation_epoch = 4 [ (amino.dont_omitempty) = true ];
+  string max_gilt_stake = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (amino.dont_omitempty) = true
+  ];
+  bytes signer_pub_key = 6 [ (amino.dont_omitempty) = true ];
+  uint64 nonce = 7 [ (amino.dont_omitempty) = true ];
+}
+```
 
 ### MsgValidatorJoin
 
@@ -85,16 +102,15 @@ message MsgValidatorJoin {
     (amino.dont_omitempty) = true
   ];
   bytes signer_pub_key = 5 [ (amino.dont_omitempty) = true ];
-  bytes tx_hash = 6 [ (amino.dont_omitempty) = true ];
-  uint64 log_index = 7 [ (amino.dont_omitempty) = true ];
-  uint64 block_number = 8 [ (amino.dont_omitempty) = true ];
+  reserved 6, 7, 8;
+  reserved "tx_hash", "log_index", "block_number";
   uint64 nonce = 9 [ (amino.dont_omitempty) = true ];
 }
 ```
 
 ### MsgStakeUpdate
 
-`MsgStakeUpdate` defines a message for a validator to perform a stake update on Ethereum network.
+`MsgStakeUpdate` defines a native Gold Chain message for a validator to increase self-staked `GILT`.
 
 ```protobuf
 message MsgStakeUpdate {
@@ -112,9 +128,8 @@ message MsgStakeUpdate {
     (amino.dont_omitempty) = true,
     (gogoproto.customtype) = "cosmossdk.io/math.Int"
   ];
-  bytes tx_hash = 4 [ (amino.dont_omitempty) = true ];
-  uint64 log_index = 5 [ (amino.dont_omitempty) = true ];
-  uint64 block_number = 6 [ (amino.dont_omitempty) = true ];
+  reserved 4, 5, 6;
+  reserved "tx_hash", "log_index", "block_number";
   uint64 nonce = 7 [ (amino.dont_omitempty) = true ];
 }
 ```
@@ -135,9 +150,8 @@ message MsgSignerUpdate {
   ];
   uint64 val_id = 2 [ (amino.dont_omitempty) = true ];
   bytes new_signer_pub_key = 3 [ (amino.dont_omitempty) = true ];
-  bytes tx_hash = 4 [ (amino.dont_omitempty) = true ];
-  uint64 log_index = 5 [ (amino.dont_omitempty) = true ];
-  uint64 block_number = 6 [ (amino.dont_omitempty) = true ];
+  reserved 4, 5, 6;
+  reserved "tx_hash", "log_index", "block_number";
   uint64 nonce = 7 [ (amino.dont_omitempty) = true ];
 }
 ```
@@ -157,10 +171,8 @@ message MsgValidatorExit {
     (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
   uint64 val_id = 2 [ (amino.dont_omitempty) = true ];
-  uint64 deactivation_epoch = 3 [ (amino.dont_omitempty) = true ];
-  bytes tx_hash = 4 [ (amino.dont_omitempty) = true ];
-  uint64 log_index = 5 [ (amino.dont_omitempty) = true ];
-  uint64 block_number = 6 [ (amino.dont_omitempty) = true ];
+  reserved 3, 4, 5, 6;
+  reserved "deactivation_epoch", "tx_hash", "log_index", "block_number";
   uint64 nonce = 7 [ (amino.dont_omitempty) = true ];
 }
 ```
@@ -169,24 +181,29 @@ message MsgValidatorExit {
 
 ### Tx Commands
 
+#### Approve Validator
+```bash
+giltconsd tx stake approve-validator [val-id] [operator] [activation-epoch] [max-gilt-stake] [signer-pubkey] [nonce]
+```
+
 #### Validator Join
 ```bash
-giltconsd tx stake validator-join --proposer {proposer address} --signer-pubkey {signer pubkey with 04 prefix} --tx-hash {tx hash} --block-number {L1 block number} --staked-amount {total stake amount} --activation-epoch {activation epoch} --home="{path to home}"
+giltconsd tx stake validator-join [val-id] [activation-epoch] [amount] [signer-pubkey] [nonce]
 ```
 
 #### Signer Update
 ```bash
-giltconsd tx stake signer-update --proposer {proposer address} --id {val id} --new-pubkey {new pubkey with 04 prefix} --tx-hash {tx hash}  --log-index {log index} --block-number {L1 block number} --nonce {nonce} --home="{path to home}"
+giltconsd tx stake signer-update [val-id] [new-signer-pubkey] [nonce]
 ```
 
 #### Stake Update
 ```bash
-giltconsd tx stake stake-update [valAddress] [valId] [amount] [txHash] [logIndex] [blockNumber] [nonce]
+giltconsd tx stake stake-update [val-id] [new-amount] [nonce]
 ```
 
 #### Validator Exit
 ```bash
-giltconsd tx stake validator-exit [valAddress] [valId] [deactivationEpoch] [txHash] [logIndex] [blockNumber] [nonce]
+giltconsd tx stake validator-exit [val-id] [nonce]
 ```
 
 ### CLI Query Commands
@@ -250,10 +267,6 @@ grpcurl -plaintext -d '{}' localhost:9090 giltconsensusv2.stake.Query/GetTotalPo
 ```
 
 ```bash
-grpcurl -plaintext -d '{"tx_hash": <>, "log_index": <>}' localhost:9090 giltconsensusv2.stake.Query/IsStakeTxOld
-```
-
-```bash
 grpcurl -plaintest -d '{"times": <>}' localhost:9090 giltconsensusv2.stake.Query/GetProposersByTimes
 ```
 
@@ -281,10 +294,6 @@ curl localhost:1317/stake/validator-status/{val_address}
 
 ```bash
 curl localhost:1317/stake/total-power
-```
-
-```bash
-curl localhost:1317/stake/is-old-tx?tx_hash=<tx-hash>&log_index=<log-index>
 ```
 
 ```bash

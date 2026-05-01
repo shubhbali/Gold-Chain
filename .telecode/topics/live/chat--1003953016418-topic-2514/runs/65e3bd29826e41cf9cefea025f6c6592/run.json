@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T08:59:47Z",
+  "engine": "codex",
+  "final_answer": "Yes. Here are the full 500 words:\n\nSpeed is never a priority in Gold Chain when speed conflicts with correctness, full scope, final architecture, or production safety. The only acceptable priority is delivering production-ready code that matches the user\u2019s exact request, preserves asset safety, and closes every required dependency before any completion claim. Fast execution is acceptable only when it does not reduce evidence quality, does not narrow scope, does not defer required rewiring, and does not hide unresolved blockers behind optimistic language. If faster delivery weakens quality, then faster delivery is wrong and must be rejected immediately.\n\nProduction-ready means one coherent final system. It does not mean partial cleanup, temporary compatibility, mixed old and new paths, bypass-era assumptions, or deferred fixes packaged as progress. A task is not complete when one component is corrected and downstream assumptions still fail. A task is complete only when all affected layers are aligned: runtime behavior, configuration, startup paths, tests, tooling, and reporting. If any layer remains inconsistent, completion language must stay narrow and explicit, and the blocker must be stated directly. Partial progress is allowed; partial completion claims are not.\n\nScope obedience is mandatory. The agent must execute the literal requested scope, not a smaller convenient subset and not a broader unsolicited expansion. If the user asks for full removal, then full removal is the task. If the user asks for one subsystem, then only that subsystem is the task. Any structural risk, ambiguity, or dependency that could prevent exact delivery must be surfaced before execution, not explained after failure. Assumptions must be declared as assumptions. Facts must be labeled as facts. Next actions must be concrete, testable, and tied to the stated objective.\n\nVerification must match claim strength. If the claim is component-level, component checks are sufficient. If the claim is task-level completion, full-scope validation is required. Passing a subset of tests cannot prove full completion when known dependent suites remain unverified. A passing command is evidence for that command only. A production claim requires production-level evidence. Report what passed, what failed, what was not run, and what exact blocker remains. Do not use broad words like done, fixed, complete, or pushed unless they are true at the exact level users will naturally infer.\n\nWhy this matters: Gold Chain is a high-stakes system where incorrect assumptions can cause broken accounting, unsafe bridge behavior, trapped funds, and loss of trust. Time loss from scope drift or false completion claims is irreversible and compounds quickly. What should be done next: enforce one hard gate for completion, remove remaining stale assumptions, run full required validations for the requested scope, and report status using exact blocker-based language until every required layer is confirmed complete.\n\nOperational discipline requires continuous telemetry during long work: current blocker, current stage, pending count, and expected completion condition. Silence or vague motion language creates avoidable confusion and rework. If blocker changes, say it immediately. If blocker is removed, say what replaced it. If nothing changed, say that precisely and keep execution aligned with approved scope at all times.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 8,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Not summary I need the full 500 words",
+  "run_id": "65e3bd29826e41cf9cefea025f6c6592",
+  "started_at": "2026-04-27T08:58:02Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T08:59:47Z",
+  "version": 1
+}

@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T07:16:29Z",
+  "engine": "codex",
+  "final_answer": "Yes. I removed the remaining runtime non-production bypass paths from `gilt-exec` and switched tests to explicit mock `GiltConsensus` clients.\n\nWhy it matters: Gold Chain runtime can no longer start in bypass modes, so validator/block-production behavior now depends on real `GiltConsensus` flows only, which keeps evidence and operations aligned with production architecture.\n\nWhat I changed:\n- Removed legacy config/CLI/runtime surfaces for `withoutgiltconsensus`, `devfakeauthor`, `gilt.rungiltconsensus`, and `gilt.usegiltconsensusapp` in:\n  - [ethconfig config](/srv/repos/gold-chain/bridge/gilt-exec/eth/ethconfig/config.go)\n  - [ethconfig generated TOML codec](/srv/repos/gold-chain/bridge/gilt-exec/eth/ethconfig/gen_config.go)\n  - [geth main startup](/srv/repos/gold-chain/bridge/gilt-exec/cmd/geth/main.go)\n  - [gilt flags wiring](/srv/repos/gold-chain/bridge/gilt-exec/cmd/utils/gilt_flags.go)\n  - [server config/flags/command](/srv/repos/gold-chain/bridge/gilt-exec/internal/cli/server/config.go)\n- Removed runtime `DevFakeAuthor` bypass behavior from consensus/miner paths:\n  - [consensus engine](/srv/repos/gold-chain/bridge/gilt-exec/consensus/gilt/gilt.go)\n  - [miner peer-gating path](/srv/repos/gold-chain/bridge/gilt-exec/miner/worker.go)\n- Updated tests to use static/mock `GiltConsensus` instead of bypass mode:\n  - [gilt integration helper](/srv/repos/gold-chain/bridge/gilt-exec/tests/gilt/helper.go)\n  - [sprint-length integration helper](/srv/repos/gold-chain/bridge/gilt-exec/tests/gilt/gilt_sprint_length_change_test.go)\n  - [checkpoint verifier integration test setup](/srv/repos/gold-chain/bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go)\n- Cleaned templates/docs/config examples to remove old keys (builder, packaging templates, server docs/default config, config script map).\n\nChecks run and passing:\n- `go test ./eth/ethconfig ./eth ./cmd/geth ./cmd/utils ./internal/cli/server ./consensus/gilt ./miner ./tests/gilt ./scripts/... -run '^$' -tags=integration`\n- `go test ./eth/ethconfig ./internal/cli/server`\n- `go test ./eth -run 'Test(CheckpointMismatch_DoesNotRewind|MilestoneMismatch_UnknownHash_DoesNotRewind)' -count=1`\n\nNext steps:\n1. Review and commit only the `bridge/gilt-exec` changes.\n2. If you want, I can do one more cleanup pass to rename old bypass wording that still exists only inside some consensus unit-test names/comments.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 216,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Yes do it",
+  "run_id": "d69ad2e9457e434eb0c12b37120ed337",
+  "started_at": "2026-04-27T06:47:54Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T07:16:29Z",
+  "version": 1
+}

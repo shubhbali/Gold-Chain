@@ -22,7 +22,6 @@ import (
 	"github.com/giltchain/gilt-consensus/bridge/util"
 	"github.com/giltchain/gilt-consensus/helper"
 	clerkTypes "github.com/giltchain/gilt-consensus/x/clerk/types"
-	staketypes "github.com/giltchain/gilt-consensus/x/stake/types"
 	topupTypes "github.com/giltchain/gilt-consensus/x/topup/types"
 )
 
@@ -135,8 +134,6 @@ func (bp *BaseProcessor) isOldTx(_ client.Context, txHash string, logIndex uint6
 	var endpoint string
 
 	switch eventType {
-	case util.StakingEvent:
-		endpoint = helper.GetGiltConsensusServerEndpoint(util.StakingTxStatusURL)
 	case util.TopupEvent:
 		endpoint = helper.GetGiltConsensusServerEndpoint(util.TopupTxStatusURL)
 	case util.ClerkEvent:
@@ -158,13 +155,6 @@ func (bp *BaseProcessor) isOldTx(_ client.Context, txHash string, logIndex uint6
 	}
 
 	switch eventType {
-	case util.StakingEvent:
-		var response staketypes.QueryStakeIsOldTxResponse
-		if err := bp.cliCtx.Codec.UnmarshalJSON(res, &response); err != nil {
-			bp.Logger.Error(errorUnmarshallingTxStatus, "error", err)
-			return false, err
-		}
-		return response.IsOld, nil
 	case util.TopupEvent:
 		var response topupTypes.QueryIsTopupTxOldResponse
 		if err := bp.cliCtx.Codec.UnmarshalJSON(res, &response); err != nil {

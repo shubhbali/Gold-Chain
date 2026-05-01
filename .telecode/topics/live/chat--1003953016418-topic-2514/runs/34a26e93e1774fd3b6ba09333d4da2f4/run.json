@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-20T07:02:24Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 10,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "If I find a single file with blockscout name or code from thsi phase, I will FYCKIGN DELETE IT. FUCK YOUR INTENTIONAL BULLSHIT YIU FUCKING BASTARD",
+  "run_id": "34a26e93e1774fd3b6ba09333d4da2f4",
+  "started_at": "2026-04-20T07:01:01Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-20T07:02:24Z",
+  "version": 1
+}

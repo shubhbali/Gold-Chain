@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	// DefaultFeeInPol represents default fee in pol
-	DefaultFeeInPol = big.NewInt(10).Exp(big.NewInt(10), big.NewInt(15), nil)
+	// DefaultFeeInGilt represents default fee in GILT base units.
+	DefaultFeeInGilt = big.NewInt(10).Exp(big.NewInt(10), big.NewInt(15), nil)
 
 	// DefaultFeeWantedPerTx fee wanted per tx
-	DefaultFeeWantedPerTx = sdk.Coins{sdk.Coin{Denom: types.FeeToken, Amount: math.NewIntFromBigInt(DefaultFeeInPol)}}
+	DefaultFeeWantedPerTx = sdk.Coins{sdk.Coin{Denom: types.FeeToken, Amount: math.NewIntFromBigInt(DefaultFeeInGilt)}}
 )
 
 // TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,

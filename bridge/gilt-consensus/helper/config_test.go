@@ -94,9 +94,9 @@ func TestGetChainManagerAddressMigration(t *testing.T) {
 	defer viper.Set(ChainFlag, originalChain)
 
 	// Set up the test
-	newPolContractAddress := "0x0000000000000000000000000000000000001234"
+	newStateSenderAddress := "0x0000000000000000000000000000000000001234"
 	chainManagerAddressMigrations[TestnetChain] = map[int64]ChainManagerAddressMigration{
-		350: {PolTokenAddress: newPolContractAddress},
+		350: {StateSenderAddress: newStateSenderAddress},
 	}
 
 	InitTestGiltConsensusConfig(TestnetChain)
@@ -104,8 +104,8 @@ func TestGetChainManagerAddressMigration(t *testing.T) {
 	if !found {
 		t.Errorf("Expected migration to be found")
 	}
-	if migration.PolTokenAddress != newPolContractAddress {
-		t.Errorf("Expected pol token address to be %s, got %s", newPolContractAddress, migration.PolTokenAddress)
+	if migration.StateSenderAddress != newStateSenderAddress {
+		t.Errorf("Expected state sender address to be %s, got %s", newStateSenderAddress, migration.StateSenderAddress)
 	}
 
 	// test for non-existing migration

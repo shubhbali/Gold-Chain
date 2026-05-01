@@ -178,10 +178,8 @@ func (s *KeeperTestSuite) TestGetLatestRecordIdReflectsRootCounterNotPersistence
 	ctx, queryClient, require := s.ctx, s.queryClient, s.Require()
 
 	params := chainmanagertypes.NewParams(6, 10, chainmanagertypes.ChainParams{
-		GiltChainId:           "714",
-		GiltConsensusChainId:      "giltconsensus-1",
-		PolTokenAddress:      "0x0000000000000000000000000000000000000011",
-		StakingManagerAddress:"0x0000000000000000000000000000000000000012",
+		GiltChainId:          "714",
+		GiltConsensusChainId: "giltconsensus-1",
 		SlashManagerAddress:  "0x0000000000000000000000000000000000000013",
 		RootChainAddress:     "0x0000000000000000000000000000000000000014",
 		StakingInfoAddress:   "0x0000000000000000000000000000000000000015",

@@ -1,0 +1,1 @@
+{application,dns,[{modules,['Elixir.DNS','Elixir.DNS.Header','Elixir.DNS.Query','Elixir.DNS.Record','Elixir.DNS.Resource','Elixir.DNS.ResourceOpt','Elixir.DNS.Server']},{optional_applications,[]},{applications,[kernel,stdlib,elixir,logger]},{description,"dns"},{registered,[]},{vsn,"2.4.0"}]}.

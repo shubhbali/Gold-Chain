@@ -1,0 +1,3 @@
+module.exports=[738041,a=>a.a(async(b,c)=>{try{var d=a.i(504071),e=a.i(127669),f=a.i(271694),g=b([f]);[f]=g.then?(await g)():g,a.s(["default",0,()=>{let a=(0,d.useRouter)(),{trackUsage:b}=(0,f.default)();return(0,e.useEffect)(()=>{b("explore")},[a.pathname,a.query,b]),null}]),c()}catch(a){c(a)}},!1),130388,a=>{a.n(a.i(738041))}];
+
+//# sourceMappingURL=ui_rewards_RewardsActivityTracker_tsx_00e344bb._.js.map

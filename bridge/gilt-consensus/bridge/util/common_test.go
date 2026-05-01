@@ -11,7 +11,6 @@ import (
 )
 
 func TestBridgeEvent_Constants(t *testing.T) {
-	require.Equal(t, util.BridgeEvent("staking"), util.StakingEvent)
 	require.Equal(t, util.BridgeEvent("topup"), util.TopupEvent)
 	require.Equal(t, util.BridgeEvent("clerk"), util.ClerkEvent)
 	require.Equal(t, util.BridgeDBFlag, "bridge-db")
@@ -19,7 +18,6 @@ func TestBridgeEvent_Constants(t *testing.T) {
 
 func TestBridgeEvent_Uniqueness(t *testing.T) {
 	events := []util.BridgeEvent{
-		util.StakingEvent,
 		util.TopupEvent,
 		util.ClerkEvent,
 	}
@@ -53,7 +51,6 @@ func TestURLConstants_NotEmpty(t *testing.T) {
 		"DividendAccountRootURL":  util.DividendAccountRootURL,
 		"ValidatorURL":            util.ValidatorURL,
 		"CurrentValidatorSetURL":  util.CurrentValidatorSetURL,
-		"StakingTxStatusURL":      util.StakingTxStatusURL,
 		"TopupTxStatusURL":        util.TopupTxStatusURL,
 		"ClerkTxStatusURL":        util.ClerkTxStatusURL,
 		"ClerkEventRecordURL":     util.ClerkEventRecordURL,
@@ -155,7 +152,6 @@ func TestURLConstants_StakeURLs(t *testing.T) {
 		util.CurrentProposerURL,
 		util.ValidatorURL,
 		util.CurrentValidatorSetURL,
-		util.StakingTxStatusURL,
 	}
 
 	for _, url := range stakeURLs {
@@ -199,7 +195,6 @@ func TestURLConstants_UniquePaths(t *testing.T) {
 		util.NextSpanInfoURL,
 		util.DividendAccountRootURL,
 		util.CurrentValidatorSetURL,
-		util.StakingTxStatusURL,
 		util.TopupTxStatusURL,
 		util.ClerkTxStatusURL,
 	}
@@ -485,11 +480,9 @@ func TestBridgeEvent_TypeSafety(t *testing.T) {
 	t.Run("BridgeEvent constants are BridgeEvent type", func(t *testing.T) {
 		t.Parallel()
 
-		var stakingEvent = util.StakingEvent
 		var topupEvent = util.TopupEvent
 		var clerkEvent = util.ClerkEvent
 
-		require.Equal(t, "staking", string(stakingEvent))
 		require.Equal(t, "topup", string(topupEvent))
 		require.Equal(t, "clerk", string(clerkEvent))
 	})

@@ -4,12 +4,16 @@ import (
 	"encoding/json"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/stretchr/testify/require"
 
 	"github.com/giltchain/gilt-consensus/x/stake/types"
 )
+
+var genesisOneGilt = sdkmath.NewInt(1000000000000000000)
 
 func TestNewGenesisState(t *testing.T) {
 	t.Parallel()
@@ -107,6 +111,93 @@ func TestGenesisState_Validate(t *testing.T) {
 		err := gs.Validate()
 		require.NoError(t, err)
 	})
+
+	t.Run("accepts active validators without approval authority when approvals exist", func(t *testing.T) {
+		t.Parallel()
+
+		validators, valSet := genesisValidators(t, 4)
+		gs := types.NewGenesisState(validators, valSet, nil)
+		gs.ValidatorApprovals = genesisApprovals(validators)
+
+		err := gs.Validate()
+		require.NoError(t, err)
+	})
+
+	t.Run("rejects active validators without matching approvals", func(t *testing.T) {
+		t.Parallel()
+
+		validators, valSet := genesisValidators(t, 4)
+		gs := types.NewGenesisState(validators, valSet, nil)
+
+		err := gs.Validate()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "missing native approval")
+	})
+
+	t.Run("accepts active validators with explicit matching approvals", func(t *testing.T) {
+		t.Parallel()
+
+		validators, valSet := genesisValidators(t, 4)
+		gs := types.NewGenesisState(validators, valSet, nil)
+		gs.ValidatorApprovals = genesisApprovals(validators)
+
+		err := gs.Validate()
+		require.NoError(t, err)
+	})
+
+	t.Run("rejects duplicate validator ids in genesis validators", func(t *testing.T) {
+		t.Parallel()
+
+		validators, valSet := genesisValidators(t, 4)
+		validators[1].ValId = validators[0].ValId
+		gs := types.NewGenesisState(validators, valSet, nil)
+		gs.ValidatorApprovals = genesisApprovals(validators)
+
+		err := gs.Validate()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "duplicate validator id")
+	})
+
+	t.Run("rejects duplicate validator ids in current validator set", func(t *testing.T) {
+		t.Parallel()
+
+		validators, _ := genesisValidators(t, 4)
+		valSet := types.ValidatorSet{
+			Validators: []*types.Validator{
+				validators[0],
+				validators[1],
+				validators[1],
+				validators[3],
+			},
+		}
+		gs := types.NewGenesisState(validators, valSet, nil)
+		gs.ValidatorApprovals = genesisApprovals(validators)
+
+		err := gs.Validate()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "duplicate current validator id")
+	})
+
+	t.Run("rejects duplicate active validator operators", func(t *testing.T) {
+		t.Parallel()
+
+		validators, valSet := genesisValidators(t, 4)
+		validators[1].Operator = validators[0].OperatorAddress()
+		validators[1].NormalizeLifecycleAccounting()
+		for _, validator := range valSet.Validators {
+			if validator.ValId == validators[1].ValId {
+				validator.Operator = validators[0].OperatorAddress()
+				validator.NormalizeLifecycleAccounting()
+			}
+		}
+		gs := types.NewGenesisState(validators, valSet, nil)
+		gs.ValidatorApprovals = genesisApprovals(validators)
+
+		err := gs.Validate()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "active validator operator")
+		require.Contains(t, err.Error(), "duplicated")
+	})
 }
 
 func TestGetGenesisStateFromAppState(t *testing.T) {
@@ -184,4 +275,52 @@ func TestSetGenesisStateToAppState(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, result)
 	})
+
+	t.Run("sets validator genesis without explicit approval authority", func(t *testing.T) {
+		t.Parallel()
+
+		interfaceRegistry := codectypes.NewInterfaceRegistry()
+		types.RegisterInterfaces(interfaceRegistry)
+		cdc := codec.NewProtoCodec(interfaceRegistry)
+
+		validators, valSet := genesisValidators(t, 4)
+		appState := make(map[string]json.RawMessage)
+		gs := types.DefaultGenesisState()
+		appState[types.ModuleName] = cdc.MustMarshalJSON(gs)
+
+		result, err := types.SetGenesisStateToAppState(cdc, appState, validators, valSet)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+	})
+}
+
+func genesisValidators(t *testing.T, count int) ([]*types.Validator, types.ValidatorSet) {
+	t.Helper()
+
+	validators := make([]*types.Validator, 0, count)
+	for i := 0; i < count; i++ {
+		pubKey := secp256k1.GenPrivKey().PubKey()
+		validator, err := types.NewValidator(uint64(i+1), 1, 0, 1, 1, pubKey, pubKey.Address().String())
+		require.NoError(t, err)
+		validator.SelfGiltStake = genesisOneGilt
+		validator.NormalizeLifecycleAccounting()
+		validators = append(validators, validator)
+	}
+	return validators, *types.NewValidatorSet(validators)
+}
+
+func genesisApprovals(validators []*types.Validator) []types.ValidatorApproval {
+	approvals := make([]types.ValidatorApproval, 0, len(validators))
+	for _, validator := range validators {
+		approvals = append(approvals, types.ValidatorApproval{
+			ValId:           validator.ValId,
+			Operator:        validator.OperatorAddress(),
+			ActivationEpoch: validator.StartEpoch,
+			MaxGiltStake:    validator.SelfGiltStake,
+			SignerPubKey:    validator.PubKey,
+			Nonce:           validator.Nonce,
+		})
+	}
+	return approvals
 }

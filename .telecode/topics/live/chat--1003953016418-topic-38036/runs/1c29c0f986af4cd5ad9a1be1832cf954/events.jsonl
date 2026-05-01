@@ -1,0 +1,4 @@
+{"seq": 1, "timestamp": "2026-04-28T19:20:56Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-28T19:21:09Z", "type": "progress.event", "text": "Session 019dd09a-488b-7b11-b304-64c41a2d8466 started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-28T19:21:10Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-28T19:22:15Z", "type": "run.completed", "text": "Done.", "metadata": {}}

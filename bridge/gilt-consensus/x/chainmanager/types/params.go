@@ -11,7 +11,7 @@ import (
 // Default parameter values
 const (
 	DefaultMainChainTxConfirmations uint64 = 6
-	DefaultGiltChainTxConfirmations  uint64 = 10
+	DefaultGiltChainTxConfirmations uint64 = 10
 
 	DefaultStateReceiverAddress = "0x0000000000000000000000000000000000001001"
 	DefaultValidatorSetAddress  = "0x0000000000000000000000000000000000001000"
@@ -21,10 +21,10 @@ const (
 func DefaultParams() Params {
 	return Params{
 		MainChainTxConfirmations: DefaultMainChainTxConfirmations,
-		GiltChainTxConfirmations:  DefaultGiltChainTxConfirmations,
+		GiltChainTxConfirmations: DefaultGiltChainTxConfirmations,
 		ChainParams: ChainParams{
-			GiltChainId:           helper.DefaultGiltChainID,
-			GiltConsensusChainId:      helper.DefaultGiltConsensusChainID,
+			GiltChainId:          helper.DefaultGiltChainID,
+			GiltConsensusChainId: helper.DefaultGiltConsensusChainID,
 			StateReceiverAddress: DefaultStateReceiverAddress,
 			ValidatorSetAddress:  DefaultValidatorSetAddress,
 		},
@@ -35,21 +35,13 @@ func DefaultParams() Params {
 func NewParams(mainChainTxConfirmations uint64, giltChainTxConfirmations uint64, chainParams ChainParams) Params {
 	return Params{
 		MainChainTxConfirmations: mainChainTxConfirmations,
-		GiltChainTxConfirmations:  giltChainTxConfirmations,
+		GiltChainTxConfirmations: giltChainTxConfirmations,
 		ChainParams:              chainParams,
 	}
 }
 
 // ValidateBasic checks that the parameters have valid values.
 func (p Params) ValidateBasic() error {
-	if err := validateGiltConsensusAddress("pol_token_address", p.ChainParams.PolTokenAddress); err != nil {
-		return err
-	}
-
-	if err := validateGiltConsensusAddress("staking_manager_address", p.ChainParams.StakingManagerAddress); err != nil {
-		return err
-	}
-
 	if err := validateGiltConsensusAddress("slash_manager_address", p.ChainParams.SlashManagerAddress); err != nil {
 		return err
 	}

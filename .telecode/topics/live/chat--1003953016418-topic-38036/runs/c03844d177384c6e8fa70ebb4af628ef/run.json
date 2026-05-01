@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-28T19:36:19Z",
+  "engine": "codex",
+  "final_answer": "It runs real `x/stake` chain logic, but not a live full chain; external dependencies are mocked.\n\nWhy this matters: the validator-approval and operator-uniqueness rules are exercised against actual keeper/msg-server code paths, but networking/consensus/runtime integration is not covered by these tests.\n\nWhat should be done next:\n1. Add an integration test that runs a real `giltconsd` node and submits real txs for the same scenarios.\n2. Keep these current tests as fast guardrails for logic regressions.\n3. Use both before release: module tests + live-node integration test.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "how does this test work, does it work with mock code or real chain code?",
+  "run_id": "c03844d177384c6e8fa70ebb4af628ef",
+  "started_at": "2026-04-28T19:36:01Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-38036",
+  "updated_at": "2026-04-28T19:36:19Z",
+  "version": 1
+}

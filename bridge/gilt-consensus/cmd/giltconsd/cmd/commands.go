@@ -65,6 +65,7 @@ const (
 	flagNodeDaemonHome   = "node-daemon-home"
 	flagNodeCliHome      = "node-cli-home"
 	flagNodeHostPrefix   = "node-host-prefix"
+	flagAllowDuplicateIP = "allow-duplicate-ip"
 )
 
 const (
@@ -258,8 +259,6 @@ func initRootCmd(
 		importKeyStore(),
 		generateValidatorKey(),
 		importValidatorKey(),
-		StakeCmd(),
-		ApproveCmd(),
 		PruneCmd(),
 		version.Cmd,
 	)
@@ -759,8 +758,8 @@ func hostnameOrIP(i int) string {
 	return fmt.Sprintf("%s%d", viper.GetString(flagNodeHostPrefix), i)
 }
 
-// populatePersistentPeersInConfigAndWriteIt populates persistent peers in config
-func populatePersistentPeersInConfigAndWriteIt(config *cmtcfg.Config) {
+// populatePersistentPeersInConfigAndWriteIt populates persistent peers in config.
+func populatePersistentPeersInConfigAndWriteIt(config *cmtcfg.Config, allowDuplicateIP bool) {
 	persistentPeers := make([]string, getTotalNumberOfNodes())
 
 	for i := 0; i < getTotalNumberOfNodes(); i++ {
@@ -780,6 +779,7 @@ func populatePersistentPeersInConfigAndWriteIt(config *cmtcfg.Config) {
 		config.SetRoot(nodeDir(i))
 		config.P2P.PersistentPeers = persistentPeersList
 		config.P2P.AddrBookStrict = false
+		config.P2P.AllowDuplicateIP = allowDuplicateIP
 
 		// overwrite default config
 		cmtcfg.WriteConfigFile(filepath.Join(nodeDir(i), "config", "config.toml"), config)

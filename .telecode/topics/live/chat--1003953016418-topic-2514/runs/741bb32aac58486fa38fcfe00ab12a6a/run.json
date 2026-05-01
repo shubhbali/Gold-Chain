@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-21T19:40:24Z",
+  "engine": "codex",
+  "final_answer": "No, not precisely yet; I left required parity gates, so it is a full path to parity but not an automatic guarantee of exact BSC equivalence.\n\nWhy it matters: \u201cprecisely like BSC\u201d requires zero behavioral deltas, and missing even one edge rule in election/slashing/governance can change consensus or economics.\n\nWhat should be done next:\n1. Pin one exact BSC baseline (repo commit + rule set) as the only truth target.\n2. Close every remaining delta with a strict pass/fail parity matrix (no \u201cequivalent enough\u201d items).\n3. Run differential state-transition tests and claim exact parity only when the matrix is fully green with zero unresolved differences.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "willl this make our system precisely like bscc or  did you leave something cunt?",
+  "run_id": "741bb32aac58486fa38fcfe00ab12a6a",
+  "started_at": "2026-04-21T19:40:08Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-21T19:40:24Z",
+  "version": 1
+}

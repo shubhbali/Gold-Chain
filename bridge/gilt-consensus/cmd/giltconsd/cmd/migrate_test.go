@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"cosmossdk.io/log"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -15,7 +14,7 @@ import (
 	giltconsensusApp "github.com/giltchain/gilt-consensus/app"
 )
 
-func TestValidateGenesisAfterMigration(t *testing.T) {
+func TestValidateGenesisAfterMigrationRejectsUnsafeValidatorSet(t *testing.T) {
 	db := dbm.NewMemDB()
 
 	appOptions := make(simtestutil.AppOptionsMap)
@@ -23,8 +22,6 @@ func TestValidateGenesisAfterMigration(t *testing.T) {
 
 	logger := log.NewTestLogger(t)
 	app := giltconsensusApp.NewGiltConsensusApp(logger, db, nil, true, appOptions)
-
-	ctx := app.NewContextLegacy(true, cmtproto.Header{Height: app.LastBlockHeight()})
 
 	genDoc, err := cmttypes.GenesisDocFromFile("./testdata/migrated_dump-genesis.json")
 	require.NoError(t, err)
@@ -35,8 +32,5 @@ func TestValidateGenesisAfterMigration(t *testing.T) {
 
 	appCodec := app.AppCodec()
 	err = app.BasicManager.ValidateGenesis(appCodec, nil, genesisState)
-	require.NoError(t, err)
-
-	_, err = app.ModuleManager.InitGenesis(ctx, appCodec, genesisState)
-	require.NoError(t, err)
+	require.ErrorContains(t, err, "active validator count 1 is below minimum 4")
 }

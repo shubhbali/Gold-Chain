@@ -40,9 +40,6 @@ import (
 	"github.com/giltchain/gilt-consensus/helper"
 	helpermocks "github.com/giltchain/gilt-consensus/helper/mocks"
 	"github.com/giltchain/gilt-consensus/sidetxs"
-	"github.com/giltchain/gilt-consensus/x/gilt"
-	giltKeeper "github.com/giltchain/gilt-consensus/x/gilt/keeper"
-	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 	chainmanagerKeeper "github.com/giltchain/gilt-consensus/x/chainmanager/keeper"
 	chainmanagertypes "github.com/giltchain/gilt-consensus/x/chainmanager/types"
 	checkpointKeeper "github.com/giltchain/gilt-consensus/x/checkpoint/keeper"
@@ -52,6 +49,9 @@ import (
 	clerkKeeper "github.com/giltchain/gilt-consensus/x/clerk/keeper"
 	clerktestutil "github.com/giltchain/gilt-consensus/x/clerk/testutil"
 	clerkTypes "github.com/giltchain/gilt-consensus/x/clerk/types"
+	"github.com/giltchain/gilt-consensus/x/gilt"
+	giltKeeper "github.com/giltchain/gilt-consensus/x/gilt/keeper"
+	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 	milestoneKeeper "github.com/giltchain/gilt-consensus/x/milestone/keeper"
 	milestoneTypes "github.com/giltchain/gilt-consensus/x/milestone/types"
 	stakeTypes "github.com/giltchain/gilt-consensus/x/stake/types"
@@ -71,7 +71,7 @@ func TestPrepareProposalHandler(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "1",
+		GiltChainId:     "1",
 	}
 
 	txBytes, err := buildSignedTx(msg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -113,7 +113,7 @@ func TestProcessProposalHandler(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "1",
+		GiltChainId:     "1",
 	}
 
 	txBytes, err := buildSignedTx(msg, validators[0].Signer, ctx, priv, app)
@@ -198,7 +198,7 @@ func TestExtendVoteHandler(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "test",
+		GiltChainId:     "test",
 	}
 
 	txBytes, err := buildSignedTx(msg, validators[0].Signer, ctx, priv, app)
@@ -342,7 +342,7 @@ func TestVerifyVoteExtensionHandler(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "test",
+		GiltChainId:     "test",
 	}
 
 	txBytes, err := buildSignedTx(msg, validators[0].Signer, ctx, priv, app)
@@ -825,7 +825,7 @@ func TestAllUnhappyPathGiltSideTxs(t *testing.T) {
 			EndBlock:          256,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                1,
@@ -833,7 +833,7 @@ func TestAllUnhappyPathGiltSideTxs(t *testing.T) {
 			EndBlock:          6656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                2,
@@ -841,7 +841,7 @@ func TestAllUnhappyPathGiltSideTxs(t *testing.T) {
 			EndBlock:          16656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 		{
 			Id:                3,
@@ -849,7 +849,7 @@ func TestAllUnhappyPathGiltSideTxs(t *testing.T) {
 			EndBlock:          26656,
 			ValidatorSet:      valSet,
 			SelectedProducers: vals,
-			GiltChainId:        "test-chain",
+			GiltChainId:       "test-chain",
 		},
 	}
 
@@ -1832,7 +1832,7 @@ func TestMilestoneHappyPath(t *testing.T) {
 			Proposer:   validators[0],
 		},
 		SelectedProducers: []stakeTypes.Validator{*validators[0]},
-		GiltChainId:        "test",
+		GiltChainId:       "test",
 	})
 	require.NoError(t, err)
 
@@ -1843,7 +1843,7 @@ func TestMilestoneHappyPath(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "test",
+		GiltChainId:     "test",
 	}
 
 	txBytes, err := buildSignedTx(msg, validators[0].Signer, ctx, priv, app)
@@ -1936,7 +1936,7 @@ func TestMilestoneHappyPath(t *testing.T) {
 		StartBlock:  1,
 		EndBlock:    2,
 		Hash:        common.BytesToHash([]byte(TxHash1)).Bytes(),
-		GiltChainId:  "1",
+		GiltChainId: "1",
 		MilestoneId: "milestoneID",
 		Timestamp:   144,
 	}
@@ -1980,7 +1980,7 @@ func TestMilestoneUnhappyPaths(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "test",
+		GiltChainId:     "test",
 	}
 
 	txBytes, err := buildSignedTx(msg, validators[0].Signer, ctx, priv, app)
@@ -2077,7 +2077,7 @@ func TestMilestoneUnhappyPaths(t *testing.T) {
 			StartBlock:  1,
 			EndBlock:    2,
 			Hash:        []byte(TxHash1),
-			GiltChainId:  "1",
+			GiltChainId: "1",
 			MilestoneId: "milestoneID",
 			Timestamp:   144,
 		}
@@ -2172,10 +2172,6 @@ func TestPrepareProposal(t *testing.T) {
 
 	validatorPrivKeys := setupResult.ValidatorKeys
 	validators := app.StakeKeeper.GetAllValidators(ctx)
-	cometVal1 := abci.Validator{
-		Address: common.FromHex(validators[0].Signer),
-		Power:   validators[0].VotingPower,
-	}
 
 	// Create a checkpoint message
 	msg := &types.MsgCheckpoint{
@@ -2184,7 +2180,7 @@ func TestPrepareProposal(t *testing.T) {
 		EndBlock:        200,
 		RootHash:        common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000dead"),
 		AccountRootHash: common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000003dead"),
-		GiltChainId:      "test",
+		GiltChainId:     "test",
 	}
 
 	// Prepare the proposer account
@@ -2234,26 +2230,15 @@ func TestPrepareProposal(t *testing.T) {
 	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	require.NoError(t, err)
 
-	// Build a fake commit for height=3
-	cmtPubKey, err := validators[0].CmtConsPublicKey()
-	require.NoError(t, err)
-	voteInfo1 := setupExtendedVoteInfoWithNonRp(
+	// Build a fake commit for height=3 with enough production validator power.
+	extCommitBytes, extCommit, voteInfo1, err := buildExtensionCommits(
 		t,
-		cmtproto.BlockIDFlagCommit,
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000001dead"),
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal1,
-		validatorPrivKeys[0],
-		2,
 		app,
-		cmtPubKey.GetEd25519(),
+		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000001dead"),
+		validators,
+		validatorPrivKeys,
+		2,
 	)
-
-	extCommit := &abci.ExtendedCommitInfo{
-		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo1},
-	}
-	extCommitBytes, err := extCommit.Marshal()
 	require.NoError(t, err)
 
 	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
@@ -2591,23 +2576,14 @@ func TestPrepareProposal(t *testing.T) {
 
 	var txBytesGiltCmt cmtTypes.Tx = txBytesGilt
 
-	voteInfo2 := setupExtendedVoteInfoWithNonRp(
+	extCommitBytes2, _, _, err := buildExtensionCommits(
 		t,
-		cmtproto.BlockIDFlagCommit,
-		txBytesGiltCmt.Hash(),
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal1,
-		validatorPrivKeys[0],
-		2,
 		app,
-		cmtPubKey.GetEd25519(),
+		txBytesGiltCmt.Hash(),
+		validators,
+		validatorPrivKeys,
+		2,
 	)
-
-	extCommit2 := &abci.ExtendedCommitInfo{
-		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo2},
-	}
-	extCommitBytes2, err := extCommit2.Marshal()
 	require.NoError(t, err)
 
 	// Test FinalizeBlock handler
@@ -2643,23 +2619,14 @@ func TestPrepareProposal(t *testing.T) {
 
 	var txBytesClerkCmt cmtTypes.Tx = txBytesGilt
 
-	voteInfo3 := setupExtendedVoteInfoWithNonRp(
+	extCommitBytes3, _, _, err := buildExtensionCommits(
 		t,
-		cmtproto.BlockIDFlagCommit,
-		txBytesClerkCmt.Hash(),
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal1,
-		validatorPrivKeys[0],
-		2,
 		app,
-		cmtPubKey.GetEd25519(),
+		txBytesClerkCmt.Hash(),
+		validators,
+		validatorPrivKeys,
+		2,
 	)
-
-	extCommit3 := &abci.ExtendedCommitInfo{
-		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo3},
-	}
-	extCommitBytes3, err := extCommit3.Marshal()
 	require.NoError(t, err)
 
 	// Test FinalizeBlock handler
@@ -2695,23 +2662,14 @@ func TestPrepareProposal(t *testing.T) {
 	require.NoError(t, err)
 	var txBytesTopUpCmt cmtTypes.Tx = txBytesTopUp
 
-	voteInfo4 := setupExtendedVoteInfoWithNonRp(
+	extCommitBytes4, _, _, err := buildExtensionCommits(
 		t,
-		cmtproto.BlockIDFlagCommit,
-		txBytesTopUpCmt.Hash(),
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal1,
-		validatorPrivKeys[0],
-		2,
 		app,
-		cmtPubKey.GetEd25519(),
+		txBytesTopUpCmt.Hash(),
+		validators,
+		validatorPrivKeys,
+		2,
 	)
-
-	extCommit4 := &abci.ExtendedCommitInfo{
-		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo4},
-	}
-	extCommitBytes4, err := extCommit4.Marshal()
 	require.NoError(t, err)
 
 	// Test FinalizeBlock handler
@@ -2777,7 +2735,7 @@ func TestCheckAndAddFutureSpan(t *testing.T) {
 		Id:                1,
 		StartBlock:        100,
 		EndBlock:          200,
-		GiltChainId:        "1",
+		GiltChainId:       "1",
 		ValidatorSet:      valSet,
 		SelectedProducers: selectedProducers,
 	}
@@ -2896,7 +2854,7 @@ func TestCheckAndRotateCurrentSpan(t *testing.T) {
 			Id:                1,
 			StartBlock:        90,
 			EndBlock:          190,
-			GiltChainId:        "1",
+			GiltChainId:       "1",
 			ValidatorSet:      valSet,
 			SelectedProducers: selectedProducers,
 		}
@@ -2941,7 +2899,7 @@ func TestCheckAndRotateCurrentSpan(t *testing.T) {
 			Id:                1,
 			StartBlock:        90,
 			EndBlock:          190,
-			GiltChainId:        "1",
+			GiltChainId:       "1",
 			ValidatorSet:      valSet,
 			SelectedProducers: selectedProducers,
 		}
@@ -2965,7 +2923,7 @@ func TestCheckAndRotateCurrentSpan(t *testing.T) {
 		_, app, ctx, _ := SetupAppWithABCICtxAndValidators(t, 3)
 
 		lastMilestone := &milestoneTypes.Milestone{
-			EndBlock:   100,
+			EndBlock:    100,
 			GiltChainId: "1",
 		}
 		err := app.MilestoneKeeper.AddMilestone(ctx, *lastMilestone)
@@ -2991,7 +2949,7 @@ func TestCheckAndRotateCurrentSpan(t *testing.T) {
 			Id:                1,
 			StartBlock:        90,
 			EndBlock:          190,
-			GiltChainId:        "1",
+			GiltChainId:       "1",
 			ValidatorSet:      valSet,
 			SelectedProducers: selectedProducers,
 		}
@@ -3140,7 +3098,7 @@ func TestPreBlockerSpanRotationWithMinorityMilestone(t *testing.T) {
 			Proposer:   validators[0],
 		},
 		SelectedProducers: []stakeTypes.Validator{*validators[0]},
-		GiltChainId:        "test",
+		GiltChainId:       "test",
 	}
 	err = app.GiltKeeper.AddNewSpan(ctx, span)
 	require.NoError(t, err)
@@ -3222,7 +3180,7 @@ func TestPreBlockerSpanRotationWithoutMinorityMilestone(t *testing.T) {
 			Proposer:   validators[0],
 		},
 		SelectedProducers: []stakeTypes.Validator{*validators[0]},
-		GiltChainId:        "test",
+		GiltChainId:       "test",
 	}
 	err = app.GiltKeeper.AddNewSpan(ctx, span)
 	require.NoError(t, err)
@@ -3304,7 +3262,7 @@ func TestPreBlockerSpanRotationWithMajorityMilestone(t *testing.T) {
 			Proposer:   validators[0],
 		},
 		SelectedProducers: []stakeTypes.Validator{*validators[0]},
-		GiltChainId:        "test",
+		GiltChainId:       "test",
 	}
 	err = app.GiltKeeper.AddNewSpan(ctx, span)
 	require.NoError(t, err)
@@ -3399,7 +3357,7 @@ func TestPrepareProposal_MultipleTransactionsPerBlock(t *testing.T) {
 					EndBlock:        uint64(200 + i*100),
 					RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 					AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-					GiltChainId:      "1",
+					GiltChainId:     "1",
 				}
 
 				txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
@@ -3446,7 +3404,7 @@ func TestPrepareProposal_MultipleSideTxsSameType(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
@@ -3541,7 +3499,7 @@ func TestPrepareProposal_MultipleSideTxsDifferentTypes(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 		txBytes, err := buildSignedTxWithSequence(checkpointMsg, ctx, priv, app, sequence)
 		require.NoError(t, err)
@@ -3585,9 +3543,6 @@ func TestPrepareProposal_MultipleSideTxsDifferentTypes(t *testing.T) {
 			ActivationEpoch: 0,
 			SignerPubKey:    secp256k1.GenPrivKey().PubKey().Bytes(),
 			Amount:          math.NewInt(1000000000),
-			TxHash:          common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			LogIndex:        0,
-			BlockNumber:     100,
 			Nonce:           0,
 		}
 		txBytes, err = buildSignedTxWithSequence(stakeMsg, ctx, priv, app, sequence)
@@ -3649,7 +3604,7 @@ func TestPrepareProposal_MaxBytesConstraint(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
@@ -3704,7 +3659,7 @@ func TestPrepareProposal_TransactionWithMultipleSideHandlers(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 
 		txBytes, err := buildSignedTx(checkpointMsg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -3747,7 +3702,7 @@ func TestPrepareProposal_AccountSequenceMismatch(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			// Intentionally use sequence 0 for ALL transactions
@@ -3796,7 +3751,7 @@ func TestPrepareProposal_AccountSequenceMismatch(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
@@ -3840,7 +3795,7 @@ func TestProcessProposal_ValidProposalMultipleTxs(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, uint64(i))
@@ -3901,7 +3856,7 @@ func TestProcessProposal_RejectScenarios(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 
 		txBytes, err := buildSignedTx(msg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -3937,7 +3892,7 @@ func TestProcessProposal_RejectScenarios(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 
 		txBytes, err := buildSignedTx(msg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -4029,7 +3984,7 @@ func TestExtendVote_MultipleSideTxsExecution(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
 			require.NoError(t, err)
@@ -4167,7 +4122,7 @@ func TestExtendVote_MaxSideTxResponsesLimit(t *testing.T) {
 				EndBlock:        uint64(200 + i*100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 			txBytes, err := buildSignedTxWithSequence(msg, ctx, priv, app, sequence)
 			require.NoError(t, err)
@@ -4263,7 +4218,7 @@ func TestPreBlocker_MultipleBlocksSequential(t *testing.T) {
 				EndBlock:        uint64(blockHeight*100 + 100),
 				RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 				AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-				GiltChainId:      "1",
+				GiltChainId:     "1",
 			}
 
 			txBytes, err := buildSignedTx(msg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -4322,7 +4277,7 @@ func TestPreBlocker_MultipleApprovedSideTxs(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 		txBytes, err := buildSignedTx(checkpointMsg, priv.PubKey().Address().String(), ctx, priv, app)
 		require.NoError(t, err)
@@ -4363,9 +4318,6 @@ func TestPreBlocker_MultipleApprovedSideTxs(t *testing.T) {
 			ActivationEpoch: 0,
 			SignerPubKey:    secp256k1.GenPrivKey().PubKey().Bytes(),
 			Amount:          math.NewInt(1000000000),
-			TxHash:          common.BigToHash(common.Big1).Bytes(),
-			LogIndex:        1,
-			BlockNumber:     100,
 			Nonce:           0,
 		}
 		txBytes, err = buildSignedTx(stakeMsg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -4484,7 +4436,7 @@ func TestABCI_FullBlockLifecycle_NoPreBlocker(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 
 		txBytes, err := buildSignedTx(checkpointMsg, priv.PubKey().Address().String(), ctx, priv, app)
@@ -4618,7 +4570,7 @@ func TestABCI_StressTestWith100Blocks(t *testing.T) {
 						EndBlock:        uint64(blockHeight*100 + int64(i)*10 + 10),
 						RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 						AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-						GiltChainId:      "1",
+						GiltChainId:     "1",
 					}
 				case 1:
 					msg = &giltTypes.MsgProposeSpan{
@@ -4651,9 +4603,9 @@ func TestABCI_StressTestWith100Blocks(t *testing.T) {
 					}
 				case 4:
 					msg = &giltTypes.MsgBackfillSpans{
-						Proposer:        priv.PubKey().Address().String(),
-						ChainId:         "1",
-						LatestSpanId:    uint64(blockHeight),
+						Proposer:         priv.PubKey().Address().String(),
+						ChainId:          "1",
+						LatestSpanId:     uint64(blockHeight),
 						LatestGiltSpanId: uint64(blockHeight + 1),
 					}
 				}
@@ -4803,7 +4755,7 @@ func TestPrepareProposal_ManySideTxMessageTypes(t *testing.T) {
 			EndBlock:        200,
 			RootHash:        common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"),
 			AccountRootHash: common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			GiltChainId:      "1",
+			GiltChainId:     "1",
 		}
 		txBytes, err := buildSignedTxWithSequence(checkpointMsg, ctx, priv, app, 0)
 		require.NoError(t, err)
@@ -4824,13 +4776,10 @@ func TestPrepareProposal_ManySideTxMessageTypes(t *testing.T) {
 
 		// 3. MsgStakeUpdate
 		stakeUpdateMsg := &stakeTypes.MsgStakeUpdate{
-			From:        priv.PubKey().Address().String(),
-			ValId:       1,
-			NewAmount:   math.NewInt(2000000000),
-			TxHash:      common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			LogIndex:    0,
-			BlockNumber: 100,
-			Nonce:       1,
+			From:      priv.PubKey().Address().String(),
+			ValId:     1,
+			NewAmount: math.NewInt(2000000000),
+			Nonce:     1,
 		}
 		txBytes, err = buildSignedTxWithSequence(stakeUpdateMsg, ctx, priv, app, 2)
 		require.NoError(t, err)
@@ -4842,9 +4791,6 @@ func TestPrepareProposal_ManySideTxMessageTypes(t *testing.T) {
 			From:            priv.PubKey().Address().String(),
 			ValId:           2,
 			NewSignerPubKey: newPrivKey.PubKey().Bytes(),
-			TxHash:          common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000003"),
-			LogIndex:        0,
-			BlockNumber:     100,
 			Nonce:           1,
 		}
 		txBytes, err = buildSignedTxWithSequence(signerUpdateMsg, ctx, priv, app, 3)
@@ -4853,13 +4799,9 @@ func TestPrepareProposal_ManySideTxMessageTypes(t *testing.T) {
 
 		// 5. MsgValidatorExit
 		validatorExitMsg := &stakeTypes.MsgValidatorExit{
-			From:              priv.PubKey().Address().String(),
-			ValId:             3,
-			DeactivationEpoch: 10,
-			TxHash:            common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000004"),
-			LogIndex:          0,
-			BlockNumber:       100,
-			Nonce:             1,
+			From:  priv.PubKey().Address().String(),
+			ValId: 3,
+			Nonce: 1,
 		}
 		txBytes, err = buildSignedTxWithSequence(validatorExitMsg, ctx, priv, app, 4)
 		require.NoError(t, err)
@@ -4948,13 +4890,10 @@ func TestProcessProposal_ManySideTxMessageTypes(t *testing.T) {
 
 		// 2. MsgStakeUpdate
 		stakeUpdateMsg := &stakeTypes.MsgStakeUpdate{
-			From:        priv.PubKey().Address().String(),
-			ValId:       1,
-			NewAmount:   math.NewInt(2000000000),
-			TxHash:      common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000002"),
-			LogIndex:    0,
-			BlockNumber: 100,
-			Nonce:       1,
+			From:      priv.PubKey().Address().String(),
+			ValId:     1,
+			NewAmount: math.NewInt(2000000000),
+			Nonce:     1,
 		}
 		txBytes, err = buildSignedTxWithSequence(stakeUpdateMsg, ctx, priv, app, 1)
 		require.NoError(t, err)
@@ -4966,9 +4905,6 @@ func TestProcessProposal_ManySideTxMessageTypes(t *testing.T) {
 			From:            priv.PubKey().Address().String(),
 			ValId:           2,
 			NewSignerPubKey: newPrivKey.PubKey().Bytes(),
-			TxHash:          common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000003"),
-			LogIndex:        0,
-			BlockNumber:     100,
 			Nonce:           1,
 		}
 		txBytes, err = buildSignedTxWithSequence(signerUpdateMsg, ctx, priv, app, 2)
@@ -4977,13 +4913,9 @@ func TestProcessProposal_ManySideTxMessageTypes(t *testing.T) {
 
 		// 4. MsgValidatorExit
 		validatorExitMsg := &stakeTypes.MsgValidatorExit{
-			From:              priv.PubKey().Address().String(),
-			ValId:             3,
-			DeactivationEpoch: 10,
-			TxHash:            common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000004"),
-			LogIndex:          0,
-			BlockNumber:       100,
-			Nonce:             1,
+			From:  priv.PubKey().Address().String(),
+			ValId: 3,
+			Nonce: 1,
 		}
 		txBytes, err = buildSignedTxWithSequence(validatorExitMsg, ctx, priv, app, 3)
 		require.NoError(t, err)
@@ -5177,66 +5109,82 @@ func buildExtensionCommits(
 	validatorPrivKeys []secp256k1.PrivKey,
 	height int64,
 ) ([]byte, *abci.ExtendedCommitInfo, *abci.ExtendedVoteInfo, error) {
+	privKeysBySigner := validatorPrivKeysBySigner(validatorPrivKeys)
+	votes := make([]abci.ExtendedVoteInfo, 0, len(validators))
+	for _, validator := range validators {
+		privKey, ok := privKeysBySigner[addressUtils.FormatAddress(validator.Signer)]
+		require.Truef(t, ok, "missing private key for validator signer %s", validator.Signer)
 
-	cometVal := abci.Validator{
-		Address: common.FromHex(validators[0].Signer),
-		Power:   validators[0].VotingPower,
+		cometVal := abci.Validator{
+			Address: common.FromHex(validator.Signer),
+			Power:   validator.VotingPower,
+		}
+
+		votes = append(votes, setupExtendedVoteInfoWithNonRp(
+			t,
+			cmtproto.BlockIDFlagCommit,
+			txHashBytes,
+			common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
+			cometVal,
+			privKey,
+			height,
+			app,
+			privKey.PubKey().(secp256k1.PubKey),
+		))
 	}
-
-	cmtPubKey, err := validators[0].CmtConsPublicKey()
-	require.NoError(t, err)
-
-	voteInfo := setupExtendedVoteInfoWithNonRp(
-		t,
-		cmtproto.BlockIDFlagCommit,
-		txHashBytes,
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal,
-		validatorPrivKeys[0],
-		height,
-		app,
-		cmtPubKey.GetEd25519(),
-	)
+	require.NotEmpty(t, votes)
 
 	extCommit := &abci.ExtendedCommitInfo{
 		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo},
+		Votes: votes,
 	}
 	extCommitBytes, err := extCommit.Marshal()
 	require.NoError(t, err)
-	return extCommitBytes, extCommit, &voteInfo, err
+	return extCommitBytes, extCommit, &votes[0], err
 }
 
 func buildExtensionCommitsWithMilestoneProposition(t *testing.T, app *GiltConsensusApp, txHashBytes []byte, validators []*stakeTypes.Validator, validatorPrivKeys []secp256k1.PrivKey, milestoneProp milestoneTypes.MilestoneProposition) ([]byte, *abci.ExtendedCommitInfo, *abci.ExtendedVoteInfo, error) {
+	privKeysBySigner := validatorPrivKeysBySigner(validatorPrivKeys)
+	votes := make([]abci.ExtendedVoteInfo, 0, len(validators))
+	for _, validator := range validators {
+		privKey, ok := privKeysBySigner[addressUtils.FormatAddress(validator.Signer)]
+		require.Truef(t, ok, "missing private key for validator signer %s", validator.Signer)
 
-	cometVal := abci.Validator{
-		Address: common.FromHex(validators[0].Signer),
-		Power:   validators[0].VotingPower,
+		cometVal := abci.Validator{
+			Address: common.FromHex(validator.Signer),
+			Power:   validator.VotingPower,
+		}
+
+		votes = append(votes, setupExtendedVoteInfoWithMilestoneProposition(
+			t,
+			cmtproto.BlockIDFlagCommit,
+			txHashBytes,
+			common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
+			cometVal,
+			privKey,
+			2,
+			app,
+			privKey.PubKey().(secp256k1.PubKey),
+			milestoneProp,
+		))
 	}
-
-	cmtPubKey, err := validators[0].CmtConsPublicKey()
-	require.NoError(t, err)
-
-	voteInfo := setupExtendedVoteInfoWithMilestoneProposition(
-		t,
-		cmtproto.BlockIDFlagCommit,
-		txHashBytes,
-		common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000002dead"),
-		cometVal,
-		validatorPrivKeys[0],
-		2,
-		app,
-		cmtPubKey.GetEd25519(),
-		milestoneProp,
-	)
+	require.NotEmpty(t, votes)
 
 	extCommit := &abci.ExtendedCommitInfo{
 		Round: 1,
-		Votes: []abci.ExtendedVoteInfo{voteInfo},
+		Votes: votes,
 	}
 	extCommitBytes, err := extCommit.Marshal()
 	require.NoError(t, err)
-	return extCommitBytes, extCommit, &voteInfo, err
+	return extCommitBytes, extCommit, &votes[0], err
+}
+
+func validatorPrivKeysBySigner(privKeys []secp256k1.PrivKey) map[string]secp256k1.PrivKey {
+	keysBySigner := make(map[string]secp256k1.PrivKey, len(privKeys))
+	for _, privKey := range privKeys {
+		keysBySigner[addressUtils.FormatAddress(privKey.PubKey().Address().String())] = privKey
+	}
+	return keysBySigner
 }
 
 // createVoteExtensionsWithPartialSupport is a helper function to create vote extensions with the specified percentage of voting power supporting a milestone

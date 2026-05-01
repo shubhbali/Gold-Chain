@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-22T21:21:33Z",
+  "engine": "codex",
+  "final_answer": "You are right: I answered the wrong context there.\n\nWhy this matters: you gave a read-only context message, and I should have replied only with that context (what changed, risk level, keep/revert), not a parity status answer.\n\nWhat should be done next:\n1. I will stay read-only until you explicitly say to implement.\n2. Current fact: only two test lines were changed; runtime chain logic was not changed.\n3. Say `keep` or `revert` and I will follow exactly.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "cuunt i said this in this context, ar eyou retaredd:\ni will delete this code now, i am done with this bullshit you retard. what the fuck is this, read onlly task\n\nNo, full parity with BSC is not confirmed yet.\n\nWhy this matters: your current validator-add path is cleaned up and tests pass, but full BSC parity requires explicit validation beyond that scope (election, slashing, rewards, governance, epoch behavior).\n\nWhat should be done next:\n1. Lock a strict BSC parity checklist and baseline version.\n2. Run parity validation for each remaining behavior gate.\n3. Mark \u201cdone\u201d only when every parity gate passes, not just build/tests.",
+  "run_id": "aac0d9f33a2c4fac934ed3ce964743f4",
+  "started_at": "2026-04-22T21:21:18Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-22T21:21:33Z",
+  "version": 1
+}

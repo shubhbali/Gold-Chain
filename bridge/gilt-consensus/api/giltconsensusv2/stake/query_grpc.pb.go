@@ -24,7 +24,6 @@ const (
 	Query_GetValidatorById_FullMethodName            = "/giltconsensusv2.stake.Query/GetValidatorById"
 	Query_GetValidatorStatusByAddress_FullMethodName = "/giltconsensusv2.stake.Query/GetValidatorStatusByAddress"
 	Query_GetTotalPower_FullMethodName               = "/giltconsensusv2.stake.Query/GetTotalPower"
-	Query_IsStakeTxOld_FullMethodName                = "/giltconsensusv2.stake.Query/IsStakeTxOld"
 	Query_GetCurrentProposer_FullMethodName          = "/giltconsensusv2.stake.Query/GetCurrentProposer"
 	Query_GetProposersByTimes_FullMethodName         = "/giltconsensusv2.stake.Query/GetProposersByTimes"
 )
@@ -43,8 +42,6 @@ type QueryClient interface {
 	GetValidatorStatusByAddress(ctx context.Context, in *QueryValidatorStatusRequest, opts ...grpc.CallOption) (*QueryValidatorStatusResponse, error)
 	// GetTotalPower queries the sum of all validators' voting power.
 	GetTotalPower(ctx context.Context, in *QueryTotalPowerRequest, opts ...grpc.CallOption) (*QueryTotalPowerResponse, error)
-	// IsStakeTxOld checks if a stake transaction has already been processed.
-	IsStakeTxOld(ctx context.Context, in *QueryStakeIsOldTxRequest, opts ...grpc.CallOption) (*QueryStakeIsOldTxResponse, error)
 	// GetCurrentProposer queries the validator currently designated as proposer.
 	GetCurrentProposer(ctx context.Context, in *QueryCurrentProposerRequest, opts ...grpc.CallOption) (*QueryCurrentProposerResponse, error)
 	// GetProposersByTimes returns the next N proposers in the rotation sequence.
@@ -104,15 +101,6 @@ func (c *queryClient) GetTotalPower(ctx context.Context, in *QueryTotalPowerRequ
 	return out, nil
 }
 
-func (c *queryClient) IsStakeTxOld(ctx context.Context, in *QueryStakeIsOldTxRequest, opts ...grpc.CallOption) (*QueryStakeIsOldTxResponse, error) {
-	out := new(QueryStakeIsOldTxResponse)
-	err := c.cc.Invoke(ctx, Query_IsStakeTxOld_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *queryClient) GetCurrentProposer(ctx context.Context, in *QueryCurrentProposerRequest, opts ...grpc.CallOption) (*QueryCurrentProposerResponse, error) {
 	out := new(QueryCurrentProposerResponse)
 	err := c.cc.Invoke(ctx, Query_GetCurrentProposer_FullMethodName, in, out, opts...)
@@ -145,8 +133,6 @@ type QueryServer interface {
 	GetValidatorStatusByAddress(context.Context, *QueryValidatorStatusRequest) (*QueryValidatorStatusResponse, error)
 	// GetTotalPower queries the sum of all validators' voting power.
 	GetTotalPower(context.Context, *QueryTotalPowerRequest) (*QueryTotalPowerResponse, error)
-	// IsStakeTxOld checks if a stake transaction has already been processed.
-	IsStakeTxOld(context.Context, *QueryStakeIsOldTxRequest) (*QueryStakeIsOldTxResponse, error)
 	// GetCurrentProposer queries the validator currently designated as proposer.
 	GetCurrentProposer(context.Context, *QueryCurrentProposerRequest) (*QueryCurrentProposerResponse, error)
 	// GetProposersByTimes returns the next N proposers in the rotation sequence.
@@ -172,9 +158,6 @@ func (UnimplementedQueryServer) GetValidatorStatusByAddress(context.Context, *Qu
 }
 func (UnimplementedQueryServer) GetTotalPower(context.Context, *QueryTotalPowerRequest) (*QueryTotalPowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTotalPower not implemented")
-}
-func (UnimplementedQueryServer) IsStakeTxOld(context.Context, *QueryStakeIsOldTxRequest) (*QueryStakeIsOldTxResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IsStakeTxOld not implemented")
 }
 func (UnimplementedQueryServer) GetCurrentProposer(context.Context, *QueryCurrentProposerRequest) (*QueryCurrentProposerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentProposer not implemented")
@@ -285,24 +268,6 @@ func _Query_GetTotalPower_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_IsStakeTxOld_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryStakeIsOldTxRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).IsStakeTxOld(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_IsStakeTxOld_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).IsStakeTxOld(ctx, req.(*QueryStakeIsOldTxRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_GetCurrentProposer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryCurrentProposerRequest)
 	if err := dec(in); err != nil {
@@ -365,10 +330,6 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTotalPower",
 			Handler:    _Query_GetTotalPower_Handler,
-		},
-		{
-			MethodName: "IsStakeTxOld",
-			Handler:    _Query_IsStakeTxOld_Handler,
 		},
 		{
 			MethodName: "GetCurrentProposer",

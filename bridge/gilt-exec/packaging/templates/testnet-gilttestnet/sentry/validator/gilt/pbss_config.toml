@@ -16,7 +16,6 @@ syncmode = "full"
 # snapshot = true
 # ethstats = ""
 # witnessprotocol = false
-# devfakeauthor = false
 
 # ["eth.requiredblocks"]
 
@@ -55,7 +54,6 @@ syncmode = "full"
 
 # [giltconsensus]
     # url = "http://localhost:1317"
-    # "gilt.without" = false
     # grpc-address = ""
 
 [txpool]

@@ -74,9 +74,6 @@ import (
 	"github.com/giltchain/gilt-consensus/sidetxs"
 	hmTypes "github.com/giltchain/gilt-consensus/types"
 	hversion "github.com/giltchain/gilt-consensus/version"
-	"github.com/giltchain/gilt-consensus/x/gilt"
-	giltKeeper "github.com/giltchain/gilt-consensus/x/gilt/keeper"
-	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 	"github.com/giltchain/gilt-consensus/x/chainmanager"
 	chainmanagerkeeper "github.com/giltchain/gilt-consensus/x/chainmanager/keeper"
 	chainmanagertypes "github.com/giltchain/gilt-consensus/x/chainmanager/types"
@@ -86,9 +83,15 @@ import (
 	"github.com/giltchain/gilt-consensus/x/clerk"
 	clerkkeeper "github.com/giltchain/gilt-consensus/x/clerk/keeper"
 	clerktypes "github.com/giltchain/gilt-consensus/x/clerk/types"
+	"github.com/giltchain/gilt-consensus/x/gilt"
+	giltKeeper "github.com/giltchain/gilt-consensus/x/gilt/keeper"
+	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
 	"github.com/giltchain/gilt-consensus/x/milestone"
 	milestoneKeeper "github.com/giltchain/gilt-consensus/x/milestone/keeper"
 	milestoneTypes "github.com/giltchain/gilt-consensus/x/milestone/types"
+	"github.com/giltchain/gilt-consensus/x/pricefeed"
+	pricefeedKeeper "github.com/giltchain/gilt-consensus/x/pricefeed/keeper"
+	pricefeedTypes "github.com/giltchain/gilt-consensus/x/pricefeed/types"
 	"github.com/giltchain/gilt-consensus/x/stake"
 	stakeKeeper "github.com/giltchain/gilt-consensus/x/stake/keeper"
 	staketypes "github.com/giltchain/gilt-consensus/x/stake/types"
@@ -111,6 +114,7 @@ var (
 	maccPerms = map[string][]string{
 		authtypes.FeeCollectorName: nil,
 		govtypes.ModuleName:        nil,
+		staketypes.ModuleName:      nil,
 		topupTypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 	}
 )
@@ -146,7 +150,8 @@ type GiltConsensusApp struct {
 	ChainManagerKeeper chainmanagerkeeper.Keeper
 	CheckpointKeeper   checkpointKeeper.Keeper
 	MilestoneKeeper    milestoneKeeper.Keeper
-	GiltKeeper          giltKeeper.Keeper
+	GiltKeeper         giltKeeper.Keeper
+	PriceFeedKeeper    pricefeedKeeper.Keeper
 
 	// utility for invoking contracts in the Ethereum and Gilt chains
 	caller helper.IContractCaller
@@ -214,6 +219,7 @@ func NewGiltConsensusApp(
 		chainmanagertypes.StoreKey,
 		milestoneTypes.StoreKey,
 		giltTypes.StoreKey,
+		pricefeedTypes.StoreKey,
 	)
 
 	// register streaming services
@@ -292,6 +298,12 @@ func NewGiltConsensusApp(
 		app.caller,
 	)
 
+	app.PriceFeedKeeper = pricefeedKeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(keys[pricefeedTypes.StoreKey]),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	app.StakeKeeper = stakeKeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(keys[staketypes.StoreKey]),
@@ -349,6 +361,7 @@ func NewGiltConsensusApp(
 	)
 
 	// HV2: stake and checkpoint keepers are circularly dependent. This workaround solves it
+	app.StakeKeeper.SetPricefeedKeeper(app.PriceFeedKeeper)
 	app.StakeKeeper.SetCheckpointKeeper(app.CheckpointKeeper)
 
 	app.ModuleManager = module.NewManager(
@@ -356,6 +369,7 @@ func NewGiltConsensusApp(
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
 		gov.NewAppModule(appCodec, &app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		stake.NewAppModule(app.StakeKeeper, app.caller),
+		pricefeed.NewAppModule(app.PriceFeedKeeper),
 		clerk.NewAppModule(app.ClerkKeeper),
 		chainmanager.NewAppModule(app.ChainManagerKeeper),
 		topup.NewAppModule(app.TopupKeeper, app.caller),
@@ -401,6 +415,7 @@ func NewGiltConsensusApp(
 		banktypes.ModuleName,
 		govtypes.ModuleName,
 		chainmanagertypes.ModuleName,
+		pricefeedTypes.ModuleName,
 		staketypes.ModuleName,
 		checkpointTypes.ModuleName,
 		milestoneTypes.ModuleName,
@@ -642,26 +657,36 @@ func (app *GiltConsensusApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	defer metrics.RecordABCIHandlerDuration(metrics.EndBlockerDuration, startTime)
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	// transfer fees to the current proposer
-	if proposer, ok := app.AccountKeeper.GetBlockProposer(ctx); ok {
-		moduleAccount := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-		coin := app.BankKeeper.GetBalance(ctx, moduleAccount.GetAddress(), authtypes.FeeToken)
-		if !coin.Amount.IsZero() {
-			coins := sdk.Coins{sdk.Coin{Denom: authtypes.FeeToken, Amount: coin.Amount}}
-			if err := app.BankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, proposer, coins); err != nil {
+	moduleAccount := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
+	coin := app.BankKeeper.GetBalance(ctx, moduleAccount.GetAddress(), authtypes.FeeToken)
+	if !coin.Amount.IsZero() {
+		allocations, err := app.StakeKeeper.AllocateCurrentValidatorRewards(ctx, coin.Amount)
+		if err != nil {
+			return sdk.EndBlock{}, err
+		}
+		for _, allocation := range allocations {
+			if allocation.Amount.IsZero() {
+				continue
+			}
+			recipientBytes, err := address.NewHexCodec().StringToBytes(allocation.Signer)
+			if err != nil {
+				return sdk.EndBlock{}, err
+			}
+			coins := sdk.Coins{sdk.Coin{Denom: authtypes.FeeToken, Amount: allocation.Amount}}
+			if err := app.BankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, sdk.AccAddress(recipientBytes), coins); err != nil {
 				app.Logger().Error("EndBlocker | SendCoinsFromModuleToAccount", "error", err)
 			} else {
 				sdkCtx.EventManager().EmitEvent(sdk.NewEvent(
 					hmTypes.EventTypeFeeTransfer,
-					sdk.NewAttribute(hmTypes.AttributeKeyProposer, proposer.String()),
+					sdk.NewAttribute(hmTypes.AttributeKeyProposer, allocation.Signer),
 					sdk.NewAttribute(hmTypes.AttributeKeyDenom, authtypes.FeeToken),
-					sdk.NewAttribute(hmTypes.AttributeKeyAmount, coin.Amount.String()),
+					sdk.NewAttribute(hmTypes.AttributeKeyAmount, allocation.Amount.String()),
 				))
 			}
 		}
-		// remove block proposer
-		err := app.AccountKeeper.RemoveBlockProposer(ctx)
-		if err != nil {
+	}
+	if _, ok := app.AccountKeeper.GetBlockProposer(ctx); ok {
+		if err := app.AccountKeeper.RemoveBlockProposer(ctx); err != nil {
 			app.Logger().Error("EndBlocker | RemoveBlockProposer", "error", err)
 		}
 	}

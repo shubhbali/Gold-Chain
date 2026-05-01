@@ -22,5 +22,4 @@ $GILT --datadir $DIR/data \
   --allow-insecure-unlock \
   --miner.gastarget '20000000' \
   --miner.gaslimit '20000000' \
-  --gilt.withoutgiltconsensus \
   --mine

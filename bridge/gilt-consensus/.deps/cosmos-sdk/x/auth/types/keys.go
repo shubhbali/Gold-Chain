@@ -15,7 +15,7 @@ const (
 	FeeCollectorName = "fee_collector"
 
 	// FeeToken fee token name
-	FeeToken = "pol"
+	FeeToken = "gilt"
 )
 
 var (

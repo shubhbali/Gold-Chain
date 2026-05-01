@@ -1,0 +1,1 @@
+{application,ex_cldr_lists,[{modules,['Elixir.Cldr.Chars.List','Elixir.Cldr.List','Elixir.Cldr.List.Backend','Elixir.Cldr.List.Pattern']},{optional_applications,[jason]},{applications,[kernel,stdlib,elixir,logger,ex_cldr_numbers,jason]},{description,"List formatting functions for the Common Locale Data Repository (CLDR)\npackage ex_cldr.\n"},{registered,[]},{vsn,"2.12.1"}]}.

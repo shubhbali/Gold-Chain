@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-24T22:21:37Z",
+  "engine": "codex",
+  "final_answer": "Right now the code has **no `GOLD` reward formula and no `GILT:GOLD` staking ratio**; rewards are based on validator stake plus delegated stake in the existing staking token/POL-style contract.\n\nWhy this matters: the current code is inherited staking logic, not the final `GILT` + `GOLD` model we were discussing.\n\nCurrent formula in code:\n\n```text\ncheckpoint_reward =\n  checkpoint_base_reward\n  * signed_stake_power\n  / current_total_stake\n```\n\nThen:\n\n```text\nproposer_bonus = checkpoint_reward * proposerBonus / 100\n```\n\nDefault `proposerBonus` is `10`, so proposer gets 10%.\n\nThen the remaining reward is distributed across signing validators by stake power:\n\n```text\nreward_per_stake +=\n  (checkpoint_reward - proposer_bonus)\n  * 1e25\n  / signed_stake_power\n```\n\nFor each validator:\n\n```text\nvalidator_total_earned =\n  (reward_per_stake - validator_initial_reward_per_stake)\n  * (validator_self_stake + delegated_amount)\n  / 1e25\n```\n\nIf the validator has delegators, that validator\u2019s earned reward is split like this:\n\n```text\nvalidator_base_reward =\n  validator_self_stake\n  * validator_total_earned\n  / (validator_self_stake + delegated_amount)\n```\n\n```text\nvalidator_commission =\n  (validator_total_earned - validator_base_reward)\n  * commission_rate\n  / 100\n```\n\n```text\nvalidator_final_reward =\n  validator_base_reward + validator_commission\n```\n\n```text\ndelegators_reward =\n  validator_total_earned - validator_final_reward\n```\n\nThen delegators split their pool by validator-share tokens:\n\n```text\nreward_per_share += delegators_reward * 1e25 / total_validator_shares\n```\n\n```text\nuser_reward =\n  (reward_per_share - user_initial_reward_per_share)\n  * user_shares\n  / 1e25\n```\n\nConfirmed code locations:\n\n[StakeManager.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol):725 calculates checkpoint reward.\n\n[StakeManager.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol):798 applies proposer bonus.\n\n[StakeManager.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol):807 updates reward per stake.\n\n[StakeManager.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol):877 calculates validator eligible reward.\n\n[StakeManager.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol):911 splits validator vs delegator reward.\n\n[ValidatorShare.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/validatorShare/ValidatorShare.sol):505 calculates reward per share.\n\n[ValidatorShare.sol](/srv/repos/gold-chain/bridge/pos-contracts/contracts/staking/validatorShare/ValidatorShare.sol):518 calculates user reward.\n\nWhat should be done next: if you want the real Gold Chain model, current code must be changed because there is currently no `GOLD` staking reward path and no `GILT:GOLD` ratio logic.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 70,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "fuckign cunt not what it should be, who the fuck are you to tell me what it should be, read code and tell me what the fuck is it right now and stop wasitng my time, 2 responses wasted",
+  "run_id": "30b1b05765484ae8b0a317b32b6e8e5b",
+  "started_at": "2026-04-24T22:19:30Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-24T22:21:37Z",
+  "version": 1
+}

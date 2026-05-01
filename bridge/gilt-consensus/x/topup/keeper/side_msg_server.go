@@ -69,8 +69,8 @@ func (s sideMsgServer) SideHandleTopupTx(ctx sdk.Context, msgI sdk.Msg) sidetxs.
 		"blockNumber", msg.BlockNumber,
 	)
 
-	// check if send is enabled for default denom
-	if !s.k.BankKeeper.IsSendEnabledDenom(ctx, sdk.DefaultBondDenom) {
+	// check if send is enabled for the native fee denom
+	if !s.k.BankKeeper.IsSendEnabledDenom(ctx, authTypes.FeeToken) {
 		logger.Error("Send not enabled in bank keeper for topup side handler")
 		return sidetxs.Vote_VOTE_NO
 	}

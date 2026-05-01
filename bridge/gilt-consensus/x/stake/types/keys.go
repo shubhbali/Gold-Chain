@@ -16,6 +16,12 @@ const (
 
 	// DefaultLogIndexUnit represents the default unit for txHash+logIndex
 	DefaultLogIndexUnit = 100000
+
+	// GoldDenom is the native GOLD bank denom escrowed for validator reward staking.
+	GoldDenom = "gold"
+
+	// GiltDenom is the native GILT bank denom escrowed for validator self-stake.
+	GiltDenom = "gilt"
 )
 
 var (
@@ -27,6 +33,14 @@ var (
 	LastBlockTxsKey                 = []byte{0x26} // key to store last block's txs
 	PreviousBlockValidatorSetKey    = []byte{0x27} // key to store the previous block's validator set
 	PenultimateBlockValidatorSetKey = []byte{0x28} // key to store the validator set from 2 blocks ago
+	GoldDelegationKey               = []byte{0x29} // prefix for GOLD delegations
+	ValidatorApprovalKey            = []byte{0x2a} // prefix for native validator approvals
+	ValidatorLifecycleParamsKey     = []byte{0x2b} // key to store native validator lifecycle params
+	ValidatorApprovalVoteKey        = []byte{0x2c} // prefix for validator-approval yes-vote markers
+	ValidatorApprovalVoterPowerKey  = []byte{0x2d} // prefix for validator-approval snapshot voter powers
+	ValidatorApprovalSnapshotKey    = []byte{0x2e} // prefix for validator-approval snapshot total power
+	ValidatorApprovalYesPowerKey    = []byte{0x2f} // prefix for validator-approval yes voting power
+	ValidatorApprovalFinalizedKey   = []byte{0x30} // prefix for validator-approval finalization flags
 )
 
 type PubKey [65]byte

@@ -197,18 +197,6 @@ func (c *Command) Flags(config *Config) *flagset.Flagset {
 		Value:   &c.cliConfig.GiltConsensus.Timeout,
 		Default: c.cliConfig.GiltConsensus.Timeout,
 	})
-	f.BoolFlag(&flagset.BoolFlag{
-		Name:    "gilt.withoutgiltconsensus",
-		Usage:   "Run without GiltConsensus service (for testing purpose)",
-		Value:   &c.cliConfig.GiltConsensus.Without,
-		Default: c.cliConfig.GiltConsensus.Without,
-	})
-	f.BoolFlag(&flagset.BoolFlag{
-		Name:    "gilt.devfakeauthor",
-		Usage:   "Run miner without validator set authorization [dev mode] : Use with '--gilt.withoutgiltconsensus'",
-		Value:   &c.cliConfig.DevFakeAuthor,
-		Default: c.cliConfig.DevFakeAuthor,
-	})
 	f.StringFlag(&flagset.StringFlag{
 		Name:    "gilt.giltconsensusgRPC",
 		Usage:   "Address of GiltConsensus gRPC service (comma-separated for failover: \"addr1,addr2\")",
@@ -220,24 +208,6 @@ func (c *Command) Flags(config *Config) *flagset.Flagset {
 		Usage:   "Address of GiltConsensus WS subscription service (comma-separated for failover: \"addr1,addr2\")",
 		Value:   &c.cliConfig.GiltConsensus.WSAddress,
 		Default: c.cliConfig.GiltConsensus.WSAddress,
-	})
-	f.BoolFlag(&flagset.BoolFlag{
-		Name:    "gilt.rungiltconsensus",
-		Usage:   "Run GiltConsensus service as a child process",
-		Value:   &c.cliConfig.GiltConsensus.RunGiltConsensus,
-		Default: c.cliConfig.GiltConsensus.RunGiltConsensus,
-	})
-	f.StringFlag(&flagset.StringFlag{
-		Name:    "gilt.rungiltconsensusargs",
-		Usage:   "Arguments to pass to GiltConsensus service",
-		Value:   &c.cliConfig.GiltConsensus.RunGiltConsensusArgs,
-		Default: c.cliConfig.GiltConsensus.RunGiltConsensusArgs,
-	})
-	f.BoolFlag(&flagset.BoolFlag{
-		Name:    "gilt.usegiltconsensusapp",
-		Usage:   "Use child giltconsensus process to fetch data, Only works when gilt.rungiltconsensus is true",
-		Value:   &c.cliConfig.GiltConsensus.UseGiltConsensusApp,
-		Default: c.cliConfig.GiltConsensus.UseGiltConsensusApp,
 	})
 
 	// txpool options

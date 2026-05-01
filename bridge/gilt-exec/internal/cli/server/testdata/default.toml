@@ -15,7 +15,6 @@ snapshot = true
 "gilt.logs" = false
 ethstats = ""
 witnessprotocol = false
-devfakeauthor = false
 
 ["eth.requiredblocks"]
 
@@ -49,12 +48,8 @@ devfakeauthor = false
 
 [giltconsensus]
   url = "http://localhost:1317"
-  "gilt.without" = false
   grpc-address = ""
   ws-address = ""
-  "gilt.rungiltconsensus" = false
-  "gilt.rungiltconsensusargs" = ""
-  "gilt.usegiltconsensusapp" = false
 
 [txpool]
   locals = []

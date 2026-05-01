@@ -38,8 +38,8 @@ func TestNewParams(t *testing.T) {
 		t.Parallel()
 
 		chainParams := types.ChainParams{
-			GiltChainId:           "137",
-			GiltConsensusChainId:      "giltconsensus-137",
+			GiltChainId:          "137",
+			GiltConsensusChainId: "giltconsensus-137",
 			StateReceiverAddress: "0x0000000000000000000000000000000000001001",
 			ValidatorSetAddress:  "0x0000000000000000000000000000000000001000",
 		}
@@ -72,75 +72,18 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("validates params with valid addresses", func(t *testing.T) {
 		t.Parallel()
 
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       "0x1234567890123456789012345678901234567890",
-			StakingManagerAddress: "0x1234567890123456789012345678901234567891",
-			SlashManagerAddress:   "0x1234567890123456789012345678901234567892",
-			RootChainAddress:      "0x1234567890123456789012345678901234567893",
-			StakingInfoAddress:    "0x1234567890123456789012345678901234567894",
-			StateSenderAddress:    "0x1234567890123456789012345678901234567895",
-			StateReceiverAddress:  "0x1234567890123456789012345678901234567896",
-			ValidatorSetAddress:   "0x1234567890123456789012345678901234567897",
-		})
+		params := types.NewParams(6, 10, validChainParams())
 
 		err := params.ValidateBasic()
 		require.NoError(t, err)
 	})
 
-	t.Run("rejects invalid pol token address", func(t *testing.T) {
-		t.Parallel()
-
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       "invalid",
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
-
-		err := params.ValidateBasic()
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "pol_token_address")
-	})
-
-	t.Run("rejects invalid staking manager address", func(t *testing.T) {
-		t.Parallel()
-
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: "not-an-address",
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
-
-		err := params.ValidateBasic()
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "staking_manager_address")
-	})
-
 	t.Run("rejects invalid slash manager address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   "0xinvalid",
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
+		chainParams := validChainParams()
+		chainParams.SlashManagerAddress = "0xinvalid"
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -150,17 +93,9 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("rejects invalid root chain address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      "bad_address",
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
+		chainParams := validChainParams()
+		chainParams.RootChainAddress = "bad_address"
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -170,17 +105,9 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("rejects invalid staking info address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    "123",
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
+		chainParams := validChainParams()
+		chainParams.StakingInfoAddress = "123"
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -190,17 +117,9 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("rejects invalid state sender address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    "not_hex",
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   validAddress,
-		})
+		chainParams := validChainParams()
+		chainParams.StateSenderAddress = "not_hex"
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -210,17 +129,9 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("rejects invalid state receiver address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  "",
-			ValidatorSetAddress:   validAddress,
-		})
+		chainParams := validChainParams()
+		chainParams.StateReceiverAddress = ""
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -230,17 +141,9 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("rejects invalid validator set address", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  validAddress,
-			ValidatorSetAddress:   "0x",
-		})
+		chainParams := validChainParams()
+		chainParams.ValidatorSetAddress = "0x"
+		params := types.NewParams(6, 10, chainParams)
 
 		err := params.ValidateBasic()
 		require.Error(t, err)
@@ -250,21 +153,22 @@ func TestParams_ValidateBasic(t *testing.T) {
 	t.Run("all addresses must be valid if provided", func(t *testing.T) {
 		t.Parallel()
 
-		validAddress := "0x1234567890123456789012345678901234567890"
-		params := types.NewParams(6, 10, types.ChainParams{
-			PolTokenAddress:       validAddress,
-			StakingManagerAddress: validAddress,
-			SlashManagerAddress:   validAddress,
-			RootChainAddress:      validAddress,
-			StakingInfoAddress:    validAddress,
-			StateSenderAddress:    validAddress,
-			StateReceiverAddress:  "0x0000000000000000000000000000000000001001",
-			ValidatorSetAddress:   "0x0000000000000000000000000000000000001000",
-		})
+		params := types.NewParams(6, 10, validChainParams())
 
 		err := params.ValidateBasic()
 		require.NoError(t, err)
 	})
+}
+
+func validChainParams() types.ChainParams {
+	return types.ChainParams{
+		SlashManagerAddress:  "0x1234567890123456789012345678901234567892",
+		RootChainAddress:     "0x1234567890123456789012345678901234567893",
+		StakingInfoAddress:   "0x1234567890123456789012345678901234567894",
+		StateSenderAddress:   "0x1234567890123456789012345678901234567895",
+		StateReceiverAddress: "0x1234567890123456789012345678901234567896",
+		ValidatorSetAddress:  "0x1234567890123456789012345678901234567897",
+	}
 }
 
 func TestDefaultConstants(t *testing.T) {

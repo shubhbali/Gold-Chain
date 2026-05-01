@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T01:50:06Z",
+  "engine": "codex",
+  "final_answer": "These issues are resolved by turning the current successful fresh launch into a real production launch model, not by patching around each symptom.\n\nWhy it matters: Gold Chain must have deterministic validator rules, deterministic launch behavior, and safe `GILT`/`GOLD` accounting before it can be called mainnet-grade.\n\n**1. Two-thirds voting power issue**\n\nResolve it by defining the real validator-set policy:\n\n- Launch with at least 4 active validators, not 3.\n- Use stake-weighted voting power.\n- Prevent any validator/operator from controlling 1/3 or more of active voting power.\n- Add downtime slashing/jailing.\n- Test one-validator-down, restart, and catch-up with the real validator count.\n\nFinal outcome: one normal validator can go offline and Gold Chain keeps producing blocks. If 1/3+ voting power goes offline, the chain halts for safety instead of risking invalid finality.\n\n**2. Validator join/update/exit**\n\nResolve it by making validator lifecycle native to Gold Chain:\n\n- Governance/admin approves validator candidate.\n- Candidate submits join transaction directly on Gold Chain.\n- Chain checks approval, `GILT` stake, keys, metadata, commission, and eligibility.\n- Validator enters pending set, then active set at epoch boundary.\n- Key updates, commission updates, and exits happen through Gold Chain transactions.\n- Exits use unbonding and slashing rules.\n- No Ethereum tx hash, log index, or bridge event is required for normal validator management.\n\nFinal outcome: Gold Chain can launch fresh and manage validators using its own rules.\n\n**3. Bridge event dependency**\n\nResolve it by separating validator logic from bridge logic:\n\n- Validator admission should not depend on bridge events.\n- Bridge events should only affect bridge assets like `PAXG`, `XAUT`, `GOLD` mint/burn/redemption.\n- Bridge events must be finalized before they change state.\n- Non-finalized events stay pending and cannot mint, unlock, or update accounting.\n\nFinal outcome: validator management is chain-native, and bridge accounting is safe against reorgs or fake early events.\n\n**4. Execution/consensus launch**\n\nResolve it by choosing one execution engine and writing a deterministic launch flow:\n\n- Lock one execution client.\n- Lock chain ID, genesis, validator set, ports, seeds, RPCs, and signer keys.\n- Start consensus and execution in a fixed order.\n- Ensure execution nodes do not split heads on startup.\n- Prove full stop/restart and catch-up.\n- Remove manual peer-adding from the expected production path.\n\nFinal outcome: operators can start Gold Chain from fresh genesis using a runbook, and all nodes converge to the same chain.\n\n**5. Same-server testing flag**\n\n`allow_duplicate_ip = true` stays test-only.\n\nFinal outcome: local testnets can run multiple validators on one server, but production validators use real separate machines/IPs with duplicate IP disabled.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Tell me exactly how these issues would be resolved and what would be the final production-ready outcome look like?",
+  "run_id": "8f9e92a0d7c444dcb2c721a20c38da66",
+  "started_at": "2026-04-26T01:49:38Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T01:50:06Z",
+  "version": 1
+}

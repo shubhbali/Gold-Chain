@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T18:18:31Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "I don't need this response this is a stupid response. What the fuck am I supposed to do with thsi response. This is the 2nd time. Now restore only the test files and don't touch any other portion of the code you cunt",
+  "run_id": "8899fb37fa784f1a802c0db8278edd12",
+  "started_at": "2026-04-27T18:18:15Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-27T18:18:31Z",
+  "version": 1
+}

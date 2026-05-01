@@ -19,8 +19,7 @@ message ChainParams {
   option (gogoproto.equal) = true;
   string gilt_chain_id = 1 [ (amino.dont_omitempty) = true ];
   string giltconsensus_chain_id = 2 [ (amino.dont_omitempty) = true ];
-  string pol_token_address = 3 [ (amino.dont_omitempty) = true ];
-  string staking_manager_address = 4 [ (amino.dont_omitempty) = true ];
+  reserved 3, 4;
   string slash_manager_address = 5 [ (amino.dont_omitempty) = true ];
   string root_chain_address = 6 [ (amino.dont_omitempty) = true ];
   string staking_info_address = 7 [ (amino.dont_omitempty) = true ];

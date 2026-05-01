@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-28T20:17:58Z",
+  "engine": "codex",
+  "final_answer": "",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 77,
+  "last_event_text": "Stopped.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Run real node and test on this server, I want no surprises",
+  "run_id": "77a1167383124aaab5b2e64123200b33",
+  "started_at": "2026-04-28T20:11:39Z",
+  "status": "stopped",
+  "topic_key": "chat--1003953016418-topic-38036",
+  "updated_at": "2026-04-28T20:17:58Z",
+  "version": 1
+}

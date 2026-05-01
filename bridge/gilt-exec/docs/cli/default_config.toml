@@ -20,7 +20,6 @@ snapshot = true
 ethstats = ""
 disable-blind-fork-validation = false
 max-blind-fork-validation-limit = 256
-devfakeauthor = false
 
 ["eth.requiredblocks"]
 
@@ -57,12 +56,8 @@ devfakeauthor = false
 [giltconsensus]
   url = "http://localhost:1317"
   timeout = "5s"
-  "gilt.without" = false
   grpc-address = ""
   ws-address = ""
-  "gilt.rungiltconsensus" = false
-  "gilt.rungiltconsensusargs" = ""
-  "gilt.usegiltconsensusapp" = false
 
 [txpool]
   locals = []

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -12,10 +11,6 @@ import (
 	"github.com/pelletier/go-toml"
 
 	"github.com/ethereum/go-ethereum/log"
-
-	"github.com/giltchain/gilt-consensus/app"
-	giltconsd "github.com/giltchain/gilt-consensus/cmd/giltconsd/cmd"
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 // Command is the command to start the sever
@@ -203,20 +198,6 @@ func (c *Command) Run(args []string) int {
 	if err != nil {
 		c.UI.Error(err.Error())
 		return 1
-	}
-
-	if c.config.GiltConsensus.RunGiltConsensus {
-		// TODO HV2: Find a way to pass the shutdown ctx to giltconsensus process
-		_, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-		defer stop()
-
-		go func() {
-			rootCmd := giltconsd.NewRootCmd()
-			if err := svrcmd.Execute(rootCmd, "HD", app.DefaultNodeHome); err != nil {
-				_, _ = fmt.Fprintln(rootCmd.OutOrStderr(), err)
-				os.Exit(1)
-			}
-		}()
 	}
 
 	srv, err := NewServer(c.config)

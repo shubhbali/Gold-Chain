@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"math/big"
 	"time"
 
 	hexCodec "github.com/cosmos/cosmos-sdk/codec/address"
@@ -12,7 +11,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/giltchain/gilt-consensus/common/hex"
 	"github.com/giltchain/gilt-consensus/metrics/api"
 	"github.com/giltchain/gilt-consensus/x/stake/types"
 )
@@ -131,49 +129,6 @@ func (q queryServer) GetTotalPower(ctx context.Context, _ *types.QueryTotalPower
 	}
 
 	return &types.QueryTotalPowerResponse{TotalPower: totalPower}, nil
-}
-
-// IsStakeTxOld queries for the staking sequence
-func (q queryServer) IsStakeTxOld(ctx context.Context, req *types.QueryStakeIsOldTxRequest) (*types.QueryStakeIsOldTxResponse, error) {
-	var err error
-	startTime := time.Now()
-	defer recordStakeQueryMetric(api.IsStakeTxOldMethod, startTime, &err)
-
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, errEmptyRequest)
-	}
-
-	if !hex.IsTxHashNonEmpty(req.TxHash) {
-		return nil, status.Error(codes.InvalidArgument, "invalid tx hash")
-	}
-
-	if req.LogIndex >= math.MaxInt64 {
-		return nil, status.Error(codes.InvalidArgument, "invalid log index")
-	}
-
-	chainParams, err := q.k.cmKeeper.GetParams(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "chain params not found")
-	}
-
-	// get main tx receipt
-	receipt, err := q.k.contractCaller.GetConfirmedTxReceipt(common.HexToHash(req.TxHash), chainParams.MainChainTxConfirmations)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-	if receipt == nil {
-		return nil, status.Errorf(codes.NotFound, "receipt not found")
-	}
-
-	sequence := new(big.Int).Mul(receipt.BlockNumber, big.NewInt(types.DefaultLogIndexUnit))
-	sequence.Add(sequence, new(big.Int).SetUint64(req.LogIndex))
-
-	// check if incoming tx already exists
-	if !q.k.HasStakingSequence(ctx, sequence.String()) {
-		return &types.QueryStakeIsOldTxResponse{IsOld: false}, nil
-	}
-
-	return &types.QueryStakeIsOldTxResponse{IsOld: true}, nil
 }
 
 // GetProposersByTimes queries for the proposers by Tendermint iterations

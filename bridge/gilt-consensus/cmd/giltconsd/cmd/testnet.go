@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/libs/tempfile"
 	cmttime "github.com/cometbft/cometbft/types/time"
@@ -25,12 +26,15 @@ import (
 	cmdhelper "github.com/giltchain/gilt-consensus/cmd"
 	hmTypes "github.com/giltchain/gilt-consensus/types"
 	giltTypes "github.com/giltchain/gilt-consensus/x/gilt/types"
+	pricefeedTypes "github.com/giltchain/gilt-consensus/x/pricefeed/types"
 	stakingcli "github.com/giltchain/gilt-consensus/x/stake/client/cli"
 	stakeTypes "github.com/giltchain/gilt-consensus/x/stake/types"
 	topupTypes "github.com/giltchain/gilt-consensus/x/topup/types"
 )
 
 var testnetCmdName = "create-testnet"
+
+const testnetFreeAccountTokens = int64(1_000)
 
 // testnetCmd initialises files required to start giltconsensus testnet
 func testnetCmd(_ *server.Context, mbm module.BasicManager) *cobra.Command {
@@ -63,8 +67,16 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 				chainID = fmt.Sprintf("giltconsensus-%v", suffix)
 			}
 
+			allowDuplicateIP, err := cmd.Flags().GetBool(flagAllowDuplicateIP)
+			if err != nil {
+				return err
+			}
+
 			// num of validators = validators in genesis files
 			numValidators := viper.GetInt(flagNumValidators)
+			if numValidators < int(stakeTypes.DefaultMinActiveValidators) {
+				return fmt.Errorf("fresh Gold Chain testnet requires at least %d active validators", stakeTypes.DefaultMinActiveValidators)
+			}
 
 			// get the total number of validators to be generated
 			totalValidators := getTotalNumberOfNodes()
@@ -86,7 +98,6 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 			validators := make([]*stakeTypes.Validator, numValidators)
 			dividendAccounts := make([]hmTypes.DividendAccount, numValidators)
 			genFiles := make([]string, totalValidators)
-			var err error
 
 			homeDir := viper.GetString(flags.FlagHome)
 			appCfgFile := filepath.Join(homeDir, "config/app.toml")
@@ -164,11 +175,20 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 
 			// other data
 			genAccounts := make([]authTypes.GenesisAccount, 0, totalValidators)
-			genBalances := make([]bankTypes.Balance, 0, totalValidators)
+			genBalances := make([]bankTypes.Balance, 0, totalValidators+1)
+			genesisValidatorStake := sdkmath.ZeroInt()
+			for _, validator := range validators {
+				if validator != nil {
+					validator.NormalizeLifecycleAccounting()
+					genesisValidatorStake = genesisValidatorStake.Add(validator.SelfGiltStake)
+				}
+			}
+
 			for i := 0; i < totalValidators; i++ {
-				accTokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
+				accTokens := testnetTokenAmount(testnetFreeAccountTokens)
 				coins := sdk.Coins{
-					sdk.NewCoin("pol", accTokens),
+					sdk.NewCoin(stakeTypes.GiltDenom, accTokens),
+					sdk.NewCoin(stakeTypes.GoldDenom, accTokens),
 				}
 				addr, err := sdk.AccAddressFromHex(valPubKeys[i].Address().String())
 				if err != nil {
@@ -181,12 +201,16 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 				genBalances = append(genBalances, bankTypes.Balance{Address: addrStr, Coins: coins.Sort()})
 				genAccounts = append(genAccounts, authTypes.NewBaseAccount(addr, cosmosPrivKey.PubKey(), uint64(i+1), 0))
 			}
+			if genesisValidatorStake.IsPositive() {
+				genBalances = append(genBalances, bankTypes.Balance{
+					Address: authTypes.NewModuleAddress(stakeTypes.ModuleName).String(),
+					Coins:   sdk.NewCoins(sdk.NewCoin(stakeTypes.GiltDenom, genesisValidatorStake)),
+				})
+			}
 
 			validatorSet := stakeTypes.NewValidatorSet(validators)
 
-			for i := 0; i < totalValidators; i++ {
-				populatePersistentPeersInConfigAndWriteIt(config)
-			}
+			populatePersistentPeersInConfigAndWriteIt(config, allowDuplicateIP)
 
 			appGenState := mbm.DefaultGenesis(cliCdc)
 
@@ -208,6 +232,7 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 			clientCtx.Codec.MustUnmarshalJSON(appGenState[bankTypes.ModuleName], &bankGenState)
 
 			bankGenState.Balances = bankTypes.SanitizeGenesisBalances(genBalances)
+			bankGenState.Supply = sdk.NewCoins()
 
 			for _, bal := range bankGenState.Balances {
 				bankGenState.Supply = bankGenState.Supply.Add(bal.Coins...)
@@ -215,7 +240,28 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 
 			appGenState[bankTypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&bankGenState)
 
+			pricefeedGenesis := pricefeedTypes.NewGenesisState(
+				pricefeedTypes.DefaultParams(),
+				[]pricefeedTypes.PriceSnapshot{
+					{
+						Epoch:           1,
+						GiltPriceInGold: sdkmath.NewInt(pricefeedTypes.PriceScale),
+						SourceAdapter:   pricefeedTypes.AdapterManual,
+						ValidUntilEpoch: 1_000_000,
+					},
+				},
+				1,
+			)
+			appGenState[pricefeedTypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(pricefeedGenesis)
+
 			// set stake genesis state
+			stakeGenesis := stakeTypes.GetGenesisStateFromAppState(cliCdc, appGenState)
+			stakeGenesis.ValidatorLifecycleParams.NormalizeDefaults()
+			if len(validators) > 0 && stakeGenesis.ValidatorLifecycleParams.ApprovalAuthority == "" {
+				stakeGenesis.ValidatorLifecycleParams.ApprovalAuthority = validators[0].OperatorAddress()
+			}
+			appGenState[stakeTypes.ModuleName] = cliCdc.MustMarshalJSON(stakeGenesis)
+
 			appGenState, err = stakeTypes.SetGenesisStateToAppState(cliCdc, appGenState, validators, *validatorSet)
 			if err != nil {
 				return err
@@ -290,6 +336,12 @@ testnet --v 4 --n 8 --output-dir ./output --starting-ip-address 192.168.10.2
 
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().Bool("signer-dump", true, "dumps all signer information in a json file")
+	cmd.Flags().Bool(flagAllowDuplicateIP, false,
+		"Allow multiple local testnet nodes to share one IP address; keep false for real deployments")
 
 	return cmd
+}
+
+func testnetTokenAmount(tokens int64) sdkmath.Int {
+	return sdkmath.NewInt(tokens).MulRaw(pricefeedTypes.PriceScale)
 }

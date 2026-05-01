@@ -1,0 +1,3 @@
+{
+  "/chain/[chain_slug]/tx/[hash]": "pages/chain/[chain_slug]/tx/[hash].js"
+}

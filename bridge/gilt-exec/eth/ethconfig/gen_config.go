@@ -66,20 +66,15 @@ func (c Config) MarshalTOML() (interface{}, error) {
 		RPCReturnDataLimit                   uint64
 		RPCEVMTimeout                        time.Duration
 		RPCTxFeeCap                          float64
-		GiltConsensusURL                          string
-		GiltConsensusTimeout                      time.Duration
-		WithoutGiltConsensus                      bool
-		GiltConsensusgRPCAddress                  string
-		GiltConsensusWSAddress                    string
-		RunGiltConsensus                          bool
-		RunGiltConsensusArgs                      string
-		UseGiltConsensusApp                       bool
-		GiltLogs                              bool
+		GiltConsensusURL                     string
+		GiltConsensusTimeout                 time.Duration
+		GiltConsensusgRPCAddress             string
+		GiltConsensusWSAddress               string
+		GiltLogs                             bool
 		ParallelEVM                          core.ParallelEVMConfig `toml:",omitempty"`
 		WitnessProtocol                      bool
 		SyncWithWitnesses                    bool
 		SyncAndProduceWitnesses              bool
-		DevFakeAuthor                        bool `hcl:"devfakeauthor,optional" toml:"devfakeauthor,optional"`
 		EnableBlockTracking                  bool
 		FastForwardThreshold                 uint64
 		WitnessPruneThreshold                uint64
@@ -137,18 +132,13 @@ func (c Config) MarshalTOML() (interface{}, error) {
 	enc.RPCTxFeeCap = c.RPCTxFeeCap
 	enc.GiltConsensusURL = c.GiltConsensusURL
 	enc.GiltConsensusTimeout = c.GiltConsensusTimeout
-	enc.WithoutGiltConsensus = c.WithoutGiltConsensus
 	enc.GiltConsensusgRPCAddress = c.GiltConsensusgRPCAddress
 	enc.GiltConsensusWSAddress = c.GiltConsensusWSAddress
-	enc.RunGiltConsensus = c.RunGiltConsensus
-	enc.RunGiltConsensusArgs = c.RunGiltConsensusArgs
-	enc.UseGiltConsensusApp = c.UseGiltConsensusApp
 	enc.GiltLogs = c.GiltLogs
 	enc.ParallelEVM = c.ParallelEVM
 	enc.WitnessProtocol = c.WitnessProtocol
 	enc.SyncWithWitnesses = c.SyncWithWitnesses
 	enc.SyncAndProduceWitnesses = c.SyncAndProduceWitnesses
-	enc.DevFakeAuthor = c.DevFakeAuthor
 	enc.OverrideOsaka = c.OverrideOsaka
 	enc.OverrideVerkle = c.OverrideVerkle
 	enc.EnableBlockTracking = c.EnableBlockTracking
@@ -212,20 +202,15 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 		RPCReturnDataLimit                   *uint64
 		RPCEVMTimeout                        *time.Duration
 		RPCTxFeeCap                          *float64
-		GiltConsensusURL                          *string
-		GiltConsensusTimeout                      *time.Duration
-		WithoutGiltConsensus                      *bool
-		GiltConsensusgRPCAddress                  *string
-		GiltConsensusWSAddress                    *string
-		RunGiltConsensus                          *bool
-		RunGiltConsensusArgs                      *string
-		UseGiltConsensusApp                       *bool
-		GiltLogs                              *bool
+		GiltConsensusURL                     *string
+		GiltConsensusTimeout                 *time.Duration
+		GiltConsensusgRPCAddress             *string
+		GiltConsensusWSAddress               *string
+		GiltLogs                             *bool
 		ParallelEVM                          *core.ParallelEVMConfig `toml:",omitempty"`
 		WitnessProtocol                      *bool
 		SyncWithWitnesses                    *bool
 		SyncAndProduceWitnesses              *bool
-		DevFakeAuthor                        *bool `hcl:"devfakeauthor,optional" toml:"devfakeauthor,optional"`
 		EnableBlockTracking                  *bool
 		FastForwardThreshold                 *uint64
 		WitnessPruneThreshold                *uint64
@@ -376,23 +361,11 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 	if dec.GiltConsensusTimeout != nil {
 		c.GiltConsensusTimeout = *dec.GiltConsensusTimeout
 	}
-	if dec.WithoutGiltConsensus != nil {
-		c.WithoutGiltConsensus = *dec.WithoutGiltConsensus
-	}
 	if dec.GiltConsensusgRPCAddress != nil {
 		c.GiltConsensusgRPCAddress = *dec.GiltConsensusgRPCAddress
 	}
 	if dec.GiltConsensusWSAddress != nil {
 		c.GiltConsensusWSAddress = *dec.GiltConsensusWSAddress
-	}
-	if dec.RunGiltConsensus != nil {
-		c.RunGiltConsensus = *dec.RunGiltConsensus
-	}
-	if dec.RunGiltConsensusArgs != nil {
-		c.RunGiltConsensusArgs = *dec.RunGiltConsensusArgs
-	}
-	if dec.UseGiltConsensusApp != nil {
-		c.UseGiltConsensusApp = *dec.UseGiltConsensusApp
 	}
 	if dec.GiltLogs != nil {
 		c.GiltLogs = *dec.GiltLogs
@@ -408,9 +381,6 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 	}
 	if dec.SyncAndProduceWitnesses != nil {
 		c.SyncAndProduceWitnesses = *dec.SyncAndProduceWitnesses
-	}
-	if dec.DevFakeAuthor != nil {
-		c.DevFakeAuthor = *dec.DevFakeAuthor
 	}
 	if dec.OverrideOsaka != nil {
 		c.OverrideOsaka = dec.OverrideOsaka

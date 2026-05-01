@@ -1,0 +1,8 @@
+{"seq": 1, "timestamp": "2026-04-26T04:39:53Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-26T04:39:58Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-26T04:39:58Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-26T04:40:11Z", "type": "progress.event", "text": "Running: awk 'BEGIN{insec=0} /\"'^`PAXG` and `XAUT` must never/{insec=1} insec{print} insec && /''^In high-stakes blockchain work/{exit}'\"' AGENTS.md", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-26T04:40:11Z", "type": "progress.event", "text": "Finished (0): awk 'BEGIN{insec=0} /\"'^`PAXG` and `XAUT` must never/{insec=1} insec{print} insec && /''^In high-stakes blockchain work/{exit}'\"' AGENTS.md", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-26T04:40:11Z", "type": "progress.event", "text": "Running: awk 'BEGIN{insec=0} /\"'^## Critical Bridge Asset Language/{insec=1} insec{print} insec && /''^## Assumption Rules/{exit}'\"' preferences.md", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-26T04:40:11Z", "type": "progress.event", "text": "Finished (0): awk 'BEGIN{insec=0} /\"'^## Critical Bridge Asset Language/{insec=1} insec{print} insec && /''^## Assumption Rules/{exit}'\"' preferences.md", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-26T04:40:35Z", "type": "run.completed", "text": "Done.", "metadata": {}}

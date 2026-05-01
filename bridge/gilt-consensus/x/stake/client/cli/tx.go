@@ -1,22 +1,18 @@
 package cli
 
 import (
-	"bytes"
 	"fmt"
+	"strconv"
 
-	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
-	codec "github.com/cosmos/cosmos-sdk/codec/address"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	"github.com/giltchain/gilt-consensus/common/cli"
-	"github.com/giltchain/gilt-consensus/contracts/stakinginfo"
+	commoncli "github.com/giltchain/gilt-consensus/common/cli"
 	"github.com/giltchain/gilt-consensus/helper"
-	chainmanagerTypes "github.com/giltchain/gilt-consensus/x/chainmanager/types"
 	"github.com/giltchain/gilt-consensus/x/stake/types"
 )
 
@@ -32,238 +28,354 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	ac := codec.NewHexCodec()
-
 	txCmd.AddCommand(
-		NewValidatorJoinCmd(ac),
-		NewSignerUpdateCmd(ac),
+		NewApproveValidatorCmd(),
+		NewValidatorJoinCmd(),
+		NewStakeUpdateCmd(),
+		NewSignerUpdateCmd(),
+		NewValidatorExitCmd(),
+		NewWithdrawValidatorStakeCmd(),
+		NewDelegateGoldCmd(),
+		NewUndelegateGoldCmd(),
 	)
 
 	return txCmd
 }
 
-// NewValidatorJoinCmd returns a CLI command handler for creating a MsgValidatorJoin transaction.
-func NewValidatorJoinCmd(ac address.Codec) *cobra.Command {
+// NewApproveValidatorCmd approves a native validator candidate.
+func NewApproveValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "validator-join",
-		Short: "send validator join tx",
+		Use:   "approve-validator [val-id] [operator] [activation-epoch] [max-gilt-stake] [signer-pubkey] [nonce]",
+		Short: "Cast a validator vote on a native validator approval proposal",
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-
-			// get proposer
-			proposer := viper.GetString(FlagProposerAddress)
-			if proposer == "" {
-				proposer = clientCtx.GetFromAddress().String()
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
 			}
 
-			_, err = ac.StringToBytes(proposer)
+			valID, err := parsePositiveUint(args[0], "validator id")
 			if err != nil {
-				return fmt.Errorf("the proposer address is invalid: %w", err)
+				return err
 			}
-
-			txHash := viper.GetString(FlagTxHash)
-			if txHash == "" {
-				return fmt.Errorf("the provided transaction hash is empty, and the field is required")
+			activationEpoch, err := strconv.ParseUint(args[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("invalid activation epoch %q", args[2])
 			}
-
-			pubKeyStr := viper.GetString(FlagSignerPubKey)
-			if pubKeyStr == "" {
-				return fmt.Errorf("the provided PubKey is empty, and the field is required")
+			maxGiltStake, err := parsePositiveAmount(args[3], "max GILT stake")
+			if err != nil {
+				return err
 			}
-
-			pubKeyBytes := common.FromHex(pubKeyStr)
-			if len(pubKeyBytes) != 65 {
-				return fmt.Errorf("the provided PubKey length is invalid")
+			pubKey, err := parseSecp256k1PubKey(args[4])
+			if err != nil {
+				return err
 			}
-			pubKey := secp256k1.PubKey{
-				Key: pubKeyBytes,
-			}
-
-			// total stake amount
-			amount, ok := sdkmath.NewIntFromString(viper.GetString(FlagAmount))
-			if !ok {
-				return fmt.Errorf("invalid stake amount provided")
-			}
-
-			contractCaller, err := helper.NewContractCaller()
+			nonce, err := parsePositiveUint(args[5], "nonce")
 			if err != nil {
 				return err
 			}
 
-			// fetch params
-			queryClient := chainmanagerTypes.NewQueryClient(clientCtx)
-			cmParams, err := queryClient.GetChainManagerParams(cmd.Context(), &chainmanagerTypes.QueryParamsRequest{})
+			msg, err := types.NewMsgApproveValidator(from, valID, args[1], activationEpoch, maxGiltStake, pubKey, nonce)
 			if err != nil {
 				return err
 			}
-
-			// get main tx receipt
-			receipt, err := contractCaller.GetConfirmedTxReceipt(common.HexToHash(txHash), cmParams.Params.MainChainTxConfirmations)
-			if err != nil || receipt == nil {
-				return fmt.Errorf("transaction %s is not confirmed yet, please wait for some time and try again", txHash)
-			}
-
-			abiObject := &contractCaller.StakingInfoABI
-			eventName := "Staked"
-			event := new(stakinginfo.StakinginfoStaked)
-			var logIndex uint64
-			found := false
-			for _, vLog := range receipt.Logs {
-				topic := vLog.Topics[0].Bytes()
-				selectedEvent := helper.EventByID(abiObject, topic)
-				if selectedEvent != nil && selectedEvent.Name == eventName {
-					if err = helper.UnpackLog(abiObject, event, eventName, vLog); err != nil {
-						return err
-					}
-					logIndex = uint64(vLog.Index)
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				return fmt.Errorf("invalid tx %s for validator join", txHash)
-			}
-
-			if !helper.IsPubKeyFirstByteValid(pubKey.Bytes()[0:1]) {
-				return fmt.Errorf("public key first byte mismatch")
-			}
-
-			if !bytes.Equal(event.SignerPubkey, pubKey.Bytes()[1:]) {
-				return fmt.Errorf("public key mismatch with event log")
-			}
-
-			msg, err := types.NewMsgValidatorJoin(proposer, event.ValidatorId.Uint64(), event.ActivationEpoch.Uint64(), amount, &pubKey, common.FromHex(txHash), logIndex, receipt.BlockNumber.Uint64(), event.Nonce.Uint64())
-			if err != nil {
-				return err
-			}
-
-			return cli.BroadcastMsg(clientCtx, proposer, msg, logger)
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
 		},
 	}
-
-	cmd.Flags().StringP(FlagProposerAddress, "p", "", "--proposer=<proposer-address>")
-	cmd.Flags().String(FlagSignerPubKey, "", "--signer-pubkey=<signer-pubkey-here>")
-	cmd.Flags().String(FlagTxHash, "", "--tx-hash=<transaction-hash>")
-	cmd.Flags().Uint64(FlagBlockNumber, 0, "--block-number=<block-number>")
-	cmd.Flags().String(FlagAmount, "0", "--staked-amount=<amount>")
-	cmd.Flags().Uint64(FlagActivationEpoch, 0, "--activation-epoch=<activation-epoch>")
-
-	if err := cmd.MarkFlagRequired(FlagBlockNumber); err != nil {
-		logger.Error("SendValidatorJoinTx | MarkFlagRequired | FlagBlockNumber", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagActivationEpoch); err != nil {
-		logger.Error("SendValidatorJoinTx | MarkFlagRequired | FlagActivationEpoch", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagAmount); err != nil {
-		logger.Error("SendValidatorJoinTx | MarkFlagRequired | FlagAmount", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagSignerPubKey); err != nil {
-		logger.Error("SendValidatorJoinTx | MarkFlagRequired | FlagSignerPubKey", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagTxHash); err != nil {
-		logger.Error("SendValidatorJoinTx | MarkFlagRequired | FlagTxHash", "Error", err)
-	}
-
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
-// NewSignerUpdateCmd returns a CLI command handler for creating a MsgSignerUpdate transaction.
-func NewSignerUpdateCmd(ac address.Codec) *cobra.Command {
+// NewValidatorJoinCmd creates a native validator join transaction.
+func NewValidatorJoinCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signer-update",
-		Short: "Update signer for a validator",
+		Use:   "validator-join [val-id] [activation-epoch] [amount] [signer-pubkey] [nonce]",
+		Short: "Join Gold Chain as an approved validator",
+		Args:  cobra.ExactArgs(5),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+			activationEpoch, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("invalid activation epoch %q", args[1])
+			}
+			amount, err := parsePositiveAmount(args[2], "GILT amount")
+			if err != nil {
+				return err
+			}
+			pubKey, err := parseSecp256k1PubKey(args[3])
+			if err != nil {
+				return err
+			}
+			nonce, err := parsePositiveUint(args[4], "nonce")
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgValidatorJoin(from, valID, activationEpoch, amount, pubKey, nonce)
+			if err != nil {
+				return err
+			}
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewStakeUpdateCmd increases native validator self-staked GILT.
+func NewStakeUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "stake-update [val-id] [new-amount] [nonce]",
+		Short: "Increase validator self-staked GILT",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+			amount, err := parsePositiveAmount(args[1], "GILT amount")
+			if err != nil {
+				return err
+			}
+			nonce, err := parsePositiveUint(args[2], "nonce")
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgStakeUpdate(from, valID, amount, nonce)
+			if err != nil {
+				return err
+			}
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewSignerUpdateCmd updates a validator signer key through the operator.
+func NewSignerUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "signer-update [val-id] [new-signer-pubkey] [nonce]",
+		Short: "Update validator signer public key",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+			pubKey, err := parseSecp256k1PubKey(args[1])
+			if err != nil {
+				return err
+			}
+			nonce, err := parsePositiveUint(args[2], "nonce")
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgSignerUpdate(from, valID, pubKey.Bytes(), nonce)
+			if err != nil {
+				return err
+			}
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewValidatorExitCmd exits a native validator.
+func NewValidatorExitCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "validator-exit [val-id] [nonce]",
+		Short: "Exit an active validator",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+			nonce, err := parsePositiveUint(args[1], "nonce")
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgValidatorExit(from, valID, nonce)
+			if err != nil {
+				return err
+			}
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewWithdrawValidatorStakeCmd withdraws self-staked GILT after unbonding.
+func NewWithdrawValidatorStakeCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw-validator-stake [val-id]",
+		Short: "Withdraw validator self-staked GILT after exit unbonding",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgWithdrawValidatorStake(from, valID)
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewDelegateGoldCmd returns a CLI command handler for delegating GOLD to validator reward weight.
+func NewDelegateGoldCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delegate-gold [val-id] [amount]",
+		Short: "Delegate GOLD to a validator for reward-weight accounting",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			// get proposer
-			proposer := viper.GetString(FlagProposerAddress)
-			if proposer == "" {
-				proposer = clientCtx.GetFromAddress().String()
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
 			}
 
-			valId := viper.GetUint64(FlagValidatorID)
-			if valId == 0 {
-				return fmt.Errorf("validator id cannot be 0")
-			}
-
-			_, err = ac.StringToBytes(proposer)
+			valID, err := parsePositiveUint(args[0], "validator id")
 			if err != nil {
-				return fmt.Errorf("the proposer address is invalid: %w", err)
+				return err
 			}
-
-			txHash := viper.GetString(FlagTxHash)
-			if txHash == "" {
-				return fmt.Errorf("the provided transaction hash is empty, and the field is required")
-			}
-
-			pubKeyStr := viper.GetString(FlagNewSignerPubKey)
-			if pubKeyStr == "" {
-				return fmt.Errorf("the provided PubKey is empty, and the field is required")
-			}
-
-			pubKeyBytes := common.FromHex(pubKeyStr)
-			if len(pubKeyBytes) != 65 {
-				return fmt.Errorf("the provided PubKey length is invalid")
-			}
-			pubKey := secp256k1.PubKey{
-				Key: pubKeyBytes,
-			}
-
-			if !helper.IsPubKeyFirstByteValid(pubKey.Bytes()[0:1]) {
-				return fmt.Errorf("public key first byte mismatch")
-			}
-
-			msg, err := types.NewMsgSignerUpdate(proposer, valId, pubKey.Bytes(), common.FromHex(txHash), viper.GetUint64(FlagLogIndex), viper.GetUint64(FlagBlockNumber), viper.GetUint64(FlagNonce))
+			amount, err := parsePositiveAmount(args[1], "GOLD amount")
 			if err != nil {
 				return err
 			}
 
-			return cli.BroadcastMsg(clientCtx, proposer, msg, logger)
+			msg := types.NewMsgDelegateGold(from, valID, amount)
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
 		},
 	}
 
-	cmd.Flags().StringP(FlagProposerAddress, "p", "", "--proposer=<proposer-address>")
-	cmd.Flags().Uint64(FlagValidatorID, 0, "--id=<validator-id>")
-	cmd.Flags().String(FlagNewSignerPubKey, "", "--new-pubkey=<new-signer-pubkey>")
-	cmd.Flags().String(FlagTxHash, "", "--tx-hash=<transaction-hash>")
-	cmd.Flags().Uint64(FlagLogIndex, 0, "--log-index=<log-index>")
-	cmd.Flags().Uint64(FlagBlockNumber, 0, "--block-number=<block-number>")
-	cmd.Flags().Int(FlagNonce, 0, "--nonce=<nonce>")
-
-	if err := cmd.MarkFlagRequired(FlagValidatorID); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagValidatorID", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagTxHash); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagTxHash", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagNewSignerPubKey); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagNewSignerPubKey", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagLogIndex); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagLogIndex", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagBlockNumber); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagBlockNumber", "Error", err)
-	}
-
-	if err := cmd.MarkFlagRequired(FlagNonce); err != nil {
-		logger.Error("SendValidatorUpdateTx | MarkFlagRequired | FlagNonce", "Error", err)
-	}
-
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
+}
+
+// NewUndelegateGoldCmd returns a CLI command handler for undelegating GOLD from validator reward weight.
+func NewUndelegateGoldCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "undelegate-gold [val-id] [amount]",
+		Short: "Undelegate GOLD from a validator reward-weight position",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress().String()
+			if from == "" {
+				return fmt.Errorf("from address is required")
+			}
+
+			valID, err := parsePositiveUint(args[0], "validator id")
+			if err != nil {
+				return err
+			}
+			amount, err := parsePositiveAmount(args[1], "GOLD amount")
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUndelegateGold(from, valID, amount)
+			return commoncli.BroadcastMsg(clientCtx, from, msg, logger)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func parsePositiveUint(raw string, label string) (uint64, error) {
+	value, err := strconv.ParseUint(raw, 10, 64)
+	if err != nil || value == 0 {
+		return 0, fmt.Errorf("invalid %s %q", label, raw)
+	}
+	return value, nil
+}
+
+func parsePositiveAmount(raw string, label string) (sdkmath.Int, error) {
+	amount, ok := sdkmath.NewIntFromString(raw)
+	if !ok || !amount.IsPositive() {
+		return sdkmath.Int{}, fmt.Errorf("invalid %s %q", label, raw)
+	}
+	return amount, nil
+}
+
+func parseSecp256k1PubKey(raw string) (*secp256k1.PubKey, error) {
+	pubKeyBytes := common.FromHex(raw)
+	if len(pubKeyBytes) != secp256k1.PubKeySize {
+		return nil, fmt.Errorf("invalid signer public key length")
+	}
+	if !helper.IsPubKeyFirstByteValid(pubKeyBytes[0:1]) {
+		return nil, fmt.Errorf("invalid signer public key first byte")
+	}
+	return &secp256k1.PubKey{Key: pubKeyBytes}, nil
 }

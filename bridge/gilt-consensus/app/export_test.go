@@ -108,7 +108,7 @@ func TestExportAppStateAndValidators_MultipleValidators(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotNil(t, exported.Validators)
-	require.Equal(t, len(exported.Validators), 3)
+	require.Len(t, exported.Validators, len(setupResult.ValidatorKeys))
 }
 
 func TestExportAppStateAndValidators_ConsecutiveExports(t *testing.T) {

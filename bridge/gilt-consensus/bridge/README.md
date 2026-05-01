@@ -21,15 +21,15 @@ and `listener/giltchain.go` is responsible for listening to events coming from t
 To process the events emitted by the chains, bridge module uses `processor` component,
 which is responsible for processing the events emitted by the chains.
 For example `processor/clerk.go` is responsible for processing the events related to clerk module,
-`processor/staking.go` is responsible for processing the events related to staking module and so on.
+and `processor/fee.go` is responsible for processing valid fee top-up, slashing, and unjail events.
 
 Other components of the bridge module includes `queue` which is used for queuing the messages between listener and processors, `broadcaster` which is responsible for broadcasting the messages to the giltconsensus chain.
 
 Gilt PoS bridge provides a bridging mechanism that is near-instant, low-cost, and quite flexible.
 
 There is no change to the circulating supply of your token when it crosses the bridge:
-- Tokens that leave the Ethereum network are locked, and the same tokens are minted on Gilt PoS as a pegged token (1:1).
-- To move the tokens back to the Ethereum network, tokens are burned on Gilt PoS network and unlocked on the Ethereum network.
+- Root-side assets such as `PAXG` and `XAUT` are locked or held in the authorized Ethereum bridge custody path after finality, and the corresponding `GOLD` is minted or credited on Gold Chain.
+- To redeem, the Gold Chain-side `GOLD` representation is burned or debited as proof, and the locked root-side `PAXG` or `XAUT` is released on Ethereum.
 
 ## Listener
 
@@ -57,8 +57,7 @@ Once the event is added to the queue by the `Listener`,
 the `Processor` takes over and processes the events which are added into the queue based on their event signature.
 Each processor has `RegisterTasks` method using
 which they register to process specific tasks added to the queue based on the module they serve.
-For example `StakingProcessor` registers for `Staking` related tasks,
-`ClerkProcessor` registers for `Clerk` related tasks, and so on.
+For example `ClerkProcessor` registers for `Clerk` related tasks, and `FeeProcessor` registers for valid fee and validator penalty tasks.
 You can look into each processor to check which tasks they are registered for.
 
 ## How to start bridge
@@ -104,4 +103,3 @@ Please check the validator giltconsensus service and ensure the below flag is se
 ```
 
 Once done, restart the services.
-

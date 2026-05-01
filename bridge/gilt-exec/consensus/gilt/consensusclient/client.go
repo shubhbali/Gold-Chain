@@ -13,13 +13,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/giltchain/gilt-consensus/x/gilt/types"
-	clerkTypes "github.com/giltchain/gilt-consensus/x/clerk/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/gogoproto/proto"
+	clerkTypes "github.com/giltchain/gilt-consensus/x/clerk/types"
+	"github.com/giltchain/gilt-consensus/x/gilt/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/gilt/clerk"
@@ -55,8 +55,8 @@ func (e *HTTPStatusError) Unwrap() error {
 
 const (
 	giltconsensusAPIBodyLimit = 128 * 1024 * 1024 // 128 MB
-	stateFetchLimit      = 50
-	retryCall            = 5 * time.Second
+	stateFetchLimit           = 50
+	retryCall                 = 5 * time.Second
 )
 
 type GiltConsensusClient struct {
@@ -298,7 +298,7 @@ func FetchWithRetry[T any](ctx context.Context, client http.Client, url *url.URL
 	if client.Timeout != 0 {
 		ticker = time.NewTicker(client.Timeout)
 	} else {
-		// only reach here when GiltConsensusClient is GiltConsensusGRPCClient or GiltConsensusAppClient
+		// only reach here when GiltConsensusClient is not using an HTTP timeout
 		ticker = time.NewTicker(retryCall)
 	}
 	defer ticker.Stop()

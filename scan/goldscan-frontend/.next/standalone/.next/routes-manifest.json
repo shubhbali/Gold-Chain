@@ -1,0 +1,1701 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "pages",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    },
+    {
+      "source": "/account/tag_address",
+      "destination": "/account/tag-address",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/tag_address(?:/)?$"
+    },
+    {
+      "source": "/account/tag_address/new",
+      "destination": "/account/tag-address",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/tag_address/new(?:/)?$"
+    },
+    {
+      "source": "/account/tag_transaction",
+      "destination": "/account/tag-address?tab=tx",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/tag_transaction(?:/)?$"
+    },
+    {
+      "source": "/account/tag_transaction/new",
+      "destination": "/account/tag-address?tab=tx",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/tag_transaction/new(?:/)?$"
+    },
+    {
+      "source": "/account/watchlist_address/:id/edit",
+      "destination": "/account/watchlist",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/watchlist_address(?:/([^/]+?))/edit(?:/)?$"
+    },
+    {
+      "source": "/account/watchlist_address/new",
+      "destination": "/account/watchlist",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/watchlist_address/new(?:/)?$"
+    },
+    {
+      "source": "/account/api_key",
+      "destination": "/account/api-key",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/api_key(?:/)?$"
+    },
+    {
+      "source": "/account/api_key/:id/edit",
+      "destination": "/account/api-key",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/api_key(?:/([^/]+?))/edit(?:/)?$"
+    },
+    {
+      "source": "/account/api_key/new",
+      "destination": "/account/api-key",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/api_key/new(?:/)?$"
+    },
+    {
+      "source": "/account/custom_abi",
+      "destination": "/account/custom-abi",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/custom_abi(?:/)?$"
+    },
+    {
+      "source": "/account/custom_abi/:id/edit",
+      "destination": "/account/custom-abi",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/custom_abi(?:/([^/]+?))/edit(?:/)?$"
+    },
+    {
+      "source": "/account/custom_abi/new",
+      "destination": "/account/custom-abi",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/custom_abi/new(?:/)?$"
+    },
+    {
+      "source": "/account/public-tags-request",
+      "destination": "/public-tags/submit",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/public-tags-request(?:/)?$"
+    },
+    {
+      "source": "/account/rewards",
+      "destination": "/account/merits",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/account/rewards(?:/)?$"
+    },
+    {
+      "source": "/pending-transactions",
+      "destination": "/txs?tab=pending",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/pending-transactions(?:/)?$"
+    },
+    {
+      "source": "/tx/:hash/internal-transactions",
+      "destination": "/tx/:hash?tab=internal",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tx(?:/([^/]+?))/internal-transactions(?:/)?$"
+    },
+    {
+      "source": "/tx/:hash/logs",
+      "destination": "/tx/:hash?tab=logs",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tx(?:/([^/]+?))/logs(?:/)?$"
+    },
+    {
+      "source": "/tx/:hash/raw-trace",
+      "destination": "/tx/:hash?tab=raw_trace",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tx(?:/([^/]+?))/raw-trace(?:/)?$"
+    },
+    {
+      "source": "/tx/:hash/state",
+      "destination": "/tx/:hash?tab=state",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tx(?:/([^/]+?))/state(?:/)?$"
+    },
+    {
+      "source": "/tx/:hash/token-transfers",
+      "destination": "/tx/:hash?tab=token_transfers",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tx(?:/([^/]+?))/token-transfers(?:/)?$"
+    },
+    {
+      "source": "/blocks/:height/:path*",
+      "destination": "/block/:height/:path*",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/blocks(?:/([^/]+?))(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/uncles",
+      "destination": "/blocks?tab=uncles",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/uncles(?:/)?$"
+    },
+    {
+      "source": "/reorgs",
+      "destination": "/blocks?tab=reorgs",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/reorgs(?:/)?$"
+    },
+    {
+      "source": "/block/:height/transactions",
+      "destination": "/block/:height?tab=txs",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/block(?:/([^/]+?))/transactions(?:/)?$"
+    },
+    {
+      "source": "/block/:height/withdrawals",
+      "destination": "/block/:height?tab=withdrawals",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/block(?:/([^/]+?))/withdrawals(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/transactions",
+      "destination": "/address/:hash",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/transactions(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/token-transfers",
+      "destination": "/address/:hash?tab=token_transfers",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/token-transfers(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/tokens",
+      "destination": "/address/:hash?tab=tokens",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/tokens(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/internal-transactions",
+      "destination": "/address/:hash?tab=internal_txns",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/internal-transactions(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/coin-balances",
+      "destination": "/address/:hash?tab=coin_balance_history",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/coin-balances(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/logs",
+      "destination": "/address/:hash?tab=logs",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/logs(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/validations",
+      "destination": "/address/:hash?tab=blocks_validated",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/validations(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/contracts",
+      "destination": "/address/:hash?tab=contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/contracts(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/read-contract",
+      "destination": "/address/:hash?tab=read_contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/read-contract(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/read-proxy",
+      "destination": "/address/:hash?tab=read_proxy",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/read-proxy(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/write-contract",
+      "destination": "/address/:hash?tab=write_contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/write-contract(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/write-proxy",
+      "destination": "/address/:hash?tab=write_proxy",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/write-proxy(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/tokens/:token_hash/token-transfers",
+      "destination": "/address/:hash?tab=token_transfers&token=:token_hash",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/tokens(?:/([^/]+?))/token-transfers(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/contract_verifications/new",
+      "destination": "/address/:hash/contract_verification",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/contract_verifications/new(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/verify-via-flattened-code/new",
+      "destination": "/address/:hash/contract_verification?method=flatten_source_code",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/verify-via-flattened-code/new(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/verify-via-standard-json-input/new",
+      "destination": "/address/:hash/contract_verification?method=standard_input",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/verify-via-standard-json-input/new(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/verify-via-metadata-json/new",
+      "destination": "/address/:hash/contract_verification?method=sourcify",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/verify-via-metadata-json/new(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/verify-via-multi-part-files/new",
+      "destination": "/address/:hash/contract_verification?method=multi_part_file",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/verify-via-multi-part-files/new(?:/)?$"
+    },
+    {
+      "source": "/address/:hash/verify-vyper-contract/new",
+      "destination": "/address/:hash/contract_verification?method=vyper_contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/address(?:/([^/]+?))/verify-vyper-contract/new(?:/)?$"
+    },
+    {
+      "source": "/bridged-tokens",
+      "destination": "/tokens/?tab=bridged",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/bridged-tokens(?:/)?$"
+    },
+    {
+      "source": "/bridged-tokens/:chain_name",
+      "destination": "/tokens/?tab=bridged",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/bridged-tokens(?:/([^/]+?))(?:/)?$"
+    },
+    {
+      "source": "/tokens/:hash/:path*",
+      "destination": "/token/:hash/:path*",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/tokens(?:/([^/]+?))(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/token-transfers",
+      "destination": "/token/:hash/?tab=token_transfers",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/token-transfers(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/token-holders",
+      "destination": "/token/:hash/?tab=holders",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/token-holders(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/inventory",
+      "destination": "/token/:hash/?tab=inventory",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/inventory(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/instance/:id/token-transfers",
+      "destination": "/token/:hash/instance/:id",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/instance(?:/([^/]+?))/token-transfers(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/instance/:id/token-holders",
+      "destination": "/token/:hash/instance/:id?tab=holders",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/instance(?:/([^/]+?))/token-holders(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/instance/:id/metadata",
+      "destination": "/token/:hash/instance/:id?tab=metadata",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/instance(?:/([^/]+?))/metadata(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/read-contract",
+      "destination": "/token/:hash?tab=read_contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/read-contract(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/read-proxy",
+      "destination": "/token/:hash?tab=read_proxy",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/read-proxy(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/write-contract",
+      "destination": "/token/:hash?tab=write_contract",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/write-contract(?:/)?$"
+    },
+    {
+      "source": "/token/:hash/write-proxy",
+      "destination": "/token/:hash?tab=write_proxy",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/token(?:/([^/]+?))/write-proxy(?:/)?$"
+    },
+    {
+      "source": "/l2-txn-batches",
+      "destination": "/batches",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/l2-txn-batches(?:/)?$"
+    },
+    {
+      "source": "/zkevm-l2-txn-batches",
+      "destination": "/batches",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/zkevm-l2-txn-batches(?:/)?$"
+    },
+    {
+      "source": "/zkevm-l2-txn-batch/:path*",
+      "destination": "/batches/:path*",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/zkevm-l2-txn-batch(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/l2-deposits",
+      "destination": "/deposits",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/l2-deposits(?:/)?$"
+    },
+    {
+      "source": "/l2-withdrawals",
+      "destination": "/withdrawals",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/l2-withdrawals(?:/)?$"
+    },
+    {
+      "source": "/l2-output-roots",
+      "destination": "/output-roots",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/l2-output-roots(?:/)?$"
+    },
+    {
+      "source": "/txsAA",
+      "destination": "/ops",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txsAA(?:/)?$"
+    },
+    {
+      "source": "/txs",
+      "has": [
+        {
+          "type": "query",
+          "key": "block"
+        }
+      ],
+      "destination": "/block/:block?tab=txs",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txs(?:/)?$"
+    },
+    {
+      "source": "/txsInternal",
+      "has": [
+        {
+          "type": "query",
+          "key": "block"
+        }
+      ],
+      "destination": "/block/:block?tab=internal_txs",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txsInternal(?:/)?$"
+    },
+    {
+      "source": "/txsInternal",
+      "destination": "/internal-txs",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txsInternal(?:/)?$"
+    },
+    {
+      "source": "/blocks_forked",
+      "destination": "/blocks?tab=reorgs",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/blocks_forked(?:/)?$"
+    },
+    {
+      "source": "/contractsVerified",
+      "destination": "/verified-contracts",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/contractsVerified(?:/)?$"
+    },
+    {
+      "source": "/verifyContract",
+      "has": [
+        {
+          "type": "query",
+          "key": "a"
+        }
+      ],
+      "destination": "/address/:a/contract-verification",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/verifyContract(?:/)?$"
+    },
+    {
+      "source": "/verifyContract",
+      "destination": "/contract-verification",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/verifyContract(?:/)?$"
+    },
+    {
+      "source": "/tokentxns",
+      "destination": "/token-transfers",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tokentxns(?:/)?$"
+    },
+    {
+      "source": "/nft/:hash/:id",
+      "destination": "/token/:hash/instance/:id",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/nft(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
+    },
+    {
+      "source": "/charts",
+      "destination": "/stats",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/charts(?:/)?$"
+    },
+    {
+      "source": "/nft-latest-mints",
+      "destination": "/advanced-filter?transaction_types=ERC-1155%2CERC-721&methods=0xa0712d68&methods_names=mint",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/nft-latest-mints(?:/)?$"
+    },
+    {
+      "source": "/nft-transfers",
+      "destination": "/advanced-filter?transaction_types=ERC-1155%2CERC-721",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/nft-transfers(?:/)?$"
+    },
+    {
+      "source": "/name-lookup-search",
+      "destination": "/name-domains",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/name-lookup-search(?:/)?$"
+    },
+    {
+      "source": "/txsExit",
+      "destination": "/withdrawals",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txsExit(?:/)?$"
+    },
+    {
+      "source": "/txsEnqueued",
+      "destination": "/deposits",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/txsEnqueued(?:/)?$"
+    },
+    {
+      "source": "/cc/txs",
+      "destination": "/txs?tab=cctx",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/cc/txs(?:/)?$"
+    },
+    {
+      "source": "/graphiql",
+      "destination": "/api-docs?tab=graphql_api",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/graphiql(?:/)?$"
+    },
+    {
+      "source": "/name-domains",
+      "destination": "/name-services",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/name-domains(?:/)?$"
+    },
+    {
+      "source": "/name-domains/:name",
+      "destination": "/name-services/domains/:name",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/name-domains(?:/([^/]+?))(?:/)?$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    }
+  ],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [
+      {
+        "source": "/node-api/proxy/:slug*",
+        "destination": "/api/proxy",
+        "regex": "^/node-api/proxy(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      },
+      {
+        "source": "/node-api/:slug*",
+        "destination": "/api/:slug*",
+        "regex": "^/node-api(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      }
+    ],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/accounts/label/[slug]",
+      "regex": "^/accounts/label/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/accounts/label/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/address/[hash]",
+      "regex": "^/address/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/address/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/address/[hash]/contract-verification",
+      "regex": "^/address/([^/]+?)/contract\\-verification(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/address/(?<nxtPhash>[^/]+?)/contract\\-verification(?:/)?$"
+    },
+    {
+      "page": "/api/tokens/[hash]/instances/[id]/media-type",
+      "regex": "^/api/tokens/([^/]+?)/instances/([^/]+?)/media\\-type(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash",
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/tokens/(?<nxtPhash>[^/]+?)/instances/(?<nxtPid>[^/]+?)/media\\-type(?:/)?$"
+    },
+    {
+      "page": "/apps/[id]",
+      "regex": "^/apps/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/apps/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/batches/celestia/[height]/[commitment]",
+      "regex": "^/batches/celestia/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPheight": "nxtPheight",
+        "nxtPcommitment": "nxtPcommitment"
+      },
+      "namedRegex": "^/batches/celestia/(?<nxtPheight>[^/]+?)/(?<nxtPcommitment>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/batches/[number]",
+      "regex": "^/batches/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPnumber": "nxtPnumber"
+      },
+      "namedRegex": "^/batches/(?<nxtPnumber>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/blobs/[hash]",
+      "regex": "^/blobs/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/blobs/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/block/countdown/[height]",
+      "regex": "^/block/countdown/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPheight": "nxtPheight"
+      },
+      "namedRegex": "^/block/countdown/(?<nxtPheight>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/block/[height_or_hash]",
+      "regex": "^/block/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPheight_or_hash": "nxtPheight_or_hash"
+      },
+      "namedRegex": "^/block/(?<nxtPheight_or_hash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/cc/tx/[hash]",
+      "regex": "^/cc/tx/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/cc/tx/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/accounts/label/[slug]",
+      "regex": "^/chain/([^/]+?)/accounts/label/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/accounts/label/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/advanced-filter",
+      "regex": "^/chain/([^/]+?)/advanced\\-filter(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/advanced\\-filter(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/countdown",
+      "regex": "^/chain/([^/]+?)/block/countdown(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/block/countdown(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/countdown/[height]",
+      "regex": "^/chain/([^/]+?)/block/countdown/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPheight": "nxtPheight"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/block/countdown/(?<nxtPheight>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/[height_or_hash]",
+      "regex": "^/chain/([^/]+?)/block/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPheight_or_hash": "nxtPheight_or_hash"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/block/(?<nxtPheight_or_hash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/csv-export",
+      "regex": "^/chain/([^/]+?)/csv\\-export(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/csv\\-export(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/op/[hash]",
+      "regex": "^/chain/([^/]+?)/op/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/op/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/token/[hash]",
+      "regex": "^/chain/([^/]+?)/token/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/token/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/token/[hash]/instance/[id]",
+      "regex": "^/chain/([^/]+?)/token/([^/]+?)/instance/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash",
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/token/(?<nxtPhash>[^/]+?)/instance/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/tx/[hash]",
+      "regex": "^/chain/([^/]+?)/tx/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/tx/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/chain/[chain_slug]/visualize/sol2uml",
+      "regex": "^/chain/([^/]+?)/visualize/sol2uml(?:/)?$",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "namedRegex": "^/chain/(?<nxtPchain_slug>[^/]+?)/visualize/sol2uml(?:/)?$"
+    },
+    {
+      "page": "/cross-chain-tx/[id]",
+      "regex": "^/cross\\-chain\\-tx/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/cross\\-chain\\-tx/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/epochs/[number]",
+      "regex": "^/epochs/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPnumber": "nxtPnumber"
+      },
+      "namedRegex": "^/epochs/(?<nxtPnumber>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/essential-dapps/[id]",
+      "regex": "^/essential\\-dapps/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/essential\\-dapps/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/name-services/clusters/[name]",
+      "regex": "^/name\\-services/clusters/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "namedRegex": "^/name\\-services/clusters/(?<nxtPname>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/name-services/domains/[name]",
+      "regex": "^/name\\-services/domains/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "namedRegex": "^/name\\-services/domains/(?<nxtPname>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/op/[hash]",
+      "regex": "^/op/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/op/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/operation/[id]",
+      "regex": "^/operation/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/operation/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/pools/[hash]",
+      "regex": "^/pools/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/pools/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/stats/[id]",
+      "regex": "^/stats/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/stats/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/token/[hash]",
+      "regex": "^/token/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/token/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/token/[hash]/instance/[id]",
+      "regex": "^/token/([^/]+?)/instance/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash",
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/token/(?<nxtPhash>[^/]+?)/instance/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/tx/[hash]",
+      "regex": "^/tx/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/tx/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/txs/kettle/[hash]",
+      "regex": "^/txs/kettle/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "namedRegex": "^/txs/kettle/(?<nxtPhash>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/validators/[id]",
+      "regex": "^/validators/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/validators/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/404",
+      "regex": "^/404(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/404(?:/)?$"
+    },
+    {
+      "page": "/account/api-key",
+      "regex": "^/account/api\\-key(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/api\\-key(?:/)?$"
+    },
+    {
+      "page": "/account/custom-abi",
+      "regex": "^/account/custom\\-abi(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/custom\\-abi(?:/)?$"
+    },
+    {
+      "page": "/account/merits",
+      "regex": "^/account/merits(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/merits(?:/)?$"
+    },
+    {
+      "page": "/account/tag-address",
+      "regex": "^/account/tag\\-address(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/tag\\-address(?:/)?$"
+    },
+    {
+      "page": "/account/verified-addresses",
+      "regex": "^/account/verified\\-addresses(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/verified\\-addresses(?:/)?$"
+    },
+    {
+      "page": "/account/watchlist",
+      "regex": "^/account/watchlist(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account/watchlist(?:/)?$"
+    },
+    {
+      "page": "/accounts",
+      "regex": "^/accounts(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/accounts(?:/)?$"
+    },
+    {
+      "page": "/advanced-filter",
+      "regex": "^/advanced\\-filter(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/advanced\\-filter(?:/)?$"
+    },
+    {
+      "page": "/api/config",
+      "regex": "^/api/config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/config(?:/)?$"
+    },
+    {
+      "page": "/api/csrf",
+      "regex": "^/api/csrf(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/csrf(?:/)?$"
+    },
+    {
+      "page": "/api/healthz",
+      "regex": "^/api/healthz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/healthz(?:/)?$"
+    },
+    {
+      "page": "/api/log",
+      "regex": "^/api/log(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/log(?:/)?$"
+    },
+    {
+      "page": "/api/metrics",
+      "regex": "^/api/metrics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/metrics(?:/)?$"
+    },
+    {
+      "page": "/api/monitoring/invalid-api-schema",
+      "regex": "^/api/monitoring/invalid\\-api\\-schema(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/monitoring/invalid\\-api\\-schema(?:/)?$"
+    },
+    {
+      "page": "/api/proxy",
+      "regex": "^/api/proxy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/proxy(?:/)?$"
+    },
+    {
+      "page": "/api-docs",
+      "regex": "^/api\\-docs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api\\-docs(?:/)?$"
+    },
+    {
+      "page": "/apps",
+      "regex": "^/apps(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps(?:/)?$"
+    },
+    {
+      "page": "/auth/profile",
+      "regex": "^/auth/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/profile(?:/)?$"
+    },
+    {
+      "page": "/batches",
+      "regex": "^/batches(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/batches(?:/)?$"
+    },
+    {
+      "page": "/block/countdown",
+      "regex": "^/block/countdown(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/block/countdown(?:/)?$"
+    },
+    {
+      "page": "/blocks",
+      "regex": "^/blocks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blocks(?:/)?$"
+    },
+    {
+      "page": "/chakra",
+      "regex": "^/chakra(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/chakra(?:/)?$"
+    },
+    {
+      "page": "/contract-verification",
+      "regex": "^/contract\\-verification(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contract\\-verification(?:/)?$"
+    },
+    {
+      "page": "/csv-export",
+      "regex": "^/csv\\-export(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/csv\\-export(?:/)?$"
+    },
+    {
+      "page": "/deposits",
+      "regex": "^/deposits(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/deposits(?:/)?$"
+    },
+    {
+      "page": "/dispute-games",
+      "regex": "^/dispute\\-games(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dispute\\-games(?:/)?$"
+    },
+    {
+      "page": "/ecosystems",
+      "regex": "^/ecosystems(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ecosystems(?:/)?$"
+    },
+    {
+      "page": "/epochs",
+      "regex": "^/epochs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/epochs(?:/)?$"
+    },
+    {
+      "page": "/gas-tracker",
+      "regex": "^/gas\\-tracker(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/gas\\-tracker(?:/)?$"
+    },
+    {
+      "page": "/hot-contracts",
+      "regex": "^/hot\\-contracts(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/hot\\-contracts(?:/)?$"
+    },
+    {
+      "page": "/internal-txs",
+      "regex": "^/internal\\-txs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/internal\\-txs(?:/)?$"
+    },
+    {
+      "page": "/interop-messages",
+      "regex": "^/interop\\-messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/interop\\-messages(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/mud-worlds",
+      "regex": "^/mud\\-worlds(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/mud\\-worlds(?:/)?$"
+    },
+    {
+      "page": "/name-services",
+      "regex": "^/name\\-services(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/name\\-services(?:/)?$"
+    },
+    {
+      "page": "/operations",
+      "regex": "^/operations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/operations(?:/)?$"
+    },
+    {
+      "page": "/ops",
+      "regex": "^/ops(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ops(?:/)?$"
+    },
+    {
+      "page": "/output-roots",
+      "regex": "^/output\\-roots(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/output\\-roots(?:/)?$"
+    },
+    {
+      "page": "/pools",
+      "regex": "^/pools(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pools(?:/)?$"
+    },
+    {
+      "page": "/public-tags/submit",
+      "regex": "^/public\\-tags/submit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/public\\-tags/submit(?:/)?$"
+    },
+    {
+      "page": "/search-results",
+      "regex": "^/search\\-results(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/search\\-results(?:/)?$"
+    },
+    {
+      "page": "/sprite",
+      "regex": "^/sprite(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sprite(?:/)?$"
+    },
+    {
+      "page": "/stats",
+      "regex": "^/stats(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/stats(?:/)?$"
+    },
+    {
+      "page": "/token-transfers",
+      "regex": "^/token\\-transfers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/token\\-transfers(?:/)?$"
+    },
+    {
+      "page": "/tokens",
+      "regex": "^/tokens(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tokens(?:/)?$"
+    },
+    {
+      "page": "/txn-withdrawals",
+      "regex": "^/txn\\-withdrawals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/txn\\-withdrawals(?:/)?$"
+    },
+    {
+      "page": "/txs",
+      "regex": "^/txs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/txs(?:/)?$"
+    },
+    {
+      "page": "/uptime",
+      "regex": "^/uptime(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/uptime(?:/)?$"
+    },
+    {
+      "page": "/validators",
+      "regex": "^/validators(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/validators(?:/)?$"
+    },
+    {
+      "page": "/verified-contracts",
+      "regex": "^/verified\\-contracts(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/verified\\-contracts(?:/)?$"
+    },
+    {
+      "page": "/visualize/sol2uml",
+      "regex": "^/visualize/sol2uml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/visualize/sol2uml(?:/)?$"
+    },
+    {
+      "page": "/withdrawals",
+      "regex": "^/withdrawals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/withdrawals(?:/)?$"
+    }
+  ],
+  "dataRoutes": [
+    {
+      "page": "/",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/index\\.json$"
+    },
+    {
+      "page": "/account/api-key",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/api-key\\.json$"
+    },
+    {
+      "page": "/account/custom-abi",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/custom-abi\\.json$"
+    },
+    {
+      "page": "/account/merits",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/merits\\.json$"
+    },
+    {
+      "page": "/account/tag-address",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/tag-address\\.json$"
+    },
+    {
+      "page": "/account/verified-addresses",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/verified-addresses\\.json$"
+    },
+    {
+      "page": "/account/watchlist",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/account/watchlist\\.json$"
+    },
+    {
+      "page": "/accounts",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/accounts\\.json$"
+    },
+    {
+      "page": "/accounts/label/[slug]",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/accounts/label/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/accounts/label/(?<nxtPslug>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/address/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/address/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/address/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/address/[hash]/contract-verification",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/address/([^/]+?)/contract\\-verification\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/address/(?<nxtPhash>[^/]+?)/contract\\-verification\\.json$"
+    },
+    {
+      "page": "/advanced-filter",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/advanced-filter\\.json$"
+    },
+    {
+      "page": "/api-docs",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/api-docs\\.json$"
+    },
+    {
+      "page": "/apps",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/apps\\.json$"
+    },
+    {
+      "page": "/apps/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/apps/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/apps/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/auth/profile",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/auth/profile\\.json$"
+    },
+    {
+      "page": "/batches",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/batches\\.json$"
+    },
+    {
+      "page": "/batches/celestia/[height]/[commitment]",
+      "routeKeys": {
+        "nxtPheight": "nxtPheight",
+        "nxtPcommitment": "nxtPcommitment"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/batches/celestia/([^/]+?)/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/batches/celestia/(?<nxtPheight>[^/]+?)/(?<nxtPcommitment>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/batches/[number]",
+      "routeKeys": {
+        "nxtPnumber": "nxtPnumber"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/batches/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/batches/(?<nxtPnumber>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/blobs/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/blobs/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/blobs/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/block/countdown",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/block/countdown\\.json$"
+    },
+    {
+      "page": "/block/countdown/[height]",
+      "routeKeys": {
+        "nxtPheight": "nxtPheight"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/block/countdown/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/block/countdown/(?<nxtPheight>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/block/[height_or_hash]",
+      "routeKeys": {
+        "nxtPheight_or_hash": "nxtPheight_or_hash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/block/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/block/(?<nxtPheight_or_hash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/blocks",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/blocks\\.json$"
+    },
+    {
+      "page": "/cc/tx/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/cc/tx/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/cc/tx/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/accounts/label/[slug]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPslug": "nxtPslug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/accounts/label/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/accounts/label/(?<nxtPslug>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/advanced-filter",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/advanced\\-filter\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/advanced\\-filter\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/countdown",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/block/countdown\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/block/countdown\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/countdown/[height]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPheight": "nxtPheight"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/block/countdown/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/block/countdown/(?<nxtPheight>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/block/[height_or_hash]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPheight_or_hash": "nxtPheight_or_hash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/block/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/block/(?<nxtPheight_or_hash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/csv-export",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/csv\\-export\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/csv\\-export\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/op/[hash]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/op/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/op/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/token/[hash]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/token/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/token/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/token/[hash]/instance/[id]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash",
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/token/([^/]+?)/instance/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/token/(?<nxtPhash>[^/]+?)/instance/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/tx/[hash]",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug",
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/tx/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/tx/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/chain/[chain_slug]/visualize/sol2uml",
+      "routeKeys": {
+        "nxtPchain_slug": "nxtPchain_slug"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/([^/]+?)/visualize/sol2uml\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chain/(?<nxtPchain_slug>[^/]+?)/visualize/sol2uml\\.json$"
+    },
+    {
+      "page": "/chakra",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/chakra\\.json$"
+    },
+    {
+      "page": "/contract-verification",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/contract-verification\\.json$"
+    },
+    {
+      "page": "/cross-chain-tx/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/cross\\-chain\\-tx/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/cross\\-chain\\-tx/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/csv-export",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/csv-export\\.json$"
+    },
+    {
+      "page": "/deposits",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/deposits\\.json$"
+    },
+    {
+      "page": "/dispute-games",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/dispute-games\\.json$"
+    },
+    {
+      "page": "/ecosystems",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/ecosystems\\.json$"
+    },
+    {
+      "page": "/epochs",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/epochs\\.json$"
+    },
+    {
+      "page": "/epochs/[number]",
+      "routeKeys": {
+        "nxtPnumber": "nxtPnumber"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/epochs/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/epochs/(?<nxtPnumber>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/essential-dapps/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/essential\\-dapps/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/essential\\-dapps/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/gas-tracker",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/gas-tracker\\.json$"
+    },
+    {
+      "page": "/hot-contracts",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/hot-contracts\\.json$"
+    },
+    {
+      "page": "/internal-txs",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/internal-txs\\.json$"
+    },
+    {
+      "page": "/interop-messages",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/interop-messages\\.json$"
+    },
+    {
+      "page": "/login",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/login\\.json$"
+    },
+    {
+      "page": "/mud-worlds",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/mud-worlds\\.json$"
+    },
+    {
+      "page": "/name-services",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/name-services\\.json$"
+    },
+    {
+      "page": "/name-services/clusters/[name]",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/name\\-services/clusters/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/name\\-services/clusters/(?<nxtPname>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/name-services/domains/[name]",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/name\\-services/domains/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/name\\-services/domains/(?<nxtPname>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/op/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/op/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/op/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/operation/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/operation/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/operation/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/operations",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/operations\\.json$"
+    },
+    {
+      "page": "/ops",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/ops\\.json$"
+    },
+    {
+      "page": "/output-roots",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/output-roots\\.json$"
+    },
+    {
+      "page": "/pools",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/pools\\.json$"
+    },
+    {
+      "page": "/pools/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/pools/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/pools/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/public-tags/submit",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/public-tags/submit\\.json$"
+    },
+    {
+      "page": "/search-results",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/search-results\\.json$"
+    },
+    {
+      "page": "/sprite",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/sprite\\.json$"
+    },
+    {
+      "page": "/stats",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/stats\\.json$"
+    },
+    {
+      "page": "/stats/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/stats/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/stats/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/token/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/token/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/token/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/token/[hash]/instance/[id]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash",
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/token/([^/]+?)/instance/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/token/(?<nxtPhash>[^/]+?)/instance/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/token-transfers",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/token-transfers\\.json$"
+    },
+    {
+      "page": "/tokens",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/tokens\\.json$"
+    },
+    {
+      "page": "/tx/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/tx/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/tx/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/txn-withdrawals",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/txn-withdrawals\\.json$"
+    },
+    {
+      "page": "/txs",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/txs\\.json$"
+    },
+    {
+      "page": "/txs/kettle/[hash]",
+      "routeKeys": {
+        "nxtPhash": "nxtPhash"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/txs/kettle/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/txs/kettle/(?<nxtPhash>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/uptime",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/uptime\\.json$"
+    },
+    {
+      "page": "/validators",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/validators\\.json$"
+    },
+    {
+      "page": "/validators/[id]",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/validators/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/validators/(?<nxtPid>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/verified-contracts",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/verified-contracts\\.json$"
+    },
+    {
+      "page": "/visualize/sol2uml",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/visualize/sol2uml\\.json$"
+    },
+    {
+      "page": "/withdrawals",
+      "dataRouteRegex": "^/_next/data/cILISqUwvjNT6jtB4\\-AUK/withdrawals\\.json$"
+    }
+  ],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

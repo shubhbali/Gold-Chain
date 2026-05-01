@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/log"
@@ -14,7 +15,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/giltchain/gilt-consensus/bridge/util"
-	"github.com/giltchain/gilt-consensus/helper"
 )
 
 const errorFetchingAccount = "error fetching account"
@@ -49,7 +49,7 @@ func BroadcastMsg(clientCtx client.Context, sender string, msg sdk.Msg, logger l
 		return err
 	}
 
-	txResponse, err := helper.BroadcastTx(clientCtx, txf, msg)
+	txResponse, err := broadcastTxWithFromKey(clientCtx, txf, msg)
 	if err != nil {
 		logger.Error("Error broadcasting tx", "Error", err)
 		return err
@@ -63,6 +63,60 @@ func BroadcastMsg(clientCtx client.Context, sender string, msg sdk.Msg, logger l
 	logger.Info(fmt.Sprintf("Tx with hash %s broadcasted successfully.", txResponse.TxHash))
 
 	return nil
+}
+
+func broadcastTxWithFromKey(clientCtx client.Context, txf tx.Factory, msg sdk.Msg) (*sdk.TxResponse, error) {
+	if clientCtx.Keyring == nil {
+		return nil, errors.New("keyring is required for tx signing")
+	}
+	if clientCtx.FromName == "" {
+		return nil, errors.New("from key name is required for tx signing")
+	}
+
+	txf, err := txf.Prepare(clientCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	if txf.SimulateAndExecute() || clientCtx.Simulate {
+		if clientCtx.Offline {
+			return nil, errors.New("cannot estimate gas in offline mode")
+		}
+		_, adjusted, err := tx.CalculateGas(clientCtx, txf, msg)
+		if err != nil {
+			return &sdk.TxResponse{Code: 1}, err
+		}
+		txf = txf.WithGas(adjusted)
+	}
+
+	if clientCtx.Simulate {
+		return &sdk.TxResponse{Code: abci.CodeTypeOK}, nil
+	}
+
+	txBuilder, err := txf.BuildUnsignedTx(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if !clientCtx.SkipConfirm {
+		return nil, errors.New("interactive confirmation is not supported in BroadcastMsg path")
+	}
+
+	if err := tx.Sign(clientCtx.CmdContext, txf, clientCtx.FromName, txBuilder, true); err != nil {
+		return nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txBuilder.GetTx())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := clientCtx.BroadcastTx(txBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func MakeTxFactory(cliCtx client.Context, address string, logger log.Logger) (tx.Factory, error) {

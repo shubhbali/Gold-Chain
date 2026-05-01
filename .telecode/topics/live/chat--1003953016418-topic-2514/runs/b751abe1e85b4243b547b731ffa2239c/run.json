@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-21T19:22:08Z",
+  "engine": "codex",
+  "final_answer": "Yes, there are real differences between how BSC works and how your current Gold Chain validator admission works.\n\nWhy it matters: if your target is \u201cBSC-like behavior,\u201d your current validator onboarding flow is materially different in election model, admission path, and economic thresholds, so launch assumptions and decentralization behavior will differ.\n\nBSC (official docs):\n- Validator creation is done through native BSC staking flow (`Become a Validator` / `createValidator`) with operator + consensus + vote key setup and BLS proof.\n- The docs state validator creation requires >2001 BNB available (lock + self-delegation).\n- Validator selection is staking-ranking based: daily top-45 active set, then 21 consensus validators per epoch (18 from cabinets, 3 from candidates).\n\nYour current Gold Chain (from your current codebase):\n- Admission is bridge/event-driven and finalized only after validator-side approval threshold (>2/3 voting power).\n- Your configured economic/slot defaults are much lower and tighter (small minimums, small validator-cap default), which is not BSC-equivalent out of the box.\n\nNext steps:\n1. Choose explicitly: keep current bridge-confirmed admission model, or move to BSC-style native staking election flow.\n2. If BSC-like is required, align thresholds/election logic/key model first, then remove non-BSC admission gates.\n\nSources:\n- https://docs.bnbchain.org/bnb-smart-chain/validator/overview/\n- https://docs.bnbchain.org/bc-fusion/validators/creation/\n- https://docs.bnbchain.org/bnb-smart-chain/validator/manage-keys/\n- https://docs.bnbchain.org/bnb-smart-chain/staking/developer-guide/\n- https://github.com/bnb-chain/bsc",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "yeah that is bullshit, we forked bsc chain so research the web whow bsc chain does it and if there is any difference between us and them?",
+  "run_id": "b751abe1e85b4243b547b731ffa2239c",
+  "started_at": "2026-04-21T19:21:10Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-21T19:22:08Z",
+  "version": 1
+}

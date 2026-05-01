@@ -1,0 +1,3 @@
+{
+  "/api/healthz": "pages/api/healthz.js"
+}

@@ -30,14 +30,14 @@ import (
 )
 
 const (
-	CometBFTNodeFlag       = "node"
+	CometBFTNodeFlag            = "node"
 	WithGiltConsensusConfigFlag = "app"
-	RestServerFlag         = "rest-server"
-	BridgeFlag             = "bridge"
-	AllProcessesFlag       = "all"
-	OnlyProcessesFlag      = "only"
-	LogsWriterFileFlag     = "logs_writer_file"
-	SeedsFlag              = "seeds"
+	RestServerFlag              = "rest-server"
+	BridgeFlag                  = "bridge"
+	AllProcessesFlag            = "all"
+	OnlyProcessesFlag           = "only"
+	LogsWriterFileFlag          = "logs_writer_file"
+	SeedsFlag                   = "seeds"
 
 	MainChain = "mainnet"
 	// TestnetChain is the canonical public testnet label for Gilt consensus.
@@ -49,13 +49,13 @@ const (
 
 	// app config flags
 
-	MainRPCUrlFlag  = "eth_rpc_url"
+	MainRPCUrlFlag   = "eth_rpc_url"
 	GiltRPCUrlFlag   = "gilt_rpc_url"
 	GiltGRPCUrlFlag  = "gilt_grpc_url"
 	GiltGRPCFlagFlag = "gilt_grpc_flag"
 
 	CometBFTNodeURLFlag          = "comet_bft_rpc_url"
-	GiltConsensusServerURLFlag        = "giltconsensus_rest_server"
+	GiltConsensusServerURLFlag   = "giltconsensus_rest_server"
 	GRPCServerURLFlag            = "grpc_server"
 	AmqpURLFlag                  = "amqp_url"
 	CheckpointerPollIntervalFlag = "checkpoint_poll_interval"
@@ -72,12 +72,12 @@ const (
 	ChainFlag         = "chain"
 	ProducerVotesFlag = "producer_votes"
 
-	DefaultMainRPCUrl  = "http://localhost:9545"
+	DefaultMainRPCUrl   = "http://localhost:9545"
 	DefaultGiltRPCUrl   = "http://localhost:8545"
 	DefaultGiltGRPCUrl  = "localhost:3131"
 	DefaultGiltGRPCFlag = false
 
-	DefaultEthRPCTimeout = 5 * time.Second
+	DefaultEthRPCTimeout  = 5 * time.Second
 	DefaultGiltRPCTimeout = 1 * time.Second
 
 	// DefaultAmqpURL represents default AMQP url
@@ -101,20 +101,19 @@ const (
 
 	DefaultEnableSH                = false
 	DefaultSHStateSyncedInterval   = 3 * time.Hour
-	DefaultSHStakeUpdateInterval   = 3 * time.Hour
 	DefaultSHCheckpointAckInterval = 30 * time.Minute
 	DefaultSHMaxDepthDuration      = 24 * time.Hour
 
 	DefaultMainChainGasFeeCap = 500000000000 // 500 Gwei
 	DefaultMainChainGasTipCap = 10000000000  // 10 Gwei
 
-	DefaultGiltChainID      = "15001"
+	DefaultGiltChainID          = "15001"
 	DefaultGiltConsensusChainID = "giltconsensus-15001"
 
 	DefaultLogsType = "json"
 	DefaultChain    = MainChain
 
-	DefaultMainnetSeeds     = "e019e16d4e376723f3adc58eb1761809fea9bee0@35.234.150.253:26656,7f3049e88ac7f820fd86d9120506aaec0dc54b27@34.89.75.187:26656,1f5aff3b4f3193404423c3dd1797ce60cd9fea43@34.142.43.249:26656,2d5484feef4257e56ece025633a6ea132d8cadca@35.246.99.203:26656,17e9efcbd173e81a31579310c502e8cdd8b8ff2e@35.197.233.240:26656,72a83490309f9f63fdca3a0bef16c290e5cbb09c@35.246.95.65:26656,00677b1b2c6282fb060b7bb6e9cc7d2d05cdd599@34.105.180.11:26656,721dd4cebfc4b78760c7ee5d7b1b44d29a0aa854@34.147.169.102:26656,4760b3fc04648522a0bcb2d96a10aadee141ee89@34.89.55.74:26656"
+	DefaultMainnetSeeds            = "e019e16d4e376723f3adc58eb1761809fea9bee0@35.234.150.253:26656,7f3049e88ac7f820fd86d9120506aaec0dc54b27@34.89.75.187:26656,1f5aff3b4f3193404423c3dd1797ce60cd9fea43@34.142.43.249:26656,2d5484feef4257e56ece025633a6ea132d8cadca@35.246.99.203:26656,17e9efcbd173e81a31579310c502e8cdd8b8ff2e@35.197.233.240:26656,72a83490309f9f63fdca3a0bef16c290e5cbb09c@35.246.95.65:26656,00677b1b2c6282fb060b7bb6e9cc7d2d05cdd599@34.105.180.11:26656,721dd4cebfc4b78760c7ee5d7b1b44d29a0aa854@34.147.169.102:26656,4760b3fc04648522a0bcb2d96a10aadee141ee89@34.89.55.74:26656"
 	DefaultGiltTestnetTestnetSeeds = "e4eabef3111155890156221f018b0ea3b8b64820@35.197.249.21:26656,811c3127677a4a34df907b021aad0c9d22f84bf4@34.89.39.114:26656,2ec15d1d33261e8cf42f57236fa93cfdc21c1cfb@35.242.167.175:26656,38120f9d2c003071a7230788da1e3129b6fb9d3f@34.89.15.223:26656,2f16f3857c6c99cc11e493c2082b744b8f36b127@34.105.128.110:26656,2833f06a5e33da2e80541fb1bfde2a7229877fcb@34.89.21.99:26656,2e6f1342416c5d758f5ae32f388bb76f7712a317@34.89.101.16:26656,a596f98b41851993c24de00a28b767c7c5ff8b42@34.89.11.233:26656"
 
 	DefaultMainnetProducers = "91,92,93,94"
@@ -142,13 +141,13 @@ func init() {
 // CustomConfig represents giltconsensus config
 type CustomConfig struct {
 	EthRPCUrl      string `mapstructure:"eth_rpc_url"`       // RPC endpoint for main chain
-	GiltRPCUrl      string `mapstructure:"gilt_rpc_url"`       // RPC endpoint for gilt chain
-	GiltGRPCFlag    bool   `mapstructure:"gilt_grpc_flag"`     // gRPC flag for gilt chain
-	GiltGRPCUrl     string `mapstructure:"gilt_grpc_url"`      // gRPC endpoint for gilt chain
+	GiltRPCUrl     string `mapstructure:"gilt_rpc_url"`      // RPC endpoint for gilt chain
+	GiltGRPCFlag   bool   `mapstructure:"gilt_grpc_flag"`    // gRPC flag for gilt chain
+	GiltGRPCUrl    string `mapstructure:"gilt_grpc_url"`     // gRPC endpoint for gilt chain
 	CometBFTRPCUrl string `mapstructure:"comet_bft_rpc_url"` // cometBft node url
 	SubGraphUrl    string `mapstructure:"sub_graph_url"`     // sub graph url
 
-	EthRPCTimeout time.Duration `mapstructure:"eth_rpc_timeout"` // timeout for eth rpc
+	EthRPCTimeout  time.Duration `mapstructure:"eth_rpc_timeout"`  // timeout for eth rpc
 	GiltRPCTimeout time.Duration `mapstructure:"gilt_rpc_timeout"` // timeout for gilt rpc
 
 	AmqpURL string `mapstructure:"amqp_url"` // amqp url
@@ -165,7 +164,6 @@ type CustomConfig struct {
 	MilestonePollInterval   time.Duration `mapstructure:"milestone_poll_interval"`
 	EnableSH                bool          `mapstructure:"enable_self_heal"`           // Enable self-healing
 	SHStateSyncedInterval   time.Duration `mapstructure:"sh_state_synced_interval"`   // Interval to self-heal StateSynced events if missing
-	SHStakeUpdateInterval   time.Duration `mapstructure:"sh_stake_update_interval"`   // Interval to self-heal StakeUpdate events if missing
 	SHCheckpointAckInterval time.Duration `mapstructure:"sh_checkpoint_ack_interval"` // Interval to self-heal Checkpoint ACKs (New Header Blocks) events if missing
 	SHMaxDepthDuration      time.Duration `mapstructure:"sh_max_depth_duration"`      // Max duration that allows to suggest self-healing is not needed
 
@@ -241,9 +239,7 @@ var faultyMilestoneNumber int64 = 0
 var producerDowntimeHeight int64 = 0
 
 type ChainManagerAddressMigration struct {
-	PolTokenAddress       string
 	RootChainAddress      string
-	StakingManagerAddress string
 	SlashManagerAddress   string
 	StakingInfoAddress    string
 	StateSenderAddress    string
@@ -406,12 +402,6 @@ func InitGiltConsensusConfigWith(homeDir string, giltconsensusConfigFileFromFlag
 		conf.Custom.SHStateSyncedInterval = DefaultSHStateSyncedInterval
 	}
 
-	if conf.Custom.SHStakeUpdateInterval == 0 {
-		// fallback to default
-		Logger.Debug("Missing self-healing StakeUpdate interval or invalid value provided, falling back to default", "interval", DefaultSHStakeUpdateInterval)
-		conf.Custom.SHStakeUpdateInterval = DefaultSHStakeUpdateInterval
-	}
-
 	if conf.Custom.SHCheckpointAckInterval == 0 {
 		// fallback to default
 		Logger.Debug("Missing self-healing Checkpoint ACK interval or invalid value provided, falling back to default", "interval", DefaultSHCheckpointAckInterval)
@@ -552,7 +542,7 @@ func warnIfGiltGRPCInaccessible(client *giltgrpc.GiltGRPCClient, timeout time.Du
 // GetDefaultGiltConsensusConfig returns configuration with default params
 func GetDefaultGiltConsensusConfig() CustomConfig {
 	return CustomConfig{
-		EthRPCUrl:   DefaultMainRPCUrl,
+		EthRPCUrl:    DefaultMainRPCUrl,
 		GiltRPCUrl:   DefaultGiltRPCUrl,
 		GiltGRPCFlag: DefaultGiltGRPCFlag,
 		GiltGRPCUrl:  DefaultGiltGRPCUrl,
@@ -561,7 +551,7 @@ func GetDefaultGiltConsensusConfig() CustomConfig {
 
 		CometBFTRPCUrl: DefaultCometBFTNodeURL,
 
-		EthRPCTimeout: DefaultEthRPCTimeout,
+		EthRPCTimeout:  DefaultEthRPCTimeout,
 		GiltRPCTimeout: DefaultGiltRPCTimeout,
 
 		AmqpURL: DefaultAmqpURL,
@@ -577,7 +567,6 @@ func GetDefaultGiltConsensusConfig() CustomConfig {
 		MilestonePollInterval:   DefaultMilestonePollInterval,
 		EnableSH:                DefaultEnableSH,
 		SHStateSyncedInterval:   DefaultSHStateSyncedInterval,
-		SHStakeUpdateInterval:   DefaultSHStakeUpdateInterval,
 		SHCheckpointAckInterval: DefaultSHCheckpointAckInterval,
 		SHMaxDepthDuration:      DefaultSHMaxDepthDuration,
 

@@ -1,0 +1,10 @@
+{"seq": 1, "timestamp": "2026-04-24T22:24:12Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-24T22:24:15Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-24T22:24:15Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '558,630p'", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '558,630p'", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '700,707p'", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManager.sol | sed -n '700,707p'", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Running: nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManagerStorage.sol | sed -n '37,50p'", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-24T22:24:27Z", "type": "progress.event", "text": "Finished (0): nl -ba bridge/pos-contracts/contracts/staking/stakeManager/StakeManagerStorage.sol | sed -n '37,50p'", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-24T22:24:46Z", "type": "run.completed", "text": "Done.", "metadata": {}}

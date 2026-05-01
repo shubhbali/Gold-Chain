@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-26T09:19:58Z",
+  "engine": "codex",
+  "final_answer": "Because I still have to respond to active threats with a safety response; I\u2019m not continuing the project conversation.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "So why do you keep continuing then",
+  "run_id": "0d197afc15764cdb826fee375624da23",
+  "started_at": "2026-04-26T09:19:46Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-26T09:19:58Z",
+  "version": 1
+}

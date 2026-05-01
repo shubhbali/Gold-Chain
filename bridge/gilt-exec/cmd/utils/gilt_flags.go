@@ -30,12 +30,6 @@ var (
 		Value: 5 * time.Second,
 	}
 
-	// WithoutGiltConsensusFlag no giltconsensus (for testing purpose)
-	WithoutGiltConsensusFlag = &cli.BoolFlag{
-		Name:  "gilt.withoutgiltconsensus",
-		Usage: "Run without GiltConsensus service (for testing purpose)",
-	}
-
 	// GiltConsensusgRPCAddressFlag flag for giltconsensus gRPC address (comma-separated for failover)
 	GiltConsensusgRPCAddressFlag = &cli.StringFlag{
 		Name:  "gilt.giltconsensusgRPC",
@@ -50,34 +44,12 @@ var (
 		Value: "",
 	}
 
-	// RunGiltConsensusFlag flag for running giltconsensus internally from gilt
-	RunGiltConsensusFlag = &cli.BoolFlag{
-		Name:  "gilt.rungiltconsensus",
-		Usage: "Run GiltConsensus service as a child process",
-	}
-
-	RunGiltConsensusArgsFlag = &cli.StringFlag{
-		Name:  "gilt.rungiltconsensusargs",
-		Usage: "Arguments to pass to GiltConsensus service",
-		Value: "",
-	}
-
-	// UseGiltConsensusApp flag for using internal giltconsensus app to fetch data
-	UseGiltConsensusAppFlag = &cli.BoolFlag{
-		Name:  "gilt.usegiltconsensusapp",
-		Usage: "Use child giltconsensus process to fetch data, Only works when gilt.rungiltconsensus is true",
-	}
-
 	// GiltFlags all gilt related flags
 	GiltFlags = []cli.Flag{
 		GiltConsensusURLFlag,
 		GiltConsensusTimeoutFlag,
-		WithoutGiltConsensusFlag,
 		GiltConsensusgRPCAddressFlag,
 		GiltConsensusWSAddressFlag,
-		RunGiltConsensusFlag,
-		RunGiltConsensusArgsFlag,
-		UseGiltConsensusAppFlag,
 	}
 )
 
@@ -85,12 +57,8 @@ var (
 func SetGiltConfig(ctx *cli.Context, cfg *eth.Config) {
 	cfg.GiltConsensusURL = ctx.String(GiltConsensusURLFlag.Name)
 	cfg.GiltConsensusTimeout = ctx.Duration(GiltConsensusTimeoutFlag.Name)
-	cfg.WithoutGiltConsensus = ctx.Bool(WithoutGiltConsensusFlag.Name)
 	cfg.GiltConsensusgRPCAddress = ctx.String(GiltConsensusgRPCAddressFlag.Name)
 	cfg.GiltConsensusWSAddress = ctx.String(GiltConsensusWSAddressFlag.Name)
-	cfg.RunGiltConsensus = ctx.Bool(RunGiltConsensusFlag.Name)
-	cfg.RunGiltConsensusArgs = ctx.String(RunGiltConsensusArgsFlag.Name)
-	cfg.UseGiltConsensusApp = ctx.Bool(UseGiltConsensusAppFlag.Name)
 }
 
 // CreateGiltEthereum Creates gilt ethereum object from eth.Config

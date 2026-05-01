@@ -158,9 +158,6 @@ type Config struct {
 	// Witness has the witness related settings
 	Witness *WitnessConfig `hcl:"witness,block" toml:"witness,block"`
 
-	// Develop Fake Author mode to produce blocks without authorisation
-	DevFakeAuthor bool `hcl:"devfakeauthor,optional" toml:"devfakeauthor,optional"`
-
 	// Pprof has the pprof related settings
 	Pprof *PprofConfig `hcl:"pprof,block" toml:"pprof,block"`
 
@@ -319,23 +316,11 @@ type GiltConsensusConfig struct {
 
 	Timeout time.Duration `hcl:"timeout,optional" toml:"timeout,optional"`
 
-	// Without is used to disable remote giltconsensus during testing
-	Without bool `hcl:"gilt.without,optional" toml:"gilt.without,optional"`
-
 	// GRPCAddress is the address of the giltconsensus grpc server (comma-separated for failover: "addr1,addr2")
 	GRPCAddress string `hcl:"grpc-address,optional" toml:"grpc-address,optional"`
 
 	// WSAddress is the address of the giltconsensus ws subscription server (comma-separated for failover: "addr1,addr2")
 	WSAddress string `hcl:"ws-address,optional" toml:"ws-address,optional"`
-
-	// RunGiltConsensus is used to run giltconsensus as a child process
-	RunGiltConsensus bool `hcl:"gilt.rungiltconsensus,optional" toml:"gilt.rungiltconsensus,optional"`
-
-	// RunHeimdal args are the arguments to run giltconsensus with
-	RunGiltConsensusArgs string `hcl:"gilt.rungiltconsensusargs,optional" toml:"gilt.rungiltconsensusargs,optional"`
-
-	// UseGiltConsensusApp is used to fetch data from giltconsensus app when running giltconsensus as a child process
-	UseGiltConsensusApp bool `hcl:"gilt.usegiltconsensusapp,optional" toml:"gilt.usegiltconsensusapp,optional"`
 }
 
 type TxPoolConfig struct {
@@ -853,7 +838,6 @@ func DefaultConfig() *Config {
 		GiltConsensus: &GiltConsensusConfig{
 			URL:         "http://localhost:1317",
 			Timeout:     5 * time.Second,
-			Without:     false,
 			GRPCAddress: "",
 			WSAddress:   "",
 		},
@@ -861,7 +845,7 @@ func DefaultConfig() *Config {
 		GcMode:      "full",
 		StateScheme: "path",
 		Snapshot:    true,
-		GiltLogs:     false,
+		GiltLogs:    false,
 
 		TxPool: &TxPoolConfig{
 			Locals:               []string{},
@@ -891,8 +875,8 @@ func DefaultConfig() *Config {
 			TargetBaseFee:            miner.DefaultConfig.TargetBaseFee,
 			BaseFeeBuffer:            miner.DefaultConfig.BaseFeeBuffer,
 			EnableDynamicTargetGas:   false,
-			TargetGasMinPercentage:   50,                                         // 50% floor
-			TargetGasMaxPercentage:   80,                                         // 80% ceiling
+			TargetGasMinPercentage:   50,                                          // 50% floor
+			TargetGasMaxPercentage:   80,                                          // 80% ceiling
 			GasPrice:                 big.NewInt(params.GiltDefaultMinerGasPrice), // gilt's default
 			ExtraData:                "",
 			Recommit:                 125 * time.Second,
@@ -1013,7 +997,7 @@ func DefaultConfig() *Config {
 			PasswordFile:        "",
 			AllowInsecureUnlock: false,
 			UseLightweightKDF:   false,
-			DisableGiltWallet:    true,
+			DisableGiltWallet:   true,
 		},
 		GRPC: &GRPCConfig{
 			Addr: ":3131",
@@ -1023,7 +1007,6 @@ func DefaultConfig() *Config {
 			Period:   0,
 			GasLimit: 11500000,
 		},
-		DevFakeAuthor: false,
 		Pprof: &PprofConfig{
 			Enabled:          false,
 			Port:             6060,
@@ -1202,18 +1185,8 @@ func (c *Config) buildEth(stack *node.Node, accountManager *accounts.Manager) (*
 
 	n.GiltConsensusURL = c.GiltConsensus.URL
 	n.GiltConsensusTimeout = c.GiltConsensus.Timeout
-	n.WithoutGiltConsensus = c.GiltConsensus.Without
 	n.GiltConsensusgRPCAddress = c.GiltConsensus.GRPCAddress
 	n.GiltConsensusWSAddress = c.GiltConsensus.WSAddress
-	n.RunGiltConsensus = c.GiltConsensus.RunGiltConsensus
-	n.RunGiltConsensusArgs = c.GiltConsensus.RunGiltConsensusArgs
-	n.UseGiltConsensusApp = c.GiltConsensus.UseGiltConsensusApp
-
-	// Developer Fake Author for producing blocks without authorisation on gilt consensus
-	n.DevFakeAuthor = c.DevFakeAuthor
-
-	// Developer Fake Author for producing blocks without authorisation on gilt consensus
-	n.DevFakeAuthor = c.DevFakeAuthor
 
 	// gas price oracle
 	{

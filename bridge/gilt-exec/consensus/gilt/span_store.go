@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/span"
 	"github.com/ethereum/go-ethereum/consensus/gilt/valset"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/rpc"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 
@@ -32,12 +31,12 @@ type SpanStore struct {
 	latestSpanCache atomic.Pointer[giltTypes.Span]
 
 	giltconsensusClient IGiltConsensusClient
-	spanner        Spanner
+	spanner             Spanner
 
-	chainId           string
-	lastUsedSpan      atomic.Pointer[giltTypes.Span]
-	latestKnownSpanId atomic.Uint64
-	giltconsensusStatus    atomic.Pointer[ctypes.SyncInfo]
+	chainId             string
+	lastUsedSpan        atomic.Pointer[giltTypes.Span]
+	latestKnownSpanId   atomic.Uint64
+	giltconsensusStatus atomic.Pointer[ctypes.SyncInfo]
 
 	// cancel function to stop the background routine
 	cancel context.CancelFunc
@@ -46,12 +45,12 @@ type SpanStore struct {
 func NewSpanStore(giltconsensusClient IGiltConsensusClient, spanner Spanner, chainId string) *SpanStore {
 	cache, _ := lru.NewARC(10)
 	store := SpanStore{
-		store:           cache,
-		giltconsensusClient:  giltconsensusClient,
-		spanner:         spanner,
-		chainId:         chainId,
-		latestSpanCache: atomic.Pointer[giltTypes.Span]{},
-		lastUsedSpan:    atomic.Pointer[giltTypes.Span]{},
+		store:               cache,
+		giltconsensusClient: giltconsensusClient,
+		spanner:             spanner,
+		chainId:             chainId,
+		latestSpanCache:     atomic.Pointer[giltTypes.Span]{},
+		lastUsedSpan:        atomic.Pointer[giltTypes.Span]{},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -184,7 +183,7 @@ func (s *SpanStore) updateLatestSpan(ctx context.Context) error {
 		EndBlock:          latestSpan.EndBlock,
 		SelectedProducers: span.ConvertGiltValidatorsToGiltConsensusValidators(selectedProducers),
 		ValidatorSet:      span.ConvertGiltValSetToGiltConsensusValSet(valset.NewValidatorSet(validators)),
-		GiltChainId:        s.chainId,
+		GiltChainId:       s.chainId,
 	})
 	return nil
 }
@@ -202,26 +201,18 @@ func (s *SpanStore) spanById(ctx context.Context, spanId uint64) (*giltTypes.Spa
 
 	var err error
 	if s.giltconsensusClient == nil {
-		if spanId == 0 {
-			currentSpan, err = getMockSpan0(ctx, s.spanner, s.chainId)
-			if err != nil {
-				log.Warn("Unable to fetch span from giltconsensus", "id", spanId, "err", err)
-				return nil, err
-			}
-		} else {
-			return nil, fmt.Errorf("unable to create test span without giltconsensus client for id %d", spanId)
-		}
-	} else {
-		currentSpan, err = s.giltconsensusClient.GetSpan(ctx, spanId)
-		if err != nil {
-			log.Warn("Unable to fetch span from giltconsensus", "id", spanId, "err", err)
-			return nil, err
-		}
+		return nil, fmt.Errorf("giltconsensus client not configured for span id %d", spanId)
+	}
 
-		if len(currentSpan.SelectedProducers) == 0 {
-			log.Warn("Span from GiltConsensus has empty SelectedProducers", "spanId", spanId, "selectedProducers", currentSpan.SelectedProducers, "validators", currentSpan.ValidatorSet.Validators, "startBlock", currentSpan.StartBlock, "endBlock", currentSpan.EndBlock)
-			return nil, fmt.Errorf("span %d has empty SelectedProducers, possibly incomplete", spanId)
-		}
+	currentSpan, err = s.giltconsensusClient.GetSpan(ctx, spanId)
+	if err != nil {
+		log.Warn("Unable to fetch span from giltconsensus", "id", spanId, "err", err)
+		return nil, err
+	}
+
+	if len(currentSpan.SelectedProducers) == 0 {
+		log.Warn("Span from GiltConsensus has empty SelectedProducers", "spanId", spanId, "selectedProducers", currentSpan.SelectedProducers, "validators", currentSpan.ValidatorSet.Validators, "startBlock", currentSpan.StartBlock, "endBlock", currentSpan.EndBlock)
+		return nil, fmt.Errorf("span %d has empty SelectedProducers, possibly incomplete", spanId)
 	}
 
 	if currentSpan == nil {
@@ -372,36 +363,6 @@ func (s *SpanStore) PurgeCache() {
 	s.lastUsedSpan.Store(nil)
 	// Reset the latest known span ID
 	s.latestKnownSpanId.Store(0)
-}
-
-// getMockSpan0 constructs a mock span 0 by fetching validator set from genesis state. This should
-// only be used in tests where giltconsensus client is not available.
-func getMockSpan0(ctx context.Context, spanner Spanner, chainId string) (*giltTypes.Span, error) {
-	if spanner == nil {
-		return nil, fmt.Errorf("spanner not available to fetch validator set")
-	}
-
-	// Fetch validators from genesis state
-	vals, err := spanner.GetCurrentValidatorsByBlockNrOrHash(ctx, rpc.BlockNumberOrHashWithNumber(0), 0)
-	if err != nil {
-		return nil, err
-	}
-	if len(vals) == 0 {
-		return nil, fmt.Errorf("no validators found for genesis, cannot create mock span 0")
-	}
-	validatorSet := valset.ValidatorSet{
-		Validators: vals,
-		Proposer:   vals[0],
-	}
-
-	return &giltTypes.Span{
-		Id:                0,
-		StartBlock:        0,
-		EndBlock:          255,
-		ValidatorSet:      span.ConvertGiltValSetToGiltConsensusValSet(&validatorSet),
-		SelectedProducers: span.ConvertGiltValidatorsToGiltConsensusValidators(vals),
-		GiltChainId:        chainId,
-	}, nil
 }
 
 // Close cancels the background routine and cleans up resources

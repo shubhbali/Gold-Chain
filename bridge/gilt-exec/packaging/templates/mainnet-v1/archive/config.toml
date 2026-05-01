@@ -14,7 +14,6 @@ gcmode = "archive"
 # snapshot = true
 # ethstats = ""
 # witnessprotocol = false
-# devfakeauthor = false
 
 # ["eth.requiredblocks"]
 
@@ -55,7 +54,6 @@ gcmode = "archive"
 
 # [giltconsensus]
     # url = "http://localhost:1317"
-    # "gilt.without" = false
     # grpc-address = ""
 
 [txpool]

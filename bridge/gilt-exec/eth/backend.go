@@ -33,9 +33,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
+	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/consensus/gilt"
 	"github.com/ethereum/go-ethereum/consensus/gilt/consensusclient/milestone"
-	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/filtermaps"
 	"github.com/ethereum/go-ethereum/core/rawdb"
@@ -734,8 +734,8 @@ func (s *Ethereum) Start() error {
 }
 
 var (
-	ErrNotGiltConsensus             = errors.New("not gilt consensus was given")
-	ErrGiltConsensusWithoutGiltConsensus = errors.New("gilt consensus without giltconsensus")
+	ErrNotGiltConsensus           = errors.New("not gilt consensus was given")
+	ErrMissingGiltConsensusClient = errors.New("missing gilt consensus client")
 )
 
 const (
@@ -1010,7 +1010,7 @@ func (s *Ethereum) getHandler() (*ethHandler, *gilt.Gilt, error) {
 	}
 
 	if gilt.GiltConsensusClient == nil {
-		return nil, nil, ErrGiltConsensusWithoutGiltConsensus
+		return nil, nil, ErrMissingGiltConsensusClient
 	}
 
 	return ethHandler, gilt, nil

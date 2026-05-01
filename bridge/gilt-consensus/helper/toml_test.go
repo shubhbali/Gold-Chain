@@ -32,7 +32,6 @@ func TestDefaultConfigTemplate_ContainsRequiredSections(t *testing.T) {
 		"milestone_poll_interval",
 		"enable_self_heal",
 		"sh_state_synced_interval",
-		"sh_stake_update_interval",
 		"sh_checkpoint_ack_interval",
 		"sh_max_depth_duration",
 		"main_chain_gas_fee_cap",
@@ -69,7 +68,6 @@ func TestDefaultConfigTemplate_ContainsTemplateVariables(t *testing.T) {
 		"{{ .Custom.MilestonePollInterval }}",
 		"{{ .Custom.EnableSH }}",
 		"{{ .Custom.SHStateSyncedInterval }}",
-		"{{ .Custom.SHStakeUpdateInterval }}",
 		"{{ .Custom.SHCheckpointAckInterval }}",
 		"{{ .Custom.SHMaxDepthDuration }}",
 		"{{ .Custom.MainChainGasFeeCap }}",
@@ -130,7 +128,6 @@ func TestDefaultConfigTemplate_ContainsSelfHealConfigs(t *testing.T) {
 	// Test self-heal configuration section
 	require.Contains(t, helper.DefaultConfigTemplate, "enable_self_heal")
 	require.Contains(t, helper.DefaultConfigTemplate, "sh_state_synced_interval")
-	require.Contains(t, helper.DefaultConfigTemplate, "sh_stake_update_interval")
 	require.Contains(t, helper.DefaultConfigTemplate, "sh_checkpoint_ack_interval")
 	require.Contains(t, helper.DefaultConfigTemplate, "sh_max_depth_duration")
 }

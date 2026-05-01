@@ -18,12 +18,14 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	util "github.com/giltchain/gilt-consensus/common/hex"
 	hmTypes "github.com/giltchain/gilt-consensus/types"
-	"github.com/giltchain/gilt-consensus/x/gilt"
 	"github.com/giltchain/gilt-consensus/x/chainmanager"
 	"github.com/giltchain/gilt-consensus/x/checkpoint"
 	"github.com/giltchain/gilt-consensus/x/clerk"
+	"github.com/giltchain/gilt-consensus/x/gilt"
 	"github.com/giltchain/gilt-consensus/x/milestone"
+	pricefeedTypes "github.com/giltchain/gilt-consensus/x/pricefeed/types"
 	"github.com/giltchain/gilt-consensus/x/stake"
 	"github.com/giltchain/gilt-consensus/x/topup"
 	topupTypes "github.com/giltchain/gilt-consensus/x/topup/types"
@@ -124,7 +126,7 @@ func TestRunMigrations(t *testing.T) {
 					"chainmanager": chainmanager.AppModule{}.ConsensusVersion(),
 					"milestone":    milestone.AppModule{}.ConsensusVersion(),
 					"topup":        topup.AppModule{}.ConsensusVersion(),
-					"gilt":          gilt.AppModule{}.ConsensusVersion(),
+					"gilt":         gilt.AppModule{}.ConsensusVersion(),
 				},
 			)
 
@@ -169,7 +171,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"chainmanager": chainmanager.AppModule{}.ConsensusVersion(),
 			"milestone":    milestone.AppModule{}.ConsensusVersion(),
 			"topup":        topup.AppModule{}.ConsensusVersion(),
-			"gilt":          gilt.AppModule{}.ConsensusVersion(),
+			"gilt":         gilt.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)
@@ -218,6 +220,23 @@ func TestEndBlockerEmitsTransferEvent(t *testing.T) {
 	err = app.AccountKeeper.SetBlockProposer(ctx, proposerAcc.GetAddress())
 	require.NoError(t, err)
 
+	validators := app.StakeKeeper.GetCurrentValidators(ctx)
+	require.NotEmpty(t, validators)
+	rewardRecipient := util.FormatAddress(validators[0].Signer)
+	rewardRecipientBytes, err := ac.StringToBytes(rewardRecipient)
+	require.NoError(t, err)
+	rewardRecipientAcc := app.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(rewardRecipientBytes))
+	app.AccountKeeper.SetAccount(ctx, rewardRecipientAcc)
+
+	err = app.PriceFeedKeeper.SetPriceSnapshot(ctx, pricefeedTypes.PriceSnapshot{
+		Epoch:           1,
+		GiltPriceInGold: sdkmath.NewInt(pricefeedTypes.PriceScale),
+		SourceAdapter:   pricefeedTypes.AdapterManual,
+		BlockHeight:     uint64(ctx.BlockHeight()),
+		ValidUntilEpoch: 10,
+	})
+	require.NoError(t, err)
+
 	// Fund the fee collector
 	feeAmount := sdkmath.NewInt(1000)
 	feeCoins := sdk.NewCoins(sdk.NewCoin(authtypes.FeeToken, feeAmount))
@@ -234,42 +253,45 @@ func TestEndBlockerEmitsTransferEvent(t *testing.T) {
 	result, err := app.EndBlocker(ctx)
 	require.NoError(t, err)
 
-	// Verify the fee transfer event was emitted in the EndBlocker result
-	var feeTransferEvent *abci.Event
+	// Verify fee transfer events were emitted and account for the full fee amount.
+	totalDistributed := sdkmath.ZeroInt()
+	foundRewardRecipient := false
 	for _, event := range result.Events {
-		if event.Type == hmTypes.EventTypeFeeTransfer {
-			feeTransferEvent = &event
-			break
+		if event.Type != hmTypes.EventTypeFeeTransfer {
+			continue
+		}
+
+		require.NotNil(t, event.Attributes, "fee transfer event should have attributes")
+		require.Equal(t, 3, len(event.Attributes))
+
+		var proposerAttr, denomAttr, amountAttr *abci.EventAttribute
+		for _, attr := range event.Attributes {
+			switch attr.Key {
+			case hmTypes.AttributeKeyProposer:
+				proposerAttr = &attr
+			case hmTypes.AttributeKeyDenom:
+				denomAttr = &attr
+			case hmTypes.AttributeKeyAmount:
+				amountAttr = &attr
+			}
+		}
+
+		require.NotNil(t, proposerAttr)
+		require.NotNil(t, denomAttr)
+		require.NotNil(t, denomAttr.Value, "denom attribute value should not be nil")
+		require.Equal(t, authtypes.FeeToken, denomAttr.Value)
+
+		require.NotNil(t, amountAttr)
+		require.NotNil(t, amountAttr.Value, "amount attribute value should not be nil")
+		amount, ok := sdkmath.NewIntFromString(amountAttr.Value)
+		require.True(t, ok, "amount attribute should be a valid integer")
+		require.True(t, amount.IsPositive(), "amount attribute should be positive")
+		totalDistributed = totalDistributed.Add(amount)
+
+		if proposerAttr.Value == rewardRecipient {
+			foundRewardRecipient = true
 		}
 	}
-	require.NotNil(t, feeTransferEvent, "fee transfer event should be emitted")
-
-	// Verify event attributes
-	require.NotNil(t, feeTransferEvent, "fee transfer event should not be nil")
-	require.NotNil(t, feeTransferEvent.Attributes, "fee transfer event should have attributes")
-	require.Equal(t, 3, len(feeTransferEvent.Attributes))
-
-	var proposerAttr, denomAttr, amountAttr *abci.EventAttribute
-	for _, attr := range feeTransferEvent.Attributes {
-		switch attr.Key {
-		case hmTypes.AttributeKeyProposer:
-			proposerAttr = &attr
-		case hmTypes.AttributeKeyDenom:
-			denomAttr = &attr
-		case hmTypes.AttributeKeyAmount:
-			amountAttr = &attr
-		}
-	}
-
-	require.NotNil(t, proposerAttr)
-	require.NotNil(t, proposerAcc.GetAddress(), "proposer address should not be nil")
-	require.Equal(t, proposerAcc.GetAddress().String(), proposerAttr.Value)
-
-	require.NotNil(t, denomAttr)
-	require.NotNil(t, denomAttr.Value, "denom attribute value should not be nil")
-	require.Equal(t, authtypes.FeeToken, denomAttr.Value)
-
-	require.NotNil(t, amountAttr)
-	require.NotNil(t, amountAttr.Value, "amount attribute value should not be nil")
-	require.Equal(t, feeAmount.String(), amountAttr.Value)
+	require.True(t, foundRewardRecipient, "fee transfer event should include the first active validator")
+	require.Equal(t, feeAmount, totalDistributed)
 }

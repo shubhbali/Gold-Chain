@@ -14,5 +14,8 @@ import (
 func (k *Keeper) EndBlocker(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	k.PanicIfSetupIsIncomplete()
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
+	if err := k.RefreshAllValidatorRewardWeights(ctx); err != nil {
+		return nil, err
+	}
 	return k.ApplyAndReturnValidatorSetUpdates(ctx)
 }

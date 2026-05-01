@@ -11,7 +11,7 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/milestone interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "giltconsensusv2/milestone/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "gilt/milestone/MsgUpdateParams")
 }
 
 // RegisterInterfaces registers the x/milestone interfaces types with the interface registry

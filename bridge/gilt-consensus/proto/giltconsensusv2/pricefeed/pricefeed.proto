@@ -1,0 +1,63 @@
+syntax = "proto3";
+package giltconsensusv2.pricefeed;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/giltchain/gilt-consensus/x/pricefeed/types";
+
+// Params controls the staking price source and GOLD reward-weight curve.
+message Params {
+  option (gogoproto.equal) = true;
+
+  // Active adapter used as the source of accepted price snapshots.
+  string active_adapter = 1 [ (amino.dont_omitempty) = true ];
+  // Encoded DEX path or connector config interpreted by the active adapter.
+  string adapter_route = 2 [ (amino.dont_omitempty) = true ];
+  // Pending adapter scheduled by governance.
+  string pending_adapter = 3 [ (amino.dont_omitempty) = true ];
+  // Pending route scheduled by governance.
+  string pending_adapter_route = 4 [ (amino.dont_omitempty) = true ];
+  // Block height when the pending adapter can be activated.
+  uint64 pending_activation_height = 5 [ (amino.dont_omitempty) = true ];
+  // TWAP window for DEX adapters.
+  uint64 twap_window_seconds = 6 [ (amino.dont_omitempty) = true ];
+  // Minimum liquidity required from the DEX adapter.
+  string min_liquidity = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (amino.dont_omitempty) = true
+  ];
+  // Max allowed price movement versus the last accepted snapshot.
+  uint64 max_price_deviation_bps = 8 [ (amino.dont_omitempty) = true ];
+  // Target GILT share of combined GILT/GOLD value for full GOLD reward weight.
+  uint64 target_gilt_share_bps = 9 [ (amino.dont_omitempty) = true ];
+  // GOLD reward weight when validator has no GILT backing.
+  uint64 min_gold_weight_bps = 10 [ (amino.dont_omitempty) = true ];
+  // GOLD reward weight at or above target GILT backing.
+  uint64 max_gold_weight_bps = 11 [ (amino.dont_omitempty) = true ];
+  // Maximum age of a price snapshot before staking treats it as stale.
+  uint64 max_price_age_blocks = 12 [ (amino.dont_omitempty) = true ];
+}
+
+// PriceSnapshot is the chain-stored price used by staking calculations.
+message PriceSnapshot {
+  option (gogoproto.equal) = true;
+
+  // Staking epoch this price applies to.
+  uint64 epoch = 1 [ (amino.dont_omitempty) = true ];
+  // Price of 1 GILT denominated in GOLD base units, scaled by 1e18.
+  string gilt_price_in_gold = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (amino.dont_omitempty) = true
+  ];
+  // Adapter source that produced this snapshot.
+  string source_adapter = 3 [ (amino.dont_omitempty) = true ];
+  // Connector route used to produce this snapshot.
+  string adapter_route = 4 [ (amino.dont_omitempty) = true ];
+  // Chain height when this snapshot was accepted.
+  uint64 block_height = 5 [ (amino.dont_omitempty) = true ];
+  // Last staking epoch for which this snapshot is valid.
+  uint64 valid_until_epoch = 6 [ (amino.dont_omitempty) = true ];
+}

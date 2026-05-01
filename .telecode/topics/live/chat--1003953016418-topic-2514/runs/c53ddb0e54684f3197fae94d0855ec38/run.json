@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-20T06:14:23Z",
+  "engine": "codex",
+  "final_answer": "Phase 1 is implemented.\n\nWhy it matters: frontend branding text/labels are now moved off `BlockScout` while keeping the app buildable before deeper namespace/path/infrastructure cutovers.\n\nFact (confirmed):\n- I re-read `AGENTS.md` first, then implemented a frontend content-only pass (no file/path renames).\n- `Blockscout|BlockScout` in frontend content is now `0` files (was 100 lines before).\n- `52` frontend source/config files were updated (examples: [meta.ts](/srv/repos/gold-chain/scan/blockscout-frontend/configs/app/meta.ts), [description.ts](/srv/repos/gold-chain/scan/blockscout-frontend/lib/metadata/templates/description.ts), [Footer.tsx](/srv/repos/gold-chain/scan/blockscout-frontend/ui/snippets/footer/Footer.tsx), [GasTrackerFaq.tsx](/srv/repos/gold-chain/scan/blockscout-frontend/ui/gasTracker/GasTrackerFaq.tsx)).\n- Compile checks passed:\n  - `pnpm lint:tsc` passed\n  - `pnpm build` passed\n- Remaining lowercase matches are `237` files, mostly external/dependency/infrastructure tokens (`@blockscout/*` package names, `*.blockscout.com` URLs, `github.com/blockscout`, `blockscout-frontend` image/tag names), which are not path-renamed in Phase 1 by design.\n\nCurrent blocker:\n- Full zero-match frontend removal is blocked on dependency/infra namespace cutover decisions (package namespace, hostnames, and deployment chart references).\n\nWhat should be done next:\n1. Phase 1b: replace remaining first-party lowercase literals that are not dependency or external URL contracts.\n2. Phase 2: backend content cleanup (no path/module renames), with compile checks after each batch.\n3. Later phase: dependency/infra/path namespace cutover for `@blockscout/*`, hostnames, and scanner directory/package naming.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 74,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "OK implement phase 1\n\nOK implement this plan and do it surgically and\u00a0 right you have unlimited time and tokens. I would rather you took longer and did it right, like even if you take 1000 years it's fine with me, but I don't want to go through the doom loop of testing and debugging. Make sure we don't want to write any duplicate code. Once done check for gaps or partial implementation and fix that keeping the objective of this task in mind. YOU WILL READ AGENTS.MD 1ST BEFORE YOU DO ANYTHING OR I WILL STOP THIS RESPONSE AND ASK YOU WHY YOU DIDNT READ IT AND WONT LET YOU DO SHIT UNTILL YOU READ IT!!!!",
+  "run_id": "c53ddb0e54684f3197fae94d0855ec38",
+  "started_at": "2026-04-20T05:51:16Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-2514",
+  "updated_at": "2026-04-20T06:14:23Z",
+  "version": 1
+}

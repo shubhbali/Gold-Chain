@@ -17,15 +17,1126 @@ import (
 )
 
 var (
+	md_MsgApproveValidator                  protoreflect.MessageDescriptor
+	fd_MsgApproveValidator_from             protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_val_id           protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_operator         protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_activation_epoch protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_max_gilt_stake   protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_signer_pub_key   protoreflect.FieldDescriptor
+	fd_MsgApproveValidator_nonce            protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgApproveValidator = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgApproveValidator")
+	fd_MsgApproveValidator_from = md_MsgApproveValidator.Fields().ByName("from")
+	fd_MsgApproveValidator_val_id = md_MsgApproveValidator.Fields().ByName("val_id")
+	fd_MsgApproveValidator_operator = md_MsgApproveValidator.Fields().ByName("operator")
+	fd_MsgApproveValidator_activation_epoch = md_MsgApproveValidator.Fields().ByName("activation_epoch")
+	fd_MsgApproveValidator_max_gilt_stake = md_MsgApproveValidator.Fields().ByName("max_gilt_stake")
+	fd_MsgApproveValidator_signer_pub_key = md_MsgApproveValidator.Fields().ByName("signer_pub_key")
+	fd_MsgApproveValidator_nonce = md_MsgApproveValidator.Fields().ByName("nonce")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgApproveValidator)(nil)
+
+type fastReflection_MsgApproveValidator MsgApproveValidator
+
+func (x *MsgApproveValidator) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgApproveValidator)(x)
+}
+
+func (x *MsgApproveValidator) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgApproveValidator_messageType fastReflection_MsgApproveValidator_messageType
+var _ protoreflect.MessageType = fastReflection_MsgApproveValidator_messageType{}
+
+type fastReflection_MsgApproveValidator_messageType struct{}
+
+func (x fastReflection_MsgApproveValidator_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgApproveValidator)(nil)
+}
+func (x fastReflection_MsgApproveValidator_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgApproveValidator)
+}
+func (x fastReflection_MsgApproveValidator_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgApproveValidator
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgApproveValidator) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgApproveValidator
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgApproveValidator) Type() protoreflect.MessageType {
+	return _fastReflection_MsgApproveValidator_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgApproveValidator) New() protoreflect.Message {
+	return new(fastReflection_MsgApproveValidator)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgApproveValidator) Interface() protoreflect.ProtoMessage {
+	return (*MsgApproveValidator)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgApproveValidator) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.From != "" {
+		value := protoreflect.ValueOfString(x.From)
+		if !f(fd_MsgApproveValidator_from, value) {
+			return
+		}
+	}
+	if x.ValId != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.ValId)
+		if !f(fd_MsgApproveValidator_val_id, value) {
+			return
+		}
+	}
+	if x.Operator != "" {
+		value := protoreflect.ValueOfString(x.Operator)
+		if !f(fd_MsgApproveValidator_operator, value) {
+			return
+		}
+	}
+	if x.ActivationEpoch != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.ActivationEpoch)
+		if !f(fd_MsgApproveValidator_activation_epoch, value) {
+			return
+		}
+	}
+	if x.MaxGiltStake != "" {
+		value := protoreflect.ValueOfString(x.MaxGiltStake)
+		if !f(fd_MsgApproveValidator_max_gilt_stake, value) {
+			return
+		}
+	}
+	if len(x.SignerPubKey) != 0 {
+		value := protoreflect.ValueOfBytes(x.SignerPubKey)
+		if !f(fd_MsgApproveValidator_signer_pub_key, value) {
+			return
+		}
+	}
+	if x.Nonce != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.Nonce)
+		if !f(fd_MsgApproveValidator_nonce, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgApproveValidator) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		return x.From != ""
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		return x.ValId != uint64(0)
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		return x.Operator != ""
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		return x.ActivationEpoch != uint64(0)
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		return x.MaxGiltStake != ""
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		return len(x.SignerPubKey) != 0
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		return x.Nonce != uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidator) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		x.From = ""
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		x.ValId = uint64(0)
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		x.Operator = ""
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		x.ActivationEpoch = uint64(0)
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		x.MaxGiltStake = ""
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		x.SignerPubKey = nil
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		x.Nonce = uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgApproveValidator) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		value := x.From
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		value := x.ValId
+		return protoreflect.ValueOfUint64(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		value := x.Operator
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		value := x.ActivationEpoch
+		return protoreflect.ValueOfUint64(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		value := x.MaxGiltStake
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		value := x.SignerPubKey
+		return protoreflect.ValueOfBytes(value)
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		value := x.Nonce
+		return protoreflect.ValueOfUint64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidator) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		x.From = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		x.ValId = value.Uint()
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		x.Operator = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		x.ActivationEpoch = value.Uint()
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		x.MaxGiltStake = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		x.SignerPubKey = value.Bytes()
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		x.Nonce = value.Uint()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidator) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		panic(fmt.Errorf("field from of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		panic(fmt.Errorf("field operator of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		panic(fmt.Errorf("field activation_epoch of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		panic(fmt.Errorf("field max_gilt_stake of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		panic(fmt.Errorf("field signer_pub_key of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		panic(fmt.Errorf("field nonce of message giltconsensusv2.stake.MsgApproveValidator is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgApproveValidator) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgApproveValidator.from":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgApproveValidator.val_id":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "giltconsensusv2.stake.MsgApproveValidator.operator":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgApproveValidator.activation_epoch":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "giltconsensusv2.stake.MsgApproveValidator.max_gilt_stake":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgApproveValidator.signer_pub_key":
+		return protoreflect.ValueOfBytes(nil)
+	case "giltconsensusv2.stake.MsgApproveValidator.nonce":
+		return protoreflect.ValueOfUint64(uint64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidator"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidator does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgApproveValidator) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgApproveValidator", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgApproveValidator) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidator) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgApproveValidator) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgApproveValidator) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgApproveValidator)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.From)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.ValId != 0 {
+			n += 1 + runtime.Sov(uint64(x.ValId))
+		}
+		l = len(x.Operator)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.ActivationEpoch != 0 {
+			n += 1 + runtime.Sov(uint64(x.ActivationEpoch))
+		}
+		l = len(x.MaxGiltStake)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.SignerPubKey)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.Nonce != 0 {
+			n += 1 + runtime.Sov(uint64(x.Nonce))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgApproveValidator)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Nonce != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.Nonce))
+			i--
+			dAtA[i] = 0x38
+		}
+		if len(x.SignerPubKey) > 0 {
+			i -= len(x.SignerPubKey)
+			copy(dAtA[i:], x.SignerPubKey)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.SignerPubKey)))
+			i--
+			dAtA[i] = 0x32
+		}
+		if len(x.MaxGiltStake) > 0 {
+			i -= len(x.MaxGiltStake)
+			copy(dAtA[i:], x.MaxGiltStake)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.MaxGiltStake)))
+			i--
+			dAtA[i] = 0x2a
+		}
+		if x.ActivationEpoch != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.ActivationEpoch))
+			i--
+			dAtA[i] = 0x20
+		}
+		if len(x.Operator) > 0 {
+			i -= len(x.Operator)
+			copy(dAtA[i:], x.Operator)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Operator)))
+			i--
+			dAtA[i] = 0x1a
+		}
+		if x.ValId != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.ValId))
+			i--
+			dAtA[i] = 0x10
+		}
+		if len(x.From) > 0 {
+			i -= len(x.From)
+			copy(dAtA[i:], x.From)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.From)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgApproveValidator)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgApproveValidator: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgApproveValidator: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.From = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValId", wireType)
+				}
+				x.ValId = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.ValId |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Operator", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Operator = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 4:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ActivationEpoch", wireType)
+				}
+				x.ActivationEpoch = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.ActivationEpoch |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 5:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxGiltStake", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.MaxGiltStake = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 6:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field SignerPubKey", wireType)
+				}
+				var byteLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					byteLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if byteLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + byteLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.SignerPubKey = append(x.SignerPubKey[:0], dAtA[iNdEx:postIndex]...)
+				if x.SignerPubKey == nil {
+					x.SignerPubKey = []byte{}
+				}
+				iNdEx = postIndex
+			case 7:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
+				}
+				x.Nonce = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.Nonce |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgApproveValidatorResponse protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgApproveValidatorResponse = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgApproveValidatorResponse")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgApproveValidatorResponse)(nil)
+
+type fastReflection_MsgApproveValidatorResponse MsgApproveValidatorResponse
+
+func (x *MsgApproveValidatorResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgApproveValidatorResponse)(x)
+}
+
+func (x *MsgApproveValidatorResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgApproveValidatorResponse_messageType fastReflection_MsgApproveValidatorResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgApproveValidatorResponse_messageType{}
+
+type fastReflection_MsgApproveValidatorResponse_messageType struct{}
+
+func (x fastReflection_MsgApproveValidatorResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgApproveValidatorResponse)(nil)
+}
+func (x fastReflection_MsgApproveValidatorResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgApproveValidatorResponse)
+}
+func (x fastReflection_MsgApproveValidatorResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgApproveValidatorResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgApproveValidatorResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgApproveValidatorResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgApproveValidatorResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgApproveValidatorResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgApproveValidatorResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgApproveValidatorResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgApproveValidatorResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgApproveValidatorResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgApproveValidatorResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgApproveValidatorResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidatorResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgApproveValidatorResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidatorResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidatorResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgApproveValidatorResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgApproveValidatorResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgApproveValidatorResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgApproveValidatorResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgApproveValidatorResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgApproveValidatorResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgApproveValidatorResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgApproveValidatorResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgApproveValidatorResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgApproveValidatorResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgApproveValidatorResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgApproveValidatorResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgApproveValidatorResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgApproveValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
 	md_MsgValidatorJoin                  protoreflect.MessageDescriptor
 	fd_MsgValidatorJoin_from             protoreflect.FieldDescriptor
 	fd_MsgValidatorJoin_val_id           protoreflect.FieldDescriptor
 	fd_MsgValidatorJoin_activation_epoch protoreflect.FieldDescriptor
 	fd_MsgValidatorJoin_amount           protoreflect.FieldDescriptor
 	fd_MsgValidatorJoin_signer_pub_key   protoreflect.FieldDescriptor
-	fd_MsgValidatorJoin_tx_hash          protoreflect.FieldDescriptor
-	fd_MsgValidatorJoin_log_index        protoreflect.FieldDescriptor
-	fd_MsgValidatorJoin_block_number     protoreflect.FieldDescriptor
 	fd_MsgValidatorJoin_nonce            protoreflect.FieldDescriptor
 )
 
@@ -37,9 +1148,6 @@ func init() {
 	fd_MsgValidatorJoin_activation_epoch = md_MsgValidatorJoin.Fields().ByName("activation_epoch")
 	fd_MsgValidatorJoin_amount = md_MsgValidatorJoin.Fields().ByName("amount")
 	fd_MsgValidatorJoin_signer_pub_key = md_MsgValidatorJoin.Fields().ByName("signer_pub_key")
-	fd_MsgValidatorJoin_tx_hash = md_MsgValidatorJoin.Fields().ByName("tx_hash")
-	fd_MsgValidatorJoin_log_index = md_MsgValidatorJoin.Fields().ByName("log_index")
-	fd_MsgValidatorJoin_block_number = md_MsgValidatorJoin.Fields().ByName("block_number")
 	fd_MsgValidatorJoin_nonce = md_MsgValidatorJoin.Fields().ByName("nonce")
 }
 
@@ -52,7 +1160,7 @@ func (x *MsgValidatorJoin) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgValidatorJoin) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[0]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -138,24 +1246,6 @@ func (x *fastReflection_MsgValidatorJoin) Range(f func(protoreflect.FieldDescrip
 			return
 		}
 	}
-	if len(x.TxHash) != 0 {
-		value := protoreflect.ValueOfBytes(x.TxHash)
-		if !f(fd_MsgValidatorJoin_tx_hash, value) {
-			return
-		}
-	}
-	if x.LogIndex != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.LogIndex)
-		if !f(fd_MsgValidatorJoin_log_index, value) {
-			return
-		}
-	}
-	if x.BlockNumber != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.BlockNumber)
-		if !f(fd_MsgValidatorJoin_block_number, value) {
-			return
-		}
-	}
 	if x.Nonce != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.Nonce)
 		if !f(fd_MsgValidatorJoin_nonce, value) {
@@ -187,12 +1277,6 @@ func (x *fastReflection_MsgValidatorJoin) Has(fd protoreflect.FieldDescriptor) b
 		return x.Amount != ""
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		return len(x.SignerPubKey) != 0
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		return len(x.TxHash) != 0
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		return x.LogIndex != uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		return x.BlockNumber != uint64(0)
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		return x.Nonce != uint64(0)
 	default:
@@ -221,12 +1305,6 @@ func (x *fastReflection_MsgValidatorJoin) Clear(fd protoreflect.FieldDescriptor)
 		x.Amount = ""
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		x.SignerPubKey = nil
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		x.TxHash = nil
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		x.LogIndex = uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		x.BlockNumber = uint64(0)
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		x.Nonce = uint64(0)
 	default:
@@ -260,15 +1338,6 @@ func (x *fastReflection_MsgValidatorJoin) Get(descriptor protoreflect.FieldDescr
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		value := x.SignerPubKey
 		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		value := x.TxHash
-		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		value := x.LogIndex
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		value := x.BlockNumber
-		return protoreflect.ValueOfUint64(value)
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		value := x.Nonce
 		return protoreflect.ValueOfUint64(value)
@@ -302,12 +1371,6 @@ func (x *fastReflection_MsgValidatorJoin) Set(fd protoreflect.FieldDescriptor, v
 		x.Amount = value.Interface().(string)
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		x.SignerPubKey = value.Bytes()
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		x.TxHash = value.Bytes()
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		x.LogIndex = value.Uint()
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		x.BlockNumber = value.Uint()
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		x.Nonce = value.Uint()
 	default:
@@ -340,12 +1403,6 @@ func (x *fastReflection_MsgValidatorJoin) Mutable(fd protoreflect.FieldDescripto
 		panic(fmt.Errorf("field amount of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		panic(fmt.Errorf("field signer_pub_key of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		panic(fmt.Errorf("field tx_hash of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		panic(fmt.Errorf("field log_index of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		panic(fmt.Errorf("field block_number of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		panic(fmt.Errorf("field nonce of message giltconsensusv2.stake.MsgValidatorJoin is not mutable"))
 	default:
@@ -371,12 +1428,6 @@ func (x *fastReflection_MsgValidatorJoin) NewField(fd protoreflect.FieldDescript
 		return protoreflect.ValueOfString("")
 	case "giltconsensusv2.stake.MsgValidatorJoin.signer_pub_key":
 		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgValidatorJoin.tx_hash":
-		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgValidatorJoin.log_index":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgValidatorJoin.block_number":
-		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgValidatorJoin.nonce":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
@@ -466,16 +1517,6 @@ func (x *fastReflection_MsgValidatorJoin) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.TxHash)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.LogIndex != 0 {
-			n += 1 + runtime.Sov(uint64(x.LogIndex))
-		}
-		if x.BlockNumber != 0 {
-			n += 1 + runtime.Sov(uint64(x.BlockNumber))
-		}
 		if x.Nonce != 0 {
 			n += 1 + runtime.Sov(uint64(x.Nonce))
 		}
@@ -512,23 +1553,6 @@ func (x *fastReflection_MsgValidatorJoin) ProtoMethods() *protoiface.Methods {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.Nonce))
 			i--
 			dAtA[i] = 0x48
-		}
-		if x.BlockNumber != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.BlockNumber))
-			i--
-			dAtA[i] = 0x40
-		}
-		if x.LogIndex != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.LogIndex))
-			i--
-			dAtA[i] = 0x38
-		}
-		if len(x.TxHash) > 0 {
-			i -= len(x.TxHash)
-			copy(dAtA[i:], x.TxHash)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.TxHash)))
-			i--
-			dAtA[i] = 0x32
 		}
 		if len(x.SignerPubKey) > 0 {
 			i -= len(x.SignerPubKey)
@@ -746,78 +1770,6 @@ func (x *fastReflection_MsgValidatorJoin) ProtoMethods() *protoiface.Methods {
 					x.SignerPubKey = []byte{}
 				}
 				iNdEx = postIndex
-			case 6:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.TxHash = append(x.TxHash[:0], dAtA[iNdEx:postIndex]...)
-				if x.TxHash == nil {
-					x.TxHash = []byte{}
-				}
-				iNdEx = postIndex
-			case 7:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LogIndex", wireType)
-				}
-				x.LogIndex = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.LogIndex |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 8:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BlockNumber", wireType)
-				}
-				x.BlockNumber = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.BlockNumber |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
 			case 9:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
@@ -890,7 +1842,7 @@ func (x *MsgValidatorJoinResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgValidatorJoinResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[1]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1229,14 +2181,11 @@ func (x *fastReflection_MsgValidatorJoinResponse) ProtoMethods() *protoiface.Met
 }
 
 var (
-	md_MsgStakeUpdate              protoreflect.MessageDescriptor
-	fd_MsgStakeUpdate_from         protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_val_id       protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_new_amount   protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_tx_hash      protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_log_index    protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_block_number protoreflect.FieldDescriptor
-	fd_MsgStakeUpdate_nonce        protoreflect.FieldDescriptor
+	md_MsgStakeUpdate            protoreflect.MessageDescriptor
+	fd_MsgStakeUpdate_from       protoreflect.FieldDescriptor
+	fd_MsgStakeUpdate_val_id     protoreflect.FieldDescriptor
+	fd_MsgStakeUpdate_new_amount protoreflect.FieldDescriptor
+	fd_MsgStakeUpdate_nonce      protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -1245,9 +2194,6 @@ func init() {
 	fd_MsgStakeUpdate_from = md_MsgStakeUpdate.Fields().ByName("from")
 	fd_MsgStakeUpdate_val_id = md_MsgStakeUpdate.Fields().ByName("val_id")
 	fd_MsgStakeUpdate_new_amount = md_MsgStakeUpdate.Fields().ByName("new_amount")
-	fd_MsgStakeUpdate_tx_hash = md_MsgStakeUpdate.Fields().ByName("tx_hash")
-	fd_MsgStakeUpdate_log_index = md_MsgStakeUpdate.Fields().ByName("log_index")
-	fd_MsgStakeUpdate_block_number = md_MsgStakeUpdate.Fields().ByName("block_number")
 	fd_MsgStakeUpdate_nonce = md_MsgStakeUpdate.Fields().ByName("nonce")
 }
 
@@ -1260,7 +2206,7 @@ func (x *MsgStakeUpdate) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgStakeUpdate) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[2]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1334,24 +2280,6 @@ func (x *fastReflection_MsgStakeUpdate) Range(f func(protoreflect.FieldDescripto
 			return
 		}
 	}
-	if len(x.TxHash) != 0 {
-		value := protoreflect.ValueOfBytes(x.TxHash)
-		if !f(fd_MsgStakeUpdate_tx_hash, value) {
-			return
-		}
-	}
-	if x.LogIndex != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.LogIndex)
-		if !f(fd_MsgStakeUpdate_log_index, value) {
-			return
-		}
-	}
-	if x.BlockNumber != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.BlockNumber)
-		if !f(fd_MsgStakeUpdate_block_number, value) {
-			return
-		}
-	}
 	if x.Nonce != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.Nonce)
 		if !f(fd_MsgStakeUpdate_nonce, value) {
@@ -1379,12 +2307,6 @@ func (x *fastReflection_MsgStakeUpdate) Has(fd protoreflect.FieldDescriptor) boo
 		return x.ValId != uint64(0)
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		return x.NewAmount != ""
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		return len(x.TxHash) != 0
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		return x.LogIndex != uint64(0)
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		return x.BlockNumber != uint64(0)
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		return x.Nonce != uint64(0)
 	default:
@@ -1409,12 +2331,6 @@ func (x *fastReflection_MsgStakeUpdate) Clear(fd protoreflect.FieldDescriptor) {
 		x.ValId = uint64(0)
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		x.NewAmount = ""
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		x.TxHash = nil
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		x.LogIndex = uint64(0)
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		x.BlockNumber = uint64(0)
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		x.Nonce = uint64(0)
 	default:
@@ -1442,15 +2358,6 @@ func (x *fastReflection_MsgStakeUpdate) Get(descriptor protoreflect.FieldDescrip
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		value := x.NewAmount
 		return protoreflect.ValueOfString(value)
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		value := x.TxHash
-		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		value := x.LogIndex
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		value := x.BlockNumber
-		return protoreflect.ValueOfUint64(value)
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		value := x.Nonce
 		return protoreflect.ValueOfUint64(value)
@@ -1480,12 +2387,6 @@ func (x *fastReflection_MsgStakeUpdate) Set(fd protoreflect.FieldDescriptor, val
 		x.ValId = value.Uint()
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		x.NewAmount = value.Interface().(string)
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		x.TxHash = value.Bytes()
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		x.LogIndex = value.Uint()
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		x.BlockNumber = value.Uint()
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		x.Nonce = value.Uint()
 	default:
@@ -1514,12 +2415,6 @@ func (x *fastReflection_MsgStakeUpdate) Mutable(fd protoreflect.FieldDescriptor)
 		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		panic(fmt.Errorf("field new_amount of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		panic(fmt.Errorf("field tx_hash of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		panic(fmt.Errorf("field log_index of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		panic(fmt.Errorf("field block_number of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		panic(fmt.Errorf("field nonce of message giltconsensusv2.stake.MsgStakeUpdate is not mutable"))
 	default:
@@ -1541,12 +2436,6 @@ func (x *fastReflection_MsgStakeUpdate) NewField(fd protoreflect.FieldDescriptor
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgStakeUpdate.new_amount":
 		return protoreflect.ValueOfString("")
-	case "giltconsensusv2.stake.MsgStakeUpdate.tx_hash":
-		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgStakeUpdate.log_index":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgStakeUpdate.block_number":
-		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgStakeUpdate.nonce":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
@@ -1629,16 +2518,6 @@ func (x *fastReflection_MsgStakeUpdate) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.TxHash)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.LogIndex != 0 {
-			n += 1 + runtime.Sov(uint64(x.LogIndex))
-		}
-		if x.BlockNumber != 0 {
-			n += 1 + runtime.Sov(uint64(x.BlockNumber))
-		}
 		if x.Nonce != 0 {
 			n += 1 + runtime.Sov(uint64(x.Nonce))
 		}
@@ -1675,23 +2554,6 @@ func (x *fastReflection_MsgStakeUpdate) ProtoMethods() *protoiface.Methods {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.Nonce))
 			i--
 			dAtA[i] = 0x38
-		}
-		if x.BlockNumber != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.BlockNumber))
-			i--
-			dAtA[i] = 0x30
-		}
-		if x.LogIndex != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.LogIndex))
-			i--
-			dAtA[i] = 0x28
-		}
-		if len(x.TxHash) > 0 {
-			i -= len(x.TxHash)
-			copy(dAtA[i:], x.TxHash)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.TxHash)))
-			i--
-			dAtA[i] = 0x22
 		}
 		if len(x.NewAmount) > 0 {
 			i -= len(x.NewAmount)
@@ -1844,78 +2706,6 @@ func (x *fastReflection_MsgStakeUpdate) ProtoMethods() *protoiface.Methods {
 				}
 				x.NewAmount = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
-			case 4:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.TxHash = append(x.TxHash[:0], dAtA[iNdEx:postIndex]...)
-				if x.TxHash == nil {
-					x.TxHash = []byte{}
-				}
-				iNdEx = postIndex
-			case 5:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LogIndex", wireType)
-				}
-				x.LogIndex = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.LogIndex |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 6:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BlockNumber", wireType)
-				}
-				x.BlockNumber = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.BlockNumber |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
 			case 7:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
@@ -1988,7 +2778,7 @@ func (x *MsgStakeUpdateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgStakeUpdateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[3]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2331,9 +3121,6 @@ var (
 	fd_MsgSignerUpdate_from               protoreflect.FieldDescriptor
 	fd_MsgSignerUpdate_val_id             protoreflect.FieldDescriptor
 	fd_MsgSignerUpdate_new_signer_pub_key protoreflect.FieldDescriptor
-	fd_MsgSignerUpdate_tx_hash            protoreflect.FieldDescriptor
-	fd_MsgSignerUpdate_log_index          protoreflect.FieldDescriptor
-	fd_MsgSignerUpdate_block_number       protoreflect.FieldDescriptor
 	fd_MsgSignerUpdate_nonce              protoreflect.FieldDescriptor
 )
 
@@ -2343,9 +3130,6 @@ func init() {
 	fd_MsgSignerUpdate_from = md_MsgSignerUpdate.Fields().ByName("from")
 	fd_MsgSignerUpdate_val_id = md_MsgSignerUpdate.Fields().ByName("val_id")
 	fd_MsgSignerUpdate_new_signer_pub_key = md_MsgSignerUpdate.Fields().ByName("new_signer_pub_key")
-	fd_MsgSignerUpdate_tx_hash = md_MsgSignerUpdate.Fields().ByName("tx_hash")
-	fd_MsgSignerUpdate_log_index = md_MsgSignerUpdate.Fields().ByName("log_index")
-	fd_MsgSignerUpdate_block_number = md_MsgSignerUpdate.Fields().ByName("block_number")
 	fd_MsgSignerUpdate_nonce = md_MsgSignerUpdate.Fields().ByName("nonce")
 }
 
@@ -2358,7 +3142,7 @@ func (x *MsgSignerUpdate) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSignerUpdate) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[4]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2432,24 +3216,6 @@ func (x *fastReflection_MsgSignerUpdate) Range(f func(protoreflect.FieldDescript
 			return
 		}
 	}
-	if len(x.TxHash) != 0 {
-		value := protoreflect.ValueOfBytes(x.TxHash)
-		if !f(fd_MsgSignerUpdate_tx_hash, value) {
-			return
-		}
-	}
-	if x.LogIndex != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.LogIndex)
-		if !f(fd_MsgSignerUpdate_log_index, value) {
-			return
-		}
-	}
-	if x.BlockNumber != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.BlockNumber)
-		if !f(fd_MsgSignerUpdate_block_number, value) {
-			return
-		}
-	}
 	if x.Nonce != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.Nonce)
 		if !f(fd_MsgSignerUpdate_nonce, value) {
@@ -2477,12 +3243,6 @@ func (x *fastReflection_MsgSignerUpdate) Has(fd protoreflect.FieldDescriptor) bo
 		return x.ValId != uint64(0)
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		return len(x.NewSignerPubKey) != 0
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		return len(x.TxHash) != 0
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		return x.LogIndex != uint64(0)
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		return x.BlockNumber != uint64(0)
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		return x.Nonce != uint64(0)
 	default:
@@ -2507,12 +3267,6 @@ func (x *fastReflection_MsgSignerUpdate) Clear(fd protoreflect.FieldDescriptor) 
 		x.ValId = uint64(0)
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		x.NewSignerPubKey = nil
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		x.TxHash = nil
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		x.LogIndex = uint64(0)
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		x.BlockNumber = uint64(0)
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		x.Nonce = uint64(0)
 	default:
@@ -2540,15 +3294,6 @@ func (x *fastReflection_MsgSignerUpdate) Get(descriptor protoreflect.FieldDescri
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		value := x.NewSignerPubKey
 		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		value := x.TxHash
-		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		value := x.LogIndex
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		value := x.BlockNumber
-		return protoreflect.ValueOfUint64(value)
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		value := x.Nonce
 		return protoreflect.ValueOfUint64(value)
@@ -2578,12 +3323,6 @@ func (x *fastReflection_MsgSignerUpdate) Set(fd protoreflect.FieldDescriptor, va
 		x.ValId = value.Uint()
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		x.NewSignerPubKey = value.Bytes()
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		x.TxHash = value.Bytes()
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		x.LogIndex = value.Uint()
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		x.BlockNumber = value.Uint()
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		x.Nonce = value.Uint()
 	default:
@@ -2612,12 +3351,6 @@ func (x *fastReflection_MsgSignerUpdate) Mutable(fd protoreflect.FieldDescriptor
 		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		panic(fmt.Errorf("field new_signer_pub_key of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		panic(fmt.Errorf("field tx_hash of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		panic(fmt.Errorf("field log_index of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		panic(fmt.Errorf("field block_number of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		panic(fmt.Errorf("field nonce of message giltconsensusv2.stake.MsgSignerUpdate is not mutable"))
 	default:
@@ -2639,12 +3372,6 @@ func (x *fastReflection_MsgSignerUpdate) NewField(fd protoreflect.FieldDescripto
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgSignerUpdate.new_signer_pub_key":
 		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgSignerUpdate.tx_hash":
-		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgSignerUpdate.log_index":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgSignerUpdate.block_number":
-		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgSignerUpdate.nonce":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
@@ -2727,16 +3454,6 @@ func (x *fastReflection_MsgSignerUpdate) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.TxHash)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.LogIndex != 0 {
-			n += 1 + runtime.Sov(uint64(x.LogIndex))
-		}
-		if x.BlockNumber != 0 {
-			n += 1 + runtime.Sov(uint64(x.BlockNumber))
-		}
 		if x.Nonce != 0 {
 			n += 1 + runtime.Sov(uint64(x.Nonce))
 		}
@@ -2773,23 +3490,6 @@ func (x *fastReflection_MsgSignerUpdate) ProtoMethods() *protoiface.Methods {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.Nonce))
 			i--
 			dAtA[i] = 0x38
-		}
-		if x.BlockNumber != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.BlockNumber))
-			i--
-			dAtA[i] = 0x30
-		}
-		if x.LogIndex != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.LogIndex))
-			i--
-			dAtA[i] = 0x28
-		}
-		if len(x.TxHash) > 0 {
-			i -= len(x.TxHash)
-			copy(dAtA[i:], x.TxHash)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.TxHash)))
-			i--
-			dAtA[i] = 0x22
 		}
 		if len(x.NewSignerPubKey) > 0 {
 			i -= len(x.NewSignerPubKey)
@@ -2944,78 +3644,6 @@ func (x *fastReflection_MsgSignerUpdate) ProtoMethods() *protoiface.Methods {
 					x.NewSignerPubKey = []byte{}
 				}
 				iNdEx = postIndex
-			case 4:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.TxHash = append(x.TxHash[:0], dAtA[iNdEx:postIndex]...)
-				if x.TxHash == nil {
-					x.TxHash = []byte{}
-				}
-				iNdEx = postIndex
-			case 5:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LogIndex", wireType)
-				}
-				x.LogIndex = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.LogIndex |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 6:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BlockNumber", wireType)
-				}
-				x.BlockNumber = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.BlockNumber |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
 			case 7:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
@@ -3088,7 +3716,7 @@ func (x *MsgSignerUpdateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSignerUpdateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[5]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3427,14 +4055,10 @@ func (x *fastReflection_MsgSignerUpdateResponse) ProtoMethods() *protoiface.Meth
 }
 
 var (
-	md_MsgValidatorExit                    protoreflect.MessageDescriptor
-	fd_MsgValidatorExit_from               protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_val_id             protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_deactivation_epoch protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_tx_hash            protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_log_index          protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_block_number       protoreflect.FieldDescriptor
-	fd_MsgValidatorExit_nonce              protoreflect.FieldDescriptor
+	md_MsgValidatorExit        protoreflect.MessageDescriptor
+	fd_MsgValidatorExit_from   protoreflect.FieldDescriptor
+	fd_MsgValidatorExit_val_id protoreflect.FieldDescriptor
+	fd_MsgValidatorExit_nonce  protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -3442,10 +4066,6 @@ func init() {
 	md_MsgValidatorExit = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgValidatorExit")
 	fd_MsgValidatorExit_from = md_MsgValidatorExit.Fields().ByName("from")
 	fd_MsgValidatorExit_val_id = md_MsgValidatorExit.Fields().ByName("val_id")
-	fd_MsgValidatorExit_deactivation_epoch = md_MsgValidatorExit.Fields().ByName("deactivation_epoch")
-	fd_MsgValidatorExit_tx_hash = md_MsgValidatorExit.Fields().ByName("tx_hash")
-	fd_MsgValidatorExit_log_index = md_MsgValidatorExit.Fields().ByName("log_index")
-	fd_MsgValidatorExit_block_number = md_MsgValidatorExit.Fields().ByName("block_number")
 	fd_MsgValidatorExit_nonce = md_MsgValidatorExit.Fields().ByName("nonce")
 }
 
@@ -3458,7 +4078,7 @@ func (x *MsgValidatorExit) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgValidatorExit) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[6]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3526,30 +4146,6 @@ func (x *fastReflection_MsgValidatorExit) Range(f func(protoreflect.FieldDescrip
 			return
 		}
 	}
-	if x.DeactivationEpoch != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.DeactivationEpoch)
-		if !f(fd_MsgValidatorExit_deactivation_epoch, value) {
-			return
-		}
-	}
-	if len(x.TxHash) != 0 {
-		value := protoreflect.ValueOfBytes(x.TxHash)
-		if !f(fd_MsgValidatorExit_tx_hash, value) {
-			return
-		}
-	}
-	if x.LogIndex != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.LogIndex)
-		if !f(fd_MsgValidatorExit_log_index, value) {
-			return
-		}
-	}
-	if x.BlockNumber != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.BlockNumber)
-		if !f(fd_MsgValidatorExit_block_number, value) {
-			return
-		}
-	}
 	if x.Nonce != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.Nonce)
 		if !f(fd_MsgValidatorExit_nonce, value) {
@@ -3575,14 +4171,6 @@ func (x *fastReflection_MsgValidatorExit) Has(fd protoreflect.FieldDescriptor) b
 		return x.From != ""
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
 		return x.ValId != uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		return x.DeactivationEpoch != uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		return len(x.TxHash) != 0
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		return x.LogIndex != uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
-		return x.BlockNumber != uint64(0)
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		return x.Nonce != uint64(0)
 	default:
@@ -3605,14 +4193,6 @@ func (x *fastReflection_MsgValidatorExit) Clear(fd protoreflect.FieldDescriptor)
 		x.From = ""
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
 		x.ValId = uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		x.DeactivationEpoch = uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		x.TxHash = nil
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		x.LogIndex = uint64(0)
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
-		x.BlockNumber = uint64(0)
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		x.Nonce = uint64(0)
 	default:
@@ -3636,18 +4216,6 @@ func (x *fastReflection_MsgValidatorExit) Get(descriptor protoreflect.FieldDescr
 		return protoreflect.ValueOfString(value)
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
 		value := x.ValId
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		value := x.DeactivationEpoch
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		value := x.TxHash
-		return protoreflect.ValueOfBytes(value)
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		value := x.LogIndex
-		return protoreflect.ValueOfUint64(value)
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
-		value := x.BlockNumber
 		return protoreflect.ValueOfUint64(value)
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		value := x.Nonce
@@ -3676,14 +4244,6 @@ func (x *fastReflection_MsgValidatorExit) Set(fd protoreflect.FieldDescriptor, v
 		x.From = value.Interface().(string)
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
 		x.ValId = value.Uint()
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		x.DeactivationEpoch = value.Uint()
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		x.TxHash = value.Bytes()
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		x.LogIndex = value.Uint()
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
-		x.BlockNumber = value.Uint()
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		x.Nonce = value.Uint()
 	default:
@@ -3710,14 +4270,6 @@ func (x *fastReflection_MsgValidatorExit) Mutable(fd protoreflect.FieldDescripto
 		panic(fmt.Errorf("field from of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
 		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		panic(fmt.Errorf("field deactivation_epoch of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		panic(fmt.Errorf("field tx_hash of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		panic(fmt.Errorf("field log_index of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
-		panic(fmt.Errorf("field block_number of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		panic(fmt.Errorf("field nonce of message giltconsensusv2.stake.MsgValidatorExit is not mutable"))
 	default:
@@ -3736,14 +4288,6 @@ func (x *fastReflection_MsgValidatorExit) NewField(fd protoreflect.FieldDescript
 	case "giltconsensusv2.stake.MsgValidatorExit.from":
 		return protoreflect.ValueOfString("")
 	case "giltconsensusv2.stake.MsgValidatorExit.val_id":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgValidatorExit.deactivation_epoch":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgValidatorExit.tx_hash":
-		return protoreflect.ValueOfBytes(nil)
-	case "giltconsensusv2.stake.MsgValidatorExit.log_index":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "giltconsensusv2.stake.MsgValidatorExit.block_number":
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "giltconsensusv2.stake.MsgValidatorExit.nonce":
 		return protoreflect.ValueOfUint64(uint64(0))
@@ -3823,19 +4367,6 @@ func (x *fastReflection_MsgValidatorExit) ProtoMethods() *protoiface.Methods {
 		if x.ValId != 0 {
 			n += 1 + runtime.Sov(uint64(x.ValId))
 		}
-		if x.DeactivationEpoch != 0 {
-			n += 1 + runtime.Sov(uint64(x.DeactivationEpoch))
-		}
-		l = len(x.TxHash)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.LogIndex != 0 {
-			n += 1 + runtime.Sov(uint64(x.LogIndex))
-		}
-		if x.BlockNumber != 0 {
-			n += 1 + runtime.Sov(uint64(x.BlockNumber))
-		}
 		if x.Nonce != 0 {
 			n += 1 + runtime.Sov(uint64(x.Nonce))
 		}
@@ -3872,28 +4403,6 @@ func (x *fastReflection_MsgValidatorExit) ProtoMethods() *protoiface.Methods {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.Nonce))
 			i--
 			dAtA[i] = 0x38
-		}
-		if x.BlockNumber != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.BlockNumber))
-			i--
-			dAtA[i] = 0x30
-		}
-		if x.LogIndex != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.LogIndex))
-			i--
-			dAtA[i] = 0x28
-		}
-		if len(x.TxHash) > 0 {
-			i -= len(x.TxHash)
-			copy(dAtA[i:], x.TxHash)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.TxHash)))
-			i--
-			dAtA[i] = 0x22
-		}
-		if x.DeactivationEpoch != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.DeactivationEpoch))
-			i--
-			dAtA[i] = 0x18
 		}
 		if x.ValId != 0 {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.ValId))
@@ -4007,97 +4516,6 @@ func (x *fastReflection_MsgValidatorExit) ProtoMethods() *protoiface.Methods {
 						break
 					}
 				}
-			case 3:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DeactivationEpoch", wireType)
-				}
-				x.DeactivationEpoch = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.DeactivationEpoch |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 4:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-				}
-				var byteLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					byteLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if byteLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + byteLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.TxHash = append(x.TxHash[:0], dAtA[iNdEx:postIndex]...)
-				if x.TxHash == nil {
-					x.TxHash = []byte{}
-				}
-				iNdEx = postIndex
-			case 5:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LogIndex", wireType)
-				}
-				x.LogIndex = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.LogIndex |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 6:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BlockNumber", wireType)
-				}
-				x.BlockNumber = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.BlockNumber |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
 			case 7:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
@@ -4170,7 +4588,7 @@ func (x *MsgValidatorExitResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgValidatorExitResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[7]
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4508,6 +4926,2606 @@ func (x *fastReflection_MsgValidatorExitResponse) ProtoMethods() *protoiface.Met
 	}
 }
 
+var (
+	md_MsgWithdrawValidatorStake        protoreflect.MessageDescriptor
+	fd_MsgWithdrawValidatorStake_from   protoreflect.FieldDescriptor
+	fd_MsgWithdrawValidatorStake_val_id protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgWithdrawValidatorStake = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgWithdrawValidatorStake")
+	fd_MsgWithdrawValidatorStake_from = md_MsgWithdrawValidatorStake.Fields().ByName("from")
+	fd_MsgWithdrawValidatorStake_val_id = md_MsgWithdrawValidatorStake.Fields().ByName("val_id")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgWithdrawValidatorStake)(nil)
+
+type fastReflection_MsgWithdrawValidatorStake MsgWithdrawValidatorStake
+
+func (x *MsgWithdrawValidatorStake) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgWithdrawValidatorStake)(x)
+}
+
+func (x *MsgWithdrawValidatorStake) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgWithdrawValidatorStake_messageType fastReflection_MsgWithdrawValidatorStake_messageType
+var _ protoreflect.MessageType = fastReflection_MsgWithdrawValidatorStake_messageType{}
+
+type fastReflection_MsgWithdrawValidatorStake_messageType struct{}
+
+func (x fastReflection_MsgWithdrawValidatorStake_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgWithdrawValidatorStake)(nil)
+}
+func (x fastReflection_MsgWithdrawValidatorStake_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgWithdrawValidatorStake)
+}
+func (x fastReflection_MsgWithdrawValidatorStake_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgWithdrawValidatorStake
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgWithdrawValidatorStake) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgWithdrawValidatorStake
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgWithdrawValidatorStake) Type() protoreflect.MessageType {
+	return _fastReflection_MsgWithdrawValidatorStake_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgWithdrawValidatorStake) New() protoreflect.Message {
+	return new(fastReflection_MsgWithdrawValidatorStake)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgWithdrawValidatorStake) Interface() protoreflect.ProtoMessage {
+	return (*MsgWithdrawValidatorStake)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgWithdrawValidatorStake) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.From != "" {
+		value := protoreflect.ValueOfString(x.From)
+		if !f(fd_MsgWithdrawValidatorStake_from, value) {
+			return
+		}
+	}
+	if x.ValId != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.ValId)
+		if !f(fd_MsgWithdrawValidatorStake_val_id, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgWithdrawValidatorStake) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		return x.From != ""
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		return x.ValId != uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStake) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		x.From = ""
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		x.ValId = uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgWithdrawValidatorStake) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		value := x.From
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		value := x.ValId
+		return protoreflect.ValueOfUint64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStake) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		x.From = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		x.ValId = value.Uint()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStake) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		panic(fmt.Errorf("field from of message giltconsensusv2.stake.MsgWithdrawValidatorStake is not mutable"))
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgWithdrawValidatorStake is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgWithdrawValidatorStake) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.from":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgWithdrawValidatorStake.val_id":
+		return protoreflect.ValueOfUint64(uint64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStake"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStake does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgWithdrawValidatorStake) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgWithdrawValidatorStake", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgWithdrawValidatorStake) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStake) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgWithdrawValidatorStake) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgWithdrawValidatorStake) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStake)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.From)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.ValId != 0 {
+			n += 1 + runtime.Sov(uint64(x.ValId))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStake)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.ValId != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.ValId))
+			i--
+			dAtA[i] = 0x10
+		}
+		if len(x.From) > 0 {
+			i -= len(x.From)
+			copy(dAtA[i:], x.From)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.From)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStake)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgWithdrawValidatorStake: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgWithdrawValidatorStake: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.From = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValId", wireType)
+				}
+				x.ValId = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.ValId |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgWithdrawValidatorStakeResponse protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgWithdrawValidatorStakeResponse = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgWithdrawValidatorStakeResponse")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgWithdrawValidatorStakeResponse)(nil)
+
+type fastReflection_MsgWithdrawValidatorStakeResponse MsgWithdrawValidatorStakeResponse
+
+func (x *MsgWithdrawValidatorStakeResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgWithdrawValidatorStakeResponse)(x)
+}
+
+func (x *MsgWithdrawValidatorStakeResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgWithdrawValidatorStakeResponse_messageType fastReflection_MsgWithdrawValidatorStakeResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgWithdrawValidatorStakeResponse_messageType{}
+
+type fastReflection_MsgWithdrawValidatorStakeResponse_messageType struct{}
+
+func (x fastReflection_MsgWithdrawValidatorStakeResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgWithdrawValidatorStakeResponse)(nil)
+}
+func (x fastReflection_MsgWithdrawValidatorStakeResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgWithdrawValidatorStakeResponse)
+}
+func (x fastReflection_MsgWithdrawValidatorStakeResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgWithdrawValidatorStakeResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgWithdrawValidatorStakeResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgWithdrawValidatorStakeResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgWithdrawValidatorStakeResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgWithdrawValidatorStakeResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgWithdrawValidatorStakeResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStakeResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStakeResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgWithdrawValidatorStakeResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgWithdrawValidatorStakeResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgWithdrawValidatorStakeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgDelegateGold        protoreflect.MessageDescriptor
+	fd_MsgDelegateGold_from   protoreflect.FieldDescriptor
+	fd_MsgDelegateGold_val_id protoreflect.FieldDescriptor
+	fd_MsgDelegateGold_amount protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgDelegateGold = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgDelegateGold")
+	fd_MsgDelegateGold_from = md_MsgDelegateGold.Fields().ByName("from")
+	fd_MsgDelegateGold_val_id = md_MsgDelegateGold.Fields().ByName("val_id")
+	fd_MsgDelegateGold_amount = md_MsgDelegateGold.Fields().ByName("amount")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgDelegateGold)(nil)
+
+type fastReflection_MsgDelegateGold MsgDelegateGold
+
+func (x *MsgDelegateGold) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgDelegateGold)(x)
+}
+
+func (x *MsgDelegateGold) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgDelegateGold_messageType fastReflection_MsgDelegateGold_messageType
+var _ protoreflect.MessageType = fastReflection_MsgDelegateGold_messageType{}
+
+type fastReflection_MsgDelegateGold_messageType struct{}
+
+func (x fastReflection_MsgDelegateGold_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgDelegateGold)(nil)
+}
+func (x fastReflection_MsgDelegateGold_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgDelegateGold)
+}
+func (x fastReflection_MsgDelegateGold_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgDelegateGold
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgDelegateGold) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgDelegateGold
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgDelegateGold) Type() protoreflect.MessageType {
+	return _fastReflection_MsgDelegateGold_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgDelegateGold) New() protoreflect.Message {
+	return new(fastReflection_MsgDelegateGold)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgDelegateGold) Interface() protoreflect.ProtoMessage {
+	return (*MsgDelegateGold)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgDelegateGold) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.From != "" {
+		value := protoreflect.ValueOfString(x.From)
+		if !f(fd_MsgDelegateGold_from, value) {
+			return
+		}
+	}
+	if x.ValId != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.ValId)
+		if !f(fd_MsgDelegateGold_val_id, value) {
+			return
+		}
+	}
+	if x.Amount != "" {
+		value := protoreflect.ValueOfString(x.Amount)
+		if !f(fd_MsgDelegateGold_amount, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgDelegateGold) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		return x.From != ""
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		return x.ValId != uint64(0)
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		return x.Amount != ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGold) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		x.From = ""
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		x.ValId = uint64(0)
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		x.Amount = ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgDelegateGold) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		value := x.From
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		value := x.ValId
+		return protoreflect.ValueOfUint64(value)
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		value := x.Amount
+		return protoreflect.ValueOfString(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGold) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		x.From = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		x.ValId = value.Uint()
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		x.Amount = value.Interface().(string)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGold) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		panic(fmt.Errorf("field from of message giltconsensusv2.stake.MsgDelegateGold is not mutable"))
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgDelegateGold is not mutable"))
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		panic(fmt.Errorf("field amount of message giltconsensusv2.stake.MsgDelegateGold is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgDelegateGold) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgDelegateGold.from":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgDelegateGold.val_id":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "giltconsensusv2.stake.MsgDelegateGold.amount":
+		return protoreflect.ValueOfString("")
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgDelegateGold) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgDelegateGold", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgDelegateGold) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGold) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgDelegateGold) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgDelegateGold) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgDelegateGold)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.From)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.ValId != 0 {
+			n += 1 + runtime.Sov(uint64(x.ValId))
+		}
+		l = len(x.Amount)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgDelegateGold)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.Amount) > 0 {
+			i -= len(x.Amount)
+			copy(dAtA[i:], x.Amount)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Amount)))
+			i--
+			dAtA[i] = 0x1a
+		}
+		if x.ValId != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.ValId))
+			i--
+			dAtA[i] = 0x10
+		}
+		if len(x.From) > 0 {
+			i -= len(x.From)
+			copy(dAtA[i:], x.From)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.From)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgDelegateGold)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgDelegateGold: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgDelegateGold: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.From = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValId", wireType)
+				}
+				x.ValId = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.ValId |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Amount = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgDelegateGoldResponse protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgDelegateGoldResponse = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgDelegateGoldResponse")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgDelegateGoldResponse)(nil)
+
+type fastReflection_MsgDelegateGoldResponse MsgDelegateGoldResponse
+
+func (x *MsgDelegateGoldResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgDelegateGoldResponse)(x)
+}
+
+func (x *MsgDelegateGoldResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgDelegateGoldResponse_messageType fastReflection_MsgDelegateGoldResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgDelegateGoldResponse_messageType{}
+
+type fastReflection_MsgDelegateGoldResponse_messageType struct{}
+
+func (x fastReflection_MsgDelegateGoldResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgDelegateGoldResponse)(nil)
+}
+func (x fastReflection_MsgDelegateGoldResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgDelegateGoldResponse)
+}
+func (x fastReflection_MsgDelegateGoldResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgDelegateGoldResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgDelegateGoldResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgDelegateGoldResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgDelegateGoldResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgDelegateGoldResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgDelegateGoldResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgDelegateGoldResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgDelegateGoldResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgDelegateGoldResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgDelegateGoldResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgDelegateGoldResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGoldResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgDelegateGoldResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGoldResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGoldResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgDelegateGoldResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgDelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgDelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgDelegateGoldResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgDelegateGoldResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgDelegateGoldResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgDelegateGoldResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgDelegateGoldResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgDelegateGoldResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgDelegateGoldResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgDelegateGoldResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgDelegateGoldResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgDelegateGoldResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgDelegateGoldResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgUndelegateGold        protoreflect.MessageDescriptor
+	fd_MsgUndelegateGold_from   protoreflect.FieldDescriptor
+	fd_MsgUndelegateGold_val_id protoreflect.FieldDescriptor
+	fd_MsgUndelegateGold_amount protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgUndelegateGold = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgUndelegateGold")
+	fd_MsgUndelegateGold_from = md_MsgUndelegateGold.Fields().ByName("from")
+	fd_MsgUndelegateGold_val_id = md_MsgUndelegateGold.Fields().ByName("val_id")
+	fd_MsgUndelegateGold_amount = md_MsgUndelegateGold.Fields().ByName("amount")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgUndelegateGold)(nil)
+
+type fastReflection_MsgUndelegateGold MsgUndelegateGold
+
+func (x *MsgUndelegateGold) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgUndelegateGold)(x)
+}
+
+func (x *MsgUndelegateGold) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgUndelegateGold_messageType fastReflection_MsgUndelegateGold_messageType
+var _ protoreflect.MessageType = fastReflection_MsgUndelegateGold_messageType{}
+
+type fastReflection_MsgUndelegateGold_messageType struct{}
+
+func (x fastReflection_MsgUndelegateGold_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgUndelegateGold)(nil)
+}
+func (x fastReflection_MsgUndelegateGold_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgUndelegateGold)
+}
+func (x fastReflection_MsgUndelegateGold_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUndelegateGold
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgUndelegateGold) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUndelegateGold
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgUndelegateGold) Type() protoreflect.MessageType {
+	return _fastReflection_MsgUndelegateGold_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgUndelegateGold) New() protoreflect.Message {
+	return new(fastReflection_MsgUndelegateGold)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgUndelegateGold) Interface() protoreflect.ProtoMessage {
+	return (*MsgUndelegateGold)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgUndelegateGold) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.From != "" {
+		value := protoreflect.ValueOfString(x.From)
+		if !f(fd_MsgUndelegateGold_from, value) {
+			return
+		}
+	}
+	if x.ValId != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.ValId)
+		if !f(fd_MsgUndelegateGold_val_id, value) {
+			return
+		}
+	}
+	if x.Amount != "" {
+		value := protoreflect.ValueOfString(x.Amount)
+		if !f(fd_MsgUndelegateGold_amount, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgUndelegateGold) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		return x.From != ""
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		return x.ValId != uint64(0)
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		return x.Amount != ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGold) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		x.From = ""
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		x.ValId = uint64(0)
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		x.Amount = ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgUndelegateGold) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		value := x.From
+		return protoreflect.ValueOfString(value)
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		value := x.ValId
+		return protoreflect.ValueOfUint64(value)
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		value := x.Amount
+		return protoreflect.ValueOfString(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGold) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		x.From = value.Interface().(string)
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		x.ValId = value.Uint()
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		x.Amount = value.Interface().(string)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGold) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		panic(fmt.Errorf("field from of message giltconsensusv2.stake.MsgUndelegateGold is not mutable"))
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		panic(fmt.Errorf("field val_id of message giltconsensusv2.stake.MsgUndelegateGold is not mutable"))
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		panic(fmt.Errorf("field amount of message giltconsensusv2.stake.MsgUndelegateGold is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgUndelegateGold) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "giltconsensusv2.stake.MsgUndelegateGold.from":
+		return protoreflect.ValueOfString("")
+	case "giltconsensusv2.stake.MsgUndelegateGold.val_id":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "giltconsensusv2.stake.MsgUndelegateGold.amount":
+		return protoreflect.ValueOfString("")
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGold"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGold does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgUndelegateGold) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgUndelegateGold", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgUndelegateGold) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGold) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgUndelegateGold) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgUndelegateGold) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgUndelegateGold)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.From)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.ValId != 0 {
+			n += 1 + runtime.Sov(uint64(x.ValId))
+		}
+		l = len(x.Amount)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgUndelegateGold)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.Amount) > 0 {
+			i -= len(x.Amount)
+			copy(dAtA[i:], x.Amount)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Amount)))
+			i--
+			dAtA[i] = 0x1a
+		}
+		if x.ValId != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.ValId))
+			i--
+			dAtA[i] = 0x10
+		}
+		if len(x.From) > 0 {
+			i -= len(x.From)
+			copy(dAtA[i:], x.From)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.From)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgUndelegateGold)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUndelegateGold: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUndelegateGold: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.From = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ValId", wireType)
+				}
+				x.ValId = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.ValId |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Amount = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_MsgUndelegateGoldResponse protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_giltconsensusv2_stake_tx_proto_init()
+	md_MsgUndelegateGoldResponse = File_giltconsensusv2_stake_tx_proto.Messages().ByName("MsgUndelegateGoldResponse")
+}
+
+var _ protoreflect.Message = (*fastReflection_MsgUndelegateGoldResponse)(nil)
+
+type fastReflection_MsgUndelegateGoldResponse MsgUndelegateGoldResponse
+
+func (x *MsgUndelegateGoldResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgUndelegateGoldResponse)(x)
+}
+
+func (x *MsgUndelegateGoldResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_MsgUndelegateGoldResponse_messageType fastReflection_MsgUndelegateGoldResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgUndelegateGoldResponse_messageType{}
+
+type fastReflection_MsgUndelegateGoldResponse_messageType struct{}
+
+func (x fastReflection_MsgUndelegateGoldResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgUndelegateGoldResponse)(nil)
+}
+func (x fastReflection_MsgUndelegateGoldResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgUndelegateGoldResponse)
+}
+func (x fastReflection_MsgUndelegateGoldResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUndelegateGoldResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_MsgUndelegateGoldResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUndelegateGoldResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_MsgUndelegateGoldResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgUndelegateGoldResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_MsgUndelegateGoldResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgUndelegateGoldResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_MsgUndelegateGoldResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgUndelegateGoldResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_MsgUndelegateGoldResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_MsgUndelegateGoldResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGoldResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_MsgUndelegateGoldResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGoldResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGoldResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_MsgUndelegateGoldResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: giltconsensusv2.stake.MsgUndelegateGoldResponse"))
+		}
+		panic(fmt.Errorf("message giltconsensusv2.stake.MsgUndelegateGoldResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_MsgUndelegateGoldResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in giltconsensusv2.stake.MsgUndelegateGoldResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_MsgUndelegateGoldResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_MsgUndelegateGoldResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_MsgUndelegateGoldResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_MsgUndelegateGoldResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*MsgUndelegateGoldResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*MsgUndelegateGoldResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*MsgUndelegateGoldResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUndelegateGoldResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUndelegateGoldResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
@@ -4521,8 +7539,120 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// MsgApproveValidator defines the native Gold Chain approval gate for validator
+// admission.
+type MsgApproveValidator struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From            string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId           uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+	Operator        string `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty"`
+	ActivationEpoch uint64 `protobuf:"varint,4,opt,name=activation_epoch,json=activationEpoch,proto3" json:"activation_epoch,omitempty"`
+	MaxGiltStake    string `protobuf:"bytes,5,opt,name=max_gilt_stake,json=maxGiltStake,proto3" json:"max_gilt_stake,omitempty"`
+	SignerPubKey    []byte `protobuf:"bytes,6,opt,name=signer_pub_key,json=signerPubKey,proto3" json:"signer_pub_key,omitempty"`
+	Nonce           uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
+}
+
+func (x *MsgApproveValidator) Reset() {
+	*x = MsgApproveValidator{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgApproveValidator) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgApproveValidator) ProtoMessage() {}
+
+// Deprecated: Use MsgApproveValidator.ProtoReflect.Descriptor instead.
+func (*MsgApproveValidator) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *MsgApproveValidator) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *MsgApproveValidator) GetValId() uint64 {
+	if x != nil {
+		return x.ValId
+	}
+	return 0
+}
+
+func (x *MsgApproveValidator) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+func (x *MsgApproveValidator) GetActivationEpoch() uint64 {
+	if x != nil {
+		return x.ActivationEpoch
+	}
+	return 0
+}
+
+func (x *MsgApproveValidator) GetMaxGiltStake() string {
+	if x != nil {
+		return x.MaxGiltStake
+	}
+	return ""
+}
+
+func (x *MsgApproveValidator) GetSignerPubKey() []byte {
+	if x != nil {
+		return x.SignerPubKey
+	}
+	return nil
+}
+
+func (x *MsgApproveValidator) GetNonce() uint64 {
+	if x != nil {
+		return x.Nonce
+	}
+	return 0
+}
+
+// MsgApproveValidatorResponse defines the response for MsgApproveValidator.
+type MsgApproveValidatorResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *MsgApproveValidatorResponse) Reset() {
+	*x = MsgApproveValidatorResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgApproveValidatorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgApproveValidatorResponse) ProtoMessage() {}
+
+// Deprecated: Use MsgApproveValidatorResponse.ProtoReflect.Descriptor instead.
+func (*MsgApproveValidatorResponse) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{1}
+}
+
 // MsgValidatorJoin defines the message for a new validator joining the network.
-// This is triggered by stake events from the root chain.
+// This is a native Gold Chain transaction and must match a prior approval.
 type MsgValidatorJoin struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4533,16 +7663,13 @@ type MsgValidatorJoin struct {
 	ActivationEpoch uint64 `protobuf:"varint,3,opt,name=activation_epoch,json=activationEpoch,proto3" json:"activation_epoch,omitempty"` // Epoch when validator becomes active
 	Amount          string `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`                                           // Staked amount
 	SignerPubKey    []byte `protobuf:"bytes,5,opt,name=signer_pub_key,json=signerPubKey,proto3" json:"signer_pub_key,omitempty"`         // Public key for block signing
-	TxHash          []byte `protobuf:"bytes,6,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`                             // Root chain transaction hash
-	LogIndex        uint64 `protobuf:"varint,7,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`                      // Log index in root chain tx
-	BlockNumber     uint64 `protobuf:"varint,8,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`             // Root chain block number
 	Nonce           uint64 `protobuf:"varint,9,opt,name=nonce,proto3" json:"nonce,omitempty"`                                            // Nonce for replay protection
 }
 
 func (x *MsgValidatorJoin) Reset() {
 	*x = MsgValidatorJoin{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[0]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4556,7 +7683,7 @@ func (*MsgValidatorJoin) ProtoMessage() {}
 
 // Deprecated: Use MsgValidatorJoin.ProtoReflect.Descriptor instead.
 func (*MsgValidatorJoin) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{0}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MsgValidatorJoin) GetFrom() string {
@@ -4594,27 +7721,6 @@ func (x *MsgValidatorJoin) GetSignerPubKey() []byte {
 	return nil
 }
 
-func (x *MsgValidatorJoin) GetTxHash() []byte {
-	if x != nil {
-		return x.TxHash
-	}
-	return nil
-}
-
-func (x *MsgValidatorJoin) GetLogIndex() uint64 {
-	if x != nil {
-		return x.LogIndex
-	}
-	return 0
-}
-
-func (x *MsgValidatorJoin) GetBlockNumber() uint64 {
-	if x != nil {
-		return x.BlockNumber
-	}
-	return 0
-}
-
 func (x *MsgValidatorJoin) GetNonce() uint64 {
 	if x != nil {
 		return x.Nonce
@@ -4632,7 +7738,7 @@ type MsgValidatorJoinResponse struct {
 func (x *MsgValidatorJoinResponse) Reset() {
 	*x = MsgValidatorJoinResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[1]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4646,7 +7752,7 @@ func (*MsgValidatorJoinResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgValidatorJoinResponse.ProtoReflect.Descriptor instead.
 func (*MsgValidatorJoinResponse) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{1}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{3}
 }
 
 // MsgStakeUpdate defines the message for updating a validator's stake amount.
@@ -4655,19 +7761,16 @@ type MsgStakeUpdate struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	From        string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
-	ValId       uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
-	NewAmount   string `protobuf:"bytes,3,opt,name=new_amount,json=newAmount,proto3" json:"new_amount,omitempty"` // New stake amount
-	TxHash      []byte `protobuf:"bytes,4,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	LogIndex    uint64 `protobuf:"varint,5,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`
-	BlockNumber uint64 `protobuf:"varint,6,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
-	Nonce       uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	From      string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId     uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+	NewAmount string `protobuf:"bytes,3,opt,name=new_amount,json=newAmount,proto3" json:"new_amount,omitempty"` // New stake amount
+	Nonce     uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
 }
 
 func (x *MsgStakeUpdate) Reset() {
 	*x = MsgStakeUpdate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[2]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4681,7 +7784,7 @@ func (*MsgStakeUpdate) ProtoMessage() {}
 
 // Deprecated: Use MsgStakeUpdate.ProtoReflect.Descriptor instead.
 func (*MsgStakeUpdate) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{2}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MsgStakeUpdate) GetFrom() string {
@@ -4705,27 +7808,6 @@ func (x *MsgStakeUpdate) GetNewAmount() string {
 	return ""
 }
 
-func (x *MsgStakeUpdate) GetTxHash() []byte {
-	if x != nil {
-		return x.TxHash
-	}
-	return nil
-}
-
-func (x *MsgStakeUpdate) GetLogIndex() uint64 {
-	if x != nil {
-		return x.LogIndex
-	}
-	return 0
-}
-
-func (x *MsgStakeUpdate) GetBlockNumber() uint64 {
-	if x != nil {
-		return x.BlockNumber
-	}
-	return 0
-}
-
 func (x *MsgStakeUpdate) GetNonce() uint64 {
 	if x != nil {
 		return x.Nonce
@@ -4743,7 +7825,7 @@ type MsgStakeUpdateResponse struct {
 func (x *MsgStakeUpdateResponse) Reset() {
 	*x = MsgStakeUpdateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[3]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4757,7 +7839,7 @@ func (*MsgStakeUpdateResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgStakeUpdateResponse.ProtoReflect.Descriptor instead.
 func (*MsgStakeUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{3}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{5}
 }
 
 // MsgSignerUpdate defines the message for updating a validator's signer public
@@ -4770,16 +7852,13 @@ type MsgSignerUpdate struct {
 	From            string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
 	ValId           uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
 	NewSignerPubKey []byte `protobuf:"bytes,3,opt,name=new_signer_pub_key,json=newSignerPubKey,proto3" json:"new_signer_pub_key,omitempty"` // New public key for block signing
-	TxHash          []byte `protobuf:"bytes,4,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	LogIndex        uint64 `protobuf:"varint,5,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`
-	BlockNumber     uint64 `protobuf:"varint,6,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
 	Nonce           uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
 }
 
 func (x *MsgSignerUpdate) Reset() {
 	*x = MsgSignerUpdate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[4]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4793,7 +7872,7 @@ func (*MsgSignerUpdate) ProtoMessage() {}
 
 // Deprecated: Use MsgSignerUpdate.ProtoReflect.Descriptor instead.
 func (*MsgSignerUpdate) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{4}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MsgSignerUpdate) GetFrom() string {
@@ -4817,27 +7896,6 @@ func (x *MsgSignerUpdate) GetNewSignerPubKey() []byte {
 	return nil
 }
 
-func (x *MsgSignerUpdate) GetTxHash() []byte {
-	if x != nil {
-		return x.TxHash
-	}
-	return nil
-}
-
-func (x *MsgSignerUpdate) GetLogIndex() uint64 {
-	if x != nil {
-		return x.LogIndex
-	}
-	return 0
-}
-
-func (x *MsgSignerUpdate) GetBlockNumber() uint64 {
-	if x != nil {
-		return x.BlockNumber
-	}
-	return 0
-}
-
 func (x *MsgSignerUpdate) GetNonce() uint64 {
 	if x != nil {
 		return x.Nonce
@@ -4855,7 +7913,7 @@ type MsgSignerUpdateResponse struct {
 func (x *MsgSignerUpdateResponse) Reset() {
 	*x = MsgSignerUpdateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[5]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4869,7 +7927,7 @@ func (*MsgSignerUpdateResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgSignerUpdateResponse.ProtoReflect.Descriptor instead.
 func (*MsgSignerUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{5}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{7}
 }
 
 // MsgValidatorExit defines the message for a validator exiting the network.
@@ -4878,19 +7936,15 @@ type MsgValidatorExit struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	From              string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
-	ValId             uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
-	DeactivationEpoch uint64 `protobuf:"varint,3,opt,name=deactivation_epoch,json=deactivationEpoch,proto3" json:"deactivation_epoch,omitempty"` // Epoch when validator becomes inactive
-	TxHash            []byte `protobuf:"bytes,4,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	LogIndex          uint64 `protobuf:"varint,5,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`
-	BlockNumber       uint64 `protobuf:"varint,6,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
-	Nonce             uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	From  string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+	Nonce uint64 `protobuf:"varint,7,opt,name=nonce,proto3" json:"nonce,omitempty"`
 }
 
 func (x *MsgValidatorExit) Reset() {
 	*x = MsgValidatorExit{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[6]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4904,7 +7958,7 @@ func (*MsgValidatorExit) ProtoMessage() {}
 
 // Deprecated: Use MsgValidatorExit.ProtoReflect.Descriptor instead.
 func (*MsgValidatorExit) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{6}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MsgValidatorExit) GetFrom() string {
@@ -4917,34 +7971,6 @@ func (x *MsgValidatorExit) GetFrom() string {
 func (x *MsgValidatorExit) GetValId() uint64 {
 	if x != nil {
 		return x.ValId
-	}
-	return 0
-}
-
-func (x *MsgValidatorExit) GetDeactivationEpoch() uint64 {
-	if x != nil {
-		return x.DeactivationEpoch
-	}
-	return 0
-}
-
-func (x *MsgValidatorExit) GetTxHash() []byte {
-	if x != nil {
-		return x.TxHash
-	}
-	return nil
-}
-
-func (x *MsgValidatorExit) GetLogIndex() uint64 {
-	if x != nil {
-		return x.LogIndex
-	}
-	return 0
-}
-
-func (x *MsgValidatorExit) GetBlockNumber() uint64 {
-	if x != nil {
-		return x.BlockNumber
 	}
 	return 0
 }
@@ -4966,7 +7992,7 @@ type MsgValidatorExitResponse struct {
 func (x *MsgValidatorExitResponse) Reset() {
 	*x = MsgValidatorExitResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[7]
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4980,159 +8006,482 @@ func (*MsgValidatorExitResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgValidatorExitResponse.ProtoReflect.Descriptor instead.
 func (*MsgValidatorExitResponse) Descriptor() ([]byte, []int) {
-	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{7}
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{9}
+}
+
+// MsgWithdrawValidatorStake releases self-bonded GILT after validator exit and
+// unbonding have completed.
+type MsgWithdrawValidatorStake struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From  string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+}
+
+func (x *MsgWithdrawValidatorStake) Reset() {
+	*x = MsgWithdrawValidatorStake{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgWithdrawValidatorStake) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgWithdrawValidatorStake) ProtoMessage() {}
+
+// Deprecated: Use MsgWithdrawValidatorStake.ProtoReflect.Descriptor instead.
+func (*MsgWithdrawValidatorStake) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *MsgWithdrawValidatorStake) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *MsgWithdrawValidatorStake) GetValId() uint64 {
+	if x != nil {
+		return x.ValId
+	}
+	return 0
+}
+
+// MsgWithdrawValidatorStakeResponse defines the response for
+// MsgWithdrawValidatorStake.
+type MsgWithdrawValidatorStakeResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *MsgWithdrawValidatorStakeResponse) Reset() {
+	*x = MsgWithdrawValidatorStakeResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgWithdrawValidatorStakeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgWithdrawValidatorStakeResponse) ProtoMessage() {}
+
+// Deprecated: Use MsgWithdrawValidatorStakeResponse.ProtoReflect.Descriptor instead.
+func (*MsgWithdrawValidatorStakeResponse) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{11}
+}
+
+// MsgDelegateGold defines a user GOLD delegation to a validator.
+type MsgDelegateGold struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From   string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId  uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *MsgDelegateGold) Reset() {
+	*x = MsgDelegateGold{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgDelegateGold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgDelegateGold) ProtoMessage() {}
+
+// Deprecated: Use MsgDelegateGold.ProtoReflect.Descriptor instead.
+func (*MsgDelegateGold) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *MsgDelegateGold) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *MsgDelegateGold) GetValId() uint64 {
+	if x != nil {
+		return x.ValId
+	}
+	return 0
+}
+
+func (x *MsgDelegateGold) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+// MsgDelegateGoldResponse defines the response for MsgDelegateGold.
+type MsgDelegateGoldResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *MsgDelegateGoldResponse) Reset() {
+	*x = MsgDelegateGoldResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgDelegateGoldResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgDelegateGoldResponse) ProtoMessage() {}
+
+// Deprecated: Use MsgDelegateGoldResponse.ProtoReflect.Descriptor instead.
+func (*MsgDelegateGoldResponse) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{13}
+}
+
+// MsgUndelegateGold defines a user GOLD undelegation from a validator.
+type MsgUndelegateGold struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From   string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	ValId  uint64 `protobuf:"varint,2,opt,name=val_id,json=valId,proto3" json:"val_id,omitempty"`
+	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *MsgUndelegateGold) Reset() {
+	*x = MsgUndelegateGold{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgUndelegateGold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgUndelegateGold) ProtoMessage() {}
+
+// Deprecated: Use MsgUndelegateGold.ProtoReflect.Descriptor instead.
+func (*MsgUndelegateGold) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *MsgUndelegateGold) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *MsgUndelegateGold) GetValId() uint64 {
+	if x != nil {
+		return x.ValId
+	}
+	return 0
+}
+
+func (x *MsgUndelegateGold) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+// MsgUndelegateGoldResponse defines the response for MsgUndelegateGold.
+type MsgUndelegateGoldResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *MsgUndelegateGoldResponse) Reset() {
+	*x = MsgUndelegateGoldResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_giltconsensusv2_stake_tx_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MsgUndelegateGoldResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MsgUndelegateGoldResponse) ProtoMessage() {}
+
+// Deprecated: Use MsgUndelegateGoldResponse.ProtoReflect.Descriptor instead.
+func (*MsgUndelegateGoldResponse) Descriptor() ([]byte, []int) {
+	return file_giltconsensusv2_stake_tx_proto_rawDescGZIP(), []int{15}
 }
 
 var File_giltconsensusv2_stake_tx_proto protoreflect.FileDescriptor
 
 var file_giltconsensusv2_stake_tx_proto_rawDesc = []byte{
-	0x0a, 0x19, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61,
-	0x6b, 0x65, 0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x10, 0x68, 0x65, 0x69,
-	0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x1a, 0x14, 0x67,
-	0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x73,
-	0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61,
-	0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc2, 0x03, 0x0a, 0x10, 0x4d,
-	0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x12,
+	0x0a, 0x1e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76,
+	0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x12, 0x15, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76,
+	0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2f, 0x6d, 0x73, 0x67, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xa8, 0x03, 0x0a, 0x13, 0x4d, 0x73, 0x67, 0x41, 0x70, 0x70, 0x72,
+	0x6f, 0x76, 0x65, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x31, 0x0a, 0x04,
+	0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12,
+	0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42,
+	0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x39, 0x0a,
+	0x08, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42,
+	0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72,
+	0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x08,
+	0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x30, 0x0a, 0x10, 0x61, 0x63, 0x74, 0x69,
+	0x76, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0f, 0x61, 0x63, 0x74, 0x69, 0x76,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x70, 0x6f, 0x63, 0x68, 0x12, 0x48, 0x0a, 0x0e, 0x6d, 0x61,
+	0x78, 0x5f, 0x67, 0x69, 0x6c, 0x74, 0x5f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x18, 0x05, 0x20, 0x01,
+	0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x49, 0x6e,
+	0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0c, 0x6d, 0x61, 0x78, 0x47, 0x69, 0x6c, 0x74, 0x53,
+	0x74, 0x61, 0x6b, 0x65, 0x12, 0x2b, 0x0a, 0x0e, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x5f, 0x70,
+	0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7,
+	0xb0, 0x2a, 0x01, 0x52, 0x0c, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04,
+	0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x3f,
+	0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f,
+	0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x29, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x41,
+	0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x22,
+	0x1d, 0x0a, 0x1b, 0x4d, 0x73, 0x67, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x8d,
+	0x03, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a,
+	0x6f, 0x69, 0x6e, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
+	0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x49, 0x64, 0x12, 0x30, 0x0a, 0x10, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05,
+	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0f, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x45, 0x70, 0x6f, 0x63, 0x68, 0x12, 0x3a, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74,
+	0x68, 0x2e, 0x49, 0x6e, 0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75,
+	0x6e, 0x74, 0x12, 0x2b, 0x0a, 0x0e, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x5f, 0x70, 0x75, 0x62,
+	0x5f, 0x6b, 0x65, 0x79, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a,
+	0x01, 0x52, 0x0c, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12,
+	0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05,
+	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x3c, 0x88, 0xa0,
+	0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x8a,
+	0xe7, 0xb0, 0x2a, 0x26, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75,
+	0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x4a, 0x04, 0x08, 0x06, 0x10, 0x07,
+	0x4a, 0x04, 0x08, 0x07, 0x10, 0x08, 0x4a, 0x04, 0x08, 0x08, 0x10, 0x09, 0x52, 0x07, 0x74, 0x78,
+	0x5f, 0x68, 0x61, 0x73, 0x68, 0x52, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78,
+	0x52, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x1a,
+	0x0a, 0x18, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f,
+	0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xb1, 0x02, 0x0a, 0x0e, 0x4d,
+	0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x31, 0x0a,
+	0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d,
+	0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53,
+	0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d,
+	0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04,
+	0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x41,
+	0x0a, 0x0a, 0x6e, 0x65, 0x77, 0x5f, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x49, 0x6e,
+	0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x6e, 0x65, 0x77, 0x41, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04,
+	0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x3a,
+	0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f,
+	0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x24, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x53,
+	0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x04, 0x08, 0x04, 0x10, 0x05,
+	0x4a, 0x04, 0x08, 0x05, 0x10, 0x06, 0x4a, 0x04, 0x08, 0x06, 0x10, 0x07, 0x52, 0x07, 0x74, 0x78,
+	0x5f, 0x68, 0x61, 0x73, 0x68, 0x52, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78,
+	0x52, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x18,
+	0x0a, 0x16, 0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xa4, 0x02, 0x0a, 0x0f, 0x4d, 0x73, 0x67,
+	0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x31, 0x0a, 0x04,
+	0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12,
+	0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42,
+	0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a,
+	0x12, 0x6e, 0x65, 0x77, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x5f, 0x70, 0x75, 0x62, 0x5f,
+	0x6b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
+	0x52, 0x0f, 0x6e, 0x65, 0x77, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04,
+	0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x3b,
+	0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f,
+	0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x25, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x53,
+	0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4a, 0x04, 0x08, 0x04, 0x10,
+	0x05, 0x4a, 0x04, 0x08, 0x05, 0x10, 0x06, 0x4a, 0x04, 0x08, 0x06, 0x10, 0x07, 0x52, 0x07, 0x74,
+	0x78, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x52, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65,
+	0x78, 0x52, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22,
+	0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x8c, 0x02, 0x0a, 0x10, 0x4d,
+	0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x12,
 	0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2,
 	0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
 	0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72,
 	0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64,
-	0x12, 0x30, 0x0a, 0x10, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x65,
-	0x70, 0x6f, 0x63, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a,
-	0x01, 0x52, 0x0f, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x70, 0x6f,
-	0x63, 0x68, 0x12, 0x3a, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x04, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x49, 0x6e,
-	0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x2b,
-	0x0a, 0x0e, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x5f, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79,
-	0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0c, 0x73,
-	0x69, 0x67, 0x6e, 0x65, 0x72, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x1e, 0x0a, 0x07, 0x74,
-	0x78, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7,
-	0xb0, 0x2a, 0x01, 0x52, 0x06, 0x74, 0x78, 0x48, 0x61, 0x73, 0x68, 0x12, 0x22, 0x0a, 0x09, 0x6c,
-	0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05,
-	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x08, 0x6c, 0x6f, 0x67, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x12,
-	0x28, 0x0a, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18,
-	0x08, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x62, 0x6c,
-	0x6f, 0x63, 0x6b, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e,
-	0x63, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52,
-	0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x37, 0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00,
-	0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x21, 0x68, 0x65,
-	0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d,
-	0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x22,
-	0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a,
-	0x6f, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xe6, 0x02, 0x0a, 0x0e,
-	0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x31,
-	0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4,
-	0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72, 0x6f,
-	0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64, 0x12,
-	0x41, 0x0a, 0x0a, 0x6e, 0x65, 0x77, 0x5f, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63, 0x6f, 0x73,
-	0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x49,
-	0x6e, 0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x09, 0x6e, 0x65, 0x77, 0x41, 0x6d, 0x6f, 0x75,
-	0x6e, 0x74, 0x12, 0x1e, 0x0a, 0x07, 0x74, 0x78, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18, 0x04, 0x20,
-	0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x74, 0x78, 0x48, 0x61,
-	0x73, 0x68, 0x12, 0x22, 0x0a, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18,
-	0x05, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x08, 0x6c, 0x6f,
-	0x67, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x12, 0x28, 0x0a, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f,
-	0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7,
-	0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72,
 	0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04, 0x42,
-	0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x35, 0x88,
+	0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x3c, 0x88,
 	0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f, 0x6d,
-	0x8a, 0xe7, 0xb0, 0x2a, 0x1f, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2f,
-	0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x22, 0x18, 0x0a, 0x16, 0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xd9,
-	0x02, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61,
-	0x74, 0x65, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64,
-	0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52,
-	0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61,
-	0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a, 0x12, 0x6e, 0x65, 0x77, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x65,
-	0x72, 0x5f, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x42,
-	0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0f, 0x6e, 0x65, 0x77, 0x53, 0x69, 0x67, 0x6e, 0x65,
-	0x72, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x1e, 0x0a, 0x07, 0x74, 0x78, 0x5f, 0x68, 0x61,
-	0x73, 0x68, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52,
-	0x06, 0x74, 0x78, 0x48, 0x61, 0x73, 0x68, 0x12, 0x22, 0x0a, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69,
-	0x6e, 0x64, 0x65, 0x78, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a,
-	0x01, 0x52, 0x08, 0x6c, 0x6f, 0x67, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x12, 0x28, 0x0a, 0x0c, 0x62,
-	0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x06, 0x20, 0x01, 0x28,
-	0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x4e,
-	0x75, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07,
-	0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e,
-	0x63, 0x65, 0x3a, 0x36, 0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a,
-	0x04, 0x66, 0x72, 0x6f, 0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x20, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61,
-	0x6c, 0x6c, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x69,
-	0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73,
-	0x67, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xdd, 0x02, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72,
-	0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69,
-	0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a,
-	0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8,
-	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x34, 0x0a, 0x12, 0x64,
-	0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x65, 0x70, 0x6f, 0x63,
-	0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x11,
-	0x64, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x45, 0x70, 0x6f, 0x63,
-	0x68, 0x12, 0x1e, 0x0a, 0x07, 0x74, 0x78, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18, 0x04, 0x20, 0x01,
-	0x28, 0x0c, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x74, 0x78, 0x48, 0x61, 0x73,
-	0x68, 0x12, 0x22, 0x0a, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x05,
-	0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x08, 0x6c, 0x6f, 0x67,
-	0x49, 0x6e, 0x64, 0x65, 0x78, 0x12, 0x28, 0x0a, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x6e,
-	0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0,
-	0x2a, 0x01, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x12,
-	0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05,
-	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x6e, 0x6f, 0x6e, 0x63, 0x65, 0x3a, 0x37, 0x88, 0xa0,
-	0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x8a,
-	0xe7, 0xb0, 0x2a, 0x21, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2f, 0x73,
-	0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x45, 0x78, 0x69, 0x74, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x32, 0x87, 0x03, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x5f, 0x0a, 0x0d, 0x56, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x12, 0x22, 0x2e, 0x68, 0x65, 0x69,
-	0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73,
-	0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x1a, 0x2a,
-	0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b,
-	0x65, 0x2e, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f,
-	0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x59, 0x0a, 0x0b, 0x53, 0x74,
-	0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x20, 0x2e, 0x68, 0x65, 0x69, 0x6d,
-	0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67,
-	0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x1a, 0x28, 0x2e, 0x68, 0x65,
-	0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d,
-	0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5c, 0x0a, 0x0c, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x21, 0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c,
-	0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x69, 0x67, 0x6e,
-	0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x1a, 0x29, 0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64,
-	0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x53,
-	0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x5f, 0x0a, 0x0d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x45, 0x78, 0x69, 0x74, 0x12, 0x22, 0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76,
+	0x8a, 0xe7, 0xb0, 0x2a, 0x26, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73,
+	0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x56, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x4a, 0x04, 0x08, 0x03, 0x10,
+	0x04, 0x4a, 0x04, 0x08, 0x04, 0x10, 0x05, 0x4a, 0x04, 0x08, 0x05, 0x10, 0x06, 0x4a, 0x04, 0x08,
+	0x06, 0x10, 0x07, 0x52, 0x12, 0x64, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x5f, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x52, 0x07, 0x74, 0x78, 0x5f, 0x68, 0x61, 0x73, 0x68,
+	0x52, 0x09, 0x6c, 0x6f, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x52, 0x0c, 0x62, 0x6c, 0x6f,
+	0x63, 0x6b, 0x5f, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67,
+	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xb3, 0x01, 0x0a, 0x19, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74,
+	0x68, 0x64, 0x72, 0x61, 0x77, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x53, 0x74,
+	0x61, 0x6b, 0x65, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
+	0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x49, 0x64, 0x3a, 0x45, 0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7,
+	0xb0, 0x2a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x2f, 0x67, 0x69, 0x6c, 0x74,
+	0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b,
+	0x65, 0x2f, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x22, 0x23, 0x0a, 0x21, 0x4d,
+	0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0xd0, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65,
+	0x47, 0x6f, 0x6c, 0x64, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a,
+	0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05,
+	0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x3a, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68,
+	0x2e, 0x49, 0x6e, 0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x3a, 0x30, 0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04,
+	0x66, 0x72, 0x6f, 0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x1a, 0x67, 0x69, 0x6c, 0x74, 0x2f, 0x73, 0x74,
+	0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65, 0x47,
+	0x6f, 0x6c, 0x64, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x6c, 0x65, 0x67, 0x61,
+	0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xd4,
+	0x01, 0x0a, 0x11, 0x4d, 0x73, 0x67, 0x55, 0x6e, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65,
+	0x47, 0x6f, 0x6c, 0x64, 0x12, 0x31, 0x0a, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x42, 0x1d, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0xa8, 0xe7, 0xb0, 0x2a,
+	0x01, 0x52, 0x04, 0x66, 0x72, 0x6f, 0x6d, 0x12, 0x1c, 0x0a, 0x06, 0x76, 0x61, 0x6c, 0x5f, 0x69,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x05, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x05,
+	0x76, 0x61, 0x6c, 0x49, 0x64, 0x12, 0x3a, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x22, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x15, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68,
+	0x2e, 0x49, 0x6e, 0x74, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x3a, 0x32, 0x88, 0xa0, 0x1f, 0x01, 0xe8, 0xa0, 0x1f, 0x00, 0x82, 0xe7, 0xb0, 0x2a, 0x04,
+	0x66, 0x72, 0x6f, 0x6d, 0x8a, 0xe7, 0xb0, 0x2a, 0x1c, 0x67, 0x69, 0x6c, 0x74, 0x2f, 0x73, 0x74,
+	0x61, 0x6b, 0x65, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x6e, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74,
+	0x65, 0x47, 0x6f, 0x6c, 0x64, 0x22, 0x1b, 0x0a, 0x19, 0x4d, 0x73, 0x67, 0x55, 0x6e, 0x64, 0x65,
+	0x6c, 0x65, 0x67, 0x61, 0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x32, 0x80, 0x07, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x72, 0x0a, 0x10, 0x41, 0x70,
+	0x70, 0x72, 0x6f, 0x76, 0x65, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x2a,
+	0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32,
+	0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76,
+	0x65, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x1a, 0x32, 0x2e, 0x67, 0x69, 0x6c,
+	0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61,
+	0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x56, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x69,
+	0x0a, 0x0d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x12,
+	0x27, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76,
 	0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x1a, 0x2a, 0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64,
-	0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x56,
-	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xb7, 0x01, 0x0a, 0x14,
-	0x63, 0x6f, 0x6d, 0x2e, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x73,
-	0x74, 0x61, 0x6b, 0x65, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a,
-	0x35, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x30, 0x78, 0x50, 0x6f,
-	0x6c, 0x79, 0x67, 0x6f, 0x6e, 0x2f, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x2d, 0x76,
-	0x32, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x68, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32,
-	0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0xa2, 0x02, 0x03, 0x48, 0x53, 0x58, 0xaa, 0x02, 0x10, 0x48,
-	0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x2e, 0x53, 0x74, 0x61, 0x6b, 0x65, 0xca,
-	0x02, 0x10, 0x48, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x5c, 0x53, 0x74, 0x61,
-	0x6b, 0x65, 0xe2, 0x02, 0x1c, 0x48, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x5c,
-	0x53, 0x74, 0x61, 0x6b, 0x65, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
-	0x61, 0xea, 0x02, 0x11, 0x48, 0x65, 0x69, 0x6d, 0x64, 0x61, 0x6c, 0x6c, 0x76, 0x32, 0x3a, 0x3a,
-	0x53, 0x74, 0x61, 0x6b, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x1a, 0x2f, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63,
+	0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65,
+	0x2e, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4a, 0x6f, 0x69,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x63, 0x0a, 0x0b, 0x53, 0x74, 0x61,
+	0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x25, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63,
+	0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65,
+	0x2e, 0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x1a,
+	0x2d, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76,
+	0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x74, 0x61, 0x6b, 0x65,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x66,
+	0x0a, 0x0c, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x26,
+	0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32,
+	0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x1a, 0x2e, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e,
+	0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d,
+	0x73, 0x67, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x69, 0x0a, 0x0d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x12, 0x27, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f,
+	0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e,
+	0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74,
+	0x1a, 0x2f, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73,
+	0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x45, 0x78, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x84, 0x01, 0x0a, 0x16, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x56, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x12, 0x30, 0x2e, 0x67,
+	0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73,
+	0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77,
+	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x1a, 0x38,
+	0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32,
+	0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72,
+	0x61, 0x77, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x53, 0x74, 0x61, 0x6b, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x66, 0x0a, 0x0c, 0x44, 0x65, 0x6c, 0x65,
+	0x67, 0x61, 0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x12, 0x26, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63,
+	0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65,
+	0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64,
+	0x1a, 0x2e, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73,
+	0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x6c, 0x65,
+	0x67, 0x61, 0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x6c, 0x0a, 0x0e, 0x55, 0x6e, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65, 0x47, 0x6f,
+	0x6c, 0x64, 0x12, 0x28, 0x2e, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73,
+	0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x6e,
+	0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x1a, 0x30, 0x2e, 0x67,
+	0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73,
+	0x74, 0x61, 0x6b, 0x65, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x6e, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61,
+	0x74, 0x65, 0x47, 0x6f, 0x6c, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05,
+	0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xd8, 0x01, 0x0a, 0x19, 0x63, 0x6f, 0x6d, 0x2e, 0x67, 0x69,
+	0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x73, 0x74,
+	0x61, 0x6b, 0x65, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x3d,
+	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x69, 0x6c, 0x74, 0x63,
+	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x67, 0x69, 0x6c, 0x74, 0x2d, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x67, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73,
+	0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x2f, 0x73, 0x74, 0x61, 0x6b, 0x65, 0xa2, 0x02, 0x03,
+	0x47, 0x53, 0x58, 0xaa, 0x02, 0x15, 0x47, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x76, 0x32, 0x2e, 0x53, 0x74, 0x61, 0x6b, 0x65, 0xca, 0x02, 0x15, 0x47, 0x69,
+	0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x5c, 0x53, 0x74,
+	0x61, 0x6b, 0x65, 0xe2, 0x02, 0x21, 0x47, 0x69, 0x6c, 0x74, 0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e,
+	0x73, 0x75, 0x73, 0x76, 0x32, 0x5c, 0x53, 0x74, 0x61, 0x6b, 0x65, 0x5c, 0x47, 0x50, 0x42, 0x4d,
+	0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x47, 0x69, 0x6c, 0x74, 0x63, 0x6f,
+	0x6e, 0x73, 0x65, 0x6e, 0x73, 0x75, 0x73, 0x76, 0x32, 0x3a, 0x3a, 0x53, 0x74, 0x61, 0x6b, 0x65,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -5147,31 +8496,47 @@ func file_giltconsensusv2_stake_tx_proto_rawDescGZIP() []byte {
 	return file_giltconsensusv2_stake_tx_proto_rawDescData
 }
 
-var file_giltconsensusv2_stake_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_giltconsensusv2_stake_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_giltconsensusv2_stake_tx_proto_goTypes = []interface{}{
-	(*MsgValidatorJoin)(nil),         // 0: giltconsensusv2.stake.MsgValidatorJoin
-	(*MsgValidatorJoinResponse)(nil), // 1: giltconsensusv2.stake.MsgValidatorJoinResponse
-	(*MsgStakeUpdate)(nil),           // 2: giltconsensusv2.stake.MsgStakeUpdate
-	(*MsgStakeUpdateResponse)(nil),   // 3: giltconsensusv2.stake.MsgStakeUpdateResponse
-	(*MsgSignerUpdate)(nil),          // 4: giltconsensusv2.stake.MsgSignerUpdate
-	(*MsgSignerUpdateResponse)(nil),  // 5: giltconsensusv2.stake.MsgSignerUpdateResponse
-	(*MsgValidatorExit)(nil),         // 6: giltconsensusv2.stake.MsgValidatorExit
-	(*MsgValidatorExitResponse)(nil), // 7: giltconsensusv2.stake.MsgValidatorExitResponse
+	(*MsgApproveValidator)(nil),               // 0: giltconsensusv2.stake.MsgApproveValidator
+	(*MsgApproveValidatorResponse)(nil),       // 1: giltconsensusv2.stake.MsgApproveValidatorResponse
+	(*MsgValidatorJoin)(nil),                  // 2: giltconsensusv2.stake.MsgValidatorJoin
+	(*MsgValidatorJoinResponse)(nil),          // 3: giltconsensusv2.stake.MsgValidatorJoinResponse
+	(*MsgStakeUpdate)(nil),                    // 4: giltconsensusv2.stake.MsgStakeUpdate
+	(*MsgStakeUpdateResponse)(nil),            // 5: giltconsensusv2.stake.MsgStakeUpdateResponse
+	(*MsgSignerUpdate)(nil),                   // 6: giltconsensusv2.stake.MsgSignerUpdate
+	(*MsgSignerUpdateResponse)(nil),           // 7: giltconsensusv2.stake.MsgSignerUpdateResponse
+	(*MsgValidatorExit)(nil),                  // 8: giltconsensusv2.stake.MsgValidatorExit
+	(*MsgValidatorExitResponse)(nil),          // 9: giltconsensusv2.stake.MsgValidatorExitResponse
+	(*MsgWithdrawValidatorStake)(nil),         // 10: giltconsensusv2.stake.MsgWithdrawValidatorStake
+	(*MsgWithdrawValidatorStakeResponse)(nil), // 11: giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse
+	(*MsgDelegateGold)(nil),                   // 12: giltconsensusv2.stake.MsgDelegateGold
+	(*MsgDelegateGoldResponse)(nil),           // 13: giltconsensusv2.stake.MsgDelegateGoldResponse
+	(*MsgUndelegateGold)(nil),                 // 14: giltconsensusv2.stake.MsgUndelegateGold
+	(*MsgUndelegateGoldResponse)(nil),         // 15: giltconsensusv2.stake.MsgUndelegateGoldResponse
 }
 var file_giltconsensusv2_stake_tx_proto_depIdxs = []int32{
-	0, // 0: giltconsensusv2.stake.Msg.ValidatorJoin:input_type -> giltconsensusv2.stake.MsgValidatorJoin
-	2, // 1: giltconsensusv2.stake.Msg.StakeUpdate:input_type -> giltconsensusv2.stake.MsgStakeUpdate
-	4, // 2: giltconsensusv2.stake.Msg.SignerUpdate:input_type -> giltconsensusv2.stake.MsgSignerUpdate
-	6, // 3: giltconsensusv2.stake.Msg.ValidatorExit:input_type -> giltconsensusv2.stake.MsgValidatorExit
-	1, // 4: giltconsensusv2.stake.Msg.ValidatorJoin:output_type -> giltconsensusv2.stake.MsgValidatorJoinResponse
-	3, // 5: giltconsensusv2.stake.Msg.StakeUpdate:output_type -> giltconsensusv2.stake.MsgStakeUpdateResponse
-	5, // 6: giltconsensusv2.stake.Msg.SignerUpdate:output_type -> giltconsensusv2.stake.MsgSignerUpdateResponse
-	7, // 7: giltconsensusv2.stake.Msg.ValidatorExit:output_type -> giltconsensusv2.stake.MsgValidatorExitResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: giltconsensusv2.stake.Msg.ApproveValidator:input_type -> giltconsensusv2.stake.MsgApproveValidator
+	2,  // 1: giltconsensusv2.stake.Msg.ValidatorJoin:input_type -> giltconsensusv2.stake.MsgValidatorJoin
+	4,  // 2: giltconsensusv2.stake.Msg.StakeUpdate:input_type -> giltconsensusv2.stake.MsgStakeUpdate
+	6,  // 3: giltconsensusv2.stake.Msg.SignerUpdate:input_type -> giltconsensusv2.stake.MsgSignerUpdate
+	8,  // 4: giltconsensusv2.stake.Msg.ValidatorExit:input_type -> giltconsensusv2.stake.MsgValidatorExit
+	10, // 5: giltconsensusv2.stake.Msg.WithdrawValidatorStake:input_type -> giltconsensusv2.stake.MsgWithdrawValidatorStake
+	12, // 6: giltconsensusv2.stake.Msg.DelegateGold:input_type -> giltconsensusv2.stake.MsgDelegateGold
+	14, // 7: giltconsensusv2.stake.Msg.UndelegateGold:input_type -> giltconsensusv2.stake.MsgUndelegateGold
+	1,  // 8: giltconsensusv2.stake.Msg.ApproveValidator:output_type -> giltconsensusv2.stake.MsgApproveValidatorResponse
+	3,  // 9: giltconsensusv2.stake.Msg.ValidatorJoin:output_type -> giltconsensusv2.stake.MsgValidatorJoinResponse
+	5,  // 10: giltconsensusv2.stake.Msg.StakeUpdate:output_type -> giltconsensusv2.stake.MsgStakeUpdateResponse
+	7,  // 11: giltconsensusv2.stake.Msg.SignerUpdate:output_type -> giltconsensusv2.stake.MsgSignerUpdateResponse
+	9,  // 12: giltconsensusv2.stake.Msg.ValidatorExit:output_type -> giltconsensusv2.stake.MsgValidatorExitResponse
+	11, // 13: giltconsensusv2.stake.Msg.WithdrawValidatorStake:output_type -> giltconsensusv2.stake.MsgWithdrawValidatorStakeResponse
+	13, // 14: giltconsensusv2.stake.Msg.DelegateGold:output_type -> giltconsensusv2.stake.MsgDelegateGoldResponse
+	15, // 15: giltconsensusv2.stake.Msg.UndelegateGold:output_type -> giltconsensusv2.stake.MsgUndelegateGoldResponse
+	8,  // [8:16] is the sub-list for method output_type
+	0,  // [0:8] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_giltconsensusv2_stake_tx_proto_init() }
@@ -5181,7 +8546,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_giltconsensusv2_stake_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgValidatorJoin); i {
+			switch v := v.(*MsgApproveValidator); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5193,7 +8558,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgValidatorJoinResponse); i {
+			switch v := v.(*MsgApproveValidatorResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5205,7 +8570,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgStakeUpdate); i {
+			switch v := v.(*MsgValidatorJoin); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5217,7 +8582,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgStakeUpdateResponse); i {
+			switch v := v.(*MsgValidatorJoinResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5229,7 +8594,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgSignerUpdate); i {
+			switch v := v.(*MsgStakeUpdate); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5241,7 +8606,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgSignerUpdateResponse); i {
+			switch v := v.(*MsgStakeUpdateResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5253,7 +8618,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgValidatorExit); i {
+			switch v := v.(*MsgSignerUpdate); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5265,7 +8630,103 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			}
 		}
 		file_giltconsensusv2_stake_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgSignerUpdateResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgValidatorExit); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgValidatorExitResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgWithdrawValidatorStake); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgWithdrawValidatorStakeResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgDelegateGold); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgDelegateGoldResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgUndelegateGold); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_giltconsensusv2_stake_tx_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MsgUndelegateGoldResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5283,7 +8744,7 @@ func file_giltconsensusv2_stake_tx_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_giltconsensusv2_stake_tx_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

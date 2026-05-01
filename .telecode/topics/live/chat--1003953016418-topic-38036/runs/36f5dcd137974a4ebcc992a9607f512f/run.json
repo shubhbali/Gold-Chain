@@ -1,0 +1,20 @@
+{
+  "completed_at": "2026-04-27T21:55:17Z",
+  "engine": "codex",
+  "final_answer": "In practice, each validator signs a `vote` transaction from its own validator wallet, the chain verifies that signature + voter eligibility, and the candidate is approved only when `YES` crosses the 2/3 threshold.\n\nWhy this matters: this makes approval deterministic and auditable on-chain, instead of trusting one admin key.\n\nHow it works step-by-step:\n1. A candidate record is created (operator, signer key, `val_id`, nonce, etc.) and hashed.\n2. Each eligible validator submits one signed vote tx (`yes/no/abstain`) referencing that candidate hash.\n3. The chain verifies: valid signature, active validator at snapshot, no double-vote.\n4. The chain tallies votes.\n   - Weighted mode (recommended): `YES voting power > 2/3 of total snapshot voting power`.\n   - Headcount mode: `YES validators >= K of N`.\n5. If threshold is reached before expiry, status becomes `approved`; then `validator-join` is allowed.\n\n`K-of-N` meaning:\n- `N` = total eligible voters.\n- `K` = minimum approvals required.\n- Example equal validators: `N=10`, 2/3 rule means `K=7`.\n- Weighted example: total power `1000`, approval needs `>666` yes power.\n\nHow other chains do it:\n- CometBFT-style systems: `>2/3` voting power for finality.\n- Besu QBFT: supermajority finality; validator membership policy can be majority or custom.\n- Fabric: explicit policy language supports exact `K-of-N`.\n\nWhat should be done next:\n1. Lock Gold Chain rule to **weighted `>2/3` of snapshot power**.\n2. Define vote window + expiry + re-proposal rules.\n3. Decide whether validator admission uses tx-by-tx voting (recommended) or a separate multisig wallet model.",
+  "kind": "prompt",
+  "last_error": "",
+  "last_event_seq": 4,
+  "last_event_text": "Done.",
+  "metadata": {
+    "has_image": false
+  },
+  "project": "gold-chain",
+  "prompt": "Also how would two-thirds of our data system approve what they sign on chain with their particular wallets? How does that function in practise and how does that work for other chains and how does N of K, the K of N system?",
+  "run_id": "36f5dcd137974a4ebcc992a9607f512f",
+  "started_at": "2026-04-27T21:54:50Z",
+  "status": "done",
+  "topic_key": "chat--1003953016418-topic-38036",
+  "updated_at": "2026-04-27T21:55:17Z",
+  "version": 1
+}

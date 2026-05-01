@@ -1,0 +1,86 @@
+{"seq": 1, "timestamp": "2026-04-27T06:24:56Z", "type": "run.started", "text": "Started.", "metadata": {}}
+{"seq": 2, "timestamp": "2026-04-27T06:25:03Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
+{"seq": 3, "timestamp": "2026-04-27T06:25:04Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
+{"seq": 4, "timestamp": "2026-04-27T06:25:26Z", "type": "progress.event", "text": "Running: sed -n '980,1045p' bridge/gilt-exec/eth/backend.go", "metadata": {}}
+{"seq": 5, "timestamp": "2026-04-27T06:25:26Z", "type": "progress.event", "text": "Finished (0): sed -n '980,1045p' bridge/gilt-exec/eth/backend.go", "metadata": {}}
+{"seq": 6, "timestamp": "2026-04-27T06:25:26Z", "type": "progress.event", "text": "Running: sed -n '1,260p' bridge/gilt-exec/eth/backend.go", "metadata": {}}
+{"seq": 7, "timestamp": "2026-04-27T06:25:27Z", "type": "progress.event", "text": "Finished (0): sed -n '1,260p' bridge/gilt-exec/eth/backend.go", "metadata": {}}
+{"seq": 8, "timestamp": "2026-04-27T06:25:27Z", "type": "progress.event", "text": "Running: sed -n '280,420p' bridge/gilt-exec/eth/ethconfig/config.go", "metadata": {}}
+{"seq": 9, "timestamp": "2026-04-27T06:25:27Z", "type": "progress.event", "text": "Finished (0): sed -n '280,420p' bridge/gilt-exec/eth/ethconfig/config.go", "metadata": {}}
+{"seq": 10, "timestamp": "2026-04-27T06:25:27Z", "type": "progress.event", "text": "Running: sed -n '1,220p' bridge/gilt-exec/eth/ethconfig/config.go", "metadata": {}}
+{"seq": 11, "timestamp": "2026-04-27T06:25:27Z", "type": "progress.event", "text": "Finished (0): sed -n '1,220p' bridge/gilt-exec/eth/ethconfig/config.go", "metadata": {}}
+{"seq": 12, "timestamp": "2026-04-27T06:25:28Z", "type": "progress.event", "text": "Running: rg -n \"WithoutGiltConsensus|withoutgiltconsensus|DevFakeAuthor|devfakeauthor|Sanitizing DevFakeAuthor|Run without GiltConsensus service\" bridge/gilt-exec -S", "metadata": {}}
+{"seq": 13, "timestamp": "2026-04-27T06:25:28Z", "type": "progress.event", "text": "Finished (0): rg -n \"WithoutGiltConsensus|withoutgiltconsensus|DevFakeAuthor|devfakeauthor|Sanitizing DevFakeAuthor|Run without GiltConsensus service\" bridge/gilt-exec -S", "metadata": {}}
+{"seq": 14, "timestamp": "2026-04-27T06:25:32Z", "type": "progress.event", "text": "Running: sed -n '1,260p' bridge/gilt-exec/eth/ethconfig/config_test.go", "metadata": {}}
+{"seq": 15, "timestamp": "2026-04-27T06:25:32Z", "type": "progress.event", "text": "Finished (0): sed -n '1,260p' bridge/gilt-exec/eth/ethconfig/config_test.go", "metadata": {}}
+{"seq": 16, "timestamp": "2026-04-27T06:25:38Z", "type": "progress.event", "text": "Running: sed -n '1,260p' bridge/gilt-exec/cmd/geth/run_test.go", "metadata": {}}
+{"seq": 17, "timestamp": "2026-04-27T06:25:38Z", "type": "progress.event", "text": "Finished (0): sed -n '1,260p' bridge/gilt-exec/cmd/geth/run_test.go", "metadata": {}}
+{"seq": 18, "timestamp": "2026-04-27T06:25:39Z", "type": "progress.event", "text": "Running: sed -n '1,220p' bridge/gilt-exec/cmd/geth/version_check_test.go", "metadata": {}}
+{"seq": 19, "timestamp": "2026-04-27T06:25:39Z", "type": "progress.event", "text": "Running: rg -n \"withoutgiltconsensus|devfakeauthor|gilt.without|Run without GiltConsensus\" bridge/gilt-exec/cmd/geth bridge/gilt-exec/cmd/utils bridge/gilt-exec/internal/cli/server -S", "metadata": {}}
+{"seq": 20, "timestamp": "2026-04-27T06:25:39Z", "type": "progress.event", "text": "Finished (0): sed -n '1,220p' bridge/gilt-exec/cmd/geth/version_check_test.go", "metadata": {}}
+{"seq": 21, "timestamp": "2026-04-27T06:25:39Z", "type": "progress.event", "text": "Finished (0): rg -n \"withoutgiltconsensus|devfakeauthor|gilt.without|Run without GiltConsensus\" bridge/gilt-exec/cmd/geth bridge/gilt-exec/cmd/utils bridge/gilt-exec/internal/cli/server -S", "metadata": {}}
+{"seq": 22, "timestamp": "2026-04-27T06:25:43Z", "type": "progress.event", "text": "Running: sed -n '1,300p' bridge/gilt-exec/internal/cli/server/config_legacy_test.go", "metadata": {}}
+{"seq": 23, "timestamp": "2026-04-27T06:25:43Z", "type": "progress.event", "text": "Finished (0): sed -n '1,300p' bridge/gilt-exec/internal/cli/server/config_legacy_test.go", "metadata": {}}
+{"seq": 24, "timestamp": "2026-04-27T06:25:46Z", "type": "progress.event", "text": "Running: sed -n '1,170p' bridge/gilt-exec/internal/cli/server/testdata/default.toml", "metadata": {}}
+{"seq": 25, "timestamp": "2026-04-27T06:25:46Z", "type": "progress.event", "text": "Finished (0): sed -n '1,170p' bridge/gilt-exec/internal/cli/server/testdata/default.toml", "metadata": {}}
+{"seq": 26, "timestamp": "2026-04-27T06:26:03Z", "type": "progress.event", "text": "Running: sed -n '460,560p' bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go", "metadata": {}}
+{"seq": 27, "timestamp": "2026-04-27T06:26:03Z", "type": "progress.event", "text": "Finished (0): sed -n '460,560p' bridge/gilt-exec/eth/gilt_checkpoint_verifier_test.go", "metadata": {}}
+{"seq": 28, "timestamp": "2026-04-27T06:26:03Z", "type": "progress.event", "text": "Running: sed -n '600,760p' bridge/gilt-exec/tests/gilt/helper.go", "metadata": {}}
+{"seq": 29, "timestamp": "2026-04-27T06:26:04Z", "type": "progress.event", "text": "Finished (0): sed -n '600,760p' bridge/gilt-exec/tests/gilt/helper.go", "metadata": {}}
+{"seq": 30, "timestamp": "2026-04-27T06:26:04Z", "type": "progress.event", "text": "Running: sed -n '780,860p' bridge/gilt-exec/tests/gilt/gilt_sprint_length_change_test.go", "metadata": {}}
+{"seq": 31, "timestamp": "2026-04-27T06:26:04Z", "type": "progress.event", "text": "Finished (0): sed -n '780,860p' bridge/gilt-exec/tests/gilt/gilt_sprint_length_change_test.go", "metadata": {}}
+{"seq": 32, "timestamp": "2026-04-27T06:26:49Z", "type": "progress.event", "text": "Running: sed -n '1,110p' bridge/gilt-exec/docs/cli/default_config.toml", "metadata": {}}
+{"seq": 33, "timestamp": "2026-04-27T06:26:49Z", "type": "progress.event", "text": "Finished (0): sed -n '1,110p' bridge/gilt-exec/docs/cli/default_config.toml", "metadata": {}}
+{"seq": 34, "timestamp": "2026-04-27T06:26:50Z", "type": "progress.event", "text": "Running: sed -n '1,110p' bridge/gilt-exec/docs/cli/example_config.toml", "metadata": {}}
+{"seq": 35, "timestamp": "2026-04-27T06:26:50Z", "type": "progress.event", "text": "Finished (0): sed -n '1,110p' bridge/gilt-exec/docs/cli/example_config.toml", "metadata": {}}
+{"seq": 36, "timestamp": "2026-04-27T06:26:50Z", "type": "progress.event", "text": "Running: sed -n '90,150p' bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 37, "timestamp": "2026-04-27T06:26:50Z", "type": "progress.event", "text": "Finished (0): sed -n '90,150p' bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 38, "timestamp": "2026-04-27T06:26:50Z", "type": "progress.event", "text": "Running: sed -n '1,80p' bridge/pos-contracts/test-gilt-docker/start.sh", "metadata": {}}
+{"seq": 39, "timestamp": "2026-04-27T06:26:51Z", "type": "progress.event", "text": "Finished (0): sed -n '1,80p' bridge/pos-contracts/test-gilt-docker/start.sh", "metadata": {}}
+{"seq": 40, "timestamp": "2026-04-27T06:26:51Z", "type": "progress.event", "text": "Running: sed -n '1,80p' bridge/pos-contracts/test-gilt-docker/start.sh.template", "metadata": {}}
+{"seq": 41, "timestamp": "2026-04-27T06:26:51Z", "type": "progress.event", "text": "Finished (0): sed -n '1,80p' bridge/pos-contracts/test-gilt-docker/start.sh.template", "metadata": {}}
+{"seq": 42, "timestamp": "2026-04-27T06:26:52Z", "type": "progress.event", "text": "Running: sed -n '1,80p' bridge/pos-portal/test-blockchain/start.sh.template", "metadata": {}}
+{"seq": 43, "timestamp": "2026-04-27T06:26:52Z", "type": "progress.event", "text": "Running: sed -n '220,270p' bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 44, "timestamp": "2026-04-27T06:26:52Z", "type": "progress.event", "text": "Finished (0): sed -n '220,270p' bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 45, "timestamp": "2026-04-27T06:26:52Z", "type": "progress.event", "text": "Finished (0): sed -n '1,80p' bridge/pos-portal/test-blockchain/start.sh.template", "metadata": {}}
+{"seq": 46, "timestamp": "2026-04-27T06:28:57Z", "type": "progress.event", "text": "Running: rg -n \"WithoutGiltConsensusFlag|gilt.withoutgiltconsensus|gilt.devfakeauthor\" bridge/gilt-exec/cmd bridge/gilt-exec/internal/cli/server bridge/gilt-exec/scripts -S", "metadata": {}}
+{"seq": 47, "timestamp": "2026-04-27T06:28:57Z", "type": "progress.event", "text": "Finished (0): rg -n \"WithoutGiltConsensusFlag|gilt.withoutgiltconsensus|gilt.devfakeauthor\" bridge/gilt-exec/cmd bridge/gilt-exec/internal/cli/server bridge/gilt-exec/scripts -S", "metadata": {}}
+{"seq": 48, "timestamp": "2026-04-27T06:29:05Z", "type": "progress.event", "text": "Running: rg -n \"withoutgiltconsensus|devfakeauthor|without-giltconsensus|gilt.without\" bridge/gilt-exec bridge/pos-contracts bridge/pos-portal -S", "metadata": {}}
+{"seq": 49, "timestamp": "2026-04-27T06:29:06Z", "type": "progress.event", "text": "Finished (0): rg -n \"withoutgiltconsensus|devfakeauthor|without-giltconsensus|gilt.without\" bridge/gilt-exec bridge/pos-contracts bridge/pos-portal -S", "metadata": {}}
+{"seq": 50, "timestamp": "2026-04-27T06:29:32Z", "type": "progress.event", "text": "Running: go test ./cmd/geth", "metadata": {}}
+{"seq": 51, "timestamp": "2026-04-27T06:29:32Z", "type": "progress.event", "text": "Running: go test ./internal/cli/server", "metadata": {}}
+{"seq": 52, "timestamp": "2026-04-27T06:32:38Z", "type": "progress.event", "text": "Finished (0): go test ./internal/cli/server", "metadata": {}}
+{"seq": 53, "timestamp": "2026-04-27T06:37:15Z", "type": "progress.event", "text": "Running: go test ./cmd/geth -run TestValidateProductionConsensusConfig -count=1", "metadata": {}}
+{"seq": 54, "timestamp": "2026-04-27T06:37:28Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/geth -run TestValidateProductionConsensusConfig -count=1", "metadata": {}}
+{"seq": 55, "timestamp": "2026-04-27T06:37:33Z", "type": "progress.event", "text": "Running: go test ./cmd/geth -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 56, "timestamp": "2026-04-27T06:37:47Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/geth -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 57, "timestamp": "2026-04-27T06:37:52Z", "type": "progress.event", "text": "Running: pgrep -af \"go test ./cmd/geth\"", "metadata": {}}
+{"seq": 58, "timestamp": "2026-04-27T06:37:52Z", "type": "progress.event", "text": "Finished (0): pgrep -af \"go test ./cmd/geth\"", "metadata": {}}
+{"seq": 59, "timestamp": "2026-04-27T06:37:55Z", "type": "progress.event", "text": "Running: kill 604418", "metadata": {}}
+{"seq": 60, "timestamp": "2026-04-27T06:37:55Z", "type": "progress.event", "text": "Finished (0): kill 604418", "metadata": {}}
+{"seq": 61, "timestamp": "2026-04-27T06:37:55Z", "type": "progress.event", "text": "Finished (-1): go test ./cmd/geth", "metadata": {}}
+{"seq": 62, "timestamp": "2026-04-27T06:37:58Z", "type": "progress.event", "text": "Running: pgrep -af \"go test ./cmd/geth\"", "metadata": {}}
+{"seq": 63, "timestamp": "2026-04-27T06:37:58Z", "type": "progress.event", "text": "Finished (1): pgrep -af \"go test ./cmd/geth\"", "metadata": {}}
+{"seq": 64, "timestamp": "2026-04-27T06:38:01Z", "type": "progress.event", "text": "Running: go test ./cmd/utils -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 65, "timestamp": "2026-04-27T06:38:13Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/utils -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 66, "timestamp": "2026-04-27T06:38:18Z", "type": "progress.event", "text": "Running: go test ./scripts/... -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 67, "timestamp": "2026-04-27T06:38:25Z", "type": "progress.event", "text": "Finished (0): go test ./scripts/... -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 68, "timestamp": "2026-04-27T06:38:31Z", "type": "progress.event", "text": "Running: gofmt -w bridge/gilt-exec/cmd/utils/gilt_flags.go bridge/gilt-exec/cmd/utils/flags.go bridge/gilt-exec/cmd/geth/config.go bridge/gilt-exec/cmd/geth/config_production_test.go bridge/gilt-exec/internal/cli/server/config.go bridge/gilt-exec/internal/cli/server/command.go bridge/gilt-exec/internal/cli/server/config_test.go bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 69, "timestamp": "2026-04-27T06:38:32Z", "type": "progress.event", "text": "Finished (0): gofmt -w bridge/gilt-exec/cmd/utils/gilt_flags.go bridge/gilt-exec/cmd/utils/flags.go bridge/gilt-exec/cmd/geth/config.go bridge/gilt-exec/cmd/geth/config_production_test.go bridge/gilt-exec/internal/cli/server/config.go bridge/gilt-exec/internal/cli/server/command.go bridge/gilt-exec/internal/cli/server/config_test.go bridge/gilt-exec/scripts/getconfig.go", "metadata": {}}
+{"seq": 70, "timestamp": "2026-04-27T06:38:40Z", "type": "progress.event", "text": "Running: go test ./internal/cli/server", "metadata": {}}
+{"seq": 71, "timestamp": "2026-04-27T06:38:41Z", "type": "progress.event", "text": "Running: go test ./cmd/geth -run TestValidateProductionConsensusConfig -count=1", "metadata": {}}
+{"seq": 72, "timestamp": "2026-04-27T06:38:41Z", "type": "progress.event", "text": "Running: go test ./cmd/utils -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 73, "timestamp": "2026-04-27T06:38:42Z", "type": "progress.event", "text": "Running: go test ./cmd/geth -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 74, "timestamp": "2026-04-27T06:38:42Z", "type": "progress.event", "text": "Running: go test ./scripts/... -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 75, "timestamp": "2026-04-27T06:38:56Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/utils -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 76, "timestamp": "2026-04-27T06:38:56Z", "type": "progress.event", "text": "Finished (0): go test ./scripts/... -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 77, "timestamp": "2026-04-27T06:39:05Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/geth -run TestValidateProductionConsensusConfig -count=1", "metadata": {}}
+{"seq": 78, "timestamp": "2026-04-27T06:39:06Z", "type": "progress.event", "text": "Finished (0): go test ./cmd/geth -run '\"'^$'\"' -count=1", "metadata": {}}
+{"seq": 79, "timestamp": "2026-04-27T06:39:36Z", "type": "progress.event", "text": "Finished (0): go test ./internal/cli/server", "metadata": {}}
+{"seq": 80, "timestamp": "2026-04-27T06:39:42Z", "type": "progress.event", "text": "Running: git status --short", "metadata": {}}
+{"seq": 81, "timestamp": "2026-04-27T06:40:23Z", "type": "progress.event", "text": "Finished (0): git status --short", "metadata": {}}
+{"seq": 82, "timestamp": "2026-04-27T06:40:35Z", "type": "progress.event", "text": "Running: git diff -- bridge/gilt-exec/cmd/geth/config.go bridge/gilt-exec/cmd/geth/config_production_test.go bridge/gilt-exec/cmd/utils/flags.go bridge/gilt-exec/cmd/utils/gilt_flags.go bridge/gilt-exec/docs/cli/default_config.toml bridge/gilt-exec/docs/cli/example_config.toml bridge/gilt-exec/docs/cli/server.md bridge/gilt-exec/internal/cli/server/command.go bridge/gilt-exec/internal/cli/server/config.go bridge/gilt-exec/internal/cli/server/config_test.go bridge/gilt-exec/internal/cli/server/flags.go bridge/gilt-exec/scripts/getconfig.go bridge/pos-contracts/test-gilt-docker/start.sh bridge/pos-contracts/test-gilt-docker/start.sh.template bridge/pos-portal/test-blockchain/start.sh.template", "metadata": {}}
+{"seq": 83, "timestamp": "2026-04-27T06:40:36Z", "type": "progress.event", "text": "Finished (0): git diff -- bridge/gilt-exec/cmd/geth/config.go bridge/gilt-exec/cmd/geth/config_production_test.go bridge/gilt-exec/cmd/utils/flags.go bridge/gilt-exec/cmd/utils/gilt_flags.go bridge/gilt-exec/docs/cli/default_config.toml bridge/gilt-exec/docs/cli/example_config.toml bridge/gilt-exec/docs/cli/server.md bridge/gilt-exec/internal/cli/server/command.go bridge/gilt-exec/internal/cli/server/config.go bridge/gilt-exec/internal/cli/server/config_test.go bridge/gilt-exec/internal/cli/server/flags.go bridge/gilt-exec/scripts/getconfig.go bridge/pos-contracts/test-gilt-docker/start.sh bridge/pos-contracts/test-gilt-docker/start.sh.template bridge/pos-portal/test-blockchain/start.sh.template", "metadata": {}}
+{"seq": 84, "timestamp": "2026-04-27T06:40:47Z", "type": "progress.event", "text": "Running: git diff --name-only", "metadata": {}}
+{"seq": 85, "timestamp": "2026-04-27T06:40:48Z", "type": "progress.event", "text": "Finished (0): git diff --name-only", "metadata": {}}
+{"seq": 86, "timestamp": "2026-04-27T06:41:17Z", "type": "run.completed", "text": "Done.", "metadata": {}}

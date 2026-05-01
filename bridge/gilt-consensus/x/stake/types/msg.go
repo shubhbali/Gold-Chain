@@ -1,13 +1,10 @@
 package types
 
 import (
-	"bytes"
-
 	sdkmath "cosmossdk.io/math"
 	hexCodec "github.com/cosmos/cosmos-sdk/codec/address"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 
 	util "github.com/giltchain/gilt-consensus/common/hex"
 )
@@ -15,21 +12,64 @@ import (
 const (
 	errInvalidValidatorID = "invalid validator id %v"
 	errInvalidProposer    = "invalid proposer %v"
-	errInvalidTxHash      = "invalid tx hash %v"
 )
 
 var (
+	_ sdk.Msg = &MsgApproveValidator{}
 	_ sdk.Msg = &MsgValidatorJoin{}
 	_ sdk.Msg = &MsgStakeUpdate{}
 	_ sdk.Msg = &MsgSignerUpdate{}
 	_ sdk.Msg = &MsgValidatorExit{}
+	_ sdk.Msg = &MsgWithdrawValidatorStake{}
+	_ sdk.Msg = &MsgDelegateGold{}
+	_ sdk.Msg = &MsgUndelegateGold{}
 )
+
+// NewMsgApproveValidator creates a native validator approval message.
+func NewMsgApproveValidator(
+	from string,
+	id uint64,
+	operator string,
+	activationEpoch uint64,
+	maxGiltStake sdkmath.Int,
+	pubKey cryptotypes.PubKey,
+	nonce uint64,
+) (*MsgApproveValidator, error) {
+	return &MsgApproveValidator{
+		From:            util.FormatAddress(from),
+		ValId:           id,
+		Operator:        util.FormatAddress(operator),
+		ActivationEpoch: activationEpoch,
+		MaxGiltStake:    maxGiltStake,
+		SignerPubKey:    pubKey.Bytes(),
+		Nonce:           nonce,
+	}, nil
+}
+
+// ValidateBasic validates a native validator approval msg.
+func (msg MsgApproveValidator) ValidateBasic() error {
+	if msg.ValId == uint64(0) {
+		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
+	}
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
+	}
+	if err := validateAccountAddress(msg.Operator); err != nil {
+		return ErrInvalidMsg.Wrapf("invalid operator %s", msg.Operator)
+	}
+	if err := validateSignerPubKeyBytes("signer public key", msg.SignerPubKey); err != nil {
+		return err
+	}
+	if !normalizeInt(msg.MaxGiltStake).IsPositive() {
+		return ErrInvalidMsg.Wrapf("invalid max GILT stake %v", msg.MaxGiltStake)
+	}
+	return nil
+}
 
 // NewMsgValidatorJoin creates a new MsgCreateValidator instance.
 func NewMsgValidatorJoin(
 	from string, id uint64, activationEpoch uint64,
-	amount sdkmath.Int, pubKey cryptotypes.PubKey, txHash []byte, logIndex uint64,
-	blockNumber uint64, nonce uint64,
+	amount sdkmath.Int, pubKey cryptotypes.PubKey, nonce uint64,
 ) (*MsgValidatorJoin, error) {
 	return &MsgValidatorJoin{
 		From:            util.FormatAddress(from),
@@ -37,9 +77,6 @@ func NewMsgValidatorJoin(
 		ActivationEpoch: activationEpoch,
 		Amount:          amount,
 		SignerPubKey:    pubKey.Bytes(),
-		TxHash:          txHash,
-		LogIndex:        logIndex,
-		BlockNumber:     blockNumber,
 		Nonce:           nonce,
 	}, nil
 }
@@ -50,50 +87,28 @@ func (msg MsgValidatorJoin) ValidateBasic() error {
 		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
 	}
 
-	ac := hexCodec.NewHexCodec()
-	addrBytes, err := ac.StringToBytes(msg.From)
-	if err != nil {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
 	}
 
-	accAddr := sdk.AccAddress(addrBytes)
-
-	if accAddr.Empty() {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+	if err := validateSignerPubKeyBytes("signer public key", msg.SignerPubKey); err != nil {
+		return err
 	}
 
-	if msg.SignerPubKey == nil {
-		return ErrInvalidMsg.Wrap("signer public key can't be nil")
-	}
-
-	if bytes.Equal(msg.SignerPubKey, EmptyPubKey[:]) {
-		return ErrInvalidMsg.Wrap("signer public key can't be of zero bytes")
-	}
-
-	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
+	if !msg.Amount.IsPositive() {
 		return ErrInvalidMsg.Wrapf("invalid amount %v", msg.Amount)
-	}
-
-	if len(msg.TxHash) != common.HashLength {
-		return ErrInvalidMsg.Wrapf(errInvalidTxHash, msg.TxHash)
 	}
 
 	return nil
 }
 
 // NewMsgStakeUpdate creates a new MsgStakeUpdate instance
-func NewMsgStakeUpdate(from string, id uint64,
-	newAmount sdkmath.Int, txHash []byte, logIndex uint64,
-	blockNumber uint64, nonce uint64,
-) (*MsgStakeUpdate, error) {
+func NewMsgStakeUpdate(from string, id uint64, newAmount sdkmath.Int, nonce uint64) (*MsgStakeUpdate, error) {
 	return &MsgStakeUpdate{
-		From:        util.FormatAddress(from),
-		ValId:       id,
-		NewAmount:   newAmount,
-		TxHash:      txHash,
-		LogIndex:    logIndex,
-		BlockNumber: blockNumber,
-		Nonce:       nonce,
+		From:      util.FormatAddress(from),
+		ValId:     id,
+		NewAmount: newAmount,
+		Nonce:     nonce,
 	}, nil
 }
 
@@ -103,41 +118,23 @@ func (msg MsgStakeUpdate) ValidateBasic() error {
 		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
 	}
 
-	ac := hexCodec.NewHexCodec()
-	addrBytes, err := ac.StringToBytes(msg.From)
-	if err != nil {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
 	}
 
-	accAddr := sdk.AccAddress(addrBytes)
-
-	if accAddr.Empty() {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
-	}
-
-	if msg.NewAmount.IsZero() || msg.NewAmount.IsNegative() {
+	if !msg.NewAmount.IsPositive() {
 		return ErrInvalidMsg.Wrapf("invalid amount %v", msg.NewAmount)
-	}
-
-	if len(msg.TxHash) != common.HashLength {
-		return ErrInvalidMsg.Wrapf(errInvalidTxHash, msg.TxHash)
 	}
 
 	return nil
 }
 
 // NewMsgSignerUpdate creates a new MsgSignerUpdate instance.
-func NewMsgSignerUpdate(from string, id uint64,
-	pubKey []byte, txHash []byte, logIndex uint64,
-	blockNumber uint64, nonce uint64,
-) (*MsgSignerUpdate, error) {
+func NewMsgSignerUpdate(from string, id uint64, pubKey []byte, nonce uint64) (*MsgSignerUpdate, error) {
 	return &MsgSignerUpdate{
 		From:            util.FormatAddress(from),
 		ValId:           id,
 		NewSignerPubKey: pubKey,
-		TxHash:          txHash,
-		LogIndex:        logIndex,
-		BlockNumber:     blockNumber,
 		Nonce:           nonce,
 	}, nil
 }
@@ -148,47 +145,23 @@ func (msg MsgSignerUpdate) ValidateBasic() error {
 		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
 	}
 
-	ac := hexCodec.NewHexCodec()
-	addrBytes, err := ac.StringToBytes(msg.From)
-	if err != nil {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
 	}
 
-	accAddr := sdk.AccAddress(addrBytes)
-
-	if accAddr.Empty() {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
-	}
-
-	if msg.NewSignerPubKey == nil {
-		return ErrInvalidMsg.Wrap("signer public key can't be nil")
-	}
-
-	if bytes.Equal(msg.NewSignerPubKey, EmptyPubKey[:]) {
-		return ErrInvalidMsg.Wrap("new signer public key can't be of zero bytes")
-	}
-
-	if len(msg.TxHash) != common.HashLength {
-		return ErrInvalidMsg.Wrapf(errInvalidTxHash, msg.TxHash)
+	if err := validateSignerPubKeyBytes("new signer public key", msg.NewSignerPubKey); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 // NewMsgValidatorExit creates a new MsgValidatorExit instance.
-func NewMsgValidatorExit(
-	from string, id uint64, deactivationEpoch uint64,
-	txHash []byte, logIndex uint64,
-	blockNumber uint64, nonce uint64,
-) (*MsgValidatorExit, error) {
+func NewMsgValidatorExit(from string, id uint64, nonce uint64) (*MsgValidatorExit, error) {
 	return &MsgValidatorExit{
-		From:              util.FormatAddress(from),
-		ValId:             id,
-		DeactivationEpoch: deactivationEpoch,
-		TxHash:            txHash,
-		LogIndex:          logIndex,
-		BlockNumber:       blockNumber,
-		Nonce:             nonce,
+		From:  util.FormatAddress(from),
+		ValId: id,
+		Nonce: nonce,
 	}, nil
 }
 
@@ -198,21 +171,95 @@ func (msg MsgValidatorExit) ValidateBasic() error {
 		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
 	}
 
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NewMsgWithdrawValidatorStake creates a MsgWithdrawValidatorStake instance.
+func NewMsgWithdrawValidatorStake(from string, id uint64) *MsgWithdrawValidatorStake {
+	return &MsgWithdrawValidatorStake{
+		From:  util.FormatAddress(from),
+		ValId: id,
+	}
+}
+
+// ValidateBasic validates validator self-stake withdrawal.
+func (msg MsgWithdrawValidatorStake) ValidateBasic() error {
+	if msg.ValId == uint64(0) {
+		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
+	}
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
+	}
+	return nil
+}
+
+// NewMsgDelegateGold creates a MsgDelegateGold instance.
+func NewMsgDelegateGold(from string, id uint64, amount sdkmath.Int) *MsgDelegateGold {
+	return &MsgDelegateGold{
+		From:   util.FormatAddress(from),
+		ValId:  id,
+		Amount: amount,
+	}
+}
+
+// ValidateBasic validates the GOLD delegation msg before it is executed.
+func (msg MsgDelegateGold) ValidateBasic() error {
+	if msg.ValId == uint64(0) {
+		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
+	}
+
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
+	}
+
+	if !msg.Amount.IsPositive() {
+		return ErrInvalidMsg.Wrapf("invalid GOLD amount %v", msg.Amount)
+	}
+
+	return nil
+}
+
+// NewMsgUndelegateGold creates a MsgUndelegateGold instance.
+func NewMsgUndelegateGold(from string, id uint64, amount sdkmath.Int) *MsgUndelegateGold {
+	return &MsgUndelegateGold{
+		From:   util.FormatAddress(from),
+		ValId:  id,
+		Amount: amount,
+	}
+}
+
+// ValidateBasic validates the GOLD undelegation msg before it is executed.
+func (msg MsgUndelegateGold) ValidateBasic() error {
+	if msg.ValId == uint64(0) {
+		return ErrInvalidMsg.Wrapf(errInvalidValidatorID, msg.ValId)
+	}
+
+	if err := validateAccountAddress(msg.From); err != nil {
+		return err
+	}
+
+	if !msg.Amount.IsPositive() {
+		return ErrInvalidMsg.Wrapf("invalid GOLD amount %v", msg.Amount)
+	}
+
+	return nil
+}
+
+func validateAccountAddress(address string) error {
+	if address == "" {
+		return ErrInvalidMsg.Wrapf(errInvalidProposer, address)
+	}
 	ac := hexCodec.NewHexCodec()
-	addrBytes, err := ac.StringToBytes(msg.From)
+	addrBytes, err := ac.StringToBytes(address)
 	if err != nil {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+		return ErrInvalidMsg.Wrapf(errInvalidProposer, address)
 	}
-
-	accAddr := sdk.AccAddress(addrBytes)
-
-	if accAddr.Empty() {
-		return ErrInvalidMsg.Wrapf(errInvalidProposer, msg.From)
+	if sdk.AccAddress(addrBytes).Empty() {
+		return ErrInvalidMsg.Wrapf(errInvalidProposer, address)
 	}
-
-	if len(msg.TxHash) != common.HashLength {
-		return ErrInvalidMsg.Wrapf(errInvalidTxHash, msg.TxHash)
-	}
-
 	return nil
 }

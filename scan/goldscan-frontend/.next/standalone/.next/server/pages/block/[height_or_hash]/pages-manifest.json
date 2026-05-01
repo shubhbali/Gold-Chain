@@ -1,0 +1,3 @@
+{
+  "/block/[height_or_hash]": "pages/block/[height_or_hash].js"
+}

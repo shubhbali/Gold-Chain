@@ -1,0 +1,55 @@
+syntax = "proto3";
+package giltconsensusv2.pricefeed;
+
+import "amino/amino.proto";
+import "cosmos/query/v1/query.proto";
+import "giltconsensusv2/pricefeed/pricefeed.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/giltchain/gilt-consensus/x/pricefeed/types";
+
+// Query defines the gRPC query service for the pricefeed module.
+service Query {
+  // Params queries the pricefeed module parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/pricefeed/params";
+  }
+
+  // LatestPrice queries the latest accepted GILT/GOLD price snapshot.
+  rpc LatestPrice(QueryLatestPriceRequest) returns (QueryLatestPriceResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/pricefeed/latest";
+  }
+
+  // PriceByEpoch queries an accepted GILT/GOLD price snapshot by epoch.
+  rpc PriceByEpoch(QueryPriceByEpochRequest)
+      returns (QueryPriceByEpochResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/pricefeed/epochs/{epoch}";
+  }
+}
+
+message QueryParamsRequest {}
+
+message QueryParamsResponse {
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message QueryLatestPriceRequest {}
+
+message QueryLatestPriceResponse {
+  PriceSnapshot price = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message QueryPriceByEpochRequest {
+  uint64 epoch = 1 [ (amino.dont_omitempty) = true ];
+}
+
+message QueryPriceByEpochResponse {
+  PriceSnapshot price = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
