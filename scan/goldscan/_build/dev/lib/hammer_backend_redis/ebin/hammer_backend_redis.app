@@ -1,1 +1,0 @@
-{application,hammer_backend_redis,[{modules,['Elixir.Hammer.Redis','Elixir.Hammer.Redis.FixWindow','Elixir.Hammer.Redis.LeakyBucket','Elixir.Hammer.Redis.SlidingWindow','Elixir.Hammer.Redis.TokenBucket']},{optional_applications,[]},{applications,[kernel,stdlib,elixir,logger,hammer,redix]},{description,"Redis backend for Hammer rate-limiter"},{registered,[]},{vsn,"7.1.0"}]}.

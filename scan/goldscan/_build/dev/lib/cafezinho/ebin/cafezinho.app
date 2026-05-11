@@ -1,1 +1,0 @@
-{application,cafezinho,[{modules,['Elixir.Cafezinho','Elixir.Cafezinho.Impl']},{compile_env,[{rustler_precompiled,[force_build,cafezinho],error},{rustler_precompiled,[force_build_all],error}]},{optional_applications,[rustler]},{applications,[kernel,stdlib,elixir,logger,rustler,rustler_precompiled]},{description,"NIF for Ed25519 curve functions"},{registered,[]},{vsn,"0.4.4"}]}.
