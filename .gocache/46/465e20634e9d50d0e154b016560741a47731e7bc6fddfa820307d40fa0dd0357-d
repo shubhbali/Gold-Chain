@@ -1,7 +1,0 @@
-./benchmark.go
-./check.go
-./checkers.go
-./helpers.go
-./printer.go
-./reporter.go
-./run.go

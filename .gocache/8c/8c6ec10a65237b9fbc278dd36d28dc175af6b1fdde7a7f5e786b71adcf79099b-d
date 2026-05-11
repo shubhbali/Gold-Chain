@@ -1,7 +1,0 @@
-./accessors_chain.go
-./accessors_indexes.go
-./accessors_metadata.go
-./interfaces.go
-./schema.go
-./accessors_chain_test.go
-./accessors_indexes_test.go

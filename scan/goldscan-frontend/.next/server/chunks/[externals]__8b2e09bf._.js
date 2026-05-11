@@ -1,3 +1,0 @@
-module.exports=[522734,(e,r,s)=>{r.exports=e.x("fs",()=>require("fs"))},814747,(e,r,s)=>{r.exports=e.x("path",()=>require("path"))},556704,(e,r,s)=>{r.exports=e.x("next/dist/server/app-render/work-async-storage.external.js",()=>require("next/dist/server/app-render/work-async-storage.external.js"))},832319,(e,r,s)=>{r.exports=e.x("next/dist/server/app-render/work-unit-async-storage.external.js",()=>require("next/dist/server/app-render/work-unit-async-storage.external.js"))}];
-
-//# sourceMappingURL=%5Bexternals%5D__8b2e09bf._.js.map

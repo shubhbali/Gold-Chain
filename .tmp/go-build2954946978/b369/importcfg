@@ -1,9 +1,0 @@
-# import config
-packagefile crypto/sha256=C:\gold\.gocache\4b\4b213d0d256dfa106068c5ed4478937b6b68492640c6c0c257d6af8bb949f866-d
-packagefile encoding/binary=C:\gold\.gocache\f2\f28479b64f776ebdc19e3ee302d15d5dd7ae78aa4712f047aa78b8b9f8878765-d
-packagefile errors=C:\gold\.gocache\60\60b2b16cf97e7047df9762a969461630da96999df5504f3be1758c726a04b111-d
-packagefile github.com/QuarkChain/goquarkchain/cluster/config=C:\gold\.tmp\go-build2954946978\b163\_pkg_.a
-packagefile github.com/QuarkChain/goquarkchain/consensus=C:\gold\.tmp\go-build2954946978\b167\_pkg_.a
-packagefile github.com/QuarkChain/goquarkchain/core/state=C:\gold\.tmp\go-build2954946978\b202\_pkg_.a
-packagefile github.com/QuarkChain/goquarkchain/core/types=C:\gold\.gocache\8c\8c8253dd1f68703a7fac1948bb79a174954174beaeaabc3dfadf6106b5c884bf-d
-packagefile math/big=C:\gold\.gocache\2c\2cce894e0016cc6c447a5ef23193ed73cd01aed2d5056c0a53a74ea5499f5168-d

@@ -1,6 +1,0 @@
-./config.go
-./defaults.go
-./errors.go
-./memorydatabase.go
-./node.go
-./service.go

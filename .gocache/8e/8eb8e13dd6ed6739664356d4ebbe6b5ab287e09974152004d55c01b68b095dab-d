@@ -1,6 +1,0 @@
-./doc.go
-./ntquery.go
-./privileges.go
-./syscall_windows.go
-./version.go
-./zsyscall_windows.go

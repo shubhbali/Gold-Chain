@@ -1,0 +1,7 @@
+.gocache/
+.gomodcache/
+.tmp/
+.telecode/
+.live-chain/
+.live-chain-runtime-*/
+scan/goldscan-frontend/.next/

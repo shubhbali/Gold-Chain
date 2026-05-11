@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../ui/snippets/auth/linkEmail/useLinkEmailFallback.ts"],"sourcesContent":["import React from 'react';\n\nexport default function useLinkEmailFallback() {\n  return React.useCallback(() => {}, []);\n}\n"],"names":[],"mappings":"wCAAA,IAAA,EAAA,EAAA,CAAA,CAAA,QAEe,SAAS,IACtB,OAAO,EAAA,OAAK,CAAC,WAAW,CAAC,KAAO,EAAG,EAAE,CACvC"}

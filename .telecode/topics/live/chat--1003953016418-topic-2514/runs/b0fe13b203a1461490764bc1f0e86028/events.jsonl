@@ -1,5 +1,0 @@
-{"seq": 1, "timestamp": "2026-04-14T20:19:15Z", "type": "run.started", "text": "Started.", "metadata": {}}
-{"seq": 2, "timestamp": "2026-04-14T20:19:16Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
-{"seq": 3, "timestamp": "2026-04-14T20:19:16Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
-{"seq": 4, "timestamp": "2026-04-14T20:19:32Z", "type": "progress.event", "text": "Agent: Yes, I need that list. For your current staged testnet: - **Minimum now:** **10 wallets** - 3 validator wallets - 1 treasury wallet - 1 faucet wallet - 1 bridge-ops wallet - 1 deployer/admin wallet - 1 emergency admin wallet - 2 user test wallets For proper testing quality: - **Recommended:** **20–30 wallets** total (add more user wallets for bridge/DEX/scanner flow testing). Send them as labeled addresses (who each wallet is for).", "metadata": {}}
-{"seq": 5, "timestamp": "2026-04-14T20:19:33Z", "type": "run.completed", "text": "Done.", "metadata": {}}

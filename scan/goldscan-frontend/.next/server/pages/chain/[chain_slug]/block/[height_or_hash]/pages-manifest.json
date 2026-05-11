@@ -1,3 +1,0 @@
-{
-  "/chain/[chain_slug]/block/[height_or_hash]": "pages/chain/[chain_slug]/block/[height_or_hash].js"
-}

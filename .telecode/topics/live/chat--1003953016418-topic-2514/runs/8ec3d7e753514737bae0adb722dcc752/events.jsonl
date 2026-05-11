@@ -1,6 +1,0 @@
-{"seq": 1, "timestamp": "2026-04-21T19:16:40Z", "type": "run.started", "text": "Started.", "metadata": {}}
-{"seq": 2, "timestamp": "2026-04-21T19:16:43Z", "type": "progress.event", "text": "Session 019d7576-3a21-7780-9063-425a2d2f943e started.", "metadata": {}}
-{"seq": 3, "timestamp": "2026-04-21T19:16:43Z", "type": "progress.event", "text": "Planning.", "metadata": {}}
-{"seq": 4, "timestamp": "2026-04-21T19:16:52Z", "type": "progress.event", "text": "Running: cd /srv/repos/gold-chain && if [ -f preferences.md ]; then echo \"FOUND\"; else echo \"MISSING\"; fi && nl -ba preferences.md", "metadata": {}}
-{"seq": 5, "timestamp": "2026-04-21T19:16:52Z", "type": "progress.event", "text": "Finished (0): cd /srv/repos/gold-chain && if [ -f preferences.md ]; then echo \"FOUND\"; else echo \"MISSING\"; fi && nl -ba preferences.md", "metadata": {}}
-{"seq": 6, "timestamp": "2026-04-21T19:17:08Z", "type": "run.completed", "text": "Done.", "metadata": {}}
