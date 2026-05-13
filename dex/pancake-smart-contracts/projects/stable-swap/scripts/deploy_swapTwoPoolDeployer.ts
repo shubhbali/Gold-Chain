@@ -4,7 +4,7 @@ async function main() {
   // Get network data from Hardhat config (see hardhat.config.ts).
   const networkName = network.name;
   // Check if the network is supported.
-  if (networkName === "testnet" || networkName === "mainnet") {
+  if (networkName === "testnet" || networkName === "mainnet" || networkName === "goldchain") {
     console.log(`Deploying to ${networkName} network...`);
 
     // Compile contracts.

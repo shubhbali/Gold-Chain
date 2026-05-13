@@ -47,6 +47,10 @@ jobs:
         run: |
           forge build
 
+      - name: Check ABI Integrity
+        run: |
+          npm run abi:check -- --skip-build
+
       - name: Start Local Chain
         run: |
           npm install pm2 -g

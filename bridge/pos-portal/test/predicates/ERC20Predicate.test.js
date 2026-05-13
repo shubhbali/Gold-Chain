@@ -89,6 +89,38 @@ contract('ERC20Predicate', (accounts) => {
     })
   })
 
+  describe('lockTokens fee-on-transfer canonicalization', () => {
+    it('Should emit and return the actual received amount', async () => {
+      const contracts = await deployFreshRootContracts(accounts)
+      const erc20Predicate = contracts.erc20Predicate
+      const depositor = await ethers.getSigner(accounts[1])
+      const depositReceiver = mockValues.addresses[7]
+
+      const FeeOnTransferERC20 = await ethers.getContractFactory('FeeOnTransferERC20')
+      const feeToken = await FeeOnTransferERC20.deploy('Fee Token', 'FEE', 100, accounts[9]) // 1%
+      await feeToken.waitForDeployment()
+
+      const requestedAmount = 200n
+      const expectedAmount = 198n
+      await feeToken.mint(depositor.address, requestedAmount)
+      await feeToken.connect(depositor).approve(erc20Predicate.target, requestedAmount)
+
+      const depositData = abi.encode(['uint256'], [requestedAmount.toString()])
+      const canonicalData = await erc20Predicate.lockTokens.staticCall(
+        depositor.address,
+        depositReceiver,
+        feeToken.target,
+        depositData
+      )
+      const [canonicalAmount] = abi.decode(['uint256'], canonicalData)
+      expect(canonicalAmount).to.equal(expectedAmount)
+
+      await expect(erc20Predicate.lockTokens(depositor.address, depositReceiver, feeToken.target, depositData))
+        .to.emit(erc20Predicate, 'LockedERC20')
+        .withArgs(depositor.address, depositReceiver, feeToken.target, expectedAmount)
+    })
+  })
+
   describe('lockTokens called by non manager', () => {
     const depositAmount = mockValues.amounts[3]
     const depositReceiver = accounts[2]

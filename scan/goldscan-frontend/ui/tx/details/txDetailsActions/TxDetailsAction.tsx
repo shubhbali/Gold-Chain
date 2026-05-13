@@ -2,7 +2,7 @@ import { Flex, chakra } from '@chakra-ui/react';
 import BigNumber from 'bignumber.js';
 import React from 'react';
 
-import type { TxAction, TxActionGeneral } from 'types/api/txAction';
+import type { TxAction, TxActionGeneral, TxActionGoldchain } from 'types/api/txAction';
 
 import config from 'configs/app';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
@@ -11,7 +11,7 @@ import TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import IconSvg from 'ui/shared/IconSvg';
 
 interface Props {
-  action: TxAction;
+  action: TxAction | TxActionGoldchain;
 }
 
 function getActionText(actionType: TxActionGeneral['type']) {
@@ -25,6 +25,20 @@ function getActionText(actionType: TxActionGeneral['type']) {
 
 const TxDetailsAction = ({ action }: Props) => {
   const { protocol, type, data } = action;
+
+  if (protocol === 'goldchain') {
+    const finalityStatus = typeof data.finality_status === 'string' ? data.finality_status : undefined;
+    const routeAsset = typeof data.route_asset === 'string' ? data.route_asset : undefined;
+
+    return (
+      <Flex flexWrap="wrap" columnGap={ 2 } rowGap={ 2 } alignItems="center" fontWeight={ 500 }>
+        <chakra.span color="text.secondary">Gold Chain</chakra.span>
+        <chakra.span>{ String(type).replaceAll('_', ' ') }</chakra.span>
+        { routeAsset && <chakra.span color="text.secondary">{ routeAsset }</chakra.span> }
+        { finalityStatus && <chakra.span color="text.secondary">{ finalityStatus }</chakra.span> }
+      </Flex>
+    );
+  }
 
   if (protocol !== 'uniswap_v3') {
     return null;

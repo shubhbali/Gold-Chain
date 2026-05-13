@@ -26,6 +26,26 @@ contract ChildGold1155 is
     uint256 public scaleNumerator;
     uint256 public scaleDenominator;
 
+    struct RoutePrecision {
+        bool exists;
+        uint8 rootDecimals;
+        uint8 goldDecimals;
+        uint256 scaleNumerator;
+        uint256 scaleDenominator;
+        uint256 rootUnit;
+    }
+
+    mapping(uint256 => RoutePrecision) public routePrecisionByTokenId;
+
+    event BridgeRoutePrecisionConfigured(
+        uint256 indexed tokenId,
+        uint8 rootDecimals,
+        uint8 goldDecimals,
+        uint256 scaleNumerator,
+        uint256 scaleDenominator,
+        uint256 rootUnit
+    );
+
     constructor(
         string memory uri_,
         address childChainManager,
@@ -41,6 +61,8 @@ contract ChildGold1155 is
         symbol = "PGOLD";
         scaleNumerator = _scaleNumerator;
         scaleDenominator = _scaleDenominator;
+        _setRoutePrecision(PAXG_TOKEN_ID, 18, 18, _scaleNumerator, _scaleDenominator, 1);
+        _setRoutePrecision(XAUT_TOKEN_ID, 6, 18, _scaleNumerator.mul(10 ** 12), _scaleDenominator, 1);
     }
 
     function _msgSender()
@@ -64,30 +86,90 @@ contract ChildGold1155 is
         require(user != address(0), "ChildGold1155: INVALID_DEPOSIT_USER");
         require(_isSupportedTokenId(tokenId), "ChildGold1155: INVALID_TOKEN_ID");
         require(rootAmount != 0, "ChildGold1155: INVALID_AMOUNT");
+        RoutePrecision memory route = _route(tokenId);
+        require(rootAmount.mod(route.rootUnit) == 0, "ChildGold1155: INVALID_ROOT_DIVISIBILITY");
 
-        uint256 numeratorProduct = rootAmount.mul(scaleNumerator);
+        uint256 numeratorProduct = rootAmount.mul(route.scaleNumerator);
         require(
-            numeratorProduct.mod(scaleDenominator) == 0,
+            numeratorProduct.mod(route.scaleDenominator) == 0,
             "ChildGold1155: NON_EXACT_DEPOSIT"
         );
 
-        _mint(user, tokenId, numeratorProduct.div(scaleDenominator), bytes(""));
+        _mint(user, tokenId, numeratorProduct.div(route.scaleDenominator), bytes(""));
     }
 
     function withdrawSingle(uint256 tokenId, uint256 amount) external {
         require(_isSupportedTokenId(tokenId), "ChildGold1155: INVALID_TOKEN_ID");
         require(amount != 0, "ChildGold1155: INVALID_AMOUNT");
+        RoutePrecision memory route = _route(tokenId);
 
-        uint256 denominatorProduct = amount.mul(scaleDenominator);
+        uint256 denominatorProduct = amount.mul(route.scaleDenominator);
         require(
-            denominatorProduct.mod(scaleNumerator) == 0,
+            denominatorProduct.mod(route.scaleNumerator) == 0,
             "ChildGold1155: NON_EXACT_WITHDRAW"
         );
+        uint256 rootAmount = denominatorProduct.div(route.scaleNumerator);
+        require(rootAmount.mod(route.rootUnit) == 0, "ChildGold1155: INVALID_ROOT_DIVISIBILITY");
 
         _burn(_msgSender(), tokenId, amount);
     }
 
+    function setBridgeRoutePrecision(
+        uint256 tokenId,
+        uint8 rootDecimals,
+        uint8 goldDecimals,
+        uint256 routeScaleNumerator,
+        uint256 routeScaleDenominator,
+        uint256 rootUnit
+    ) external only(DEFAULT_ADMIN_ROLE) {
+        _setRoutePrecision(
+            tokenId,
+            rootDecimals,
+            goldDecimals,
+            routeScaleNumerator,
+            routeScaleDenominator,
+            rootUnit
+        );
+    }
+
     function _isSupportedTokenId(uint256 tokenId) internal pure returns (bool) {
         return tokenId == PAXG_TOKEN_ID || tokenId == XAUT_TOKEN_ID;
+    }
+
+    function _route(uint256 tokenId) internal view returns (RoutePrecision memory) {
+        RoutePrecision memory route = routePrecisionByTokenId[tokenId];
+        require(route.exists, "ChildGold1155: ROUTE_NOT_CONFIGURED");
+        return route;
+    }
+
+    function _setRoutePrecision(
+        uint256 tokenId,
+        uint8 rootDecimals,
+        uint8 goldDecimals,
+        uint256 routeScaleNumerator,
+        uint256 routeScaleDenominator,
+        uint256 rootUnit
+    ) internal {
+        require(_isSupportedTokenId(tokenId), "ChildGold1155: INVALID_TOKEN_ID");
+        require(routeScaleNumerator != 0 && routeScaleDenominator != 0, "ChildGold1155: BAD_RATIO");
+        require(rootUnit != 0, "ChildGold1155: INVALID_ROOT_UNIT");
+
+        routePrecisionByTokenId[tokenId] = RoutePrecision({
+            exists: true,
+            rootDecimals: rootDecimals,
+            goldDecimals: goldDecimals,
+            scaleNumerator: routeScaleNumerator,
+            scaleDenominator: routeScaleDenominator,
+            rootUnit: rootUnit
+        });
+
+        emit BridgeRoutePrecisionConfigured(
+            tokenId,
+            rootDecimals,
+            goldDecimals,
+            routeScaleNumerator,
+            routeScaleDenominator,
+            rootUnit
+        );
     }
 }

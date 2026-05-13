@@ -1,10 +1,21 @@
 import { ChainId, GOLD_CHAIN, STABLESWAP_SUBGRAPHS, V2_SUBGRAPHS, V3_SUBGRAPHS } from '@pancakeswap/chains'
 
 export const THE_GRAPH_PROXY_API = 'https://thegraph.pancakeswap.com'
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+
+function requireGoldChainSubgraphEnv(key: string): string {
+  const value = process.env[key] || ''
+  if (isGoldChainProdBuild && value.length === 0) {
+    throw new Error(`[gold-chain-config] Missing required subgraph env: ${key}`)
+  }
+  return value
+}
 
 export const GRAPH_API_PROFILE = `${THE_GRAPH_PROXY_API}/profile`
 
-export const GRAPH_API_LOTTERY = `${THE_GRAPH_PROXY_API}/lottery-gilt`
+export const GRAPH_API_LOTTERY =
+  process.env.NEXT_PUBLIC_GOLD_CHAIN_LOTTERY_SUBGRAPH || `${THE_GRAPH_PROXY_API}/lottery-gilt`
 export const SNAPSHOT_BASE_URL = process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL
 export const API_PROFILE = 'https://profile.pancakeswap.com'
 export const API_NFT = 'https://nft.pancakeswap.com/api/v1'
@@ -42,7 +53,7 @@ export const V2_SUBGRAPH_URLS = {
   [ChainId.ZKSYNC]: `${THE_GRAPH_PROXY_API}/exchange-v2-zksync`,
   [ChainId.LINEA]: `${THE_GRAPH_PROXY_API}/exchange-v2-linea`,
   [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v2-opgilt`,
-  [GOLD_CHAIN]: process.env.NEXT_PUBLIC_GOLD_CHAIN_V2_SUBGRAPH || '',
+  [GOLD_CHAIN]: requireGoldChainSubgraphEnv('NEXT_PUBLIC_GOLD_CHAIN_V2_SUBGRAPH'),
 }
 
 export const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || 'https://assets.pancakeswap.finance'
@@ -56,6 +67,7 @@ export const V3_SUBGRAPH_URLS = {
   [ChainId.ZKSYNC]: `${THE_GRAPH_PROXY_API}/exchange-v3-zksync`,
   [ChainId.LINEA]: `${THE_GRAPH_PROXY_API}/exchange-v3-linea`,
   [ChainId.OPBNB]: `${THE_GRAPH_PROXY_API}/exchange-v3-opgilt`,
+  [GOLD_CHAIN]: requireGoldChainSubgraphEnv('NEXT_PUBLIC_GOLD_CHAIN_V3_SUBGRAPH'),
 }
 
 export const STABLESWAP_SUBGRAPHS_URLS = {
@@ -63,6 +75,7 @@ export const STABLESWAP_SUBGRAPHS_URLS = {
   [ChainId.GILT]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-gilt`,
   [ChainId.ARBITRUM_ONE]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-arb`,
   [ChainId.ETHEREUM]: `${THE_GRAPH_PROXY_API}/exchange-stableswap-eth`,
+  [GOLD_CHAIN]: requireGoldChainSubgraphEnv('NEXT_PUBLIC_GOLD_CHAIN_STABLESWAP_SUBGRAPH'),
 }
 
 export const X_API_ENDPOINT = process.env.NEXT_PUBLIC_QUOTING_API

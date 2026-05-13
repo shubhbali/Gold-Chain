@@ -39,8 +39,18 @@ async function main() {
   const provider = new ethers.providers.JsonRpcProvider(process.env.GOLD_CHAIN_RPC_URL || deployment.rpcUrl)
   const { deployer, goldOwner } = getWallets(provider)
 
-  const dexLiquidityAmount = ethers.utils.parseEther(process.env.GOLD_CHAIN_DEX_GOLD_LIQUIDITY || '250000')
-  const goldWrapAmount = ethers.utils.parseEther(process.env.GOLD_CHAIN_DEX_GOLD_WRAP || '250000')
+  const dexGoldPaxgLiquidityAmount = ethers.utils.parseEther(
+    process.env.GOLD_CHAIN_DEX_GOLD_PAXG_LIQUIDITY || process.env.GOLD_CHAIN_DEX_GOLD_LIQUIDITY || '125000',
+  )
+  const dexGoldXautLiquidityAmount = ethers.utils.parseEther(
+    process.env.GOLD_CHAIN_DEX_GOLD_XAUT_LIQUIDITY || process.env.GOLD_CHAIN_DEX_GOLD_LIQUIDITY || '125000',
+  )
+  const goldPaxgWrapAmount = ethers.utils.parseEther(
+    process.env.GOLD_CHAIN_DEX_GOLD_PAXG_WRAP || process.env.GOLD_CHAIN_DEX_GOLD_WRAP || '125000',
+  )
+  const goldXautWrapAmount = ethers.utils.parseEther(
+    process.env.GOLD_CHAIN_DEX_GOLD_XAUT_WRAP || process.env.GOLD_CHAIN_DEX_GOLD_WRAP || '125000',
+  )
   const deadline = Math.floor(Date.now() / 1000) + 60 * 60
   const zeroAddress = ethers.constants.AddressZero
 
@@ -52,10 +62,13 @@ async function main() {
     'function mint(address account, uint256 tokenId, uint256 amount)',
     'function setApprovalForAll(address operator, bool approved)',
   ]
-  const wgoldAbi = [
-    'function approve(address spender, uint256 amount) returns (bool)',
+  const wgoldWrapperAbi = [
     'function wrap(uint256 tokenId, uint256 amount)',
-    'function balanceOf(address account) view returns (uint256)',
+    'function setApprovalForAll(address operator, bool approved)',
+  ]
+  const wgoldRouteAbi = [
+    'function wrap(uint256 amount)',
+    'function approve(address spender, uint256 amount) returns (bool)',
   ]
   const routerAbi = [
     'function addLiquidity(address tokenA, address tokenB, uint256 amountADesired, uint256 amountBDesired, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline) returns (uint256 amountA, uint256 amountB, uint256 liquidity)',
@@ -75,70 +88,124 @@ async function main() {
   const dexToken = new ethers.Contract(deployment.dex, erc20Abi, deployer)
   const rawGold = new ethers.Contract(deployment.rawGold, erc1155Abi, goldOwner)
   const rawGoldForDeployer = new ethers.Contract(deployment.rawGold, erc1155Abi, deployer)
-  const wgold = new ethers.Contract(deployment.wgold, wgoldAbi, deployer)
+  const wgoldWrapper = new ethers.Contract(deployment.wgoldWrapper, wgoldWrapperAbi, deployer)
+  const goldPaxg = new ethers.Contract(deployment.goldPaxg, wgoldRouteAbi, deployer)
+  const goldXaut = new ethers.Contract(deployment.goldXaut, wgoldRouteAbi, deployer)
   const router = new ethers.Contract(deployment.router, routerAbi, deployer)
   const factory = new ethers.Contract(deployment.factory, factoryAbi, provider)
   const masterChef = new ethers.Contract(deployment.masterChef, masterChefAbi, deployer)
 
-  let dexGoldPair = await factory.getPair(deployment.dex, deployment.wgold)
+  const ensureDexGoldPair = async ({
+    routeTokenId,
+    goldRouteAddress,
+    goldRouteContract,
+    wrapAmount,
+    dexLiquidityAmount,
+    pairKey,
+    farmKey,
+    envLpKey,
+    envPidKey,
+  }) => {
+    let dexGoldPair = await factory.getPair(deployment.dex, goldRouteAddress)
 
-  if (dexGoldPair === zeroAddress) {
-    await wait(rawGold.mint(deployer.address, 1, goldWrapAmount))
-    await wait(rawGoldForDeployer.setApprovalForAll(deployment.wgold, true))
-    await wait(wgold.wrap(1, goldWrapAmount))
+    if (dexGoldPair === zeroAddress) {
+      await wait(rawGold.mint(deployer.address, routeTokenId, wrapAmount))
+      await wait(rawGoldForDeployer.setApprovalForAll(deployment.wgoldWrapper, true))
+      await wait(wgoldWrapper.wrap(routeTokenId, wrapAmount))
+      await wait(wgoldWrapper.setApprovalForAll(goldRouteAddress, true))
+      await wait(goldRouteContract.wrap(wrapAmount))
 
-    await wait(dexToken.approve(deployment.router, dexLiquidityAmount))
-    await wait(wgold.approve(deployment.router, goldWrapAmount))
-    await wait(
-      router.addLiquidity(
-        deployment.dex,
-        deployment.wgold,
-        dexLiquidityAmount,
-        goldWrapAmount,
-        0,
-        0,
-        deployer.address,
-        deadline,
-      ),
-    )
+      await wait(dexToken.approve(deployment.router, dexLiquidityAmount))
+      await wait(goldRouteContract.approve(deployment.router, wrapAmount))
+      await wait(
+        router.addLiquidity(
+          deployment.dex,
+          goldRouteAddress,
+          dexLiquidityAmount,
+          wrapAmount,
+          0,
+          0,
+          deployer.address,
+          deadline,
+        ),
+      )
 
-    dexGoldPair = await factory.getPair(deployment.dex, deployment.wgold)
-  }
+      dexGoldPair = await factory.getPair(deployment.dex, goldRouteAddress)
+    }
 
-  if (dexGoldPair === zeroAddress) {
-    throw new Error('DEX/GOLD pair was not created')
-  }
+    if (dexGoldPair === zeroAddress) {
+      throw new Error(`DEX/${pairKey} pair was not created`)
+    }
 
-  const poolLength = (await masterChef.poolLength()).toNumber()
-  let dexGoldPid = null
-  for (let pid = 0; pid < poolLength; pid += 1) {
-    const pool = await masterChef.poolInfo(pid)
-    if (pool.lpToken.toLowerCase() === dexGoldPair.toLowerCase()) {
-      dexGoldPid = pid
-      break
+    const poolLength = (await masterChef.poolLength()).toNumber()
+    let dexGoldPid = null
+    for (let pid = 0; pid < poolLength; pid += 1) {
+      const pool = await masterChef.poolInfo(pid)
+      if (pool.lpToken.toLowerCase() === dexGoldPair.toLowerCase()) {
+        dexGoldPid = pid
+        break
+      }
+    }
+
+    if (dexGoldPid === null) {
+      await wait(masterChef.add(1000, dexGoldPair, false))
+      dexGoldPid = (await masterChef.poolLength()).toNumber() - 1
+
+      const lpToken = new ethers.Contract(dexGoldPair, lpAbi, deployer)
+      const lpBalance = await lpToken.balanceOf(deployer.address)
+      await wait(lpToken.approve(deployment.masterChef, lpBalance))
+      await wait(masterChef.deposit(dexGoldPid, lpBalance))
+    }
+
+    deployment.pairs[pairKey] = dexGoldPair
+    deployment.farms[farmKey] = dexGoldPid
+
+    return {
+      dexGoldPair,
+      dexGoldPid,
+      envLpKey,
+      envPidKey,
     }
   }
 
-  if (dexGoldPid === null) {
-    await wait(masterChef.add(1000, dexGoldPair, false))
-    dexGoldPid = (await masterChef.poolLength()).toNumber() - 1
+  const pairUpdates = []
+  pairUpdates.push(
+    await ensureDexGoldPair({
+      routeTokenId: 1,
+      goldRouteAddress: deployment.goldPaxg,
+      goldRouteContract: goldPaxg,
+      wrapAmount: goldPaxgWrapAmount,
+      dexLiquidityAmount: dexGoldPaxgLiquidityAmount,
+      pairKey: 'dexGoldPaxg',
+      farmKey: 'dexGoldPaxgPid',
+      envLpKey: 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_PAXG_LP_ADDRESS',
+      envPidKey: 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_PAXG_FARM_PID',
+    }),
+  )
+  pairUpdates.push(
+    await ensureDexGoldPair({
+      routeTokenId: 2,
+      goldRouteAddress: deployment.goldXaut,
+      goldRouteContract: goldXaut,
+      wrapAmount: goldXautWrapAmount,
+      dexLiquidityAmount: dexGoldXautLiquidityAmount,
+      pairKey: 'dexGoldXaut',
+      farmKey: 'dexGoldXautPid',
+      envLpKey: 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_XAUT_LP_ADDRESS',
+      envPidKey: 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_XAUT_FARM_PID',
+    }),
+  )
 
-    const lpToken = new ethers.Contract(dexGoldPair, lpAbi, deployer)
-    const lpBalance = await lpToken.balanceOf(deployer.address)
-    await wait(lpToken.approve(deployment.masterChef, lpBalance))
-    await wait(masterChef.deposit(dexGoldPid, lpBalance))
-  }
-
-  deployment.pairs.dexGold = dexGoldPair
-  deployment.farms.dexGoldPid = dexGoldPid
   fs.writeFileSync(DEPLOYMENT_FILE, `${JSON.stringify(deployment, null, 2)}\n`)
 
   let env = fs.readFileSync(FRONTEND_ENV_FILE, 'utf8')
-  env = replaceEnvValue(env, 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_LP_ADDRESS', dexGoldPair)
-  env = replaceEnvValue(env, 'NEXT_PUBLIC_GOLD_CHAIN_DEX_GOLD_FARM_PID', String(dexGoldPid))
+  for (const update of pairUpdates) {
+    env = replaceEnvValue(env, update.envLpKey, update.dexGoldPair)
+    env = replaceEnvValue(env, update.envPidKey, String(update.dexGoldPid))
+  }
   fs.writeFileSync(FRONTEND_ENV_FILE, env)
 
-  console.log(JSON.stringify({ dexGoldPair, dexGoldPid }, null, 2))
+  console.log(JSON.stringify({ pairUpdates }, null, 2))
 }
 
 main().catch((error) => {

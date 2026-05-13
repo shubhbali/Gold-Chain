@@ -21,7 +21,7 @@ func DefaultGenesisState() *GenesisState {
 // Validate performs basic validation of chainmanager genesis data, returning an
 // error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
-	return nil
+	return gs.Params.ValidateBasic()
 }
 
 // GetGenesisStateFromAppState returns staking GenesisState given raw application genesis state

@@ -57,7 +57,7 @@ contract('RootChainManager native GILT route', (accounts) => {
     const syncTxs = await syncState(depositReceipt)
     await Promise.all(syncTxs.map((tx) => tx.wait()))
 
-    const withdrawTx = await contracts.child.childNativeGilt.withdraw(amount)
+    const withdrawTx = await contracts.child.childNativeGilt.withdraw(amount, { value: amount })
     await withdrawTx.wait()
     const withdrawReceipt = await web3.eth.getTransactionReceipt(withdrawTx.hash)
 

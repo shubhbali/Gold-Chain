@@ -1,27 +1,9 @@
+const fs = require('fs');
+const path = require('path');
 const { ethers } = require('ethers');
 
 const STAKE_HUB_ADDRESS = process.env.STAKE_HUB_ADDRESS || '0x0000000000000000000000000000000000002002';
-
-const stakeHubAbi = [
-  'function stakeTokenB() view returns (address)',
-  'function legacyStakeTokenB() view returns (address)',
-  'function tokenBCutoverVersion() view returns (uint256)',
-  'function tokenBMigrationReserveById(uint256 tokenId) view returns (uint256)',
-  'function tokenBMigrationProposalId() view returns (uint256)',
-  'function pendingTokenBMigrationStakeTokenB() view returns (address)',
-  'function pendingTokenBMigrationReserveVault() view returns (address)',
-  'function pendingTokenBMigrationApprovalCount() view returns (uint256)',
-  'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
-  'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
-  'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
-  'function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount)',
-];
-
-const erc1155Abi = [
-  'function setApprovalForAll(address operator, bool approved)',
-  'function isApprovedForAll(address owner, address operator) view returns (bool)',
-  'function balanceOf(address account, uint256 id) view returns (uint256)',
-];
+const GOV_HUB_ADDRESS = process.env.GOV_HUB_ADDRESS || '0x0000000000000000000000000000000000001007';
 
 function required(name) {
   const value = process.env[name];
@@ -32,71 +14,83 @@ function required(name) {
 }
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider(required('RPC_URL'));
-  const wallet = new ethers.Wallet(required('PRIVATE_KEY'), provider);
-
-  const newGoldAddress = required('NEW_GOLD_ADDRESS');
+  const legacyGoldAddress = required('LEGACY_GOLD_ADDRESS');
+  const finalGoldAddress = required('FINAL_GOLD_ADDRESS');
   const reserveVaultAddress = required('RESERVE_VAULT_ADDRESS');
-  const reserveWei = process.env.MIGRATION_RESERVE_WEI || '0';
-  const tokenId = BigInt(required('TOKEN_ID'));
+  const migrationControllerAddress = required('MIGRATION_CONTROLLER_ADDRESS');
+  const swapRouterAddress = process.env.SWAP_CONTRACT_ADDRESS || '';
 
-  const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, stakeHubAbi, wallet);
-  const newGold = new ethers.Contract(newGoldAddress, erc1155Abi, wallet);
+  const abiCoder = ethers.AbiCoder.defaultAbiCoder();
 
-  const beforeActive = await stakeHub.stakeTokenB();
-  const beforeLegacy = await stakeHub.legacyStakeTokenB();
-  const beforeVersion = await stakeHub.tokenBCutoverVersion();
-  const beforeProposalId = await stakeHub.tokenBMigrationProposalId();
+  const govHubAbi = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../abi/govhub.abi'), 'utf8'),
+  );
+  const govHubIface = new ethers.Interface(govHubAbi);
+  const controllerIface = new ethers.Interface([
+    'function activatePrepare(address legacyGold_, address finalGold_, address reserveVault_, address stakeMigrationCaller_)',
+    'function setWalletMigrationRouter(address newRouter)',
+    'function activateMigration()',
+    'function setExitOnly(uint256 cutoffBlock)',
+    'function finalizeMigration()',
+  ]);
+  const finalGoldIface = new ethers.Interface([
+    'function setMigrationController(address newMigrationController)',
+  ]);
 
-  console.log('before');
-  console.log({
-    activeGold: beforeActive,
-    legacyGold: beforeLegacy,
-    cutoverVersion: beforeVersion.toString(),
-    proposalId: beforeProposalId.toString(),
-  });
-
-  if (beforeLegacy === ethers.ZeroAddress) {
-    const tx = await stakeHub.activateTokenBMigration(newGoldAddress, reserveVaultAddress);
-    console.log(`activate tx: ${tx.hash}`);
-    await tx.wait();
-  } else {
-    console.log('migration already active, skipping activate step');
+  function stakeHubUpdateCalldata(key, value) {
+    return govHubIface.encodeFunctionData('updateParam', [key, value, STAKE_HUB_ADDRESS]);
   }
 
-  if (reserveWei !== '0') {
-    const approved = await newGold.isApprovedForAll(wallet.address, STAKE_HUB_ADDRESS);
-    if (!approved) {
-      const approveTx = await newGold.setApprovalForAll(STAKE_HUB_ADDRESS, true);
-      console.log(`approve tx: ${approveTx.hash}`);
-      await approveTx.wait();
-    }
+  const setControllerValue = ethers.solidityPacked(['address'], [migrationControllerAddress]);
+  const cutoverValue = abiCoder.encode(['address', 'address'], [finalGoldAddress, reserveVaultAddress]);
+  const prepareCalldata = controllerIface.encodeFunctionData('activatePrepare', [
+    legacyGoldAddress,
+    finalGoldAddress,
+    reserveVaultAddress,
+    STAKE_HUB_ADDRESS,
+  ]);
+  const activateCalldata = controllerIface.encodeFunctionData('activateMigration', []);
 
-    const depositTx = await stakeHub.depositTokenBMigrationReserve1155(tokenId, reserveWei);
-    console.log(`deposit tx: ${depositTx.hash}`);
-    await depositTx.wait();
-  }
-
-  const afterActive = await stakeHub.stakeTokenB();
-  const afterLegacy = await stakeHub.legacyStakeTokenB();
-  const afterVersion = await stakeHub.tokenBCutoverVersion();
-  const afterProposalId = await stakeHub.tokenBMigrationProposalId();
-  const reserve = await stakeHub.tokenBMigrationReserveById(tokenId);
-
-  console.log('after');
-  console.log({
-    activeGold: afterActive,
-    legacyGold: afterLegacy,
-    cutoverVersion: afterVersion.toString(),
-    proposalId: afterProposalId.toString(),
-    pendingStakeTokenB: await stakeHub.pendingTokenBMigrationStakeTokenB(),
-    pendingReserveVault: await stakeHub.pendingTokenBMigrationReserveVault(),
-    pendingApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
-    pendingRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
-    walletApprovedCurrentProposal: await stakeHub.hasApprovedTokenBMigration(afterProposalId, wallet.address),
-    tokenId: tokenId.toString(),
-    migrationReserve: reserve.toString(),
-  });
+  console.log(JSON.stringify({
+    note: 'Submit these calls through governance executor (Governor/Timelock calling GovHub/Controller).',
+    govHubAddress: GOV_HUB_ADDRESS,
+    stakeHubAddress: STAKE_HUB_ADDRESS,
+    migrationControllerAddress,
+    calls: [
+      {
+        title: 'Set StakeHub migration controller',
+        target: GOV_HUB_ADDRESS,
+        calldata: stakeHubUpdateCalldata('tokenBMigrationController', setControllerValue),
+      },
+      {
+        title: 'Bind migration controller on new GOLD',
+        target: finalGoldAddress,
+        calldata: finalGoldIface.encodeFunctionData('setMigrationController', [migrationControllerAddress]),
+      },
+      {
+        title: 'Prepare migration controller',
+        target: migrationControllerAddress,
+        calldata: prepareCalldata,
+      },
+      ...(swapRouterAddress
+        ? [{
+            title: 'Set wallet migration router (optional)',
+            target: migrationControllerAddress,
+            calldata: controllerIface.encodeFunctionData('setWalletMigrationRouter', [swapRouterAddress]),
+          }]
+        : []),
+      {
+        title: 'Activate migration controller',
+        target: migrationControllerAddress,
+        calldata: activateCalldata,
+      },
+      {
+        title: 'Activate StakeHub token-B cutover',
+        target: GOV_HUB_ADDRESS,
+        calldata: stakeHubUpdateCalldata('activateTokenBMigration', cutoverValue),
+      },
+    ],
+  }, null, 2));
 }
 
 main().catch((error) => {

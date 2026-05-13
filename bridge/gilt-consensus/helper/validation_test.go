@@ -28,6 +28,13 @@ func TestValidateChainID(t *testing.T) {
 			expected:        true,
 		},
 		{
+			name:            "matching chain IDs after canonicalization",
+			msgChainID:      " GoldChain_714-1 ",
+			expectedChainID: "goldchain_714-1",
+			moduleName:      "test",
+			expected:        true,
+		},
+		{
 			name:            "non-matching chain IDs",
 			msgChainID:      "80001",
 			expectedChainID: "137",
@@ -54,6 +61,15 @@ func TestValidateChainID(t *testing.T) {
 			require.Equal(t, tt.expected, result)
 		})
 	}
+
+	t.Run("tracks invalid chain ID stats", func(t *testing.T) {
+		result := ValidateChainID("foo", "bar", logger, "stats")
+		require.False(t, result)
+
+		count, last := ChainIDValidationStats()
+		require.GreaterOrEqual(t, count, uint64(1))
+		require.Contains(t, last, "module=stats")
+	})
 }
 
 func TestValidateVotingPower(t *testing.T) {

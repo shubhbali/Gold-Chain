@@ -40,6 +40,12 @@ defmodule Explorer.Chain.Import.Stage.ChainTypeSpecific do
     shibarium: [
       Runner.Shibarium.BridgeOperations
     ],
+    goldchain: [
+      Runner.Goldchain.BridgeTransfers,
+      Runner.Goldchain.ValidatorEvents,
+      Runner.Goldchain.StakingEvents,
+      Runner.Goldchain.GovernanceEvents
+    ],
     ethereum: [
       Runner.Beacon.BlobTransactions
     ],

@@ -21,6 +21,10 @@ const Deposits = dynamic(() => {
     return import('ui/pages/ShibariumDeposits');
   }
 
+  if (rollupFeature.isEnabled && rollupFeature.type === 'goldchain') {
+    return import('ui/pages/GoldchainDeposits');
+  }
+
   if (rollupFeature.isEnabled && rollupFeature.type === 'zkEvm') {
     return import('ui/pages/ZkEvmL2Deposits');
   }

@@ -1,0 +1,460 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\FarmBooster.sol": {
+      "lastModificationDate": 1778542725450,
+      "contentHash": "d127ef14f241fce69bbab0726f25285d",
+      "sourceName": "contracts/FarmBooster.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+        "@openzeppelin-4.5.0/contracts/token/ERC20/IERC20.sol",
+        "./libraries/IterateMapping.sol",
+        "./interfaces/IVECake.sol",
+        "./interfaces/IMasterChefV3.sol",
+        "./interfaces/IPancakeV3Pool.sol",
+        "./interfaces/INonfungiblePositionManager.sol",
+        "./interfaces/IPancakeV3Factory.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "FarmBooster"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1778628688824,
+      "contentHash": "8398972af73b4e9e5ff3b31cad86234f",
+      "sourceName": "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1778628684481,
+      "contentHash": "a44d1a099633876550ad2476b21bafbe",
+      "sourceName": "@openzeppelin-4.5.0/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\libraries\\IterateMapping.sol": {
+      "lastModificationDate": 1778542725464,
+      "contentHash": "48ea72c59927aabfa0f01c32d1883341",
+      "sourceName": "contracts/libraries/IterateMapping.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IterableMapping"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IVECake.sol": {
+      "lastModificationDate": 1778542725462,
+      "contentHash": "e759e8cded63ac9ccd7d46cf67a73a51",
+      "sourceName": "contracts/interfaces/IVECake.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IVECake"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IMasterChefV3.sol": {
+      "lastModificationDate": 1778542725456,
+      "contentHash": "65666025a3c19c6c04a99c82fff1bf5f",
+      "sourceName": "contracts/interfaces/IMasterChefV3.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IMasterChefV3"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IPancakeV3Pool.sol": {
+      "lastModificationDate": 1778542725460,
+      "contentHash": "fd9404def309d764fb97106bdb3ed0af",
+      "sourceName": "contracts/interfaces/IPancakeV3Pool.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IPancakeV3Pool"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\INonfungiblePositionManager.sol": {
+      "lastModificationDate": 1778542725458,
+      "contentHash": "6ae3e7d3bd48048502350b9a81558195",
+      "sourceName": "contracts/interfaces/INonfungiblePositionManager.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "INonfungiblePositionManager"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IPancakeV3Factory.sol": {
+      "lastModificationDate": 1778542725459,
+      "contentHash": "9c23d859a3eca9228f5787310ea39c06",
+      "sourceName": "contracts/interfaces/IPancakeV3Factory.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IPancakeV3Factory"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1778628640127,
+      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "sourceName": "@openzeppelin-4.5.0/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\MCV3MultiPositionUpdate.sol": {
+      "lastModificationDate": 1778542725451,
+      "contentHash": "b584427c5f63f4731abff7d7a4ab91a1",
+      "sourceName": "contracts/MCV3MultiPositionUpdate.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IMasterChefV3.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "MCV3MultiPositionUpdate"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IFarmBooster.sol": {
+      "lastModificationDate": 1778542725454,
+      "contentHash": "ef00e8ed1e3294b85ebb5b725e8a9c37",
+      "sourceName": "contracts/interfaces/IFarmBooster.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IFarmBooster"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake-farm-booster\\v3\\contracts\\interfaces\\IFarmBoosterV1.sol": {
+      "lastModificationDate": 1778542725455,
+      "contentHash": "8be1c0eb1b0c11e323f68b4176e128fe",
+      "sourceName": "contracts/interfaces/IFarmBoosterV1.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IFarmBoosterV1"
+      ]
+    }
+  }
+}

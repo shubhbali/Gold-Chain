@@ -7,6 +7,7 @@ const STAKE_HUB = '0x0000000000000000000000000000000000002002';
 const GOV_HUB = '0x0000000000000000000000000000000000001007';
 const GOVERNOR = '0x0000000000000000000000000000000000002004';
 const GOV_TOKEN = '0x0000000000000000000000000000000000002005';
+const TIMELOCK = '0x0000000000000000000000000000000000002006';
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || 'http://127.0.0.1:8545');
 const walletFile = process.env.WALLETS_FILE || path.resolve(__dirname, '../../.roughnet-wallets/evm-wallets.json');
@@ -27,59 +28,29 @@ const blsDatadir = process.env.BLS_DATADIR || path.resolve(__dirname, '../../.li
 const blsPassword = process.env.BLS_PASSWORD_FILE || path.resolve(__dirname, '../../.live-roughnet/bls-pass.txt');
 const gethBinary = process.env.GETH_BINARY || path.resolve(__dirname, '../../.tmp/geth');
 
-const stakeHubAbi = [
-  'function LOCK_AMOUNT() view returns (uint256)',
-  'function createValidator(address consensusAddress, bytes voteAddress, bytes blsProof, (uint64 rate, uint64 maxRate, uint64 maxChangeRate) commission, (string moniker, string identity, string website, string details) description) payable',
-  'function delegate(address operatorAddress, bool delegateVotePower) payable',
-  'function delegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount)',
-  'function undelegateTokenB1155(address operatorAddress, uint256 tokenId, uint256 tokenBAmount)',
-  'function claimTokenB(address operatorAddress, uint256 requestNumber)',
-  'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
-  'function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount)',
-  'function getValidatorElectionInfo(uint256 offset, uint256 limit) view returns (address[] memory consensusAddresses, uint256[] memory votingPowers, bytes[] memory voteAddresses, uint256 totalLength)',
-  'function getDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
-  'function getDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId) view returns (uint256)',
-  'function getLegacyDelegatedTokenB(address operatorAddress, address delegator) view returns (uint256)',
-  'function getLegacyDelegatedTokenBById(address operatorAddress, address delegator, uint256 tokenId) view returns (uint256)',
-  'function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) view returns (bool)',
-  'function legacyStakeTokenB() view returns (address)',
-  'function pendingTokenBMigrationApprovalCount() view returns (uint256)',
-  'function pendingTokenBMigrationRequiredApprovals() view returns (uint256)',
-  'function tokenBMigrationProposalId() view returns (uint256)',
-  'function tokenBMigrationReserveById(uint256 tokenId) view returns (uint256)',
-  'function ratioEnabled() view returns (bool)',
-  'function stakeTokenB() view returns (address)',
-  'function unbondPeriod() view returns (uint256)',
-];
+function loadCanonicalAbi(fileName) {
+  return JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../abi', fileName), 'utf8'),
+  );
+}
 
-const govHubAbi = [
-  'function updateParam(string key, bytes value, address target)',
-];
-
-const governorAbi = [
-  'function castVote(uint256 proposalId, uint8 support) returns (uint256)',
-  'function execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) payable returns (uint256)',
-  'function hashProposal(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) view returns (uint256)',
-  'function proposalDeadline(uint256 proposalId) view returns (uint256)',
-  'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) returns (uint256)',
-  'function queue(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) returns (uint256)',
-];
-
-const govTokenAbi = [
-  'function delegate(address delegatee)',
-  'function getVotes(address account) view returns (uint256)',
-  'function totalSupply() view returns (uint256)',
-];
+const stakeHubAbi = loadCanonicalAbi('stakehub.abi');
+const govHubAbi = loadCanonicalAbi('govhub.abi');
+const governorAbi = loadCanonicalAbi('giltgovernor.abi');
+const govTokenAbi = loadCanonicalAbi('govtoken.abi');
 
 const erc1155Abi = [
   'function PAXG_TOKEN_ID() view returns (uint256)',
   'function XAUT_TOKEN_ID() view returns (uint256)',
+  'function setBridgeDepositor(address newBridgeDepositor)',
+  'function deposit(address account, bytes depositData)',
+  'function setMigrationController(address newMigrationController)',
   'function setApprovalForAll(address operator, bool approved)',
   'function balanceOf(address account, uint256 id) view returns (uint256)',
-  'function mint(address account, uint256 tokenId, uint256 amount)',
 ];
 
 const physicalGoldArtifact = require('../out/PhysicalGold1155.sol/PhysicalGold1155.json');
+const migrationControllerArtifact = require('../out/GoldMigrationController.sol/GoldMigrationController.json');
 const reserveVaultArtifact = require('../out/LegacyGoldReserveVault.sol/LegacyGoldReserveVault.json');
 
 const stakeHub = new ethers.Contract(STAKE_HUB, stakeHubAbi, provider);
@@ -117,10 +88,7 @@ async function waitForSeconds(seconds) {
   await sleep(seconds * 1000);
 }
 
-async function governStakeHubUpdate(key, value, description) {
-  const targets = [GOV_HUB];
-  const values = [0];
-  const calldatas = [govHub.interface.encodeFunctionData('updateParam', [key, value, STAKE_HUB])];
+async function governCalls(targets, values, calldatas, description) {
   const descriptionHash = ethers.id(description);
 
   const proposeTx = await governor.connect(governanceWallet).propose(targets, values, calldatas, description);
@@ -147,6 +115,15 @@ async function governStakeHubUpdate(key, value, description) {
   return proposalId;
 }
 
+async function governStakeHubUpdate(key, value, description) {
+  return governCalls(
+    [GOV_HUB],
+    [0],
+    [govHub.interface.encodeFunctionData('updateParam', [key, value, STAKE_HUB])],
+    description,
+  );
+}
+
 async function main() {
   const goldFactory = new ethers.ContractFactory(
     physicalGoldArtifact.abi,
@@ -158,17 +135,29 @@ async function main() {
     normalizeBytecode(reserveVaultArtifact.bytecode.object),
     tokenOwnerWallet,
   );
+  const migrationControllerFactory = new ethers.ContractFactory(
+    migrationControllerArtifact.abi,
+    normalizeBytecode(migrationControllerArtifact.bytecode.object),
+    tokenOwnerWallet,
+  );
 
   console.error('deploying gold contracts');
-  const oldGold = await goldFactory.deploy('ipfs://legacy/{id}.json');
+  const oldGold = await goldFactory.deploy('ipfs://legacy/{id}.json', 1000, 1, TIMELOCK);
   await oldGold.waitForDeployment();
-  const newGold = await goldFactory.deploy('ipfs://gold/{id}.json');
+  const newGold = await goldFactory.deploy('ipfs://gold/{id}.json', 1000, 1, TIMELOCK);
   await newGold.waitForDeployment();
   const reserveVault = await reserveFactory.deploy();
   await reserveVault.waitForDeployment();
+  const migrationController = await migrationControllerFactory.deploy();
+  await migrationController.waitForDeployment();
 
   const oldGoldToken = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, tokenOwnerWallet);
   const newGoldToken = new ethers.Contract(await newGold.getAddress(), erc1155Abi, tokenOwnerWallet);
+  const migrationControllerContract = new ethers.Contract(
+    await migrationController.getAddress(),
+    migrationControllerArtifact.abi,
+    tokenOwnerWallet,
+  );
   const paxgTokenId = await oldGoldToken.PAXG_TOKEN_ID();
   const xautTokenId = await oldGoldToken.XAUT_TOKEN_ID();
 
@@ -235,16 +224,28 @@ async function main() {
   console.error('governance: set legacy gold');
   await governStakeHubUpdate('stakeTokenB', ethers.getBytes(await oldGold.getAddress()), 'Set legacy GOLD');
 
-  console.error('minting old and new gold');
-  await (await oldGoldToken.mint(delegatorWallet.address, paxgTokenId, ethers.parseEther('100'))).wait();
-  await (await oldGoldToken.mint(legacyUnbondWallet.address, paxgTokenId, ethers.parseEther('150'))).wait();
-  await (await oldGoldToken.mint(legacyUnbondWallet.address, xautTokenId, ethers.parseEther('50'))).wait();
-  await (await newGoldToken.mint(tokenOwnerWallet.address, paxgTokenId, ethers.parseEther('300'))).wait();
-  await (await newGoldToken.mint(tokenOwnerWallet.address, xautTokenId, ethers.parseEther('100'))).wait();
+  console.error('governance: set bootstrap bridge depositor for legacy gold');
+  await governCalls(
+    [await oldGold.getAddress()],
+    [0],
+    [oldGoldToken.interface.encodeFunctionData('setBridgeDepositor', [tokenOwnerWallet.address])],
+    'Set legacy GOLD bridge depositor for bootstrap deposits',
+  );
+
+  const oldGoldScaleNumerator = 1000n;
+  const legacyDeposit = (account, tokenId, childAmount) =>
+    oldGoldToken.deposit(
+      account,
+      ethers.AbiCoder.defaultAbiCoder().encode(['uint256', 'uint256'], [tokenId, childAmount / oldGoldScaleNumerator]),
+    );
+
+  console.error('seeding legacy gold via bridge deposit path');
+  await (await legacyDeposit(delegatorWallet.address, paxgTokenId, ethers.parseEther('100'))).wait();
+  await (await legacyDeposit(legacyUnbondWallet.address, paxgTokenId, ethers.parseEther('150'))).wait();
+  await (await legacyDeposit(legacyUnbondWallet.address, xautTokenId, ethers.parseEther('50'))).wait();
 
   const oldGoldAsDelegator = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, delegatorWallet);
   const oldGoldAsLegacyUnbond = new ethers.Contract(await oldGold.getAddress(), erc1155Abi, legacyUnbondWallet);
-  const newGoldAsOwner = new ethers.Contract(await newGold.getAddress(), erc1155Abi, tokenOwnerWallet);
 
   console.error('staking old gold');
   await (await oldGoldAsDelegator.setApprovalForAll(STAKE_HUB, true)).wait();
@@ -279,19 +280,44 @@ async function main() {
   const afterElection = await stakeHub.getValidatorElectionInfo(0, 0);
   const powerAfterRatio = afterElection[1][0];
 
-  console.error('validator approval: activate migration');
-  await (
-    await stakeHub.connect(validatorWallet).activateTokenBMigration(await newGold.getAddress(), await reserveVault.getAddress())
-  ).wait();
+  const migrationControllerAddress = await migrationController.getAddress();
+  console.error('governance: set migration controller');
+  await governStakeHubUpdate(
+    'tokenBMigrationController',
+    ethers.getBytes(migrationControllerAddress),
+    'Set stake token-B migration controller',
+  );
 
-  console.error('funding migration reserve');
-  await (await newGoldAsOwner.setApprovalForAll(STAKE_HUB, true)).wait();
-  await (
-    await stakeHub.connect(tokenOwnerWallet).depositTokenBMigrationReserve1155(paxgTokenId, ethers.parseEther('300'))
-  ).wait();
-  await (
-    await stakeHub.connect(tokenOwnerWallet).depositTokenBMigrationReserve1155(xautTokenId, ethers.parseEther('100'))
-  ).wait();
+  console.error('governance: bind migration controller as new gold migration minter');
+  await governCalls(
+    [await newGold.getAddress()],
+    [0],
+    [newGoldToken.interface.encodeFunctionData('setMigrationController', [migrationControllerAddress])],
+    'Bind migration controller as new GOLD migration controller',
+  );
+
+  console.error('governance: prepare and activate migration controller');
+  await governCalls(
+    [migrationControllerAddress, migrationControllerAddress],
+    [0, 0],
+    [
+      migrationControllerContract.interface.encodeFunctionData('activatePrepare', [
+        await oldGold.getAddress(),
+        await newGold.getAddress(),
+        await reserveVault.getAddress(),
+        STAKE_HUB,
+      ]),
+      migrationControllerContract.interface.encodeFunctionData('activateMigration', []),
+    ],
+    'Prepare and activate GOLD migration controller',
+  );
+
+  console.error('governance: activate stake token-B cutover');
+  const activateCutoverValue = ethers.AbiCoder.defaultAbiCoder().encode(
+    ['address', 'address'],
+    [await newGold.getAddress(), await reserveVault.getAddress()],
+  );
+  await governStakeHubUpdate('activateTokenBMigration', activateCutoverValue, 'Activate stake token-B migration');
 
   console.error('post-cutover undelegate and live claims');
   await (
@@ -327,18 +353,17 @@ async function main() {
         govSupply: (await govToken.totalSupply()).toString(),
         stakeTokenB: await stakeHub.stakeTokenB(),
         legacyStakeTokenB: await stakeHub.legacyStakeTokenB(),
+        tokenBCutoverVersion: (await stakeHub.tokenBCutoverVersion()).toString(),
+        tokenBMigrationController: await stakeHub.tokenBMigrationController(),
         ratioEnabled: await stakeHub.ratioEnabled(),
         powerBeforeRatio: powerBeforeRatio.toString(),
         powerAfterRatio: powerAfterRatio.toString(),
-        migrationProposalId: (await stakeHub.tokenBMigrationProposalId()).toString(),
-        migrationApprovalCount: (await stakeHub.pendingTokenBMigrationApprovalCount()).toString(),
-        migrationRequiredApprovals: (await stakeHub.pendingTokenBMigrationRequiredApprovals()).toString(),
-        validatorApprovedMigration: await stakeHub.hasApprovedTokenBMigration(
-          await stakeHub.tokenBMigrationProposalId(),
-          validatorAddress,
-        ),
-        migrationReservePaxg: (await stakeHub.tokenBMigrationReserveById(paxgTokenId)).toString(),
-        migrationReserveXaut: (await stakeHub.tokenBMigrationReserveById(xautTokenId)).toString(),
+        migrationLifecycleState: Number(await migrationControllerContract.lifecycleState()),
+        migrationPaused: await migrationControllerContract.migrationPaused(),
+        migrationCapturedPaxg: (await migrationControllerContract.legacyCapturedById(paxgTokenId)).toString(),
+        migrationCapturedXaut: (await migrationControllerContract.legacyCapturedById(xautTokenId)).toString(),
+        migrationMintedPaxg: (await migrationControllerContract.finalMintedById(paxgTokenId)).toString(),
+        migrationMintedXaut: (await migrationControllerContract.finalMintedById(xautTokenId)).toString(),
         delegatorRemainingStake: (await stakeHub.getDelegatedTokenB(validatorAddress, delegatorWallet.address)).toString(),
         delegatorRemainingPaxgStake: (
           await stakeHub.getDelegatedTokenBById(validatorAddress, delegatorWallet.address, paxgTokenId)

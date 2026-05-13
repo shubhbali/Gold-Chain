@@ -9,7 +9,7 @@ defmodule Explorer.Chain.TransactionAction do
   }
 
   @required_attrs ~w(hash protocol data type log_index)a
-  @supported_protocols [:uniswap_v3, :opensea_v1_1, :wrapping, :approval, :zkbob, :aave_v3]
+  @supported_protocols [:uniswap_v3, :opensea_v1_1, :wrapping, :approval, :zkbob, :aave_v3, :goldchain]
   @supported_types [
     :mint_nft,
     :mint,
@@ -31,7 +31,19 @@ defmodule Explorer.Chain.TransactionAction do
     :flash_loan,
     :enable_collateral,
     :disable_collateral,
-    :liquidation_call
+    :liquidation_call,
+    :stake,
+    :unstake,
+    :redelegate,
+    :reward,
+    :slash,
+    :governance,
+    :bridge_lock,
+    :bridge_release,
+    :mint_or_credit,
+    :burn_or_debit,
+    :migration,
+    :validator_update
   ]
   @typedoc """
   * `hash` - transaction hash

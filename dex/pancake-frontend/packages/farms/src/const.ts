@@ -1,5 +1,17 @@
 import { ChainId, GOLD_CHAIN, NonEVMChainId } from '@pancakeswap/chains'
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+
+function requireGoldChainAddressEnv(key: string, fallback: string): string {
+  const value = process.env[key] || fallback
+  if (isGoldChainProdBuild && value === ZERO_ADDRESS) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
 // @todo remove all other v2/v3 and type definitions
 export const supportedChainIdV4 = [
   ChainId.GILT,
@@ -10,6 +22,7 @@ export const supportedChainIdV4 = [
   ChainId.ZKSYNC,
   ChainId.LINEA,
   ChainId.ARBITRUM_ONE,
+  GOLD_CHAIN,
   ChainId.MONAD_MAINNET,
   NonEVMChainId.SOLANA,
 ] as const satisfies readonly (ChainId | NonEVMChainId)[]
@@ -43,6 +56,7 @@ export const supportedChainIdV3 = [
   ChainId.BASE,
   ChainId.OPBNB,
   ChainId.OPBNB_TESTNET,
+  GOLD_CHAIN,
   ChainId.MONAD_MAINNET,
   ChainId.MONAD_TESTNET,
 ] as const
@@ -68,7 +82,7 @@ export type FarmV4SupportedChainId = (typeof supportedChainIdV4)[number]
 export const masterChefAddresses = {
   [ChainId.BSC_TESTNET]: '0xB4A466911556e39210a6bB2FaECBB59E4eB7E43d',
   [ChainId.GILT]: '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652',
-  [GOLD_CHAIN]: process.env.NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_ADDRESS || '0x0000000000000000000000000000000000000000',
+  [GOLD_CHAIN]: requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_ADDRESS', ZERO_ADDRESS),
 } as const satisfies Partial<Record<FarmV2SupportedChainId, string>>
 
 export const masterChefV3Addresses = {
@@ -83,6 +97,7 @@ export const masterChefV3Addresses = {
   [ChainId.BASE]: '0xC6A2Db661D5a5690172d8eB0a7DEA2d3008665A3',
   [ChainId.OPBNB]: '0x05ddEDd07C51739d2aE21F6A9d97a8d69C2C3aaA',
   [ChainId.OPBNB_TESTNET]: '0x236e713bFF45adb30e25D1c29A887aBCb0Ea7E21',
+  [GOLD_CHAIN]: requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_V3_ADDRESS', ZERO_ADDRESS),
   [ChainId.MONAD_MAINNET]: '0x',
   [ChainId.MONAD_TESTNET]: '0x',
 } as const satisfies Record<FarmV3SupportedChainId, string>

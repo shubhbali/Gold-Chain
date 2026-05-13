@@ -15,7 +15,7 @@ const feature = config.features.rollup;
 type Props = { item: ShibariumWithdrawalsItem; isLoading?: boolean };
 
 const WithdrawalsTableItem = ({ item, isLoading }: Props) => {
-  if (!(feature.isEnabled && feature.type === 'shibarium')) {
+  if (!(feature.isEnabled && (feature.type === 'shibarium' || feature.type === 'goldchain'))) {
     return null;
   }
 
@@ -67,3 +67,4 @@ const WithdrawalsTableItem = ({ item, isLoading }: Props) => {
 };
 
 export default WithdrawalsTableItem;
+

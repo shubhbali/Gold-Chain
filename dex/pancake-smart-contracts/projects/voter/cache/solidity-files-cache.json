@@ -1,0 +1,544 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\test\\MockVotingEscrow.sol": {
+      "lastModificationDate": 1778542725582,
+      "contentHash": "83121a7c8203359690693fe841053c30",
+      "sourceName": "contracts/test/MockVotingEscrow.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockVotingEscrow"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\GaugeVoting.sol": {
+      "lastModificationDate": 1778542725571,
+      "contentHash": "f604f9c3490fba541858c479ef9561f4",
+      "sourceName": "contracts/GaugeVoting.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts-0.8/token/ERC20/extensions/IERC20Metadata.sol",
+        "@openzeppelin/contracts-0.8/access/Ownable.sol",
+        "@openzeppelin/contracts-0.8/security/Pausable.sol",
+        "./libraries/SafeCast.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "GaugeVoting",
+        "VotingEscrow"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1778628678550,
+      "contentHash": "302d9755e46bc69d7058b0cbe7185e37",
+      "sourceName": "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
+      "lastModificationDate": 1778628679518,
+      "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
+      "sourceName": "@openzeppelin/contracts-0.8/token/ERC20/extensions/IERC20Metadata.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20Metadata"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\access\\Ownable.sol": {
+      "lastModificationDate": 1778628686807,
+      "contentHash": "8398972af73b4e9e5ff3b31cad86234f",
+      "sourceName": "@openzeppelin/contracts-0.8/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\security\\Pausable.sol": {
+      "lastModificationDate": 1778628686920,
+      "contentHash": "9c2dccab8e3a43a18c41e358763fe4d8",
+      "sourceName": "@openzeppelin/contracts-0.8/security/Pausable.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Pausable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\libraries\\SafeCast.sol": {
+      "lastModificationDate": 1778542725579,
+      "contentHash": "6a84e7ba3e4a3c314b5608877fcee1ae",
+      "sourceName": "contracts/libraries/SafeCast.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SafeCast"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\utils\\Context.sol": {
+      "lastModificationDate": 1778628638321,
+      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "sourceName": "@openzeppelin/contracts-0.8/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts-0.8\\token\\ERC20\\ERC20.sol": {
+      "lastModificationDate": 1778628641949,
+      "contentHash": "f48de0eaae9544072b8766e2eac528a7",
+      "sourceName": "@openzeppelin/contracts-0.8/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./extensions/IERC20Metadata.sol",
+        "../../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\test\\MockERC20.sol": {
+      "lastModificationDate": 1778542725581,
+      "contentHash": "bb8bf8c3d8a5682b340376e303d41611",
+      "sourceName": "contracts/test/MockERC20.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-0.8/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "MockERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\GaugeVotingBulk.sol": {
+      "lastModificationDate": 1778542725574,
+      "contentHash": "1f08d23a89c6b6054c510ba3b61e5a0b",
+      "sourceName": "contracts/GaugeVotingBulk.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-0.8/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "GaugeVotingBulk",
+        "IGaugeVoting"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\GaugeVotingAdminUtil.sol": {
+      "lastModificationDate": 1778542725572,
+      "contentHash": "bf454fc6ae05ee408ecb12789e15b2a2",
+      "sourceName": "contracts/GaugeVotingAdminUtil.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-0.8/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "GaugeVotingAdminUtil",
+        "IGaugeVoting"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\GaugeVotingCalc.sol": {
+      "lastModificationDate": 1778542725576,
+      "contentHash": "207d4060a36c9c363a69a099b3ec7790",
+      "sourceName": "contracts/GaugeVotingCalc.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "GaugeVotingCalc",
+        "IGaugeVoting"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\voter\\contracts\\GaugeVotingCalcV4.sol": {
+      "lastModificationDate": 1778542725577,
+      "contentHash": "95a2138ad38662d0affb26058c1c1f10",
+      "sourceName": "contracts/GaugeVotingCalcV4.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "GaugeVotingCalcV4",
+        "IGaugeVoting"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\hardhat\\console.sol": {
+      "lastModificationDate": 1778628594530,
+      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
+      "sourceName": "hardhat/console.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.22 <0.9.0"
+      ],
+      "artifacts": [
+        "console"
+      ]
+    }
+  }
+}

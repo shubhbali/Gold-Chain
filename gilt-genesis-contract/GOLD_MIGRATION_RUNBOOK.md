@@ -1,24 +1,28 @@
 # Gold Migration Runbook
 
-This is the simple migration model now built into the contracts.
+This runbook describes the dormant-until-activated migration model now built into the contracts.
 
 ## Target Model
 
 - `old GOLD` stays redeemable
-- `old GOLD` stops being used for staking
+- migration remains off until governance explicitly activates it
+- `old GOLD` stops being used for staking only at cutover
 - `new GOLD` becomes the live staking gold
 - `GILT` stays live
 - staked `old GOLD` is auto-converted
+- wallet `old GOLD` migrates through the migration controller
 - `old GOLD` taken from migration goes into protocol reserve
+- each deployed `PhysicalGold1155` has an immutable bridge ratio
 
 ## What Is Already In Code
 
-- `StakeHub` can switch from old gold to new gold
-- still-staked old gold can auto-convert
-- old gold already waiting in the unstake queue still comes out as old gold
-- a reserve vault contract exists
-- a simple 1:1 wallet swap contract exists
-- a new gold token contract exists
+- `GoldMigrationController` lifecycle states: `INACTIVE -> PREPARE -> ACTIVE -> EXIT_ONLY -> FINALIZED`
+- `StakeHub` migration cutover is governance-controlled
+- wallet + stake conversions use one canonical conversion engine
+- old unbond requests created before cutover still claim old gold
+- reserve vault contract exists for captured legacy assets
+- `PhysicalGold1155` mints only from bridge deposits and controller-gated migration while migration minting is enabled
+- `PhysicalGold1155` has immutable bridge ratio
 
 ## What Still Needs Forge Later
 
@@ -36,30 +40,43 @@ You need these addresses ready:
 - validator address to test
 - delegator wallet to test
 
-You also need enough new gold ready to fund the migration reserve inside `StakeHub`.
+No pre-funding reserve is required for conversion. Conversion mints `new GOLD` against captured `old GOLD`.
 
 ## Cutover Order
 
-1. Deploy new gold, reserve vault, and swap contract.
-2. Make sure swap contract has enough new gold for wallet swaps.
-3. Activate migration in `StakeHub`.
-4. Fund the `StakeHub` migration reserve with new gold.
+1. Deploy `new GOLD` (with explicit ratio constructor args), reserve vault, and migration controller.
+2. Deploy optional router contract (`GoldMigrationSwap1155`) at any time; it no longer requires prepared controller token addresses at deploy time.
+3. Set `migrationController` on `new GOLD` to migration controller address.
+4. Submit governance calls to:
+   - set `StakeHub` migration controller
+   - controller `activatePrepare(...)`
+   - optional controller `setWalletMigrationRouter(...)`
+   - controller `activateMigration()`
+   - `GovHub.updateParam("activateTokenBMigration", abi.encode(newGold, reserveVault), stakeHub)`
+   - direct `StakeHub.activateTokenBMigration(...)` is intentionally disabled in production flow
 5. From that point on, new staking uses new gold.
-6. Wallet users can swap old gold to new gold 1:1.
-7. Staked users get auto-converted when they interact with staking.
+6. Wallet users migrate old gold to new gold 1:1 via controller/router.
+7. Staked users auto-convert when they interact with staking.
+8. Move old bridge path to `EXIT_ONLY`, then `FINALIZED` after cutoff using one governance bundle per phase.
+
+## Bridge Ratio Policy
+
+- bridge ratio is fixed in `PhysicalGold1155` constructor and cannot be changed afterward
+- `setBridgeDepositor` rotates only bridge operator address; it does not change ratio
+- changing ratio requires deploying a new `GOLD` contract and migrating bridge route/state to that new deployment
+- `DEFAULT_ADMIN_ROLE` must be held by governance timelock/multisig, not an operator hot key
 
 ## RPC Scripts Added
 
 These do not need Forge once contracts are live.
 
-### 1. Activate cutover and fund reserve
+### 1. Generate governance calldata for activation
 
 ```bash
-RPC_URL=... \
-PRIVATE_KEY=... \
-NEW_GOLD_ADDRESS=... \
+LEGACY_GOLD_ADDRESS=... \
+FINAL_GOLD_ADDRESS=... \
 RESERVE_VAULT_ADDRESS=... \
-MIGRATION_RESERVE_WEI=... \
+MIGRATION_CONTROLLER_ADDRESS=... \
 node scripts/activate-gold-migration.js
 ```
 
@@ -70,6 +87,7 @@ RPC_URL=... \
 VALIDATOR_ADDRESS=... \
 DELEGATOR_ADDRESS=... \
 RESERVE_VAULT_ADDRESS=... \
+TOKEN_IDS=1,2 \
 node scripts/check-gold-migration-state.js
 ```
 
@@ -79,27 +97,42 @@ node scripts/check-gold-migration-state.js
 RPC_URL=... \
 PRIVATE_KEY=... \
 SWAP_CONTRACT_ADDRESS=... \
+TOKEN_ID=1 \
 AMOUNT_WEI=... \
 node scripts/swap-legacy-gold.js
 ```
+
+### 4. Phase transition bundle (controller + root bridge together)
+
+```bash
+ROOT_CHAIN_MANAGER_ADDRESS=... \
+ROOT_OLD_GOLD_TOKEN=... \
+MIGRATION_CONTROLLER_ADDRESS=... \
+PHASE=EXIT_ONLY \
+EXIT_CUTOFF_BLOCK=... \
+node ../bridge/pos-portal/scripts/gold-migration-phase-calldata.mjs
+```
+
+Use `PHASE=FINALIZED` (same `EXIT_CUTOFF_BLOCK`) when finalizing after cutoff.
 
 ## Dry Run Checklist
 
 ### Wallet swap
 
 - user starts with old gold
-- user runs swap
+- user approves migration controller
+- user runs swap/router
 - user ends with new gold
 - reserve vault receives old gold
 
 ### Staked migration
 
 - validator has delegated old gold
+- migration controller is `ACTIVE`
 - cutover is activated
-- reserve is funded
 - delegator undelegates or claims reward
 - old staked gold moves to reserve
-- position becomes new-gold-backed
+- position becomes new-gold-backed via minted active gold in `StakeHub`
 
 ### Legacy unstake check
 
@@ -113,3 +146,4 @@ node scripts/swap-legacy-gold.js
 - reserve balance goes up
 - delegator active stake stays the same amount
 - delegator legacy stake goes to zero
+- migration counters reconcile per token ID: captured old gold == minted new gold

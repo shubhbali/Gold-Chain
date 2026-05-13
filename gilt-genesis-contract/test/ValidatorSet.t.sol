@@ -15,6 +15,9 @@ contract ValidatorSetTest is Deployer {
     event finalityRewardDeposit(address indexed validator, uint256 amount);
     event deprecatedFinalityRewardDeposit(address indexed validator, uint256 amount);
     event deprecatedInflationRewardDeposit(address indexed validator, uint256 amount);
+    event ConsensusEmergencyHalt(address indexed validator, uint256 haltTimestamp);
+    event RecoveryValidatorSetApplied(address indexed operator, uint256 validatorCount);
+    event ConsensusRecovered(address indexed operator, uint256 validatorCount);
     event unsupportedPackage(uint64 indexed packageSequence, uint8 indexed channelId, bytes payload);
 
     uint256 public totalInComing;
@@ -128,21 +131,97 @@ contract ValidatorSetTest is Deployer {
     }
 
     function testDepositInflationBypassesFeeSkims() public {
-        uint256 amount = 1 ether;
+        (address operatorAddress, address consensusAddress,, bytes memory voteAddress) = _createValidator(2000 ether);
+        address[] memory consensusAddrs = new address[](1);
+        uint64[] memory votingPowers = new uint64[](1);
+        bytes[] memory voteAddrs = new bytes[](1);
+        consensusAddrs[0] = consensusAddress;
+        votingPowers[0] = 2000 * 1e8;
+        voteAddrs[0] = voteAddress;
+
+        vm.prank(coinbase);
+        giltValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
+
+        uint256 amount;
         uint256 systemRewardBefore = address(systemReward).balance;
         uint256 burnBefore = address(0x000000000000000000000000000000000000dEaD).balance;
+        uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("inflationBaseSupply", abi.encode(uint256(2_000_000 ether)));
+        stakeHub.updateParam("inflationEnabled", hex"01");
+        stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
+        amount = stakeHub.expectedInflationMintAmount(dayIndex);
+        assertGt(amount, 0, "expected inflation amount must be non-zero");
+        vm.stopPrank();
 
         vm.startPrank(coinbase);
         vm.expectEmit(true, false, false, true, address(giltValidatorSet));
-        emit inflationRewardDeposit(validator0, amount);
-        giltValidatorSet.depositInflation{ value: amount }(validator0);
+        emit inflationRewardDeposit(consensusAddress, amount);
+        giltValidatorSet.depositInflation{ value: amount }(consensusAddress);
         vm.stopPrank();
 
-        assertEq(giltValidatorSet.getIncoming(validator0), amount, "inflation should be credited in full");
-        assertEq(giltValidatorSet.totalInComing(), totalInComing + amount, "wrong total incoming after inflation");
+        assertEq(operatorAddress, stakeHub.consensusToOperator(consensusAddress), "validator must exist in stake hub");
+        assertEq(giltValidatorSet.getIncoming(consensusAddress), 0, "inflation should not sit in validator incoming");
+        assertEq(giltValidatorSet.totalInComing(), totalInComing, "inflation should not change validator incoming totals");
         assertEq(address(systemReward).balance, systemRewardBefore, "inflation should not fund system reward");
         assertEq(address(0x000000000000000000000000000000000000dEaD).balance, burnBefore, "inflation should not burn");
         assertEq(stakeHub.inflationMintedAmount(), amount, "wrong minted inflation amount");
+        assertEq(stakeHub.inflationDistributedAmount(), amount, "inflation should be distributed immediately");
+    }
+
+    function testDepositInflationRejectsNonCanonicalAmount() public {
+        (, address consensusAddress,, bytes memory voteAddress) = _createValidator(2000 ether);
+        address[] memory consensusAddrs = new address[](1);
+        uint64[] memory votingPowers = new uint64[](1);
+        bytes[] memory voteAddrs = new bytes[](1);
+        consensusAddrs[0] = consensusAddress;
+        votingPowers[0] = 2000 * 1e8;
+        voteAddrs[0] = voteAddress;
+
+        vm.prank(coinbase);
+        giltValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
+
+        uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+        vm.startPrank(GOV_HUB_ADDR);
+        stakeHub.updateParam("inflationBaseSupply", abi.encode(uint256(2_000_000 ether)));
+        stakeHub.updateParam("inflationEnabled", hex"01");
+        stakeHub.updateParam("inflationStartDayIndex", abi.encode(dayIndex));
+        uint256 expectedAmount = stakeHub.expectedInflationMintAmount(dayIndex);
+        assertGt(expectedAmount, 1, "expected inflation amount too small for mismatch test");
+        vm.stopPrank();
+
+        vm.startPrank(coinbase);
+        vm.expectRevert("invalid inflation amount");
+        giltValidatorSet.depositInflation{ value: expectedAmount - 1 }(consensusAddress);
+        vm.stopPrank();
+    }
+
+    function testConsensusEmergencyHaltAndGovernanceRecovery() public {
+        (, address consensusAddress,, bytes memory voteAddress) = _createValidator(2000 ether);
+        address[] memory consensusAddrs = new address[](1);
+        uint64[] memory votingPowers = new uint64[](1);
+        bytes[] memory voteAddrs = new bytes[](1);
+        consensusAddrs[0] = consensusAddress;
+        votingPowers[0] = 2000 * 1e8;
+        voteAddrs[0] = voteAddress;
+
+        vm.prank(coinbase);
+        giltValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
+
+        vm.prank(STAKE_HUB_ADDR);
+        giltValidatorSet.activateConsensusEmergencyHalt(consensusAddress);
+        assertTrue(giltValidatorSet.consensusEmergencyHalt(), "consensus halt should be active");
+        assertEq(giltValidatorSet.getValidators().length, 0, "halt should remove active producers");
+        assertEq(giltValidatorSet.getWorkingValidatorCount(), 0, "working validator count should be zero in halt");
+
+        vm.prank(GOV_HUB_ADDR);
+        giltValidatorSet.recoverConsensus(consensusAddrs, votingPowers, voteAddrs);
+
+        assertFalse(giltValidatorSet.consensusEmergencyHalt(), "consensus halt should clear after recovery");
+        address[] memory activeValidators = giltValidatorSet.getValidators();
+        assertEq(activeValidators.length, 1, "recovery should restore validator set");
+        assertEq(activeValidators[0], consensusAddress, "wrong recovered validator");
     }
 
     function testValidateSetChange() public {

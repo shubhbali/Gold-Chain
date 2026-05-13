@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goldchain.local/schemas/goldchain-dex-manifest.schema.json",
+  "title": "Gold Chain DEX Deployment Manifest",
+  "type": "object",
+  "required": [
+    "manifestVersion",
+    "target",
+    "chainId",
+    "rpcUrl",
+    "deployer",
+    "factory",
+    "router",
+    "wgilt",
+    "initCodeHash",
+    "bytecodeHashes",
+    "pairs",
+    "farms",
+    "startBlock",
+    "manifestDigest"
+  ],
+  "properties": {
+    "manifestVersion": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string",
+      "enum": ["testnet", "mainnet"]
+    },
+    "chainId": {
+      "type": "integer"
+    },
+    "rpcUrl": {
+      "type": "string"
+    },
+    "deployer": {
+      "$ref": "#/$defs/address"
+    },
+    "factory": {
+      "$ref": "#/$defs/address"
+    },
+    "router": {
+      "$ref": "#/$defs/address"
+    },
+    "wgilt": {
+      "$ref": "#/$defs/address"
+    },
+    "initCodeHash": {
+      "$ref": "#/$defs/hash32"
+    },
+    "bytecodeHashes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/hash32"
+      }
+    },
+    "pairs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/address"
+      }
+    },
+    "farms": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "startBlock": {
+      "type": "integer"
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/address"
+      }
+    },
+    "manifestDigest": {
+      "$ref": "#/$defs/hash32"
+    },
+    "manifestSignature": {
+      "type": "object",
+      "required": ["signer", "signature", "digest"],
+      "properties": {
+        "signer": {
+          "$ref": "#/$defs/address"
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^0x[a-fA-F0-9]{130}$"
+        },
+        "digest": {
+          "$ref": "#/$defs/hash32"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "address": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$"
+    },
+    "hash32": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{64}$"
+    }
+  }
+}

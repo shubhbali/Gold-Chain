@@ -227,12 +227,6 @@ func ApplyTransactionWithEVM(msg *Message, gp *GasPool, statedb *state.StateDB, 
 	if err != nil {
 		return nil, err
 	}
-	if err := ApplyNativeGiltBridgeLogEffects(
-		statedb,
-		statedb.GetLogs(tx.Hash(), blockNumber.Uint64(), blockHash, blockTime),
-	); err != nil {
-		return nil, err
-	}
 	// Update the state with pending changes.
 	var root []byte
 	if evm.ChainConfig().IsByzantium(blockNumber) {

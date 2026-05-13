@@ -78,6 +78,9 @@ func (k Keeper) GetAuthority() string {
 
 // SetParams sets the chainmanager module's parameters.
 func (k Keeper) SetParams(ctx context.Context, params types.Params) error {
+	if err := params.ValidateBasic(); err != nil {
+		return err
+	}
 	return k.params.Set(ctx, params)
 }
 

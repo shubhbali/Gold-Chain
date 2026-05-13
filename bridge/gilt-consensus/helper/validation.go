@@ -1,12 +1,23 @@
 package helper
 
 import (
+	"fmt"
 	"math/big"
+	"strings"
+	"sync/atomic"
 
 	"cosmossdk.io/log"
 
 	"github.com/giltchain/gilt-consensus/sidetxs"
 )
+
+var invalidChainIDCount uint64
+
+var lastInvalidChainID atomic.Value
+
+func init() {
+	lastInvalidChainID.Store("")
+}
 
 // ValidateChainID checks if the message chain ID matches the expected Gilt chain ID.
 // Returns true if the chain ID is valid, false otherwise.
@@ -17,15 +28,44 @@ func ValidateChainID(
 	logger log.Logger,
 	moduleName string,
 ) bool {
-	if expectedChainID != msgChainID {
+	expectedCanonical := CanonicalizeChainID(expectedChainID)
+	receivedCanonical := CanonicalizeChainID(msgChainID)
+
+	if expectedCanonical != receivedCanonical {
+		invalidCount := atomic.AddUint64(&invalidChainIDCount, 1)
+		lastInvalidChainID.Store(
+			fmt.Sprintf(
+				"module=%s expected=%s received=%s",
+				moduleName,
+				expectedCanonical,
+				receivedCanonical,
+			),
+		)
 		logger.Error("Invalid chain ID",
 			"module", moduleName,
 			"expected", expectedChainID,
-			"received", msgChainID)
+			"received", msgChainID,
+			"expectedCanonical", expectedCanonical,
+			"receivedCanonical", receivedCanonical,
+			"invalidCount", invalidCount,
+		)
 		return false
 	}
 
 	return true
+}
+
+func CanonicalizeChainID(chainID string) string {
+	return strings.ToLower(strings.TrimSpace(chainID))
+}
+
+func ChainIDEqual(left, right string) bool {
+	return CanonicalizeChainID(left) == CanonicalizeChainID(right)
+}
+
+func ChainIDValidationStats() (uint64, string) {
+	last, _ := lastInvalidChainID.Load().(string)
+	return atomic.LoadUint64(&invalidChainIDCount), last
 }
 
 // ValidateVotingPower validates that the given amount can produce valid voting power.

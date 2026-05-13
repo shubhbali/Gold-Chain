@@ -71,6 +71,18 @@ func (srv msgServer) HandleMsgEventRecord(ctx context.Context, msg *types.MsgEve
 		return nil, errors.Wrapf(sdkerrors.ErrConflict, giltconsensusTypes.ErrMsgOldEventsNotAllowed)
 	}
 
+	if err := srv.EnsureBridgeLifecyclePending(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		sdk.UnwrapSDKContext(ctx).BlockTime(),
+	); err != nil {
+		logger.Error("failed to persist canonical bridge lifecycle pending state", "error", err)
+		return nil, err
+	}
+
 	// add events
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	sdkCtx.EventManager().EmitEvents(sdk.Events{

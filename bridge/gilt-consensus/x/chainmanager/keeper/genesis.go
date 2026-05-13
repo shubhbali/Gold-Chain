@@ -9,6 +9,9 @@ import (
 
 // InitGenesis sets chainmanager information for genesis.
 func (k Keeper) InitGenesis(ctx context.Context, data *types.GenesisState) {
+	if err := data.Validate(); err != nil {
+		panic(fmt.Errorf("invalid chainmanager genesis params: %w", err))
+	}
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(fmt.Errorf("failed to set chainmanager params: %w", err))
 	}

@@ -14,6 +14,12 @@ interface IStakeHub {
     function tokenBCutoverVersion() external view returns (uint256);
     function tokenBMigrationReserve() external view returns (uint256);
     function tokenBMigrationReserveById(uint256 tokenId) external view returns (uint256);
+    function tokenBMigrationController() external view returns (address);
+    function slashReserveVault() external view returns (address);
+    function slashReserveAmountById(uint256 tokenId) external view returns (uint256);
+    function slashReserveSelfMigrationCompleted() external view returns (bool);
+    function expectedInflationMintAmount(uint256 dayIndex) external view returns (uint256);
+    function inflationRecorderByDay(uint256 dayIndex) external view returns (address);
     function tokenBMigrationProposalId() external view returns (uint256);
     function pendingTokenBMigrationStakeTokenB() external view returns (address);
     function pendingTokenBMigrationReserveVault() external view returns (address);
@@ -42,4 +48,6 @@ interface IStakeHub {
         view
         returns (uint256 tokenId, uint256 tokenBAmount, uint256 unlockTime);
     function migrateLegacyTokenB(address operatorAddress) external;
+    function settleSlashReserve1155(address recipient, uint256 tokenId, uint256 amount) external;
+    function migrateSelfCustodiedSlashReserve(uint256[] calldata tokenIds, uint256[] calldata amounts) external;
 }

@@ -4,11 +4,34 @@ import type { Address, Hash } from 'viem'
 export const FACTORY_ADDRESS = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73'
 
 const FACTORY_ADDRESS_ETH = '0x1097053Fd2ea711dad45caCcc45EfF7548fCB362'
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+const ZERO_ADDRESS_PATTERN = /^0x0{40}$/i
+const ZERO_HASH_PATTERN = /^0x0{64}$/i
+
+function requireGoldChainAddressEnv(key: string, fallback: Address): Address {
+  const value = (process.env[key] || fallback) as Address
+  if (isGoldChainProdBuild && ZERO_ADDRESS_PATTERN.test(value)) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
+function requireGoldChainHashEnv(key: string, fallback: Hash): Hash {
+  const value = (process.env[key] || fallback) as Hash
+  if (isGoldChainProdBuild && ZERO_HASH_PATTERN.test(value)) {
+    throw new Error(`[gold-chain-config] Missing required hash env: ${key}`)
+  }
+  return value
+}
+
 const GOLD_CHAIN_FACTORY_ADDRESS =
-  (process.env.NEXT_PUBLIC_GOLD_CHAIN_FACTORY_ADDRESS || '0x0000000000000000000000000000000000000000') as Address
+  requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_FACTORY_ADDRESS', '0x0000000000000000000000000000000000000000')
 const GOLD_CHAIN_INIT_CODE_HASH =
-  (process.env.NEXT_PUBLIC_GOLD_CHAIN_INIT_CODE_HASH ||
-    '0x0000000000000000000000000000000000000000000000000000000000000000') as Hash
+  requireGoldChainHashEnv(
+    'NEXT_PUBLIC_GOLD_CHAIN_INIT_CODE_HASH',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  )
 
 export const FACTORY_ADDRESS_MAP = {
   [ChainId.ETHEREUM]: FACTORY_ADDRESS_ETH,

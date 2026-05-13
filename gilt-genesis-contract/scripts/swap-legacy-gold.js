@@ -3,6 +3,7 @@ const { ethers } = require('ethers');
 const swapAbi = [
   'function legacyGold() view returns (address)',
   'function newGold() view returns (address)',
+  'function migrationController() view returns (address)',
   'function swap(uint256 tokenId, uint256 amount)',
 ];
 
@@ -30,13 +31,14 @@ async function main() {
   const swap = new ethers.Contract(swapAddress, swapAbi, wallet);
   const legacyGoldAddress = await swap.legacyGold();
   const newGoldAddress = await swap.newGold();
+  const migrationControllerAddress = await swap.migrationController();
 
   const legacyGold = new ethers.Contract(legacyGoldAddress, erc1155Abi, wallet);
   const newGold = new ethers.Contract(newGoldAddress, erc1155Abi, wallet);
 
-  const approved = await legacyGold.isApprovedForAll(wallet.address, swapAddress);
+  const approved = await legacyGold.isApprovedForAll(wallet.address, migrationControllerAddress);
   if (!approved) {
-    const approveTx = await legacyGold.setApprovalForAll(swapAddress, true);
+    const approveTx = await legacyGold.setApprovalForAll(migrationControllerAddress, true);
     console.log(`approve tx: ${approveTx.hash}`);
     await approveTx.wait();
   }
@@ -53,6 +55,7 @@ async function main() {
 
   console.log({
     tokenId: tokenId.toString(),
+    migrationController: migrationControllerAddress,
     legacyBefore: beforeLegacy.toString(),
     legacyAfter: afterLegacy.toString(),
     newBefore: beforeNew.toString(),

@@ -29,8 +29,21 @@ import {
 
 import { ChainMap, ChainTokenList } from '../types'
 
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+const ZERO_ADDRESS_PATTERN = /^0x0{40}$/i
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+function requireGoldChainAddressEnv(key: string, fallback: string): string {
+  const value = process.env[key] || fallback
+  if (isGoldChainProdBuild && ZERO_ADDRESS_PATTERN.test(value)) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
 const GOLD_CHAIN_ROUTER_ADDRESS =
-  process.env.NEXT_PUBLIC_GOLD_CHAIN_ROUTER_ADDRESS || '0x0000000000000000000000000000000000000000'
+  requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_ROUTER_ADDRESS', ZERO_ADDRESS)
 const GOLD_CHAIN_SMART_ROUTER_ADDRESS =
   process.env.NEXT_PUBLIC_GOLD_CHAIN_SMART_ROUTER_ADDRESS || GOLD_CHAIN_ROUTER_ADDRESS
 
@@ -102,7 +115,7 @@ export const STABLE_SWAP_INFO_ADDRESS: ChainMap<string> = {
   [ChainId.ARBITRUM_SEPOLIA]: '',
   [ChainId.BASE_SEPOLIA]: '',
   [ChainId.MONAD_TESTNET]: '',
-  [GOLD_CHAIN]: '',
+  [GOLD_CHAIN]: requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_STABLE_SWAP_INFO_ADDRESS', ZERO_ADDRESS),
   [ChainId.MONAD_MAINNET]: '',
 }
 
@@ -135,7 +148,13 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   [ChainId.SEPOLIA]: [sepoliaTokens.usdc, sepoliaTokens.weth],
   [ChainId.ARBITRUM_SEPOLIA]: [arbSepoliaTokens.usdc, arbSepoliaTokens.weth],
   [ChainId.BASE_SEPOLIA]: [baseSepoliaTokens.usdc, baseSepoliaTokens.weth],
-  [GOLD_CHAIN]: [goldChainTokens.gilt, goldChainTokens.gold, goldChainTokens.dex, goldChainTokens.usdt],
+  [GOLD_CHAIN]: [
+    goldChainTokens.gilt,
+    goldChainTokens.goldPaxg,
+    goldChainTokens.goldXaut,
+    goldChainTokens.dex,
+    goldChainTokens.usdt,
+  ],
   [ChainId.MONAD_MAINNET]: [monadTokens.weth, monadTokens.usdc, monadTokens.usdt],
   [ChainId.MONAD_TESTNET]: [monadTestnetTokens.weth, monadTestnetTokens.usdc, monadTestnetTokens.busd],
 }

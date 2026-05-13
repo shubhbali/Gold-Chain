@@ -7,8 +7,20 @@ export const ZERO_PERCENT = new Percent('0')
 export const ONE_HUNDRED_PERCENT = new Percent('1')
 
 const GOLD_CHAIN_WEBSITE = process.env.NEXT_PUBLIC_GOLD_CHAIN_WEBSITE || 'http://localhost:3000'
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+const ZERO_ADDRESS_PATTERN = /^0x0{40}$/i
+
+function requireGoldChainAddressEnv(key: string, fallback: `0x${string}`): `0x${string}` {
+  const value = (process.env[key] || fallback) as `0x${string}`
+  if (isGoldChainProdBuild && ZERO_ADDRESS_PATTERN.test(value)) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
 const GOLD_CHAIN_WGILT_ADDRESS =
-  (process.env.NEXT_PUBLIC_GOLD_CHAIN_WGILT_ADDRESS || '0x856bFaE9e22D2DF43978F5d8B3fAf6b254972A70') as `0x${string}`
+  requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_WGILT_ADDRESS', '0x856bFaE9e22D2DF43978F5d8B3fAf6b254972A70')
 
 export const WETH9 = {
   [ChainId.ETHEREUM]: new ERC20Token(

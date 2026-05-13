@@ -2,25 +2,32 @@
 pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import "./GoldMigrationController.sol";
 
-contract GoldMigrationSwap1155 is Ownable, ERC1155Holder {
-    IERC1155 public immutable legacyGold;
-    IERC1155 public immutable newGold;
-    address public immutable reserveVault;
+contract GoldMigrationSwap1155 is Ownable {
+    GoldMigrationController public immutable migrationController;
     bool public swapEnabled;
 
     event SwapEnabledSet(bool enabled);
     event GoldSwapped(address indexed account, uint256 indexed tokenId, uint256 amount);
-    event NewGoldWithdrawn(address indexed recipient, uint256 indexed tokenId, uint256 amount);
+    event RouterMigrated(address indexed account, uint256 indexed tokenId, uint256 amount);
 
-    constructor(address legacyGold_, address newGold_, address reserveVault_) {
-        require(legacyGold_ != address(0) && newGold_ != address(0) && reserveVault_ != address(0), "invalid address");
-        legacyGold = IERC1155(legacyGold_);
-        newGold = IERC1155(newGold_);
-        reserveVault = reserveVault_;
-        swapEnabled = true;
+    constructor(address migrationController_) {
+        require(migrationController_ != address(0), "invalid controller");
+        migrationController = GoldMigrationController(migrationController_);
+        swapEnabled = false;
+    }
+
+    function legacyGold() external view returns (address) {
+        return address(migrationController.legacyGold());
+    }
+
+    function newGold() external view returns (address) {
+        return address(migrationController.finalGold());
+    }
+
+    function reserveVault() external view returns (address) {
+        return migrationController.reserveVault();
     }
 
     function setSwapEnabled(bool enabled) external onlyOwner {
@@ -32,14 +39,8 @@ contract GoldMigrationSwap1155 is Ownable, ERC1155Holder {
         require(swapEnabled, "swap disabled");
         require(amount != 0, "invalid amount");
 
-        legacyGold.safeTransferFrom(msg.sender, reserveVault, tokenId, amount, "");
-        newGold.safeTransferFrom(address(this), msg.sender, tokenId, amount, "");
-
+        migrationController.migrateWalletFor(msg.sender, tokenId, amount);
         emit GoldSwapped(msg.sender, tokenId, amount);
-    }
-
-    function withdrawNewGold(address recipient, uint256 tokenId, uint256 amount) external onlyOwner {
-        newGold.safeTransferFrom(address(this), recipient, tokenId, amount, "");
-        emit NewGoldWithdrawn(recipient, tokenId, amount);
+        emit RouterMigrated(msg.sender, tokenId, amount);
     }
 }

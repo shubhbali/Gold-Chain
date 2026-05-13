@@ -280,8 +280,6 @@ func (p *Parlia) commitStateSyncs(
 		return err
 	}
 	blockContext := core.NewEVMBlockContext(header, chain, nil)
-	processedLogCount := 0
-
 	for _, event := range events {
 		recordBytes, err := rlp.EncodeToBytes(&stateSyncRLPRecord{
 			ID:       event.ID,
@@ -318,11 +316,6 @@ func (p *Parlia) commitStateSyncs(
 		if result.Failed() {
 			return result.Unwrap()
 		}
-		logs := state.GetLogs(expectedTx.Hash(), header.Number.Uint64(), header.Hash(), header.Time)
-		if err := core.ApplyNativeGiltBridgeLogEffects(state, logs[processedLogCount:]); err != nil {
-			return err
-		}
-		processedLogCount = len(logs)
 		state.Finalise(true)
 	}
 

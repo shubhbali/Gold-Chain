@@ -1,0 +1,953 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\BnbStaking.sol": {
+      "lastModificationDate": 1778641118398,
+      "contentHash": "ef8399b787f42c4bfa51405a085834aa",
+      "sourceName": "contracts/BnbStaking.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "BnbStaking",
+        "IWBNB"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1778628613271,
+      "contentHash": "447a490fede06cb7bf76706783d555ec",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../GSN/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\math\\SafeMath.sol": {
+      "lastModificationDate": 1778628614947,
+      "contentHash": "239a610fe9ad93ec906b8a0782e0ec9d",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\token\\BEP20\\IBEP20.sol": {
+      "lastModificationDate": 1778628611944,
+      "contentHash": "b0a64c2fffcef1f6039f4eab432523a4",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.0"
+      ],
+      "artifacts": [
+        "IBEP20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\token\\BEP20\\SafeBEP20.sol": {
+      "lastModificationDate": 1778628614377,
+      "contentHash": "4270fe5f9af8b9ac8946859e9cbdf44f",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IBEP20.sol",
+        "../../math/SafeMath.sol",
+        "../../utils/Address.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.0"
+      ],
+      "artifacts": [
+        "SafeBEP20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\GSN\\Context.sol": {
+      "lastModificationDate": 1778628611296,
+      "contentHash": "bda6b7ae2ac2c388dfd3f350de868507",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/GSN/Context.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\utils\\Address.sol": {
+      "lastModificationDate": 1778628608634,
+      "contentHash": "de562b0730ba43a470f98a8f658c8a55",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/utils/Address.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.2"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\SmartChefInitializable.sol": {
+      "lastModificationDate": 1778641184245,
+      "contentHash": "09f011afc15b61a4145131985faa71dc",
+      "sourceName": "contracts/SmartChefInitializable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SmartChefInitializable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\utils\\ReentrancyGuard.sol": {
+      "lastModificationDate": 1778628642237,
+      "contentHash": "1c60f58cee45c61469e1aea31e4dd879",
+      "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\SmartChefFactory.sol": {
+      "lastModificationDate": 1778641216920,
+      "contentHash": "16468b3337af9acaec4869189d095aa9",
+      "sourceName": "contracts/SmartChefFactory.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+        "./SmartChefInitializable.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SmartChefFactory"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\SmartChef.sol": {
+      "lastModificationDate": 1778641132219,
+      "contentHash": "c7631edf75bcda5faeff73c4892b97f6",
+      "sourceName": "contracts/SmartChef.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SmartChef"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\MasterChef.sol": {
+      "lastModificationDate": 1778641126522,
+      "contentHash": "d495f5182ecf2990c25e18f70ba9ced1",
+      "sourceName": "contracts/MasterChef.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/access/Ownable.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/math/SafeMath.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol",
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/SafeBEP20.sol",
+        "./CakeToken.sol",
+        "./SyrupBar.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IMigratorChef",
+        "MasterChef"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\CakeToken.sol": {
+      "lastModificationDate": 1778640959574,
+      "contentHash": "e87df52aa0307f02b2032b16997cf0fe",
+      "sourceName": "contracts/CakeToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/BEP20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "CakeToken"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\SyrupBar.sol": {
+      "lastModificationDate": 1778640964102,
+      "contentHash": "686b76fce2f8d4d0a88f53d58eeb18ed",
+      "sourceName": "contracts/SyrupBar.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/BEP20.sol",
+        "./CakeToken.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SyrupBar"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@pancakeswap\\pancake-swap-lib\\contracts\\token\\BEP20\\BEP20.sol": {
+      "lastModificationDate": 1778628611041,
+      "contentHash": "11050257d698ec3930a69503f3fd12b1",
+      "sourceName": "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/BEP20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../access/Ownable.sol",
+        "../../GSN/Context.sol",
+        "./IBEP20.sol",
+        "../../math/SafeMath.sol",
+        "../../utils/Address.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.0"
+      ],
+      "artifacts": [
+        "BEP20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\libs\\MockBEP20.sol": {
+      "lastModificationDate": 1778640931233,
+      "contentHash": "6dd4ea8b2111c02a8cc34043cf963167",
+      "sourceName": "contracts/libs/MockBEP20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/BEP20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockBEP20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\libs\\CoinFactory.sol": {
+      "lastModificationDate": 1778542724433,
+      "contentHash": "3c207f390652e8b5f76a489ae54bb3b6",
+      "sourceName": "contracts/libs/CoinFactory.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./MockCoin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.12"
+      ],
+      "artifacts": [
+        "CoinFactory"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1778628641822,
+      "contentHash": "6748815a5b45c4aeeda56819f41190e0",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\libs\\MockCoin.sol": {
+      "lastModificationDate": 1778542724436,
+      "contentHash": "eeaaa09724d8dcd61585f65f26b4c89e",
+      "sourceName": "contracts/libs/MockCoin.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockCoin"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1778628635302,
+      "contentHash": "2adbd82f6d055a4751566d4671512b03",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
+      "lastModificationDate": 1778628636837,
+      "contentHash": "8065b340476f61365c076897199425f1",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/Context.sol",
+        "./IERC20.sol",
+        "../../math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1778628639856,
+      "contentHash": "e0a41531d159d3a32f84b7a3ecf9fabb",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin\\contracts\\math\\SafeMath.sol": {
+      "lastModificationDate": 1778628642566,
+      "contentHash": "e03e12206057e809eb76c5f681170c32",
+      "sourceName": "@openzeppelin/contracts/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\libs\\MockERC20.sol": {
+      "lastModificationDate": 1778542724438,
+      "contentHash": "db1b3678074ea4b9ae242c0ea941cbe7",
+      "sourceName": "contracts/libs/MockERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\Timelock.sol": {
+      "lastModificationDate": 1778542724431,
+      "contentHash": "353cfef444845966654feb4c8d7c65f1",
+      "sourceName": "contracts/Timelock.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Timelock"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\farms-pools\\contracts\\libs\\WBNB.sol": {
+      "lastModificationDate": 1778542724439,
+      "contentHash": "5e98789a67cea36ec9f687f953164122",
+      "sourceName": "contracts/libs/WBNB.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">0.4.18"
+      ],
+      "artifacts": [
+        "WBNB"
+      ]
+    }
+  }
+}

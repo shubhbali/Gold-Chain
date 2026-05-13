@@ -81,6 +81,7 @@ contract ERC721Predicate is ITokenPredicate, AccessControlMixin, Initializable, 
         external
         override
         only(MANAGER_ROLE)
+        returns (bytes memory)
     {
         // deposit single
         if (depositData.length == 32) {
@@ -98,6 +99,7 @@ contract ERC721Predicate is ITokenPredicate, AccessControlMixin, Initializable, 
                 IERC721(rootToken).safeTransferFrom(depositor, address(this), tokenIds[i]);
             }
         }
+        return depositData;
     }
 
     /**

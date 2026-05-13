@@ -54,18 +54,18 @@ export const bridgeRoutes = [
 export const migrationPhases = [
   {
     phase: '01',
-    title: 'Enable New GOLD Model',
-    body: 'Switch the chain to the new GOLD model without breaking existing balances.',
+    title: 'Migration Off By Default',
+    body: 'Migration remains dormant until governance explicitly activates the lifecycle.',
   },
   {
     phase: '02',
-    title: 'Fund Migration Reserve',
-    body: 'Load reserve inventory before conversion so every swap is fully backed.',
+    title: 'Activate Controlled Cutover',
+    body: 'Governance moves migration to active state, then enables legacy-to-final conversion.',
   },
   {
     phase: '03',
-    title: 'Convert Legacy Positions',
-    body: 'Legacy GOLD positions convert to active GOLD as users transact, while existing claims remain valid.',
+    title: 'Close Old Bridge Path',
+    body: 'Old path is moved to exit-only, then finalized after the cutoff window.',
   },
 ]
 

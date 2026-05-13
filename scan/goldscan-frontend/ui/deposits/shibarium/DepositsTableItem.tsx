@@ -16,7 +16,7 @@ type Props = { item: ShibariumDepositsItem; isLoading?: boolean };
 
 const DepositsTableItem = ({ item, isLoading }: Props) => {
 
-  if (!(feature.isEnabled && feature.type === 'shibarium')) {
+  if (!(feature.isEnabled && (feature.type === 'shibarium' || feature.type === 'goldchain'))) {
     return null;
   }
 
@@ -68,3 +68,4 @@ const DepositsTableItem = ({ item, isLoading }: Props) => {
 };
 
 export default DepositsTableItem;
+

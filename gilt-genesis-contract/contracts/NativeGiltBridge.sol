@@ -17,8 +17,10 @@ contract NativeGiltBridge is SystemV2 {
     error InvalidChildChainManager();
     error InvalidUser();
     error InvalidAmount();
+    error InvalidMsgValue();
     error OnlyChildChainManager();
     error InsufficientBalance();
+    error NativeTransferFailed();
 
     function updateParam(string calldata key, bytes calldata value) external onlyGov {
         if (key.compareStrings("childChainManager")) {
@@ -39,19 +41,25 @@ contract NativeGiltBridge is SystemV2 {
         emit ChildChainManagerUpdated(newChildChainManager);
     }
 
+    receive() external payable {}
+
     function deposit(address user, bytes calldata depositData) external {
         if (msg.sender != childChainManager) revert OnlyChildChainManager();
         if (user == address(0)) revert InvalidUser();
 
         uint256 amount = abi.decode(depositData, (uint256));
         if (amount == 0) revert InvalidAmount();
+        if (address(this).balance < amount) revert InsufficientBalance();
+
+        (bool success, ) = payable(user).call{value: amount}("");
+        if (!success) revert NativeTransferFailed();
 
         emit NativeGiltDeposited(user, amount);
     }
 
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external payable {
         if (amount == 0) revert InvalidAmount();
-        if (msg.sender.balance < amount) revert InsufficientBalance();
+        if (msg.value != amount) revert InvalidMsgValue();
 
         emit Transfer(msg.sender, address(0), amount);
     }

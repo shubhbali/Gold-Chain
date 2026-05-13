@@ -74,6 +74,9 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
     // BEP-341 Validators can produce consecutive blocks
     uint256 public turnLength; // Consecutive number of blocks a validator receives priority for block production
     uint256 public systemRewardAntiMEVRatio;
+    bool public consensusEmergencyHalt;
+    uint256 public consensusEmergencyHaltTimestamp;
+    address public consensusEmergencyHaltValidator;
 
     struct Validator {
         address consensusAddress;
@@ -146,6 +149,9 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
     event deprecatedFinalityRewardDeposit(address indexed validator, uint256 amount);
     event inflationRewardDeposit(address indexed validator, uint256 amount);
     event deprecatedInflationRewardDeposit(address indexed validator, uint256 amount);
+    event ConsensusEmergencyHalt(address indexed validator, uint256 haltTimestamp);
+    event RecoveryValidatorSetApplied(address indexed operator, uint256 validatorCount);
+    event ConsensusRecovered(address indexed operator, uint256 validatorCount);
 
     event validatorJailed(address indexed validator);  // @dev deprecated
     event validatorEmptyJailed(address indexed validator);  // @dev deprecated
@@ -219,6 +225,7 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
         uint64[] memory _votingPowers,
         bytes[] memory _voteAddrs
     ) public onlyCoinbase onlyZeroGasPrice {
+        require(!consensusEmergencyHalt, "consensus halted");
         uint256 _length = _consensusAddrs.length;
         Validator[] memory _validatorSet = new Validator[](_length);
         for (uint256 i; i < _length; ++i) {
@@ -322,20 +329,16 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
 
     function depositInflation(address valAddr) external payable onlyCoinbase ensureInit noEmptyDeposit onlyZeroGasPrice {
         uint256 index = currentValidatorSetMap[valAddr];
-        if (index > 0) {
-            Validator storage validator = currentValidatorSet[index - 1];
-            if (validator.jailed) {
-                emit deprecatedInflationRewardDeposit(valAddr, msg.value);
-            } else {
-                totalInComing = totalInComing.add(msg.value);
-                validator.incoming = validator.incoming.add(msg.value);
-                emit inflationRewardDeposit(valAddr, msg.value);
-            }
+        if (index > 0 && !currentValidatorSet[index - 1].jailed) {
+            emit inflationRewardDeposit(valAddr, msg.value);
         } else {
             emit deprecatedInflationRewardDeposit(valAddr, msg.value);
         }
 
-        IStakeHub(STAKE_HUB_ADDR).recordInflationMint(msg.value);
+        uint256 dayIndex = block.timestamp / IStakeHub(STAKE_HUB_ADDR).BREATHE_BLOCK_INTERVAL();
+        uint256 expectedAmount = IStakeHub(STAKE_HUB_ADDR).expectedInflationMintAmount(dayIndex);
+        require(expectedAmount != 0 && expectedAmount == msg.value, "invalid inflation amount");
+        IStakeHub(STAKE_HUB_ADDR).recordInflationMint{ value: msg.value }(valAddr);
     }
 
     function distributeFinalityReward(
@@ -394,6 +397,10 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * @notice Return the vote address and consensus address of the validators in `currentValidatorSet` that are not jailed
      */
     function getLivingValidators() external view override returns (address[] memory, bytes[] memory) {
+        if (consensusEmergencyHalt) {
+            return (new address[](0), new bytes[](0));
+        }
+
         if (!alreadyInit && currentValidatorSet.length == 0) {
             ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
             address[] memory consensusAddrs = new address[](validatorSetPkg.validatorSet.length);
@@ -439,6 +446,10 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * including most of the cabinets and a few of the candidates
      */
     function getMiningValidators() external view override returns (address[] memory, bytes[] memory) {
+        if (consensusEmergencyHalt) {
+            return (new address[](0), new bytes[](0));
+        }
+
         uint256 _maxNumOfWorkingCandidates = maxNumOfWorkingCandidates;
         uint256 _numOfCabinets = numOfCabinets > 0 ? numOfCabinets : INIT_NUM_OF_CABINETS;
         uint256 _shuffleInterval = 200;
@@ -486,6 +497,10 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * @notice Return the consensus address of the validators in `currentValidatorSet` that are not jailed and not maintaining
      */
     function getValidators() public view returns (address[] memory) {
+        if (consensusEmergencyHalt) {
+            return new address[](0);
+        }
+
         if (!alreadyInit && currentValidatorSet.length == 0) {
             ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
             address[] memory consensusAddrs = new address[](validatorSetPkg.validatorSet.length);
@@ -530,6 +545,9 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * @param index The index of the validator in `currentValidatorSet`(from 0 to `currentValidatorSet.length-1`)
      */
     function isWorkingValidator(uint256 index) public view returns (bool) {
+        if (consensusEmergencyHalt) {
+            return false;
+        }
         if (index >= currentValidatorSet.length) {
             return false;
         }
@@ -547,6 +565,10 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * Will return false if the validator is not in `currentValidatorSet`
      */
     function isCurrentValidator(address validator) external view override returns (bool) {
+        if (consensusEmergencyHalt) {
+            return false;
+        }
+
         if (!alreadyInit && currentValidatorSet.length == 0) {
             ValidatorSetPackage memory validatorSetPkg = _getBootstrapValidatorSet();
             for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
@@ -583,6 +605,9 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
      * The function name is misleading, it should be `getMiningValidatorCount`. But it's kept for compatibility.
      */
     function getWorkingValidatorCount() public view returns (uint256 workingValidatorCount) {
+        if (consensusEmergencyHalt) {
+            return 0;
+        }
         workingValidatorCount = getValidators().length;
         uint256 _numOfCabinets = numOfCabinets > 0 ? numOfCabinets : INIT_NUM_OF_CABINETS;
         if (workingValidatorCount > _numOfCabinets) {
@@ -615,6 +640,44 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
         if (_felony(validator, index) && isMaintaining) {
             --numOfMaintaining;
         }
+    }
+
+    function activateConsensusEmergencyHalt(address validator) external onlyStakeHub ensureInit {
+        _activateConsensusEmergencyHalt(validator);
+    }
+
+    function recoverConsensus(
+        address[] calldata consensusAddrs,
+        uint64[] calldata votingPowers,
+        bytes[] calldata voteAddrs
+    ) external ensureInit initValidatorExtraSet onlyGov {
+        require(consensusEmergencyHalt, "consensus not halted");
+        require(
+            consensusAddrs.length == votingPowers.length && consensusAddrs.length == voteAddrs.length
+                && consensusAddrs.length != 0,
+            "invalid recovery set"
+        );
+
+        Validator[] memory recoverySet = new Validator[](consensusAddrs.length);
+        for (uint256 i; i < consensusAddrs.length; ++i) {
+            recoverySet[i] = Validator({
+                consensusAddress: consensusAddrs[i],
+                feeAddress: payable(address(0)),
+                BBCFeeAddress: address(0),
+                votingPower: votingPowers[i],
+                jailed: false,
+                incoming: 0
+            });
+        }
+
+        doUpdateState(recoverySet, voteAddrs);
+        totalInComing = 0;
+        consensusEmergencyHalt = false;
+        consensusEmergencyHaltTimestamp = 0;
+        consensusEmergencyHaltValidator = address(0);
+
+        emit RecoveryValidatorSetApplied(msg.sender, recoverySet.length);
+        emit ConsensusRecovered(msg.sender, recoverySet.length);
     }
 
     function removeTmpMigratedValidator(address validator) external onlyStakeHub {
@@ -989,12 +1052,26 @@ contract GiltValidatorSet is IGiltValidatorSet, System, IParamSubscriber, IAppli
         return index;
     }
 
+    function _activateConsensusEmergencyHalt(address validator) private {
+        if (consensusEmergencyHalt) {
+            return;
+        }
+
+        consensusEmergencyHalt = true;
+        consensusEmergencyHaltTimestamp = block.timestamp;
+        consensusEmergencyHaltValidator = validator;
+        emit ConsensusEmergencyHalt(validator, block.timestamp);
+    }
+
     function _felony(address validator, uint256 index) private returns (bool) {
         uint256 income = currentValidatorSet[index].incoming;
         uint256 rest = currentValidatorSet.length - 1;
         if (getValidators().length <= 1) {
-            // will not remove the validator if it is the only one validator.
+            emit validatorFelony(validator, income);
+            // last producer is jailed and consensus moves into halt mode until governance recovers a set.
             currentValidatorSet[index].incoming = 0;
+            currentValidatorSet[index].jailed = true;
+            _activateConsensusEmergencyHalt(validator);
             return false;
         }
         emit validatorFelony(validator, income);

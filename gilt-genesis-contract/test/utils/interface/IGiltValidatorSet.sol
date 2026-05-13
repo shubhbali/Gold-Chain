@@ -24,6 +24,9 @@ interface GiltValidatorSet {
     event validatorJailed(address indexed validator);
     event validatorMisdemeanor(address indexed validator, uint256 amount);
     event validatorSetUpdated();
+    event ConsensusEmergencyHalt(address indexed validator, uint256 haltTimestamp);
+    event RecoveryValidatorSetApplied(address indexed operator, uint256 validatorCount);
+    event ConsensusRecovered(address indexed operator, uint256 validatorCount);
 
     receive() external payable;
 
@@ -77,6 +80,9 @@ interface GiltValidatorSet {
     function systemRewardAntiMEVRatio() external view returns (uint256);
     function giltChainID() external view returns (uint16);
     function burnRatio() external view returns (uint256);
+    function consensusEmergencyHalt() external view returns (bool);
+    function consensusEmergencyHaltTimestamp() external view returns (uint256);
+    function consensusEmergencyHaltValidator() external view returns (address);
     function burnRatioInitialized() external view returns (bool);
     function canEnterMaintenance(uint256 index) external view returns (bool);
     function currentValidatorSet(uint256)
@@ -99,6 +105,7 @@ interface GiltValidatorSet {
     function exitMaintenance() external;
     function expireTimeSecondGap() external view returns (uint256);
     function felony(address validator) external;
+    function activateConsensusEmergencyHalt(address validator) external;
     function getCurrentValidatorIndex(address validator) external view returns (uint256);
     function getIncoming(address validator) external view returns (uint256);
     function getLivingValidators() external view returns (address[] memory, bytes[] memory);
@@ -127,6 +134,8 @@ interface GiltValidatorSet {
     function previousHeight() external view returns (uint256);
     function previousVoteAddrFullSet(uint256) external view returns (bytes memory);
     function removeTmpMigratedValidator(address validator) external;
+    function recoverConsensus(address[] memory consensusAddrs, uint64[] memory votingPowers, bytes[] memory voteAddrs)
+        external;
     function totalInComing() external view returns (uint256);
     function turnLength() external view returns (uint256);
     function updateParam(string memory key, bytes memory value) external;

@@ -11,13 +11,28 @@ import { CAKE_VAULT } from '@pancakeswap/pools'
 import { V3_QUOTER_ADDRESSES } from '@pancakeswap/smart-router'
 import { DEPLOYER_ADDRESSES, NFT_POSITION_MANAGER_ADDRESSES } from '@pancakeswap/v3-sdk'
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+
+function goldChainAddress(key: string, fallback: `0x${string}` = ZERO_ADDRESS): `0x${string}` {
+  const value = (process.env[key] || fallback) as `0x${string}`
+  if (isGoldChainProdBuild && value === ZERO_ADDRESS) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
 export default {
   masterChef: {
     [ChainId.BSC_TESTNET]: '0xB4A466911556e39210a6bB2FaECBB59E4eB7E43d',
     [ChainId.GILT]: '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652',
-    [GOLD_CHAIN]: process.env.NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_ADDRESS || '0x0000000000000000000000000000000000000000',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_ADDRESS'),
   },
-  masterChefV3: masterChefV3Addresses,
+  masterChefV3: {
+    ...masterChefV3Addresses,
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_MASTERCHEF_V3_ADDRESS'),
+  },
   masterChefV1: {
     [ChainId.BSC_TESTNET]: '0x1d32c2945C8FDCBc7156c553B7cEa4325a17f4f9',
     [ChainId.GILT]: '0x73feaa1eE314F8c655E354234017bE2193C9E24E',
@@ -29,6 +44,7 @@ export default {
   lotteryV2: {
     [ChainId.BSC_TESTNET]: '0x5790c3534F30437641541a0FA04C992799602998',
     [ChainId.GILT]: '0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_LOTTERY_ADDRESS'),
   },
   multiCall: {
     [ChainId.ETHEREUM]: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -155,6 +171,7 @@ export default {
   stableSwapNativeHelper: {
     [ChainId.GILT]: '0x52E5D1e24A4308ef1A221C949cb2F7cbbAFEE090',
     [ChainId.BSC_TESTNET]: '0x6e4B1D7C65E86f1723720a5fE8993f0908108b64',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_STABLE_SWAP_NATIVE_HELPER'),
   },
   iCake: ICAKE,
   bCakeFarmBooster: {
@@ -187,8 +204,14 @@ export default {
     [ChainId.GILT]: '0xFd30b4fec42Cf0eA9beAeef0097A1071cA71FfCC',
     [ChainId.BSC_TESTNET]: '0x',
   },
-  nftPositionManager: NFT_POSITION_MANAGER_ADDRESSES,
-  v3PoolDeployer: DEPLOYER_ADDRESSES,
+  nftPositionManager: {
+    ...NFT_POSITION_MANAGER_ADDRESSES,
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_V3_NFT_POSITION_MANAGER'),
+  },
+  v3PoolDeployer: {
+    ...DEPLOYER_ADDRESSES,
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_V3_POOL_DEPLOYER'),
+  },
   v3Migrator: {
     [ChainId.ETHEREUM]: '0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2',
     [ChainId.GOERLI]: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',
@@ -208,8 +231,12 @@ export default {
     [ChainId.SEPOLIA]: '0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2',
     [ChainId.MONAD_MAINNET]: '0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2',
     [ChainId.MONAD_TESTNET]: '0x295BA23629F0F18A28DA20F3Fb392558828b14A3',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_V3_MIGRATOR'),
   },
-  quoter: V3_QUOTER_ADDRESSES,
+  quoter: {
+    ...V3_QUOTER_ADDRESSES,
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_V3_QUOTER'),
+  },
   v3Airdrop: {
     [ChainId.ETHEREUM]: '0x',
     [ChainId.GILT]: '0xe934d2C5bE5db0295A4de3177762A9E8c74Ae4f4',
@@ -229,11 +256,13 @@ export default {
     [ChainId.ETHEREUM]: '0x',
     [ChainId.GILT]: '0xa3b8321173Cf3DdF37Ce3e7548203Fc25d86402F',
     [ChainId.BSC_TESTNET]: '0x5DD37E97716A8b358BCbc731516F36FFff978454',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_VCAKE_ADDRESS'),
   },
   revenueSharingPool: {
     [ChainId.ETHEREUM]: '0x',
     [ChainId.GILT]: '0xCD5d1935e9bfa4905f9f007C97aB1f1763dC1607',
     [ChainId.BSC_TESTNET]: '0xd2d1DD41700d9132d3286e0FcD8D6E1D8E5052F5',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_REVENUE_SHARING_POOL'),
   },
   anniversaryAchievement: {
     [ChainId.GILT]: '0x0a073aa17275ef839ee77BC6c589D9E661270480',
@@ -251,6 +280,7 @@ export default {
     [ChainId.ETHEREUM]: '0x0aC4ED1D63c51f2b35C555eE09b425f08E6eA556',
     [ChainId.ZKSYNC]: '0x77AbEA6a2FAa1938723411B28A0863be34f3c89f',
     [ChainId.BASE]: '0xE5de11958969e75C57E5708651A49f0Cf3f34d13',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_VECAKE_ADDRESS'),
   },
   pancakeVeSenderV2: {
     [ChainId.GILT]: '0xEF58528Ecb76b69a0F61F65d94797d531B34cf64',
@@ -258,14 +288,17 @@ export default {
   revenueSharingVeCake: {
     [ChainId.GILT]: '0xCaF4e48a4Cb930060D0c3409F40Ae7b34d2AbE2D',
     [ChainId.BSC_TESTNET]: '0x58fde4bf684B631363640808F452952D8c14084b',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_REVENUE_SHARING_VECAKE'),
   },
   revenueSharingCakePool: {
     [ChainId.GILT]: '0x9cac9745731d1Cf2B483f257745A512f0938DD01',
     [ChainId.BSC_TESTNET]: '0x482a401D57C9892D6d6BD6A4A976CfDDeD83BF11',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_REVENUE_SHARING_CAKE_POOL'),
   },
   revenueSharingPoolGateway: {
     [ChainId.GILT]: '0x53276f5311Ed95a0E984b5D438f84a6e0b5e61B4',
     [ChainId.BSC_TESTNET]: '0x17097E483bA92d5FdDeBA546b175019ef7423ee6',
+    [GOLD_CHAIN]: goldChainAddress('NEXT_PUBLIC_GOLD_CHAIN_REVENUE_SHARING_POOL_GATEWAY'),
   },
   zkSyncAirDrop: {
     [ChainId.ZKSYNC_TESTNET]: '0xbfcCF87Ee5cd03d4550Cc1526Bf152cc2EE1C7AB',

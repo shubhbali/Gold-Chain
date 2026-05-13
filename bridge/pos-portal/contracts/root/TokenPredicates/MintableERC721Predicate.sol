@@ -94,6 +94,7 @@ contract MintableERC721Predicate is ITokenPredicate, AccessControlMixin, Initial
         external
         override
         only(MANAGER_ROLE)
+        returns (bytes memory)
     {
 
         // Locking single ERC721 token
@@ -131,7 +132,7 @@ contract MintableERC721Predicate is ITokenPredicate, AccessControlMixin, Initial
             }
 
         }
-
+        return depositData;
     }
 
     /**

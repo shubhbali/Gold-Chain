@@ -84,7 +84,7 @@ contract ChainExitERC1155Predicate is
         address depositReceiver,
         address rootToken,
         bytes calldata depositData
-    ) external override only(MANAGER_ROLE) {
+    ) external override only(MANAGER_ROLE) returns (bytes memory) {
         // forcing batch deposit since supporting both single and batch deposit introduces too much complexity
         (
             uint256[] memory ids,
@@ -106,6 +106,7 @@ contract ChainExitERC1155Predicate is
             amounts,
             data
         );
+        return depositData;
     }
 
     /**

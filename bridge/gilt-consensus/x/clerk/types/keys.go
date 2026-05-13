@@ -17,6 +17,8 @@ var (
 	RecordsWithIDKeyPrefix   = collections.NewPrefix(0)
 	RecordsWithTimeKeyPrefix = collections.NewPrefix(1)
 	RecordSequencesKeyPrefix = collections.NewPrefix(2)
+	BridgeLifecycleKeyPrefix = collections.NewPrefix(3)
+	BridgeLifecycleIDIndex   = collections.NewPrefix(4)
 
 	// DefaultValue of the record sequence
 	DefaultValue = []byte{0x01}

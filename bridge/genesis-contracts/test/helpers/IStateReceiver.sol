@@ -9,14 +9,18 @@ interface IStateReceiver {
   function commitState(uint256 syncTime, bytes memory recordBytes) external returns (bool success);
   function lastStateId() external view returns (uint256);
   function rootSetter() external view returns (address);
+  function bridgeOperator() external view returns (address);
   function failedStateSyncsRoot() external view returns (bytes32);
   function nullifier(bytes32) external view returns (bool);
   function failedStateSyncs(uint256) external view returns (bytes memory);
+  function failedStateSyncReasons(uint256) external view returns (uint8);
   function leafCount() external view returns (uint256);
   function replayCount() external view returns (uint256);
   function TREE_DEPTH() external view returns (uint256);
 
   function replayFailedStateSync(uint256 stateId) external;
+  function setRootSetter(address newRootSetter) external;
+  function setBridgeOperator(address newBridgeOperator) external;
   function setRootAndLeafCount(bytes32 _root, uint256 _leafCount) external;
   function replayHistoricFailedStateSync(
     bytes32[16] calldata proof,

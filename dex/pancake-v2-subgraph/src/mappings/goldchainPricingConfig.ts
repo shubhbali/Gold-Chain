@@ -1,0 +1,5 @@
+export const WGILT_ADDRESS = '0x47bf071f74a72147f2bb57dd83c7f2d259090aec'
+
+export const QUOTE_TOKEN_ADDRESSES: string[] = ['0xcbb9911494ce910ba767dc569424659fb875d9c8']
+
+export const ROUTE_TOKEN_ADDRESSES: string[] = ['0x04e68915c3f0bf295240fc1a492356fd77f45cdf', '0x7fe7e16ea5c3ec6c48b5c6771329d953dd0e12c4']

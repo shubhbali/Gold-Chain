@@ -1,0 +1,398 @@
+{
+  "id": "86e0436325184c5f883222cb84cd9bc9",
+  "_format": "hh-sol-build-info-1",
+  "solcVersion": "0.8.10",
+  "solcLongVersion": "0.8.10+commit.fc410830",
+  "input": {
+    "language": "Solidity",
+    "sources": {
+      "contracts/interfaces/IFarmBoosterV1.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.9;\r\n\r\ninterface IFarmBoosterV1 {\r\n    /// @notice Record user token position liquidity\r\n    /// @dev Only record the positions which have updated after fram booster set in MasterChef V3.\r\n    /// mapping(address => mapping(uint256 => uint256)) public userPositionLiquidity;\r\n    function userPositionLiquidity(address user, uint256 tokenId) external view returns (uint256 liquidity);\r\n\r\n    /// @notice Record user total liquidity in MasterChef V3 pool\r\n    /// mapping(address => mapping(uint256 => uint256)) public userPoolTotalLiquidity;\r\n    function userPoolTotalLiquidity(address user, uint256 poolId) external view returns (uint256 totalLiquidity);\r\n}\r\n"
+      }
+    },
+    "settings": {
+      "optimizer": {
+        "enabled": true,
+        "runs": 99999
+      },
+      "outputSelection": {
+        "*": {
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers"
+          ],
+          "": [
+            "ast"
+          ]
+        }
+      }
+    }
+  },
+  "output": {
+    "contracts": {
+      "contracts/interfaces/IFarmBoosterV1.sol": {
+        "IFarmBoosterV1": {
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "poolId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "userPoolTotalLiquidity",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "totalLiquidity",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "userPositionLiquidity",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "liquidity",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          "evm": {
+            "bytecode": {
+              "functionDebugData": {},
+              "generatedSources": [],
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "deployedBytecode": {
+              "functionDebugData": {},
+              "generatedSources": [],
+              "immutableReferences": {},
+              "linkReferences": {},
+              "object": "",
+              "opcodes": "",
+              "sourceMap": ""
+            },
+            "methodIdentifiers": {
+              "userPoolTotalLiquidity(address,uint256)": "3a51327c",
+              "userPositionLiquidity(address,uint256)": "61f0f689"
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "contracts/interfaces/IFarmBoosterV1.sol": {
+        "ast": {
+          "absolutePath": "contracts/interfaces/IFarmBoosterV1.sol",
+          "exportedSymbols": {
+            "IFarmBoosterV1": [
+              22
+            ]
+          },
+          "id": 23,
+          "license": "MIT",
+          "nodeType": "SourceUnit",
+          "nodes": [
+            {
+              "id": 1,
+              "literals": [
+                "solidity",
+                "^",
+                "0.8",
+                ".9"
+              ],
+              "nodeType": "PragmaDirective",
+              "src": "33:23:0"
+            },
+            {
+              "abstract": false,
+              "baseContracts": [],
+              "canonicalName": "IFarmBoosterV1",
+              "contractDependencies": [],
+              "contractKind": "interface",
+              "fullyImplemented": false,
+              "id": 22,
+              "linearizedBaseContracts": [
+                22
+              ],
+              "name": "IFarmBoosterV1",
+              "nameLocation": "70:14:0",
+              "nodeType": "ContractDefinition",
+              "nodes": [
+                {
+                  "documentation": {
+                    "id": 2,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "92:235:0",
+                    "text": "@notice Record user token position liquidity\n @dev Only record the positions which have updated after fram booster set in MasterChef V3.\n mapping(address => mapping(uint256 => uint256)) public userPositionLiquidity;"
+                  },
+                  "functionSelector": "61f0f689",
+                  "id": 11,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "userPositionLiquidity",
+                  "nameLocation": "342:21:0",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 7,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 4,
+                        "mutability": "mutable",
+                        "name": "user",
+                        "nameLocation": "372:4:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 11,
+                        "src": "364:12:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 3,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "364:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 6,
+                        "mutability": "mutable",
+                        "name": "tokenId",
+                        "nameLocation": "386:7:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 11,
+                        "src": "378:15:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "typeName": {
+                          "id": 5,
+                          "name": "uint256",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "378:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "363:31:0"
+                  },
+                  "returnParameters": {
+                    "id": 10,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 9,
+                        "mutability": "mutable",
+                        "name": "liquidity",
+                        "nameLocation": "426:9:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 11,
+                        "src": "418:17:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "typeName": {
+                          "id": 8,
+                          "name": "uint256",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "418:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "417:19:0"
+                  },
+                  "scope": 22,
+                  "src": "333:104:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                },
+                {
+                  "documentation": {
+                    "id": 12,
+                    "nodeType": "StructuredDocumentation",
+                    "src": "445:149:0",
+                    "text": "@notice Record user total liquidity in MasterChef V3 pool\n mapping(address => mapping(uint256 => uint256)) public userPoolTotalLiquidity;"
+                  },
+                  "functionSelector": "3a51327c",
+                  "id": 21,
+                  "implemented": false,
+                  "kind": "function",
+                  "modifiers": [],
+                  "name": "userPoolTotalLiquidity",
+                  "nameLocation": "609:22:0",
+                  "nodeType": "FunctionDefinition",
+                  "parameters": {
+                    "id": 17,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 14,
+                        "mutability": "mutable",
+                        "name": "user",
+                        "nameLocation": "640:4:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 21,
+                        "src": "632:12:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        "typeName": {
+                          "id": 13,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "632:7:0",
+                          "stateMutability": "nonpayable",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        "visibility": "internal"
+                      },
+                      {
+                        "constant": false,
+                        "id": 16,
+                        "mutability": "mutable",
+                        "name": "poolId",
+                        "nameLocation": "654:6:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 21,
+                        "src": "646:14:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "typeName": {
+                          "id": 15,
+                          "name": "uint256",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "646:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "631:30:0"
+                  },
+                  "returnParameters": {
+                    "id": 20,
+                    "nodeType": "ParameterList",
+                    "parameters": [
+                      {
+                        "constant": false,
+                        "id": 19,
+                        "mutability": "mutable",
+                        "name": "totalLiquidity",
+                        "nameLocation": "693:14:0",
+                        "nodeType": "VariableDeclaration",
+                        "scope": 21,
+                        "src": "685:22:0",
+                        "stateVariable": false,
+                        "storageLocation": "default",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "typeName": {
+                          "id": 18,
+                          "name": "uint256",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "685:7:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "visibility": "internal"
+                      }
+                    ],
+                    "src": "684:24:0"
+                  },
+                  "scope": 22,
+                  "src": "600:109:0",
+                  "stateMutability": "view",
+                  "virtual": false,
+                  "visibility": "external"
+                }
+              ],
+              "scope": 23,
+              "src": "60:652:0",
+              "usedErrors": []
+            }
+          ],
+          "src": "33:681:0"
+        },
+        "id": 0
+      }
+    }
+  }
+}

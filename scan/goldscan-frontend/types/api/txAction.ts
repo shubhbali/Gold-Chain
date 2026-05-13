@@ -24,3 +24,9 @@ export interface TxActionNft {
 export type TxAction = {
   protocol: 'uniswap_v3';
 } & (TxActionGeneral | TxActionNft);
+
+export type TxActionGoldchain = {
+  protocol: 'goldchain';
+  type: string;
+  data: Record<string, unknown>;
+};

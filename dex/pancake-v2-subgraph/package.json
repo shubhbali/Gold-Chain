@@ -4,13 +4,15 @@
   "repository": "git@github.com:pancakeswap/pancakeswap-v2-subgraph.git",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "codegen": "graph codegen --output-dir src/types/",
-    "build": "graph build",
-    "create-local": "graph create davekaj/pancakeswap --node http://127.0.0.1:8020",
-    "deploy-local": "graph deploy davekaj/pancakeswap --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "deploy": "graph deploy ianlapham/pancakeswapv2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
-    "deploy-staging": "graph deploy $THE_GRAPH_GITHUB_USER/$THE_GRAPH_SUBGRAPH_NAME /PancakeSwap --ipfs https://api.staging.thegraph.com/ipfs/ --node https://api.staging.thegraph.com/deploy/",
-    "watch-local": "graph deploy graphprotocol/PancakeSwap2 --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001"
+    "codegen": "npx --yes @graphprotocol/graph-cli@0.97.1 codegen --output-dir src/types/",
+    "build": "npx --yes @graphprotocol/graph-cli@0.97.1 build",
+    "render-goldchain-manifest": "node ./scripts/render-goldchain-manifest.js",
+    "build-goldchain": "npm run render-goldchain-manifest && npx --yes @graphprotocol/graph-cli@0.97.1 codegen subgraph.goldchain.yaml --output-dir src/types/ && npx --yes @graphprotocol/graph-cli@0.97.1 build subgraph.goldchain.yaml",
+    "create-local": "npx --yes @graphprotocol/graph-cli@0.97.1 create davekaj/pancakeswap --node http://127.0.0.1:8020",
+    "deploy-local": "npx --yes @graphprotocol/graph-cli@0.97.1 deploy davekaj/pancakeswap --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "deploy": "npx --yes @graphprotocol/graph-cli@0.97.1 deploy ianlapham/pancakeswapv2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
+    "deploy-staging": "npx --yes @graphprotocol/graph-cli@0.97.1 deploy $THE_GRAPH_GITHUB_USER/$THE_GRAPH_SUBGRAPH_NAME /PancakeSwap --ipfs https://api.staging.thegraph.com/ipfs/ --node https://api.staging.thegraph.com/deploy/",
+    "watch-local": "npx --yes @graphprotocol/graph-cli@0.97.1 deploy graphprotocol/PancakeSwap2 --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.19.0",

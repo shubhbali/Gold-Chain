@@ -341,6 +341,45 @@ export async function readGiltConsensusRecord(giltconsensusUrl, recordId) {
   return response.json();
 }
 
+export async function readChainmanagerParams(giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL) {
+  const url = new URL('/chainmanager/params', giltconsensusUrl);
+  const payload = await fetchJson(url, 'giltconsensus chainmanager params');
+  const params = payload?.params || {};
+  const mainChainTxConfirmations = Number(params.main_chain_tx_confirmations ?? 0);
+  const giltChainTxConfirmations = Number(params.gilt_chain_tx_confirmations ?? 0);
+  return {
+    mainChainTxConfirmations,
+    giltChainTxConfirmations,
+  };
+}
+
+export async function readBridgeLifecycleByStateID(giltconsensusUrl, stateId) {
+  const url = new URL(`/bridge/lifecycle/${stateId.toString()}`, giltconsensusUrl);
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`bridge lifecycle ${stateId.toString()} returned HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function readBridgeLifecycleWindow(giltconsensusUrl, fromStateId = 1n, limit = 100) {
+  const url = new URL('/bridge/lifecycle', giltconsensusUrl);
+  url.searchParams.set('from_state_id', fromStateId.toString());
+  url.searchParams.set('limit', String(limit));
+  return fetchJson(url, 'bridge lifecycle window');
+}
+
+export async function readBridgeChainIDStats(giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL) {
+  const url = new URL('/bridge/chainid-stats', giltconsensusUrl);
+  return fetchJson(url, 'bridge chain id stats');
+}
+
 export async function waitForGiltConsensusRecord(giltconsensusUrl, recordId, timeoutMs = 900000, intervalMs = 5000) {
   return waitForCondition(
     async () => {
@@ -590,6 +629,8 @@ export function createCheckpointBuilder({
   addressBook = null,
   goldChainId = null,
   checkpointAccountHash = null,
+  giltconsensusUrl = DEFAULT_GILTCONSENSUS_URL,
+  requiredChildConfirmations = null,
 }) {
   let offsetBlock = null;
   let lastActualEndBlock = null;
@@ -599,6 +640,7 @@ export function createCheckpointBuilder({
   let cursorPromise = null;
   let resolvedGoldChainId = goldChainId == null ? null : BigInt(goldChainId);
   let resolvedCheckpointAccountHash = checkpointAccountHash || addressBook?.meta?.checkpointAccountHash || CHECKPOINT_ACCOUNT_HASH;
+  let resolvedChildConfirmations = requiredChildConfirmations;
 
   const persistCursor = () => {
     if (
@@ -656,10 +698,27 @@ export function createCheckpointBuilder({
     }
   }
 
+  async function ensureChildConfirmations() {
+    if (resolvedChildConfirmations != null) {
+      return Number(resolvedChildConfirmations);
+    }
+    const params = await readChainmanagerParams(giltconsensusUrl);
+    resolvedChildConfirmations = Number(params.giltChainTxConfirmations ?? 0);
+    return Number(resolvedChildConfirmations);
+  }
+
   return async (txHash, logIndex) => {
     await ensureCursor();
     const receipt = await childWeb3.eth.getTransactionReceipt(txHash);
     const actualEndBlock = Number(receipt.blockNumber);
+    const requiredConfirmations = await ensureChildConfirmations();
+    const latestChildBlock = await roughnetProvider.getBlockNumber();
+    const latestConfirmedChildBlock = latestChildBlock - requiredConfirmations;
+    if (actualEndBlock > latestConfirmedChildBlock) {
+      throw new Error(
+        `Child receipt ${txHash} at block ${actualEndBlock} is not finalized yet. Latest confirmed block is ${latestConfirmedChildBlock} with confirmations=${requiredConfirmations}.`,
+      );
+    }
 
     if (
       offsetBlock != null &&

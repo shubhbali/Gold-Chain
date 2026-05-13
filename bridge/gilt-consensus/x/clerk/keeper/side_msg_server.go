@@ -180,9 +180,34 @@ func (srv *sideMsgServer) PostHandleMsgEventRecord(ctx sdk.Context, m sdk.Msg, s
 		logger.Error(err.Error())
 	}
 
+	// Ensure canonical lifecycle exists even if side-tx vote is rejected.
+	if err := srv.EnsureBridgeLifecyclePending(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		ctx.BlockTime(),
+	); err != nil {
+		logger.Error("failed to initialize canonical bridge lifecycle", "error", err)
+		return err
+	}
+
 	// Skip handler if clerk is not approved
 	if !helper.IsSideTxApproved(sideTxResult) {
 		logger.Debug(helper.ErrSkippingMsg("ClerkEventRecord"))
+		if err := srv.SetBridgeLifecycleState(
+			ctx,
+			msg.ChainId,
+			msg.TxHash,
+			msg.LogIndex,
+			msg.Id,
+			types.BridgeLifecycleFailedRetryable,
+			"side-tx vote rejected",
+			ctx.BlockTime(),
+		); err != nil {
+			logger.Debug("unable to move lifecycle to failed_retryable", "error", err)
+		}
 		return nil
 	}
 
@@ -190,6 +215,46 @@ func (srv *sideMsgServer) PostHandleMsgEventRecord(ctx sdk.Context, m sdk.Msg, s
 	if srv.HasEventRecord(ctx, msg.Id) {
 		logger.Debug("Skipping new clerk record as it's already processed")
 		return errors.New("clerk record already processed")
+	}
+
+	if err := srv.SetBridgeLifecycleState(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		types.BridgeLifecycleConfirmed,
+		"",
+		ctx.BlockTime(),
+	); err != nil {
+		logger.Error("failed to persist canonical bridge lifecycle confirmed state", "error", err)
+		return err
+	}
+	if err := srv.SetBridgeLifecycleState(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		types.BridgeLifecycleFinalizedAction,
+		"",
+		ctx.BlockTime(),
+	); err != nil {
+		logger.Error("failed to persist canonical bridge lifecycle finalized_actionable state", "error", err)
+		return err
+	}
+	if err := srv.SetBridgeLifecycleState(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		types.BridgeLifecycleSubmitted,
+		"",
+		ctx.BlockTime(),
+	); err != nil {
+		logger.Error("failed to persist canonical bridge lifecycle submitted state", "error", err)
+		return err
 	}
 
 	logger.Debug("Persisting clerk state", "sideTxResult", sideTxResult)
@@ -211,11 +276,35 @@ func (srv *sideMsgServer) PostHandleMsgEventRecord(ctx sdk.Context, m sdk.Msg, s
 	// save event into state
 	if err := srv.SetEventRecord(ctx, record); err != nil {
 		logger.Error("Unable to update event record", "id", msg.Id, giltconsensusTypes.LogKeyError, err)
+		_ = srv.SetBridgeLifecycleState(
+			ctx,
+			msg.ChainId,
+			msg.TxHash,
+			msg.LogIndex,
+			msg.Id,
+			types.BridgeLifecycleFailedRetryable,
+			"failed to persist event record",
+			ctx.BlockTime(),
+		)
 		return err
 	}
 
 	// save the record sequence
 	srv.SetRecordSequence(ctx, sequence)
+
+	if err := srv.SetBridgeLifecycleState(
+		ctx,
+		msg.ChainId,
+		msg.TxHash,
+		msg.LogIndex,
+		msg.Id,
+		types.BridgeLifecycleCompleted,
+		"",
+		ctx.BlockTime(),
+	); err != nil {
+		logger.Error("failed to persist canonical bridge lifecycle completed state", "error", err)
+		return err
+	}
 
 	// tx bytes
 	txBytes := ctx.TxBytes()
@@ -225,8 +314,8 @@ func (srv *sideMsgServer) PostHandleMsgEventRecord(ctx sdk.Context, m sdk.Msg, s
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeRecord,
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),                       // action
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),     // module name
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),                            // action
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),          // module name
 			sdk.NewAttribute(giltconsensusTypes.AttributeKeyTxHash, common.Bytes2Hex(hash)), // tx hash
 			sdk.NewAttribute(types.AttributeKeyRecordTxLogIndex, strconv.FormatUint(msg.LogIndex, 10)),
 			sdk.NewAttribute(giltconsensusTypes.AttributeKeySideTxResult, sideTxResult.String()), // result

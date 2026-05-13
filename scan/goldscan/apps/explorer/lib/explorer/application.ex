@@ -43,6 +43,8 @@ defmodule Explorer.Application do
 
   @impl Application
   def start(_type, _args) do
+    Explorer.Chain.Goldchain.Profile.validate_runtime_config!()
+
     PrometheusLogger.setup()
     Instrumenter.setup()
 
@@ -377,6 +379,7 @@ defmodule Explorer.Application do
         Explorer.Repo.BridgedTokens,
         Explorer.Repo.Celo,
         Explorer.Repo.Filecoin,
+        Explorer.Repo.Goldchain,
         Explorer.Repo.Optimism,
         Explorer.Repo.PolygonEdge,
         Explorer.Repo.PolygonZkevm,

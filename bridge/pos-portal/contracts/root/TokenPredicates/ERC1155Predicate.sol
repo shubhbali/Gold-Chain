@@ -95,6 +95,7 @@ contract ERC1155Predicate is ITokenPredicate, ERC1155Receiver, AccessControlMixi
         external
         override
         only(MANAGER_ROLE)
+        returns (bytes memory)
     {
         // forcing batch deposit since supporting both single and batch deposit introduces too much complexity
         (
@@ -116,6 +117,7 @@ contract ERC1155Predicate is ITokenPredicate, ERC1155Receiver, AccessControlMixi
             amounts,
             data
         );
+        return depositData;
     }
 
     /**

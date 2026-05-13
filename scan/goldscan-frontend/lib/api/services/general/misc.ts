@@ -35,9 +35,23 @@ import type {
   ValidatorZilliqa,
 } from 'types/api/validators';
 import type { WithdrawalsResponse, WithdrawalsCounters } from 'types/api/withdrawals';
+import type { GoldchainBridgeTransferItem } from 'types/api/goldchain';
+import type {
+  GoldchainDecodedActionItem,
+  GoldchainGovernanceEventItem,
+  GoldchainPaginatedResponse,
+  GoldchainStakingEventItem,
+  GoldchainValidatorEventItem,
+} from 'types/api/goldchainResources';
 import type {
   ZkEvmL2TxnBatchesItem,
 } from 'types/api/zkEvmL2';
+
+type GoldchainValidatorEventsFilters = {
+  address_hash?: string;
+  validator_address_hash?: string;
+  operator_address_hash?: string;
+};
 
 export const GENERAL_API_MISC_RESOURCES = {
   // WITHDRAWALS
@@ -192,6 +206,46 @@ export const GENERAL_API_MISC_RESOURCES = {
     pathParams: [ 'bls_public_key' as const ],
     filterFields: [],
   },
+  goldchain_validator_events: {
+    path: '/api/v2/goldchain/validator-events',
+    filterFields: [
+      'address_hash' as const,
+      'validator_address_hash' as const,
+      'operator_address_hash' as const,
+    ],
+    paginated: true,
+  },
+  goldchain_staking_events: {
+    path: '/api/v2/goldchain/staking-events',
+    filterFields: [],
+    paginated: true,
+  },
+  goldchain_governance_events: {
+    path: '/api/v2/goldchain/governance-events',
+    filterFields: [],
+    paginated: true,
+  },
+  goldchain_decoded_actions: {
+    path: '/api/v2/goldchain/decoded-actions',
+    filterFields: [ 'transaction_hash' as const ],
+    paginated: true,
+  },
+  goldchain_bridge_transfers: {
+    path: '/api/v2/goldchain/bridge-transfers',
+    filterFields: [
+      'transaction_hash' as const,
+      'account_address_hash' as const,
+      'counterparty_address_hash' as const,
+      'bridge_state' as const,
+      'finality_status' as const,
+      'direction' as const,
+      'source_layer' as const,
+      'cross_chain_transfer_id' as const,
+      'canonical_transfer_id' as const,
+      'route_asset' as const,
+    ],
+    paginated: true,
+  },
 
   // BLOBS
   blob: {
@@ -310,6 +364,11 @@ R extends 'general:validators_blackfort' ? ValidatorsBlackfortResponse :
 R extends 'general:validators_blackfort_counters' ? ValidatorsBlackfortCountersResponse :
 R extends 'general:validators_zilliqa' ? ValidatorsZilliqaResponse :
 R extends 'general:validator_zilliqa' ? ValidatorZilliqa :
+R extends 'general:goldchain_validator_events' ? GoldchainPaginatedResponse<GoldchainValidatorEventItem> :
+R extends 'general:goldchain_staking_events' ? GoldchainPaginatedResponse<GoldchainStakingEventItem> :
+R extends 'general:goldchain_governance_events' ? GoldchainPaginatedResponse<GoldchainGovernanceEventItem> :
+R extends 'general:goldchain_decoded_actions' ? GoldchainPaginatedResponse<GoldchainDecodedActionItem> :
+R extends 'general:goldchain_bridge_transfers' ? GoldchainPaginatedResponse<GoldchainBridgeTransferItem> :
 R extends 'general:epochs_celo' ? CeloEpochListResponse :
 R extends 'general:epoch_celo' ? CeloEpochDetails :
 R extends 'general:epoch_celo_election_rewards' ? CeloEpochElectionRewardDetailsResponse :
@@ -335,6 +394,7 @@ R extends 'general:stats_hot_contracts' ? HotContractsFilters :
 R extends 'general:search' ? SearchResultFilters :
 R extends 'general:user_ops' ? UserOpsFilters :
 R extends 'general:validators_stability' ? ValidatorsStabilityFilters :
+R extends 'general:goldchain_validator_events' ? GoldchainValidatorEventsFilters :
 R extends 'general:advanced_filter' ? AdvancedFilterParams :
 never;
 /* eslint-enable @stylistic/indent */

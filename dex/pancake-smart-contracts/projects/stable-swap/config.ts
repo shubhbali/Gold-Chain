@@ -1,3 +1,6 @@
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const envAddr = (key: string, fallback = ZERO_ADDRESS) => (process.env[key] || fallback);
+
 export default {
   A: {
     mainnet: 1000,
@@ -14,21 +17,25 @@ export default {
   LPFactory: {
     mainnet: "0x1179ADfa22dD0e5050C1c00C9f8543A77F75A2c0",
     testnet: "0x17e7fEBaD84801b954e0076F8A8F1F66f4cD7Ad6",
+    goldchain: envAddr("GOLD_CHAIN_STABLE_SWAP_LP_FACTORY"),
     goerli: "0xb224D46DD1e418588C8266F005E4bf9ff5f6b55c",
   },
   SwapTwoPoolDeployer: {
     mainnet: "0xdDFCDAacC836dd5A1AE2D375fFb153cE59DD09ff",
     testnet: "0xb3E52e0956C6a1e9d2932AdE6B4AFf8748FEa4Da",
+    goldchain: envAddr("GOLD_CHAIN_STABLE_SWAP_TWO_POOL_DEPLOYER"),
     goerli: "0x2E564618dC39D2be3115dcF68b75e42bD8432087",
   },
   SwapThreePoolDeployer: {
     mainnet: "0x6AF7a605953C0B462EE9540217F5bD80878c6b2E",
     testnet: "0x21AA173E1297cEb72b482297D9f7eE5a450b7606",
+    goldchain: envAddr("GOLD_CHAIN_STABLE_SWAP_THREE_POOL_DEPLOYER"),
     goerli: "0x534F89508FAc4b486c090e407bE204D6AC0462C0",
   },
   Factory: {
     mainnet: "0x25a55f9f2279A54951133D503490342b50E5cd15",
     testnet: "0xe6A00f8b819244e8Ab9Ea930e46449C2F20B6609",
+    goldchain: envAddr("GOLD_CHAIN_STABLE_SWAP_FACTORY"),
     goerli: "0xB4AAc2AD66ab56CFFf03aD05f1D90ba889e5Aed7",
   },
   TwoPoolInfo: {
@@ -49,5 +56,6 @@ export default {
   WBNB: {
     mainnet: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     testnet: "0x931Bf638fC27499506a4C1446e5f905b0EC73C81",
+    goldchain: envAddr("NEXT_PUBLIC_GOLD_CHAIN_WGILT_ADDRESS"),
   },
 };

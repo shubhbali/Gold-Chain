@@ -55,9 +55,11 @@ contract EtherPredicate is ITokenPredicate, AccessControlMixin, Initializable {
         external
         override
         only(MANAGER_ROLE)
+        returns (bytes memory)
     {
         uint256 amount = abi.decode(depositData, (uint256));
         emit LockedEther(depositor, depositReceiver, amount);
+        return depositData;
     }
 
     /**

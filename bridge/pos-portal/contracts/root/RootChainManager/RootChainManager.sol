@@ -423,13 +423,13 @@ contract RootChainManager is
             _validateGoldDepositData(rootToken, depositData);
         }
 
-        ITokenPredicate(predicateAddress).lockTokens(
+        bytes memory canonicalDepositData = ITokenPredicate(predicateAddress).lockTokens(
             _msgSender(),
             user,
             rootToken,
             depositData
         );
-        bytes memory syncData = abi.encode(user, rootToken, depositData);
+        bytes memory syncData = abi.encode(user, rootToken, canonicalDepositData);
         _stateSender.syncState(
             childChainManagerAddress,
             abi.encode(DEPOSIT, syncData)

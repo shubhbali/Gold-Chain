@@ -141,6 +141,7 @@ async function main() {
     childWeb3,
     roughnetProvider,
     addressBook,
+    giltconsensusUrl,
   });
 
   const results = [];
@@ -192,11 +193,11 @@ async function main() {
     const amount = ethers.parseEther('7');
     const childBefore = await roughnetProvider.getBalance(roughnetUser.address);
     const rootBefore = await wrappedGilt.balanceOf(sepoliaUser.address);
-    const withdrawTx = await nativeGiltBridge.withdraw(amount);
+    const withdrawTx = await nativeGiltBridge.withdraw(amount, { value: amount });
     const withdrawReceipt = await waitForMined(withdrawTx);
     const childAfter = await roughnetProvider.getBalance(roughnetUser.address);
     const gas = feePaid(withdrawReceipt);
-    assertEq((childAfter + gas).toString(), (childBefore - amount).toString(), 'native GILT burn');
+    assertEq((childAfter + gas + amount).toString(), childBefore.toString(), 'native GILT lock');
     const logIndex = findLogIndex(withdrawReceipt, NATIVE_GILT_BRIDGE_ADDRESS);
     const exitData = await checkpointExitData(withdrawReceipt.hash, logIndex);
     await exitOnRoot(rootChainManager, exitData, 'GILT');

@@ -62,6 +62,7 @@ import ZkSyncL2TxnBatchHashesInfo from 'ui/txnBatches/zkSyncL2/ZkSyncL2TxnBatchH
 import TxDetailsCrossChainMessages from './TxDetailsCrossChainMessages';
 import TxDetailsCrossChainTransfers from './TxDetailsCrossChainTransfers';
 import TxDetailsGasUsage from './TxDetailsGasUsage';
+import TxDetailsGoldchainBridge from './TxDetailsGoldchainBridge';
 import TxDetailsInterop from './TxDetailsInterop';
 import TxDetailsSetMaxGasLimit from './TxDetailsSetMaxGasLimit';
 import TxDetailsTacOperation from './TxDetailsTacOperation';
@@ -151,6 +152,7 @@ const TxDetails = ({ data, isLoading, socketStatus, noTxActions }: Props) => {
       { config.features.crossChainTxs.isEnabled && <TxDetailsCrossChainMessages hash={ data.hash } isLoading={ isLoading }/> }
 
       <TxHash hash={ data.hash } isLoading={ isLoading } status={ data.status }/>
+      <TxDetailsGoldchainBridge hash={ data.hash } isLoading={ isLoading }/>
 
       <DetailedInfo.ItemLabel
         hint="Current transaction state: Success, Failed (Error), or Pending (In Process)"

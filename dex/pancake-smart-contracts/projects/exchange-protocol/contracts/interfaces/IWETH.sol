@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.5.0;
 
-interface IWETH {
-    function deposit() external payable;
+import "./IWGILT.sol";
 
-    function transfer(address to, uint256 value) external returns (bool);
-
-    function withdraw(uint256) external;
-}
+interface IWETH is IWGILT {}

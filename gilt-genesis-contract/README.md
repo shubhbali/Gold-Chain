@@ -78,8 +78,11 @@ You can refer to `generate:dev` in `package.json` for more details about how to 
 ## update ABI files
 
 ```bash
-forge inspect {{contract}} abi > abi/{{contract}}.abi
+npm run abi:export
 ```
+
+This command regenerates all canonical system-contract ABIs, updates `abi/manifest.json`,
+and rewrites `../gilt-chain/consensus/parlia/abi.go` current ABI embeddings from canonical outputs.
 
 ## How to update contract interface for test
 
@@ -106,6 +109,7 @@ ts-node scripts/bep171-unlock-bot.ts
 Plain-English runbook:
 
 - `GOLD_MIGRATION_RUNBOOK.md`
+- `PhysicalGold1155` bridge ratio is immutable per deployment; ratio changes require deploying new `GOLD` and migration.
 
 RPC scripts:
 

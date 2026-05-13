@@ -1,0 +1,726 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\ICakePool.sol": {
+      "lastModificationDate": 1778542725521,
+      "contentHash": "d8130fa5bc686657eaa4302a014f4f5c",
+      "sourceName": "contracts/interfaces/ICakePool.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "ICakePool"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\IFarmBooster.sol": {
+      "lastModificationDate": 1778542725524,
+      "contentHash": "9a3c90d81b1593d49a2864cab00e5b33",
+      "sourceName": "contracts/interfaces/IFarmBooster.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IFarmBooster"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\IDelegator.sol": {
+      "lastModificationDate": 1778542725522,
+      "contentHash": "10af073211aa1120c8d93578bdebf2e4",
+      "sourceName": "contracts/interfaces/IDelegator.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IDelegator"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\IProxyForCakePool.sol": {
+      "lastModificationDate": 1778542725525,
+      "contentHash": "475340bc7c82e11fa6de7f2e2aa37e56",
+      "sourceName": "contracts/interfaces/IProxyForCakePool.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IProxyForCakePool"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\IProxyForCakePoolFactory.sol": {
+      "lastModificationDate": 1778542725526,
+      "contentHash": "5ae4037b633d7c3d5e91c5bef1b7c228",
+      "sourceName": "contracts/interfaces/IProxyForCakePoolFactory.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IProxyForCakePoolFactory"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\ProxyForCakePool.sol": {
+      "lastModificationDate": 1778542725515,
+      "contentHash": "ba5190131f3c75767d8a2ff36a053723",
+      "sourceName": "contracts/ProxyForCakePool.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IVECake.sol",
+        "./interfaces/IProxyForCakePoolFactory.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "ProxyForCakePool"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\interfaces\\IVECake.sol": {
+      "lastModificationDate": 1778542725527,
+      "contentHash": "f2ce848992086718c8483ae650af025e",
+      "sourceName": "contracts/interfaces/IVECake.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "IVECake"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\ProxyForCakePoolFactory.sol": {
+      "lastModificationDate": 1778542725516,
+      "contentHash": "bf7a510f35aeb01c30485fe9c1a2c93d",
+      "sourceName": "contracts/ProxyForCakePoolFactory.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+        "./ProxyForCakePool.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "ProxyForCakePoolFactory"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1778628688824,
+      "contentHash": "8398972af73b4e9e5ff3b31cad86234f",
+      "sourceName": "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1778628640127,
+      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "sourceName": "@openzeppelin-4.5.0/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\token\\ERC20\\ERC20.sol": {
+      "lastModificationDate": 1778628643166,
+      "contentHash": "bab063ddd80e9cc9e313361fef7ef07f",
+      "sourceName": "@openzeppelin-4.5.0/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./extensions/IERC20Metadata.sol",
+        "../../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1778628684481,
+      "contentHash": "a44d1a099633876550ad2476b21bafbe",
+      "sourceName": "@openzeppelin-4.5.0/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
+      "lastModificationDate": 1778628685101,
+      "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
+      "sourceName": "@openzeppelin-4.5.0/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20Metadata"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\token\\ERC20\\utils\\SafeERC20.sol": {
+      "lastModificationDate": 1778628689677,
+      "contentHash": "76814c83c32552ed2b521c816b4d801a",
+      "sourceName": "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol",
+        "../../../utils/Address.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SafeERC20"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\utils\\Address.sol": {
+      "lastModificationDate": 1778628639053,
+      "contentHash": "ad714a6368ee7d43cded6bbe8af0b155",
+      "sourceName": "@openzeppelin-4.5.0/contracts/utils/Address.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.1"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\test\\Delegator.sol": {
+      "lastModificationDate": 1778542725531,
+      "contentHash": "e823dba228ae64e9b166a03eb31b695e",
+      "sourceName": "contracts/test/Delegator.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin-4.5.0/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../interfaces/IVECake.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "Delegator"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\libraries\\SafeCast.sol": {
+      "lastModificationDate": 1778542725529,
+      "contentHash": "b6c4df5060a8beb1eb5fed45e39d277c",
+      "sourceName": "contracts/libraries/SafeCast.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SafeCast"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\node_modules\\@openzeppelin-4.5.0\\contracts\\security\\ReentrancyGuard.sol": {
+      "lastModificationDate": 1778628689362,
+      "contentHash": "92f9448b23a90ea3bb932ee55cc3ccce",
+      "sourceName": "@openzeppelin-4.5.0/contracts/security/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 99999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\VECake.sol": {
+      "lastModificationDate": 1778542725519,
+      "contentHash": "f34d5d33d3a0a4b2d76614fed1b12314",
+      "sourceName": "contracts/VECake.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 9
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol",
+        "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+        "@openzeppelin-4.5.0/contracts/security/ReentrancyGuard.sol",
+        "./libraries/SafeCast.sol",
+        "./interfaces/ICakePool.sol",
+        "./interfaces/IProxyForCakePoolFactory.sol",
+        "./interfaces/IProxyForCakePool.sol",
+        "./interfaces/IDelegator.sol",
+        "./interfaces/IFarmBooster.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "VECake"
+      ]
+    },
+    "C:\\goldcode\\dex\\pancake-smart-contracts\\projects\\vecake\\contracts\\test\\VECakeTest.sol": {
+      "lastModificationDate": 1778542725532,
+      "contentHash": "02d98a611a0e00b6df26bc44b8fdf3ac",
+      "sourceName": "contracts/test/VECakeTest.sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 9
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol",
+        "@openzeppelin-4.5.0/contracts/access/Ownable.sol",
+        "@openzeppelin-4.5.0/contracts/security/ReentrancyGuard.sol",
+        "../libraries/SafeCast.sol",
+        "../interfaces/ICakePool.sol",
+        "../interfaces/IProxyForCakePoolFactory.sol",
+        "../interfaces/IProxyForCakePool.sol",
+        "../interfaces/IDelegator.sol",
+        "../interfaces/IFarmBooster.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.10"
+      ],
+      "artifacts": [
+        "VECakeTest"
+      ]
+    }
+  }
+}

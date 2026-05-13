@@ -5,6 +5,10 @@ import {
   STATE_RECEIVER_ADDRESS,
   loadAddressBook,
   readBridgeProgress,
+  readBridgeLifecycleByStateID,
+  readBridgeLifecycleWindow,
+  readBridgeChainIDStats,
+  readChainmanagerParams,
   rpcProviderFor,
   waitForRpc,
 } from './live-bridge-common.mjs';
@@ -13,6 +17,9 @@ import { ethers } from 'ethers';
 const stateSenderAbi = ['function counter() view returns (uint256)'];
 const stateReceiverAbi = ['function lastStateId() view returns (uint256)'];
 const childChainManagerAbi = ['function rootToChildToken(address) view returns (address)'];
+const LIFECYCLE_WINDOW = Number(process.env.BRIDGE_STATUS_WINDOW || 25);
+const BRIDGE_MIN_MAIN_CONFIRMATIONS = 6;
+const BRIDGE_MIN_CHILD_CONFIRMATIONS = 10;
 
 async function safe(fn) {
   try {
@@ -66,16 +73,113 @@ async function main() {
     }
     return true;
   });
+  output.chainIdValidation = await safe(async () => readBridgeChainIDStats(giltconsensusUrl));
 
   if (output.sepoliaReachable === true && output.childChainReachable === true) {
+    let progressSnapshot = null;
     output.bridgeProgress = await safe(async () => {
       const progress = await readBridgeProgress(rootStateSender, childStateReceiver, giltconsensusUrl);
+      progressSnapshot = progress;
       return {
         rootStateId: progress.rootStateId.toString(),
         giltconsensusLatestRecordId: progress.giltconsensusLatestRecordId.toString(),
         giltconsensusLatestProcessed: progress.giltconsensusLatestProcessed,
         giltconsensusRecordCount: progress.giltconsensusRecordCount.toString(),
         childStateId: progress.childStateId.toString(),
+      };
+    });
+
+    output.bridgeSafetyWindow = await safe(async () => {
+      const params = await readChainmanagerParams(giltconsensusUrl);
+      const hardeningViolations = [];
+      if (params.mainChainTxConfirmations < BRIDGE_MIN_MAIN_CONFIRMATIONS) {
+        hardeningViolations.push('main_chain_confirmations_below_minimum');
+      }
+      if (params.giltChainTxConfirmations < BRIDGE_MIN_CHILD_CONFIRMATIONS) {
+        hardeningViolations.push('child_chain_confirmations_below_minimum');
+      }
+
+      return {
+        mainChainTxConfirmations: String(params.mainChainTxConfirmations),
+        giltChainTxConfirmations: String(params.giltChainTxConfirmations),
+        finalitySource: 'ethereum_finalized_primary_confirmations_fallback',
+        hardeningViolations,
+      };
+    });
+
+    output.bridgeEventState = await safe(async () => {
+      if (!progressSnapshot) {
+        throw new Error('bridge progress unavailable');
+      }
+
+      const rootStateId = BigInt(progressSnapshot.rootStateId);
+      const childStateId = BigInt(progressSnapshot.childStateId);
+      const latestRecordId = BigInt(progressSnapshot.giltconsensusLatestRecordId);
+
+      let state = 'pending_confirmations';
+      let summary = 'No record has been finalized yet.';
+      let recordSeen = false;
+      let recordProcessed = false;
+
+      if (rootStateId === 0n) {
+        state = 'completed';
+        summary = 'No bridge events emitted yet.';
+      } else {
+        const lifecycleRecord = await readBridgeLifecycleByStateID(giltconsensusUrl, rootStateId);
+        if (!lifecycleRecord) {
+          state = 'seen';
+          summary = `Root state ${rootStateId.toString()} has not been persisted in canonical lifecycle storage yet.`;
+        } else {
+          recordSeen = true;
+          state = lifecycleRecord.lifecycle_state;
+          recordProcessed = state === 'completed';
+          summary = `Canonical lifecycle for record ${rootStateId.toString()} is ${state}.`;
+        }
+      }
+
+      return {
+        state,
+        summary,
+        rootStateId: rootStateId.toString(),
+        latestRecordId: latestRecordId.toString(),
+        childStateId: childStateId.toString(),
+        recordSeen,
+        recordProcessed,
+        finalitySource: 'ethereum_finalized_primary_confirmations_fallback',
+      };
+    });
+
+    output.bridgeLifecycle = await safe(async () => {
+      if (!progressSnapshot) {
+        throw new Error('bridge progress unavailable');
+      }
+
+      const rootStateId = BigInt(progressSnapshot.rootStateId);
+      const childStateId = BigInt(progressSnapshot.childStateId);
+      const latestRecordId = BigInt(progressSnapshot.giltconsensusLatestRecordId);
+      const startRecord = latestRecordId > BigInt(LIFECYCLE_WINDOW)
+        ? latestRecordId - BigInt(LIFECYCLE_WINDOW) + 1n
+        : 1n;
+      const lifecycleWindow = latestRecordId > 0n
+        ? await readBridgeLifecycleWindow(giltconsensusUrl, startRecord, LIFECYCLE_WINDOW)
+        : { records: [], aggregates: {} };
+
+      return {
+        schemaVersion: 2,
+        source: 'canonical_lifecycle_store',
+        finalitySource: 'ethereum_finalized_primary_confirmations_fallback',
+        window: {
+          size: LIFECYCLE_WINDOW,
+          fromRecordId: latestRecordId > 0n ? startRecord.toString() : '0',
+          toRecordId: latestRecordId.toString(),
+        },
+        aggregates: lifecycleWindow.aggregates || {},
+        latest: {
+          rootStateId: rootStateId.toString(),
+          latestRecordId: latestRecordId.toString(),
+          childStateId: childStateId.toString(),
+        },
+        records: lifecycleWindow.records || [],
       };
     });
 
@@ -89,6 +193,8 @@ async function main() {
     }));
   } else {
     output.bridgeProgress = { skipped: 'requires both Sepolia and child-chain RPCs' };
+    output.bridgeEventState = { skipped: 'requires both Sepolia and child-chain RPCs' };
+    output.bridgeLifecycle = { skipped: 'requires both Sepolia and child-chain RPCs' };
     output.childMappings = { skipped: 'requires child-chain RPC' };
   }
 

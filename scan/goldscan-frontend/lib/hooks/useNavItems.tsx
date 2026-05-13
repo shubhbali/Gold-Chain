@@ -116,6 +116,24 @@ export default function useNavItems(): ReturnType {
       icon: 'navigation/txn_batches',
       isActive: pathname === '/batches',
     };
+    const goldchainStaking = {
+      text: 'Staking',
+      nextRoute: { pathname: '/staking' as const },
+      icon: 'navigation/validator',
+      isActive: pathname === '/staking',
+    };
+    const goldchainGovernance = {
+      text: 'Governance',
+      nextRoute: { pathname: '/governance' as const },
+      icon: 'navigation/transactions',
+      isActive: pathname === '/governance',
+    };
+    const goldchainMigration = {
+      text: 'Migration / Redemption',
+      nextRoute: { pathname: '/migration' as const },
+      icon: 'navigation/tokens',
+      isActive: pathname === '/migration',
+    };
     const rollupOutputRoots = {
       text: 'Output roots',
       nextRoute: { pathname: '/output-roots' as const },
@@ -193,6 +211,27 @@ export default function useNavItems(): ReturnType {
           blocks,
           userOps,
           topAccounts,
+          validators,
+          verifiedContracts,
+          nameLookup,
+        ].filter(Boolean),
+      ];
+    } else if (rollupFeature.isEnabled && rollupFeature.type === 'goldchain') {
+      blockchainNavItems = [
+        [
+          txs,
+          internalTxs,
+          rollupDeposits,
+          rollupWithdrawals,
+          goldchainStaking,
+          goldchainGovernance,
+          goldchainMigration,
+        ],
+        [
+          blocks,
+          userOps,
+          topAccounts,
+          validators,
           verifiedContracts,
           nameLookup,
         ].filter(Boolean),

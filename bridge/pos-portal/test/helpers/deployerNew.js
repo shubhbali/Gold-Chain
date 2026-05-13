@@ -299,6 +299,11 @@ export const deployFreshChildContracts = async (accounts) => {
   const MockChildNativeGilt = await ethers.getContractFactory('MockChildNativeGilt')
   const childNativeGilt = await MockChildNativeGilt.deploy(childChainManager.target)
   await childNativeGilt.waitForDeployment()
+  const deployerSigner = await ethers.getSigner(accounts[0])
+  await (await deployerSigner.sendTransaction({
+    to: childNativeGilt.target,
+    value: ethers.parseEther('1000'),
+  })).wait()
 
   const DummyERC721 = await ethers.getContractFactory('ChildERC721')
   const dummyERC721 = await DummyERC721.deploy('Dummy ERC721', 'DERC721', childChainManager.target)
@@ -417,6 +422,24 @@ export const deployInitializedContracts = async (accounts) => {
   const ScaledERC1155Type = await root.scaledERC1155Predicate.TOKEN_TYPE()
   await root.scaledERC1155Predicate.grantRole(MANAGER_ROLE, root.rootChainManager.target)
   await root.rootChainManager.registerPredicate(ScaledERC1155Type, root.scaledERC1155Predicate.target)
+  await root.scaledERC1155Predicate.configureGoldRoutePrecision(
+    root.dummyPaxgERC20.target,
+    1,
+    18,
+    18,
+    1000,
+    1,
+    1
+  )
+  await root.scaledERC1155Predicate.configureGoldRoutePrecision(
+    root.dummyXautERC20.target,
+    2,
+    6,
+    18,
+    1000000000000000n,
+    1,
+    1
+  )
   await root.rootChainManager.mapGoldToken(
     root.dummyPaxgERC20.target,
     child.childGold1155.target,

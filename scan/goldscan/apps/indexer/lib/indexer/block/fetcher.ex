@@ -68,6 +68,8 @@ defmodule Indexer.Block.Fetcher do
   alias Indexer.Transform.Optimism.Withdrawals, as: OptimismWithdrawals
 
   alias Indexer.Transform.Scroll.L1FeeParams, as: ScrollL1FeeParams
+  alias Indexer.Transform.Goldchain.Actions, as: GoldchainActions
+  alias Indexer.Transform.Goldchain.Lifecycle, as: GoldchainLifecycle
 
   alias Indexer.Transform.Arbitrum.Messaging, as: ArbitrumMessaging
   alias Indexer.Transform.Shibarium.Bridge, as: ShibariumBridge
@@ -195,7 +197,10 @@ defmodule Indexer.Block.Fetcher do
          celo_l2_epochs = CeloL2Epochs.parse(logs),
          celo_pending_account_operations = parse_celo_pending_account_operations(logs),
          tokens = Enum.uniq(tokens ++ celo_tokens),
+         goldchain_lifecycle = GoldchainLifecycle.parse(blocks, logs),
          %{transaction_actions: transaction_actions} = TransactionActions.parse(logs),
+         transaction_actions =
+           transaction_actions ++ GoldchainActions.from_lifecycle(goldchain_lifecycle),
          %{fhe_operations: fhe_operations} = FheOperations.parse(logs),
          %{mint_transfers: mint_transfers} = MintTransfers.parse(logs),
          optimism_withdrawals =
@@ -231,7 +236,11 @@ defmodule Indexer.Block.Fetcher do
              transaction_actions: transaction_actions,
              withdrawals: withdrawals_params,
              polygon_zkevm_bridge_operations: polygon_zkevm_bridge_operations,
-             celo_pending_account_operations: celo_pending_account_operations
+             celo_pending_account_operations: celo_pending_account_operations,
+             goldchain_bridge_transfers: goldchain_lifecycle.bridge_transfers,
+             goldchain_validator_events: goldchain_lifecycle.validator_events,
+             goldchain_staking_events: goldchain_lifecycle.staking_events,
+             goldchain_governance_events: goldchain_lifecycle.governance_events
            }),
          coin_balances_params_set =
            %{
@@ -282,7 +291,11 @@ defmodule Indexer.Block.Fetcher do
              celo_epochs: celo_l1_epochs ++ celo_l2_epochs,
              celo_pending_account_operations: celo_pending_account_operations,
              arbitrum_messages: arbitrum_xlevel_messages,
-             stability_validators: stability_validators
+             stability_validators: stability_validators,
+             goldchain_bridge_transfers: goldchain_lifecycle.bridge_transfers,
+             goldchain_validator_events: goldchain_lifecycle.validator_events,
+             goldchain_staking_events: goldchain_lifecycle.staking_events,
+             goldchain_governance_events: goldchain_lifecycle.governance_events
            }
            |> extend_with_zilliqa_import_options(filtered_fetched_blocks),
          {:ok, inserted} <-
@@ -420,6 +433,19 @@ defmodule Indexer.Block.Fetcher do
   defp do_import_options(:stability, basic_import_options, %{stability_validators: stability_validators}) do
     basic_import_options
     |> Map.put_new(:stability_validators, %{params: stability_validators})
+  end
+
+  defp do_import_options(:goldchain, basic_import_options, %{
+         goldchain_bridge_transfers: goldchain_bridge_transfers,
+         goldchain_validator_events: goldchain_validator_events,
+         goldchain_staking_events: goldchain_staking_events,
+         goldchain_governance_events: goldchain_governance_events
+       }) do
+    basic_import_options
+    |> Map.put_new(:goldchain_bridge_transfers, %{params: goldchain_bridge_transfers})
+    |> Map.put_new(:goldchain_validator_events, %{params: goldchain_validator_events})
+    |> Map.put_new(:goldchain_staking_events, %{params: goldchain_staking_events})
+    |> Map.put_new(:goldchain_governance_events, %{params: goldchain_governance_events})
   end
 
   defp do_import_options(_chain_identity, basic_import_options, _chain_specific_import_options) do

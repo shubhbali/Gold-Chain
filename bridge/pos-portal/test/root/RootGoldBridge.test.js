@@ -30,8 +30,9 @@ contract('RootChainManager shared GOLD route', (accounts) => {
     const childGold1155 = contracts.child.childGold1155
     const depositReceiver = accounts[0]
     const rootAmount = 2n
-    const childAmount = 2000n
     const rootToken = route === 'paxg' ? contracts.root.dummyPaxgERC20 : contracts.root.dummyXautERC20
+    const routeConfig = await childGold1155.routePrecisionByTokenId(tokenId)
+    const childAmount = (rootAmount * routeConfig.scaleNumerator) / routeConfig.scaleDenominator
 
     const oldRootBalance = await rootToken.balanceOf(depositReceiver)
 

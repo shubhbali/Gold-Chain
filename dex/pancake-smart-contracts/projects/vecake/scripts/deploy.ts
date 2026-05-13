@@ -2,21 +2,29 @@ import { parseEther } from "ethers/lib/utils";
 import { ethers, network, run } from "hardhat";
 import config from "../config";
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 const main = async () => {
   // Get network data from Hardhat config (see hardhat.config.ts).
   const networkName = network.name;
 
   // Check if the network is supported.
-  if (networkName === "testnet" || networkName === "mainnet") {
+  if (networkName === "testnet" || networkName === "mainnet" || networkName === "goldchain") {
     console.log(`Deploying to ${networkName} network...`);
+    const cakePool = config.CakePool[networkName];
+    const cakeToken = config.CakeToken[networkName];
+    const proxyForCakePoolFactory = config.ProxyForCakePoolFactory[networkName];
 
     // Check if the addresses in the config are set.
     if (
-      config.CakePool[networkName] === ethers.constants.AddressZero ||
-      config.CakeToken[networkName] === ethers.constants.AddressZero ||
-      config.ProxyForCakePoolFactory[networkName] === ethers.constants.AddressZero
+      !cakePool ||
+      !cakeToken ||
+      !proxyForCakePoolFactory ||
+      cakePool === ZERO_ADDRESS ||
+      cakeToken === ZERO_ADDRESS ||
+      proxyForCakePoolFactory === ZERO_ADDRESS
     ) {
-      throw new Error("Missing addresses");
+      throw new Error(`Missing vecake addresses for network ${networkName}`);
     }
 
     // Compile contracts.
@@ -26,9 +34,9 @@ const main = async () => {
     // Deploy contracts.
     const VECakeContract = await ethers.getContractFactory("VECake");
     const contract = await VECakeContract.deploy(
-      config.CakePool[networkName],
-      config.CakeToken[networkName],
-      config.ProxyForCakePoolFactory[networkName]
+      cakePool,
+      cakeToken,
+      proxyForCakePoolFactory
     );
 
     // Wait for the contract to be deployed before exiting the script.

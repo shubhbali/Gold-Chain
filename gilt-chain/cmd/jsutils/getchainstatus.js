@@ -1,5 +1,11 @@
 import { ethers } from "ethers";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import program from "commander";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 program.option("--rpc <rpc>", "Rpc");
 program.option("--startNum <startNum>", "start num");
@@ -66,51 +72,16 @@ const addrStakeHub = "0x0000000000000000000000000000000000002002";
 const addrGovernor = "0x0000000000000000000000000000000000002004";
 const TimelockContract = "0x0000000000000000000000000000000000002006";
 
-const validatorSetAbi = [
-    "function validatorExtraSet(uint256 offset) external view returns (uint256, bool, bytes)",
-    "function getLivingValidators() external view returns (address[], bytes[])",
-    "function numOfCabinets() external view returns (uint256)",
-    "function maxNumOfCandidates() external view returns (uint256)",
-    "function maxNumOfWorkingCandidates() external view returns (uint256)",
-    "function maxNumOfMaintaining() external view returns (uint256)", // default 3
-    "function turnLength() external view returns (uint256)",
-    "function systemRewardAntiMEVRatio() external view returns (uint256)",
-    "function maintainSlashScale() external view returns (uint256)", // default 2, valid: 1->9
-    "function burnRatio() external view returns (uint256)", // default: 10%
-    "function systemRewardBaseRatio() external view returns (uint256)", // default: 1/16
-];
-const slashAbi = [
-    "function getSlashIndicator(address validatorAddr) external view returns (uint256, uint256)",
-    "function misdemeanorThreshold() external view returns (uint256)",
-    "function felonyThreshold() external view returns (uint256)",
-    "function felonySlashScope() external view returns (uint256)",
-];
+function loadCanonicalAbi(fileName) {
+    const abiPath = path.resolve(__dirname, "../../../gilt-genesis-contract/abi", fileName);
+    return JSON.parse(fs.readFileSync(abiPath, "utf8"));
+}
 
-// https://github.com/chatzoneai-spec/Gold-Chain/blob/master/gilt-genesis-contract/contracts/StakeHub.sol
-const stakeHubAbi = [
-    "function getValidatorElectionInfo(uint256 offset, uint256 limit) external view returns (address[], uint256[], bytes[], uint256)",
-    "function getValidatorDescription(address validatorAddr) external view returns (tuple(string, string, string, string))",
-    "function consensusToOperator(address consensusAddr) public view returns (address)",
-    "function minSelfDelegationBNB() public view returns (uint256)", // default 2000, valid: 1000 -> 100,000
-    "function maxElectedValidators() public view returns (uint256)", // valid: 1 -> 500
-    "function unbondPeriod() public view returns (uint256)", // default 7days, valid: 3days ->30days
-    "function downtimeSlashAmount() public view returns (uint256)", // default 10BNB, valid: 5 -> felonySlashAmount
-    "function felonySlashAmount() public view returns (uint256)", // default 200BNB, valid: > max(100, downtimeSlashAmount)
-    "function downtimeJailTime() public view returns (uint256)", // default 2days,
-    "function felonyJailTime() public view returns (uint256)", // default 30days,
-    "function getValidators(uint256, uint256) external view returns(address[], address[], uint256)",
-    "function getNodeIDs(address[] validatorsToQuery) external view returns(address[], bytes32[][])",
-    ];
-
-
-const governorAbi = [
-    "function votingPeriod() public view returns (uint256)",
-    "function lateQuorumVoteExtension() public view returns (uint64)", // it represents minPeriodAfterQuorum
-];
-
-const timelockAbi = [
-    "function getMinDelay() public view returns (uint256)",
-];
+const validatorSetAbi = loadCanonicalAbi("giltvalidatorset.abi");
+const slashAbi = loadCanonicalAbi("slashindicator.abi");
+const stakeHubAbi = loadCanonicalAbi("stakehub.abi");
+const governorAbi = loadCanonicalAbi("giltgovernor.abi");
+const timelockAbi = loadCanonicalAbi("gilttimelock.abi");
 
 const validatorSet = new ethers.Contract(addrValidatorSet, validatorSetAbi, provider);
 const slashIndicator = new ethers.Contract(addrSlash, slashAbi, provider);

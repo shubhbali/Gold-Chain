@@ -8,7 +8,7 @@ export const searchTopTokens: Record<ChainId, UnifiedToken[]> = {
   [ChainId.GILT]: [bscTokens.u],
   [ChainId.BSC_TESTNET]: [],
   [ChainId.ETHEREUM]: [],
-  [GOLD_CHAIN]: [goldChainTokens.gold, goldChainTokens.gilt, goldChainTokens.dex],
+  [GOLD_CHAIN]: [goldChainTokens.goldPaxg, goldChainTokens.goldXaut, goldChainTokens.gilt, goldChainTokens.dex],
   [ChainId.ARBITRUM_ONE]: [],
   [ChainId.ZKSYNC]: [],
   [ChainId.ZKSYNC_TESTNET]: [],

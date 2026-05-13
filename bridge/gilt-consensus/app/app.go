@@ -3,18 +3,21 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/collections"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -807,6 +810,9 @@ func (app *GiltConsensusApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig con
 	apiSvr.Router.HandleFunc("/status", getCometStatusHandler(clientCtx)).Methods("GET")
 
 	apiSvr.Router.HandleFunc("/version", getGiltConsensusV2Version()).Methods("GET")
+	apiSvr.Router.HandleFunc("/bridge/lifecycle", app.getBridgeLifecycleHandler()).Methods("GET")
+	apiSvr.Router.HandleFunc("/bridge/lifecycle/{state_id}", app.getBridgeLifecycleByIDHandler()).Methods("GET")
+	apiSvr.Router.HandleFunc("/bridge/chainid-stats", getBridgeChainIDStatsHandler()).Methods("GET")
 
 	// Register the health service endpoint.
 	apiSvr.Router.Handle("/health", app.customHealthServiceHandler(clientCtx)).Methods("GET")
@@ -846,6 +852,121 @@ func getGiltConsensusV2Version() func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write(versionBytes); err != nil {
 			http.Error(w, fmt.Sprintf("failed to write version response: %v", err), http.StatusInternalServerError)
 			return
+		}
+	}
+}
+
+func getBridgeChainIDStatsHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		invalidCount, lastInvalid := helper.ChainIDValidationStats()
+		payload := map[string]interface{}{
+			"rejection_count":        invalidCount,
+			"last_rejection_reason":  lastInvalid,
+			"invalid_chain_id_count": invalidCount,
+			"last_invalid_chain_id":  lastInvalid,
+		}
+
+		w.Header().Set(headerContentType, mimeTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(payload); err != nil {
+			http.Error(w, fmt.Sprintf("failed to encode bridge chain-id stats: %v", err), http.StatusInternalServerError)
+		}
+	}
+}
+
+func (app *GiltConsensusApp) lifecycleQueryContext() context.Context {
+	header := cmtproto.Header{
+		Height: app.LastBlockHeight(),
+		Time:   time.Now().UTC(),
+	}
+	return sdk.WrapSDKContext(app.NewUncachedContext(true, header))
+}
+
+func (app *GiltConsensusApp) getBridgeLifecycleByIDHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		stateIDRaw := mux.Vars(r)["state_id"]
+		stateID, err := strconv.ParseUint(strings.TrimSpace(stateIDRaw), 10, 64)
+		if err != nil || stateID == 0 {
+			http.Error(w, "invalid state_id", http.StatusBadRequest)
+			return
+		}
+
+		record, err := app.ClerkKeeper.GetBridgeLifecycleByID(app.lifecycleQueryContext(), stateID)
+		if err != nil {
+			if errors.Is(err, collections.ErrNotFound) {
+				http.Error(w, "bridge lifecycle record not found", http.StatusNotFound)
+				return
+			}
+			http.Error(w, fmt.Sprintf("failed to query bridge lifecycle record: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set(headerContentType, mimeTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(record); err != nil {
+			http.Error(w, fmt.Sprintf("failed to encode bridge lifecycle record: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func (app *GiltConsensusApp) getBridgeLifecycleHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fromStateID := uint64(1)
+		limit := uint64(100)
+
+		if fromRaw := strings.TrimSpace(r.URL.Query().Get("from_state_id")); fromRaw != "" {
+			parsed, err := strconv.ParseUint(fromRaw, 10, 64)
+			if err != nil || parsed == 0 {
+				http.Error(w, "invalid from_state_id", http.StatusBadRequest)
+				return
+			}
+			fromStateID = parsed
+		}
+
+		if limitRaw := strings.TrimSpace(r.URL.Query().Get("limit")); limitRaw != "" {
+			parsed, err := strconv.ParseUint(limitRaw, 10, 64)
+			if err != nil || parsed == 0 {
+				http.Error(w, "invalid limit", http.StatusBadRequest)
+				return
+			}
+			if parsed > 500 {
+				parsed = 500
+			}
+			limit = parsed
+		}
+
+		records, err := app.ClerkKeeper.ListBridgeLifecycleByStateID(app.lifecycleQueryContext(), fromStateID, limit)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to query bridge lifecycle records: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		aggregates := map[string]uint64{
+			clerktypes.BridgeLifecycleSeen:            0,
+			clerktypes.BridgeLifecyclePending:         0,
+			clerktypes.BridgeLifecycleConfirmed:       0,
+			clerktypes.BridgeLifecycleFinalizedAction: 0,
+			clerktypes.BridgeLifecycleSubmitted:       0,
+			clerktypes.BridgeLifecycleCompleted:       0,
+			clerktypes.BridgeLifecycleFailedRetryable: 0,
+			clerktypes.BridgeLifecycleFailedTerminal:  0,
+		}
+		for _, record := range records {
+			aggregates[record.LifecycleState]++
+		}
+
+		payload := map[string]interface{}{
+			"from_state_id": fromStateID,
+			"limit":         limit,
+			"records":       records,
+			"aggregates":    aggregates,
+		}
+
+		w.Header().Set(headerContentType, mimeTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(payload); err != nil {
+			http.Error(w, fmt.Sprintf("failed to encode bridge lifecycle list: %v", err), http.StatusInternalServerError)
 		}
 	}
 }

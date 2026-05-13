@@ -44,10 +44,11 @@ contract WrappedGiltPredicate is ITokenPredicate, AccessControlMixin, Initializa
         address depositReceiver,
         address rootToken,
         bytes calldata depositData
-    ) external override only(MANAGER_ROLE) {
+    ) external override only(MANAGER_ROLE) returns (bytes memory) {
         uint256 amount = abi.decode(depositData, (uint256));
         emit LockedWrappedGilt(depositor, depositReceiver, rootToken, amount);
         IWrappedGilt(rootToken).burnFrom(depositor, amount);
+        return depositData;
     }
 
     function exitTokens(

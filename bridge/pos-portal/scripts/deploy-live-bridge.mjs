@@ -64,6 +64,27 @@ const blsPubkey =
   '0x82106fca090df4d75d8a0e40e71fe47619ce9a9d5425063e734e40dca8a1f536443ea556a68e715496c8753c1be83f02';
 const DEFAULT_MAIN_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('GILTCONSENSUS_MAIN_CHAIN_TX_CONFIRMATIONS', 6);
 const DEFAULT_GILT_CHAIN_TX_CONFIRMATIONS = parsePositiveIntegerEnv('GILTCONSENSUS_GILT_CHAIN_TX_CONFIRMATIONS', 10);
+const GOLD_ROUTE_CONFIG = {
+  PAXG: {
+    tokenId: 1,
+    rootDecimals: Number(process.env.PAXG_ROOT_DECIMALS || 18),
+    goldDecimals: Number(process.env.GOLD_DECIMALS || 18),
+    scaleNumerator: BigInt(process.env.PAXG_SCALE_NUMERATOR || '1000'),
+    scaleDenominator: BigInt(process.env.PAXG_SCALE_DENOMINATOR || '1'),
+    rootUnit: BigInt(process.env.PAXG_ROOT_UNIT || '1'),
+  },
+  XAUT: {
+    tokenId: 2,
+    rootDecimals: Number(process.env.XAUT_ROOT_DECIMALS || 6),
+    goldDecimals: Number(process.env.GOLD_DECIMALS || 18),
+    scaleNumerator: BigInt(process.env.XAUT_SCALE_NUMERATOR || '1000000000000000'),
+    scaleDenominator: BigInt(process.env.XAUT_SCALE_DENOMINATOR || '1'),
+    rootUnit: BigInt(process.env.XAUT_ROOT_UNIT || '1'),
+  },
+};
+const ERC20_METADATA_ABI = [
+  'function decimals() view returns (uint8)',
+];
 
 if (!walletFile) {
   throw new Error('wallet file not found (.testnet-wallets/evm-wallets.json or .roughnet-wallets/evm-wallets.json)');
@@ -139,7 +160,6 @@ const portalArtifacts = {
     'bridge/pos-portal/artifacts/contracts/root/TokenPredicates/ScaledERC1155PredicateProxy.sol/ScaledERC1155PredicateProxy.json',
   ),
   wrappedGilt: readArtifact('bridge/pos-portal/artifacts/contracts/root/RootToken/WrappedGilt.sol/WrappedGilt.json'),
-  dummyErc20: readArtifact('bridge/pos-portal/artifacts/contracts/root/RootToken/DummyERC20.sol/DummyERC20.json'),
   childChainManager: readArtifact(
     'bridge/pos-portal/artifacts/contracts/child/ChildChainManager/ChildChainManager.sol/ChildChainManager.json',
   ),
@@ -155,36 +175,35 @@ const chainArtifacts = {
   legacyGoldReserveVault: readArtifact('gilt-genesis-contract/out/LegacyGoldReserveVault.sol/LegacyGoldReserveVault.json'),
 };
 
-const govHubAbi = ['function updateParam(string key, bytes value, address target)'];
-const governorAbi = [
-  'function castVote(uint256 proposalId, uint8 support) returns (uint256)',
-  'function execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) payable returns (uint256)',
-  'function hashProposal(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) view returns (uint256)',
-  'function latestProposalIds(address proposer) view returns (uint256)',
-  'function proposalDeadline(uint256 proposalId) view returns (uint256)',
-  'function proposalThreshold() view returns (uint256)',
-  'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) returns (uint256)',
-  'function queue(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) returns (uint256)',
-  'function state(uint256 proposalId) view returns (uint8)',
+const MOCK_OR_DUMMY_ARTIFACT_PATHS = [
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyERC20.sol/DummyERC20.json',
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyERC721.sol/DummyERC721.json',
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyERC1155.sol/DummyERC1155.json',
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyMintableERC20.sol/DummyMintableERC20.json',
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyMintableERC721.sol/DummyMintableERC721.json',
+  'bridge/pos-portal/artifacts/contracts/root/RootToken/DummyMintableERC1155.sol/DummyMintableERC1155.json',
+  'bridge/pos-portal/artifacts/contracts/test/MockChildNativeGilt.sol/MockChildNativeGilt.json',
 ];
-const govTokenAbi = [
-  'function balanceOf(address account) view returns (uint256)',
-  'function delegate(address delegatee)',
-  'function delegates(address account) view returns (address)',
-  'function getVotes(address account) view returns (uint256)',
-  'function totalSupply() view returns (uint256)',
-];
-const stakeHubAbi = ['function stakeTokenB() view returns (address)'];
-const liveStakeHubAbi = [
-  'function LOCK_AMOUNT() view returns (uint256)',
-  'function createValidator(address consensusAddress, bytes voteAddress, bytes blsProof, (uint64 rate, uint64 maxRate, uint64 maxChangeRate) commission, (string moniker, string identity, string website, string details) description) payable',
-  'function delegate(address operatorAddress, bool delegateVotePower) payable',
-  'function getValidatorElectionInfo(uint256 offset, uint256 limit) view returns (address[] memory consensusAddresses, uint256[] memory votingPowers, bytes[] memory voteAddresses, uint256 totalLength)',
-  'function stakeTokenB() view returns (address)',
-  'function legacyStakeTokenB() view returns (address)',
-  'function legacyTokenBReserveVault() view returns (address)',
-  'function activateTokenBMigration(address newStakeTokenB, address reserveVault)',
-];
+const MOCK_OR_DUMMY_CONTRACT_ID_PATTERN = /(mock|dummy)/i;
+
+function maybeReadArtifact(relativePath) {
+  try {
+    return readArtifact(relativePath);
+  } catch (_) {
+    return null;
+  }
+}
+
+function loadCanonicalAbi(fileName) {
+  return readJson(path.join(REPO_ROOT, 'gilt-genesis-contract', 'abi', fileName));
+}
+
+const govHubAbi = loadCanonicalAbi('govhub.abi');
+const governorAbi = loadCanonicalAbi('giltgovernor.abi');
+const govTokenAbi = loadCanonicalAbi('govtoken.abi');
+const stakeHubAbi = loadCanonicalAbi('stakehub.abi');
+const liveStakeHubAbi = stakeHubAbi;
+const TIMELOCK_ADDRESS = '0x0000000000000000000000000000000000002006';
 
 function contractKey(name) {
   return ethers.keccak256(ethers.toUtf8Bytes(name));
@@ -254,6 +273,104 @@ function artifactBytecode(artifact) {
     throw new Error('artifact is missing bytecode');
   }
   return bytecode.startsWith('0x') ? bytecode : `0x${bytecode}`;
+}
+
+function artifactDeployedBytecode(artifact) {
+  const bytecode = artifact?.deployedBytecode?.object ?? artifact?.deployedBytecode;
+  if (!bytecode) {
+    return null;
+  }
+  return bytecode.startsWith('0x') ? bytecode : `0x${bytecode}`;
+}
+
+function mockOrDummyCodeHashes() {
+  const hashes = new Set();
+  for (const relativePath of MOCK_OR_DUMMY_ARTIFACT_PATHS) {
+    const artifact = maybeReadArtifact(relativePath);
+    if (!artifact) {
+      continue;
+    }
+    const deployed = artifactDeployedBytecode(artifact);
+    if (!deployed || deployed === '0x') {
+      continue;
+    }
+    hashes.add(ethers.keccak256(deployed));
+  }
+  return hashes;
+}
+
+const MOCK_OR_DUMMY_HASHES = mockOrDummyCodeHashes();
+
+const CONTRACT_ID_SELECTORS = [
+  ethers.id('contractId()').slice(0, 10),
+  ethers.id('getContractId()').slice(0, 10),
+  ethers.id('CONTRACT_ID()').slice(0, 10),
+];
+
+function decodeContractID(raw) {
+  if (!raw || raw === '0x') {
+    return null;
+  }
+
+  const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+  try {
+    const [decodedString] = abiCoder.decode(['string'], raw);
+    if (typeof decodedString === 'string' && decodedString.trim() !== '') {
+      return decodedString.trim();
+    }
+  } catch (_) {
+    // no-op; try bytes32 decode next.
+  }
+
+  try {
+    const [decodedBytes32] = abiCoder.decode(['bytes32'], raw);
+    const decoded = ethers.decodeBytes32String(decodedBytes32).trim();
+    return decoded === '' ? null : decoded;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function readContractID(provider, address) {
+  for (const selector of CONTRACT_ID_SELECTORS) {
+    try {
+      const raw = await provider.call({ to: address, data: selector });
+      const decoded = decodeContractID(raw);
+      if (decoded) {
+        return decoded;
+      }
+    } catch (_) {
+      // no-op; selector not implemented or decode failed.
+    }
+  }
+  return null;
+}
+
+async function assertNotMockOrDummyContract(provider, address, label) {
+  const code = await provider.getCode(address);
+  if (!code || code === '0x') {
+    throw new Error(`${label} at ${address} has no runtime bytecode`);
+  }
+
+  const hash = ethers.keccak256(code);
+  if (MOCK_OR_DUMMY_HASHES.has(hash)) {
+    throw new Error(`${label} at ${address} matches mock/dummy runtime bytecode and cannot be used in production`);
+  }
+
+  const contractID = await readContractID(provider, address);
+  if (contractID && MOCK_OR_DUMMY_CONTRACT_ID_PATTERN.test(contractID)) {
+    throw new Error(`${label} at ${address} exposes mock/dummy contract id ${contractID}`);
+  }
+}
+
+async function assertRootTokenDecimals(provider, tokenAddress, expectedDecimals, routeName) {
+  const token = new ethers.Contract(tokenAddress, ERC20_METADATA_ABI, provider);
+  const decimals = Number(await token.decimals());
+  if (decimals !== expectedDecimals) {
+    throw new Error(
+      `${routeName} decimals mismatch at ${tokenAddress}: expected ${expectedDecimals}, got ${decimals}`,
+    );
+  }
 }
 
 async function deployContractWithNonce(signer, artifact, nonceRef, args = []) {
@@ -447,6 +564,73 @@ async function governUpdateParam(provider, key, valueBytes, target, description,
   await waitTx(proposalGovernor.execute(targets, values, calldatas, descriptionHash));
 }
 
+async function governContractCall(
+  provider,
+  targets,
+  values,
+  calldatas,
+  description,
+  governanceWallet,
+  fallbackProposalWallet = governanceWallet,
+) {
+  const governor = new ethers.Contract(GOVERNOR_ADDRESS, governorAbi, provider);
+  const governanceAddress = await governanceWallet.getAddress();
+  const fallbackAddress = await fallbackProposalWallet.getAddress();
+  const proposalThreshold = await governor.proposalThreshold();
+
+  const resolveLiveProposal = async (account) => {
+    const latestProposalId = await governor.latestProposalIds(account);
+    if (latestProposalId === 0n) {
+      return null;
+    }
+
+    const proposalState = Number(await governor.state(latestProposalId));
+    return {
+      latestProposalId,
+      proposalState,
+      isLive: proposalState === 0 || proposalState === 1,
+    };
+  };
+
+  let proposalWallet = governanceWallet;
+  let proposalAddress = governanceAddress;
+  const governanceProposal = await resolveLiveProposal(governanceAddress);
+  if (governanceProposal?.isLive) {
+    const fallbackProposal = await resolveLiveProposal(fallbackAddress);
+    if (fallbackProposal?.isLive) {
+      throw new Error(
+        `No free governance proposer: ${governanceAddress} has live proposal ${governanceProposal.latestProposalId} and ${fallbackAddress} has live proposal ${fallbackProposal.latestProposalId}`,
+      );
+    }
+
+    proposalWallet = fallbackProposalWallet;
+    proposalAddress = fallbackAddress;
+  }
+
+  await ensureDelegatedProposalVotes(provider, governanceWallet, proposalAddress, proposalThreshold);
+
+  const proposalGovernor = governor.connect(proposalWallet);
+  const descriptionHash = ethers.id(description);
+
+  await waitTx(proposalGovernor.propose(targets, values, calldatas, description));
+  const proposalId = await governor.hashProposal(targets, values, calldatas, descriptionHash);
+  const startBlock = await provider.getBlockNumber();
+
+  while ((await provider.getBlockNumber()) < startBlock + 1) {
+    await sleep(1500);
+  }
+
+  await waitTx(proposalGovernor.castVote(proposalId, 1));
+  const deadline = Number(await governor.proposalDeadline(proposalId));
+  while ((await provider.getBlockNumber()) <= deadline) {
+    await sleep(1500);
+  }
+
+  await waitTx(proposalGovernor.queue(targets, values, calldatas, descriptionHash));
+  await sleep(65000);
+  await waitTx(proposalGovernor.execute(targets, values, calldatas, descriptionHash));
+}
+
 async function ensureLiveGovernanceReadiness(provider, validatorWallet, governanceWallet, childChainId) {
   const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, liveStakeHubAbi, provider);
   const govToken = new ethers.Contract(GOV_TOKEN_ADDRESS, govTokenAbi, provider);
@@ -518,6 +702,45 @@ async function ensureLiveGovernanceReadiness(provider, validatorWallet, governan
   await ensureDelegatedProposalVotes(provider, governanceWallet, governanceAddress, proposalThreshold);
 }
 
+async function configureGoldRoutePrecision({
+  sepoliaProvider,
+  roughnetProvider,
+  scaledErc1155Predicate,
+  childGold,
+  rootPaxgAddress,
+  rootXautAddress,
+}) {
+  await assertRootTokenDecimals(sepoliaProvider, rootPaxgAddress, GOLD_ROUTE_CONFIG.PAXG.rootDecimals, 'PAXG');
+  await assertRootTokenDecimals(sepoliaProvider, rootXautAddress, GOLD_ROUTE_CONFIG.XAUT.rootDecimals, 'XAUT');
+
+  await assertNotMockOrDummyContract(sepoliaProvider, rootPaxgAddress, 'PAXG root token');
+  await assertNotMockOrDummyContract(sepoliaProvider, rootXautAddress, 'XAUT root token');
+  await assertNotMockOrDummyContract(roughnetProvider, await childGold.getAddress(), 'child GOLD token');
+
+  await waitTx(
+    scaledErc1155Predicate.configureGoldRoutePrecision(
+      rootPaxgAddress,
+      GOLD_ROUTE_CONFIG.PAXG.tokenId,
+      GOLD_ROUTE_CONFIG.PAXG.rootDecimals,
+      GOLD_ROUTE_CONFIG.PAXG.goldDecimals,
+      GOLD_ROUTE_CONFIG.PAXG.scaleNumerator,
+      GOLD_ROUTE_CONFIG.PAXG.scaleDenominator,
+      GOLD_ROUTE_CONFIG.PAXG.rootUnit,
+    ),
+  );
+  await waitTx(
+    scaledErc1155Predicate.configureGoldRoutePrecision(
+      rootXautAddress,
+      GOLD_ROUTE_CONFIG.XAUT.tokenId,
+      GOLD_ROUTE_CONFIG.XAUT.rootDecimals,
+      GOLD_ROUTE_CONFIG.XAUT.goldDecimals,
+      GOLD_ROUTE_CONFIG.XAUT.scaleNumerator,
+      GOLD_ROUTE_CONFIG.XAUT.scaleDenominator,
+      GOLD_ROUTE_CONFIG.XAUT.rootUnit,
+    ),
+  );
+}
+
 async function main() {
   const sepoliaRpc = process.env.SEPOLIA_RPC_URL || DEFAULT_SEPOLIA_RPC;
   const roughnetRpc = process.env.CHILD_RPC_URL || process.env.ROUGHNET_RPC_URL || 'http://127.0.0.1:8545';
@@ -570,13 +793,15 @@ async function main() {
   );
   const childGold = await deployContractWithNonce(roughnetSigner, chainArtifacts.physicalGold1155, roughnetNonceRef, [
     'ipfs://gold/{id}.json',
+    1000,
+    1,
+    TIMELOCK_ADDRESS,
   ]);
   const legacyGoldReserveVault = await deployContractWithNonce(
     roughnetSigner,
     chainArtifacts.legacyGoldReserveVault,
     roughnetNonceRef,
   );
-  await waitTx(childGold.setBridgeConfig(await childChainManager.getAddress(), 1000, 1, { nonce: roughnetNonceRef.value++ }));
   const childUsdc = await deployContractWithNonce(roughnetSigner, portalArtifacts.childErc20, roughnetNonceRef, [
     'USD Coin',
     'USDC',
@@ -642,10 +867,10 @@ async function main() {
       sepoliaSigner,
     );
     wrappedGilt = new ethers.Contract(existingAddressBook.root.wrappedGilt, portalArtifacts.wrappedGilt.abi, sepoliaSigner);
-    rootPaxg = new ethers.Contract(existingAddressBook.root.paxg, portalArtifacts.dummyErc20.abi, sepoliaSigner);
-    rootXaut = new ethers.Contract(existingAddressBook.root.xaut, portalArtifacts.dummyErc20.abi, sepoliaSigner);
-    rootUsdc = new ethers.Contract(existingAddressBook.root.usdc, portalArtifacts.dummyErc20.abi, sepoliaSigner);
-    rootUsdt = new ethers.Contract(existingAddressBook.root.usdt, portalArtifacts.dummyErc20.abi, sepoliaSigner);
+    rootPaxg = new ethers.Contract(existingAddressBook.root.paxg, ERC20_METADATA_ABI, sepoliaSigner);
+    rootXaut = new ethers.Contract(existingAddressBook.root.xaut, ERC20_METADATA_ABI, sepoliaSigner);
+    rootUsdc = new ethers.Contract(existingAddressBook.root.usdc, ERC20_METADATA_ABI, sepoliaSigner);
+    rootUsdt = new ethers.Contract(existingAddressBook.root.usdt, ERC20_METADATA_ABI, sepoliaSigner);
 
     const rootLastChildBlock = Number(await rootChain.getLastChildBlock());
     const roughnetHead = await roughnetProvider.getBlockNumber();
@@ -706,10 +931,19 @@ async function main() {
     );
 
     wrappedGilt = await deployContract(sepoliaSigner, portalArtifacts.wrappedGilt);
-    rootPaxg = await deployContract(sepoliaSigner, portalArtifacts.dummyErc20, ['Dummy PAXG', 'PAXG']);
-    rootXaut = await deployContract(sepoliaSigner, portalArtifacts.dummyErc20, ['Dummy XAUT', 'XAUT']);
-    rootUsdc = await deployContract(sepoliaSigner, portalArtifacts.dummyErc20, ['Dummy USDC', 'USDC']);
-    rootUsdt = await deployContract(sepoliaSigner, portalArtifacts.dummyErc20, ['Dummy USDT', 'USDT']);
+    const rootPaxgAddress = process.env.ROOT_PAXG_ADDRESS;
+    const rootXautAddress = process.env.ROOT_XAUT_ADDRESS;
+    const rootUsdcAddress = process.env.ROOT_USDC_ADDRESS;
+    const rootUsdtAddress = process.env.ROOT_USDT_ADDRESS;
+    if (!rootPaxgAddress || !rootXautAddress || !rootUsdcAddress || !rootUsdtAddress) {
+      throw new Error(
+        'ROOT_PAXG_ADDRESS, ROOT_XAUT_ADDRESS, ROOT_USDC_ADDRESS, and ROOT_USDT_ADDRESS are required for production deployment',
+      );
+    }
+    rootPaxg = new ethers.Contract(rootPaxgAddress, ERC20_METADATA_ABI, sepoliaSigner);
+    rootXaut = new ethers.Contract(rootXautAddress, ERC20_METADATA_ABI, sepoliaSigner);
+    rootUsdc = new ethers.Contract(rootUsdcAddress, ERC20_METADATA_ABI, sepoliaSigner);
+    rootUsdt = new ethers.Contract(rootUsdtAddress, ERC20_METADATA_ABI, sepoliaSigner);
 
     await waitTx(rootChainManager.setStateSender(await stateSender.getAddress()));
     await waitTx(rootChainManager.setCheckpointManager(await rootChain.getAddress()));
@@ -738,6 +972,18 @@ async function main() {
 
   await waitTx(rootChainManager.setChildChainManagerAddress(await childChainManager.getAddress()));
   await waitTx(stateSender.register(await rootChainManager.getAddress(), await childChainManager.getAddress()));
+  await configureGoldRoutePrecision({
+    sepoliaProvider,
+    roughnetProvider,
+    scaledErc1155Predicate,
+    childGold,
+    rootPaxgAddress: await rootPaxg.getAddress(),
+    rootXautAddress: await rootXaut.getAddress(),
+  });
+  await assertNotMockOrDummyContract(sepoliaProvider, await rootUsdc.getAddress(), 'USDC root token');
+  await assertNotMockOrDummyContract(sepoliaProvider, await rootUsdt.getAddress(), 'USDT root token');
+  await assertNotMockOrDummyContract(sepoliaProvider, await wrappedGilt.getAddress(), 'wrapped GILT root token');
+  await assertNotMockOrDummyContract(roughnetProvider, await childChainManager.getAddress(), 'child chain manager');
 
   console.log('Submitting root mappings for the current child bridge manager');
   const scaledErc1155Type = await scaledErc1155Predicate.TOKEN_TYPE();
@@ -841,6 +1087,33 @@ async function main() {
       : 'Wiring governance for GOLD and native GILT bridge',
   );
   await ensureLiveGovernanceReadiness(roughnetProvider, validatorWallet, governanceWallet, childChainId);
+  await governContractCall(
+    roughnetProvider,
+    [await childGold.getAddress(), await childGold.getAddress(), await childGold.getAddress()],
+    [0, 0, 0],
+    [
+      childGold.interface.encodeFunctionData('setBridgeRoutePrecision', [
+        GOLD_ROUTE_CONFIG.PAXG.tokenId,
+        GOLD_ROUTE_CONFIG.PAXG.rootDecimals,
+        GOLD_ROUTE_CONFIG.PAXG.goldDecimals,
+        GOLD_ROUTE_CONFIG.PAXG.scaleNumerator,
+        GOLD_ROUTE_CONFIG.PAXG.scaleDenominator,
+        GOLD_ROUTE_CONFIG.PAXG.rootUnit,
+      ]),
+      childGold.interface.encodeFunctionData('setBridgeRoutePrecision', [
+        GOLD_ROUTE_CONFIG.XAUT.tokenId,
+        GOLD_ROUTE_CONFIG.XAUT.rootDecimals,
+        GOLD_ROUTE_CONFIG.XAUT.goldDecimals,
+        GOLD_ROUTE_CONFIG.XAUT.scaleNumerator,
+        GOLD_ROUTE_CONFIG.XAUT.scaleDenominator,
+        GOLD_ROUTE_CONFIG.XAUT.rootUnit,
+      ]),
+      childGold.interface.encodeFunctionData('setBridgeDepositor', [await childChainManager.getAddress()]),
+    ],
+    'Configure GOLD bridge routes and set bridge depositor',
+    governanceWallet,
+    roughnetSigner,
+  );
   const liveStakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, liveStakeHubAbi, roughnetProvider);
   if (!skipStakeGoldCutover) {
     const currentStakeTokenB = await liveStakeHub.stakeTokenB();
@@ -880,6 +1153,19 @@ async function main() {
     governanceWallet,
     roughnetSigner,
   );
+
+  const minNativeBridgeLiquidity = ethers.parseEther(process.env.NATIVE_GILT_BRIDGE_MIN_LIQUIDITY || '1000');
+  const nativeBridgeBalance = await roughnetProvider.getBalance(NATIVE_GILT_BRIDGE_ADDRESS);
+  if (nativeBridgeBalance < minNativeBridgeLiquidity) {
+    const topUpAmount = minNativeBridgeLiquidity - nativeBridgeBalance;
+    console.log(`Funding native GILT bridge liquidity with ${ethers.formatEther(topUpAmount)} GILT`);
+    const topUpTx = await roughnetSigner.sendTransaction({
+      to: NATIVE_GILT_BRIDGE_ADDRESS,
+      value: topUpAmount,
+      gasLimit: 210000,
+    });
+    await waitForMined(topUpTx);
+  }
 
   if (!skipStakeGoldCutover) {
     const stakeHub = new ethers.Contract(STAKE_HUB_ADDRESS, stakeHubAbi, roughnetProvider);

@@ -51,7 +51,7 @@ func TestNewParams(t *testing.T) {
 		require.Equal(t, chainParams, params.ChainParams)
 	})
 
-	t.Run("creates params with zero confirmations", func(t *testing.T) {
+	t.Run("creates params with zero confirmations but validation rejects them", func(t *testing.T) {
 		t.Parallel()
 
 		chainParams := types.ChainParams{
@@ -63,6 +63,7 @@ func TestNewParams(t *testing.T) {
 
 		require.Equal(t, uint64(0), params.MainChainTxConfirmations)
 		require.Equal(t, uint64(0), params.GiltChainTxConfirmations)
+		require.Error(t, params.ValidateBasic())
 	})
 }
 
@@ -158,6 +159,24 @@ func TestParams_ValidateBasic(t *testing.T) {
 		err := params.ValidateBasic()
 		require.NoError(t, err)
 	})
+
+	t.Run("rejects main chain confirmations below minimum", func(t *testing.T) {
+		t.Parallel()
+
+		params := types.NewParams(types.MinMainChainTxConfirmations-1, 10, validChainParams())
+		err := params.ValidateBasic()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "main_chain_tx_confirmations")
+	})
+
+	t.Run("rejects child chain confirmations below minimum", func(t *testing.T) {
+		t.Parallel()
+
+		params := types.NewParams(6, types.MinGiltChainTxConfirmations-1, validChainParams())
+		err := params.ValidateBasic()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "gilt_chain_tx_confirmations")
+	})
 }
 
 func validChainParams() types.ChainParams {
@@ -179,6 +198,8 @@ func TestDefaultConstants(t *testing.T) {
 
 		require.Equal(t, uint64(6), types.DefaultMainChainTxConfirmations)
 		require.Equal(t, uint64(10), types.DefaultGiltChainTxConfirmations)
+		require.Equal(t, uint64(6), types.MinMainChainTxConfirmations)
+		require.Equal(t, uint64(10), types.MinGiltChainTxConfirmations)
 		require.Equal(t, "0x0000000000000000000000000000000000001001", types.DefaultStateReceiverAddress)
 		require.Equal(t, "0x0000000000000000000000000000000000001000", types.DefaultValidatorSetAddress)
 	})

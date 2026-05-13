@@ -328,6 +328,25 @@ config :explorer,
   replica_max_lag: ConfigHelper.parse_time_env_var("REPLICA_MAX_LAG", "5m"),
   hackney_default_pool_size: ConfigHelper.parse_integer_env_var("HACKNEY_DEFAULT_POOL_SIZE", 1_000)
 
+config :explorer, Explorer.Chain.Goldchain.Profile,
+  root_rpc: ConfigHelper.parse_url_env_var("INDEXER_GOLDCHAIN_ROOT_RPC", System.get_env("ETHEREUM_JSONRPC_HTTP_URL")),
+  root_start_block: ConfigHelper.parse_integer_env_var("INDEXER_GOLDCHAIN_ROOT_START_BLOCK", 0),
+  poll_interval: ConfigHelper.parse_integer_env_var("INDEXER_GOLDCHAIN_POLL_INTERVAL_MS", 5_000),
+  root_finality_confirmations: ConfigHelper.parse_integer_env_var("INDEXER_GOLDCHAIN_ROOT_FINALITY_CONFIRMATIONS", 64),
+  child_finality_confirmations:
+    ConfigHelper.parse_integer_env_var("INDEXER_GOLDCHAIN_CHILD_FINALITY_CONFIRMATIONS", 64),
+  root_bridge_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_ROOT_BRIDGE_CONTRACTS"),
+  child_bridge_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_CHILD_BRIDGE_CONTRACTS"),
+  validator_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_VALIDATOR_CONTRACTS"),
+  staking_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_STAKING_CONTRACTS"),
+  governance_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_GOVERNANCE_CONTRACTS"),
+  migration_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_MIGRATION_CONTRACTS"),
+  root_route_asset_by_token: ConfigHelper.parse_json_env_var("INDEXER_GOLDCHAIN_ROUTE_ASSET_BY_ROOT_TOKEN_JSON"),
+  bridge_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_BRIDGE_TOPICS_JSON"),
+  validator_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_VALIDATOR_TOPICS_JSON"),
+  staking_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_STAKING_TOPICS_JSON"),
+  governance_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_GOVERNANCE_TOPICS_JSON")
+
 config :explorer, Explorer.Chain.Health.Monitor,
   check_interval: ConfigHelper.parse_time_env_var("HEALTH_MONITOR_CHECK_INTERVAL", "1m"),
   healthy_blocks_period: ConfigHelper.parse_time_env_var("HEALTH_MONITOR_BLOCKS_PERIOD", "5m"),
@@ -1565,6 +1584,8 @@ config :indexer, Indexer.Fetcher.Shibarium.L2,
 config :indexer, Indexer.Fetcher.Shibarium.L1.Supervisor, enabled: ConfigHelper.chain_type() == :shibarium
 
 config :indexer, Indexer.Fetcher.Shibarium.L2.Supervisor, enabled: ConfigHelper.chain_type() == :shibarium
+
+config :indexer, Indexer.Fetcher.Goldchain.BridgeRoot.Supervisor, enabled: ConfigHelper.chain_type() == :goldchain
 
 config :indexer, Indexer.Fetcher.PolygonZkevm.BridgeL1,
   rpc: System.get_env("INDEXER_POLYGON_ZKEVM_L1_RPC"),

@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./SystemV2.sol";
 import "./extension/Protectable.sol";
 import "./interface/0.8.x/IGiltValidatorSet.sol";
+import "./interface/0.8.x/IGoldMigrationController.sol";
 import "./interface/0.8.x/IGovToken.sol";
 import "./interface/0.8.x/IStakeCredit.sol";
 import "./lib/0.8.x/Utils.sol";
@@ -30,12 +31,17 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     uint256 public constant BREATHE_BLOCK_INTERVAL = 1 days;
     uint256 private constant ROUGHNET_CHAIN_ID = 714;
     uint256 private constant ROUGHNET_UNBOND_PERIOD = 120 seconds;
+    uint8 private constant _MIGRATION_STATE_ACTIVE = 2;
 
     uint256 public constant INIT_MAX_NUMBER_NODE_ID = 5;
 
     // receive fund status
     uint8 private constant _DISABLE = 0;
     uint8 private constant _ENABLE = 1;
+    uint8 private constant _REWARD_FORWARD_REASON_INVALID_VALIDATOR = 1;
+    uint8 private constant _REWARD_FORWARD_REASON_INFLATION_REDIRECT = 2;
+    uint8 private constant _REWARD_FORWARD_REASON_AUTO_RETRY = 3;
+    uint8 private constant _REWARD_FORWARD_REASON_MANUAL_RETRY = 4;
 
     /*----------------- errors -----------------*/
     // @notice signature: 0x5f28f62b
@@ -98,6 +104,10 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     error DuplicateNodeID();
     error TokenBMigrationNotAvailable();
     error InsufficientTokenBMigrationReserve();
+    error SlashReserveNotConfigured();
+    error InflationScheduleExceeded();
+    error InvalidInflationMintAmount(uint256 expectedAmount, uint256 actualAmount);
+    error InflationAlreadyRecorded(uint256 dayIndex);
 
     /*----------------- storage -----------------*/
     uint8 private _receiveFundStatus;
@@ -176,6 +186,17 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     uint256 public inflationBaseSupply;
     uint256 public inflationMintedAmount;
     uint256 public inflationLastMintTimestamp;
+    uint256 public inflationDistributedAmount;
+    uint256 public inflationRedirectedAmount;
+    uint256 public inflationPendingAmount;
+    mapping(uint256 => uint256) public inflationMintedByDay;
+    mapping(uint256 => address) public inflationRecorderByDay;
+    address public slashReserveVault;
+    mapping(uint256 => uint256) public slashReserveAmountById;
+    bool public slashReserveSelfMigrationCompleted;
+    uint256 public pendingSystemReward;
+    uint256 public pendingSystemRewardAutoRetryCap;
+    uint256 public pendingInflationSystemReward;
 
     // validator operator => delegator => token B amount
     mapping(address => mapping(address => uint256)) private _delegatedTokenB;
@@ -231,6 +252,8 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         _tokenB1155UnbondRequests;
     // active token B migration reserve by ERC1155 token id
     mapping(uint256 => uint256) public tokenBMigrationReserveById;
+    // canonical migration controller used for both wallet and staking legacy GOLD conversions
+    address public tokenBMigrationController;
 
     /*----------------- structs and events -----------------*/
     struct StakeMigrationPackage {
@@ -340,6 +363,16 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     event TokenB1155Slashed(
         address indexed operatorAddress, uint256 indexed tokenId, uint256 tokenBAmount, uint8 slashType
     );
+    event SlashReserveCredited(
+        address indexed operatorAddress,
+        SlashType slashType,
+        uint256 indexed tokenId,
+        uint256 amount,
+        uint256 settlementEpoch
+    );
+    event SlashReserveSettled(address indexed recipient, uint256 indexed tokenId, uint256 amount, uint256 settlementEpoch);
+    event SlashReserveMigratedFromSelf(address indexed vault, uint256 indexed tokenId, uint256 amount);
+    event SlashReserveSelfMigrationFinalized(address indexed vault, uint256 migratedTokenCount);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
     event TokenBRewardClaimed(address indexed operatorAddress, address indexed delegator, uint256 reward);
     event LegacyTokenBClaimed(address indexed operatorAddress, address indexed delegator, uint256 tokenBAmount);
@@ -368,9 +401,25 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     event TokenBMigrationReserveFunded1155(address indexed sender, uint256 indexed tokenId, uint256 amount);
     event TokenBMigrationReserveWithdrawn(address indexed recipient, uint256 amount);
     event TokenBMigrationReserveWithdrawn1155(address indexed recipient, uint256 indexed tokenId, uint256 amount);
+    event TokenBMigrationControllerUpdated(address indexed previousController, address indexed newController);
     event InflationMintRecorded(
         uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply
     );
+    event InflationRecordedV2(
+        uint256 mintedAmount,
+        uint256 distributedAmount,
+        uint256 redirectedAmount,
+        uint256 pendingAmount,
+        uint256 inflationBps,
+        uint256 totalMintedAmount,
+        uint256 effectiveSupply
+    );
+    event InflationIntervalRecorded(uint256 indexed dayIndex, address indexed consensusAddress, uint256 amount);
+    event InflationRedirected(address indexed consensusAddress, address indexed operatorAddress, uint256 amount);
+    event RewardForwardQueued(address indexed operatorAddress, uint256 amount, uint8 reasonCode, bytes failReason);
+    event RewardForwardRetried(address indexed caller, uint256 amount, bool success, bytes failReason);
+    event RewardForwardSwept(address indexed caller, address indexed recipient, uint256 amount, uint256 inflationAmount);
+    event ConsensusEmergencyHalt(address indexed operatorAddress, address indexed consensusAddress, uint256 triggerBlock);
     event AgentChanged(address indexed operatorAddress, address indexed oldAgent, address indexed newAgent);
 
     // Events for adding and removing NodeIDs.
@@ -435,6 +484,8 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         inflationRateMinBps = 150; // 1.5%
         inflationDecayBpsPerYear = 1_500; // 15% yearly decay
         inflationLastMintTimestamp = block.timestamp;
+        slashReserveVault = address(this);
+        pendingSystemRewardAutoRetryCap = 10 ether;
         // Different address will be set depending on the environment
         __Protectable_init_unchained(0x08E68Ec70FA3b629784fDB28887e206ce8561E08);
     }
@@ -921,42 +972,11 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     function activateTokenBMigration(address newStakeTokenB, address reserveVault)
         external
         whenNotPaused
-        onlyCurrentValidatorOperator
+        onlyGov
     {
-        address currentStakeTokenB = stakeTokenB;
-        if (currentStakeTokenB == address(0) || newStakeTokenB == address(0) || reserveVault == address(0)) {
-            revert InvalidRequest();
-        }
-        if (legacyStakeTokenB != address(0) || newStakeTokenB == currentStakeTokenB) revert InvalidRequest();
-
-        if (pendingTokenBMigrationStakeTokenB != newStakeTokenB || pendingTokenBMigrationReserveVault != reserveVault) {
-            tokenBMigrationProposalId += 1;
-            pendingTokenBMigrationStakeTokenB = newStakeTokenB;
-            pendingTokenBMigrationReserveVault = reserveVault;
-            pendingTokenBMigrationApprovalCount = 0;
-            pendingTokenBMigrationRequiredApprovals = _requiredMigrationApprovals(_currentMigrationValidatorCount());
-            if (pendingTokenBMigrationRequiredApprovals == 0) revert InvalidRequest();
-
-            emit TokenBMigrationProposed(
-                tokenBMigrationProposalId,
-                msg.sender,
-                currentStakeTokenB,
-                newStakeTokenB,
-                reserveVault,
-                pendingTokenBMigrationRequiredApprovals
-            );
-        }
-
-        _approveTokenBMigrationProposal(tokenBMigrationProposalId, msg.sender);
-
-        if (pendingTokenBMigrationApprovalCount < pendingTokenBMigrationRequiredApprovals) {
-            return;
-        }
-
-        address approvedStakeTokenB = pendingTokenBMigrationStakeTokenB;
-        address approvedReserveVault = pendingTokenBMigrationReserveVault;
-        _clearPendingTokenBMigrationProposal();
-        _activateTokenBMigration(approvedStakeTokenB, approvedReserveVault);
+        newStakeTokenB;
+        reserveVault;
+        revert InvalidRequest();
     }
 
     function _activateTokenBMigration(address newStakeTokenB, address reserveVault) internal {
@@ -970,6 +990,9 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         stakeTokenB = newStakeTokenB;
         legacyTokenBReserveVault = reserveVault;
         tokenBCutoverVersion += 1;
+        if (tokenBMigrationController != address(0)) {
+            IERC1155(currentStakeTokenB).setApprovalForAll(tokenBMigrationController, true);
+        }
 
         uint256 validatorCount = _validatorSet.length();
         for (uint256 i; i < validatorCount; ++i) {
@@ -986,15 +1009,9 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
      * @param amount amount of active token B to add
      */
     function depositTokenBMigrationReserve1155(uint256 tokenId, uint256 amount) external whenNotPaused {
-        if (!_isSupportedTokenBId(tokenId)) revert InvalidRequest();
-        if (legacyStakeTokenB == address(0) || stakeTokenB == address(0) || amount == 0) revert InvalidRequest();
-
-        IERC1155(stakeTokenB).safeTransferFrom(msg.sender, address(this), tokenId, amount, "");
-        tokenBMigrationReserve += amount;
-        tokenBMigrationReserveById[tokenId] += amount;
-
-        emit TokenBMigrationReserveFunded(msg.sender, amount);
-        emit TokenBMigrationReserveFunded1155(msg.sender, tokenId, amount);
+        tokenId;
+        amount;
+        revert TokenBMigrationNotAvailable();
     }
 
     /**
@@ -1004,18 +1021,10 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
      * @param amount amount to withdraw
      */
     function withdrawTokenBMigrationReserve1155(address recipient, uint256 tokenId, uint256 amount) external onlyGov {
-        if (!_isSupportedTokenBId(tokenId)) revert InvalidRequest();
-        if (
-            recipient == address(0) || amount == 0 || amount > tokenBMigrationReserve
-                || amount > tokenBMigrationReserveById[tokenId]
-        ) revert InvalidRequest();
-
-        tokenBMigrationReserve -= amount;
-        tokenBMigrationReserveById[tokenId] -= amount;
-        IERC1155(stakeTokenB).safeTransferFrom(address(this), recipient, tokenId, amount, "");
-
-        emit TokenBMigrationReserveWithdrawn(recipient, amount);
-        emit TokenBMigrationReserveWithdrawn1155(recipient, tokenId, amount);
+        recipient;
+        tokenId;
+        amount;
+        revert TokenBMigrationNotAvailable();
     }
 
     function hasApprovedTokenBMigration(uint256 proposalId, address operatorAddress) external view returns (bool) {
@@ -1083,47 +1092,136 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
      * @dev This function will be called by consensus engine. So it should never revert.
      */
     function distributeReward(address consensusAddress) external payable onlyValidatorContract {
+        _autoRetryPendingSystemReward();
+
         address operatorAddress = consensusToOperator[consensusAddress];
         Validator memory valInfo = _validators[operatorAddress];
         if (valInfo.creditContract == address(0) || valInfo.jailed) {
-            SYSTEM_REWARD_ADDR.call{value: msg.value}("");
+            _forwardSystemRewardOrQueue(
+                operatorAddress, msg.value, _REWARD_FORWARD_REASON_INVALID_VALIDATOR, false
+            );
             emit RewardDistributeFailed(operatorAddress, "INVALID_VALIDATOR");
             return;
         }
 
-        uint256 totalReward = msg.value;
-
-        uint256 tokenBReward;
-        uint256 totalTokenB = totalDelegatedTokenB[operatorAddress];
-        if (tokenBRewardSplitBps != 0 && totalTokenB != 0) {
-            tokenBReward = (totalReward * tokenBRewardSplitBps) / POWER_SCALE;
-            if (tokenBReward != 0) {
-                _distributeTokenBReward(operatorAddress, tokenBReward, totalTokenB);
-                emit TokenBRewardDistributed(operatorAddress, tokenBReward);
-            }
-        }
-
-        uint256 tokenAReward = totalReward - tokenBReward;
-        if (tokenAReward != 0) {
-            IStakeCredit(valInfo.creditContract).distributeReward{value: tokenAReward}(valInfo.commission.rate);
-        }
-        emit RewardDistributed(operatorAddress, totalReward);
-
-        IGovToken(GOV_TOKEN_ADDR).sync(valInfo.creditContract, operatorAddress);
+        _distributeValidatorReward(operatorAddress, valInfo, msg.value);
     }
 
-    function recordInflationMint(uint256 amount) external onlyValidatorContract {
-        if (amount == 0) {
+    function recordInflationMint(address consensusAddress) external payable onlyValidatorContract {
+        uint256 totalReward = msg.value;
+        if (totalReward == 0) {
             return;
         }
 
-        inflationMintedAmount += amount;
-        inflationLastMintTimestamp = block.timestamp;
+        if (!inflationEnabled || inflationBaseSupply == 0) revert InvalidRequest();
+        _autoRetryPendingSystemReward();
 
-        uint256 inflationBps = _currentInflationBps(block.timestamp / BREATHE_BLOCK_INTERVAL);
-        emit InflationMintRecorded(
-            amount, inflationBps, inflationMintedAmount, inflationBaseSupply + inflationMintedAmount
+        uint256 dayIndex = block.timestamp / BREATHE_BLOCK_INTERVAL;
+        if (inflationRecorderByDay[dayIndex] != address(0)) revert InflationAlreadyRecorded(dayIndex);
+        uint256 expectedAmount = expectedInflationMintAmount(dayIndex);
+        if (expectedAmount == 0 || totalReward != expectedAmount) {
+            revert InvalidInflationMintAmount(expectedAmount, totalReward);
+        }
+
+        uint256 inflationBps = _currentInflationBps(dayIndex);
+        uint256 effectiveSupply = inflationBaseSupply + inflationMintedAmount;
+        uint256 maxMintForDay = ((effectiveSupply * inflationBps) / POWER_SCALE) / 365;
+        uint256 mintedForDay = inflationMintedByDay[dayIndex] + totalReward;
+        if (maxMintForDay == 0 || mintedForDay > maxMintForDay) revert InflationScheduleExceeded();
+
+        inflationRecorderByDay[dayIndex] = consensusAddress;
+        inflationMintedByDay[dayIndex] = mintedForDay;
+        inflationMintedAmount += totalReward;
+        inflationLastMintTimestamp = block.timestamp;
+        effectiveSupply = inflationBaseSupply + inflationMintedAmount;
+
+        address operatorAddress = consensusToOperator[consensusAddress];
+        Validator memory valInfo = _validators[operatorAddress];
+        uint256 redirectedAmount;
+        uint256 pendingAmount;
+        if (valInfo.creditContract == address(0) || valInfo.jailed) {
+            (redirectedAmount, pendingAmount) = _forwardSystemRewardOrQueue(
+                operatorAddress, totalReward, _REWARD_FORWARD_REASON_INFLATION_REDIRECT, true
+            );
+            emit InflationRedirected(consensusAddress, operatorAddress, totalReward);
+        } else {
+            _distributeValidatorReward(operatorAddress, valInfo, totalReward);
+            inflationDistributedAmount += totalReward;
+        }
+
+        emit InflationIntervalRecorded(dayIndex, consensusAddress, totalReward);
+        emit InflationMintRecorded(totalReward, inflationBps, inflationMintedAmount, effectiveSupply);
+        emit InflationRecordedV2(
+            totalReward, totalReward - redirectedAmount - pendingAmount, redirectedAmount, pendingAmount, inflationBps,
+            inflationMintedAmount, effectiveSupply
         );
+    }
+
+    function settleSlashReserve1155(address recipient, uint256 tokenId, uint256 amount) external onlyGov {
+        address reserveVault = slashReserveVault;
+        if (
+            recipient == address(0) || amount == 0 || stakeTokenB == address(0) || !_isSupportedTokenBId(tokenId)
+                || reserveVault == address(0) || reserveVault == DEAD_ADDRESS || amount > slashReserveAmountById[tokenId]
+        ) {
+            revert InvalidRequest();
+        }
+
+        slashReserveAmountById[tokenId] -= amount;
+        IERC1155(stakeTokenB).safeTransferFrom(reserveVault, recipient, tokenId, amount, "");
+        emit SlashReserveSettled(recipient, tokenId, amount, block.timestamp / BREATHE_BLOCK_INTERVAL);
+    }
+
+    function migrateSelfCustodiedSlashReserve(uint256[] calldata tokenIds, uint256[] calldata amounts) external onlyGov {
+        address reserveVault = slashReserveVault;
+        if (
+            slashReserveSelfMigrationCompleted || reserveVault == address(0) || reserveVault == DEAD_ADDRESS
+                || reserveVault == address(this) || stakeTokenB == address(0) || tokenIds.length == 0
+                || tokenIds.length != amounts.length
+        ) {
+            revert InvalidRequest();
+        }
+
+        for (uint256 i; i < tokenIds.length; ++i) {
+            uint256 tokenId = tokenIds[i];
+            uint256 amount = amounts[i];
+            if (amount == 0 || !_isSupportedTokenBId(tokenId) || amount > slashReserveAmountById[tokenId]) {
+                revert InvalidRequest();
+            }
+            if (amount > IERC1155(stakeTokenB).balanceOf(address(this), tokenId)) {
+                revert InvalidRequest();
+            }
+
+            IERC1155(stakeTokenB).safeTransferFrom(address(this), reserveVault, tokenId, amount, "");
+            emit SlashReserveMigratedFromSelf(reserveVault, tokenId, amount);
+        }
+
+        slashReserveSelfMigrationCompleted = true;
+        emit SlashReserveSelfMigrationFinalized(reserveVault, tokenIds.length);
+    }
+
+    function retryPendingSystemReward(uint256 maxAmount) external onlyGov {
+        uint256 pending = pendingSystemReward;
+        if (pending == 0) {
+            emit RewardForwardRetried(msg.sender, 0, true, "");
+            return;
+        }
+
+        uint256 amount = maxAmount == 0 || maxAmount > pending ? pending : maxAmount;
+        (bool success, bytes memory failReason) =
+            _retryPendingSystemReward(amount, _REWARD_FORWARD_REASON_MANUAL_RETRY);
+        emit RewardForwardRetried(msg.sender, amount, success, failReason);
+    }
+
+    function sweepPendingSystemReward(address recipient, uint256 amount) external onlyGov {
+        if (recipient == address(0) || amount == 0 || amount > pendingSystemReward) revert InvalidRequest();
+        pendingSystemReward -= amount;
+        uint256 resolvedInflationAmount = _consumePendingInflation(amount);
+        if (resolvedInflationAmount != 0) {
+            inflationRedirectedAmount += resolvedInflationAmount;
+        }
+        (bool success,) = payable(recipient).call{value: amount, gas: transferGasLimit}("");
+        if (!success) revert TransferFailed();
+        emit RewardForwardSwept(msg.sender, recipient, amount, resolvedInflationAmount);
     }
 
     /**
@@ -1288,6 +1386,26 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
             uint256 newMaxNodeIDs = value.bytesToUint256(32);
             if (newMaxNodeIDs == 0) revert InvalidValue(key, value);
             maxNodeIDs = newMaxNodeIDs;
+        } else if (key.compareStrings("slashReserveVault")) {
+            if (value.length != 20) revert InvalidValue(key, value);
+            address newSlashReserveVault = value.bytesToAddress(20);
+            if (
+                newSlashReserveVault == address(0) || newSlashReserveVault == DEAD_ADDRESS
+                    || newSlashReserveVault == address(this)
+            ) {
+                revert InvalidValue(key, value);
+            }
+            slashReserveVault = newSlashReserveVault;
+        } else if (key.compareStrings("tokenBMigrationController")) {
+            if (value.length != 20) revert InvalidValue(key, value);
+            address newMigrationController = value.bytesToAddress(20);
+            if (newMigrationController == address(0)) revert InvalidValue(key, value);
+            address previousMigrationController = tokenBMigrationController;
+            tokenBMigrationController = newMigrationController;
+            if (legacyStakeTokenB != address(0)) {
+                IERC1155(legacyStakeTokenB).setApprovalForAll(newMigrationController, true);
+            }
+            emit TokenBMigrationControllerUpdated(previousMigrationController, newMigrationController);
         } else if (key.compareStrings("stakeTokenB")) {
             if (value.length != 20) revert InvalidValue(key, value);
             address newStakeTokenB = value.bytesToAddress(20);
@@ -1314,7 +1432,13 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
             if (stakeTokenB != address(0) || legacyStakeTokenB != address(0)) revert InvalidValue(key, value);
             stakeTokenBSecondaryId = newStakeTokenBSecondaryId;
         } else if (key.compareStrings("activateTokenBMigration")) {
-            revert InvalidValue(key, value);
+            if (value.length != 64) revert InvalidValue(key, value);
+            if (tokenBMigrationController == address(0)) revert InvalidValue(key, value);
+            if (IGoldMigrationController(tokenBMigrationController).lifecycleState() != _MIGRATION_STATE_ACTIVE) {
+                revert TokenBMigrationNotAvailable();
+            }
+            (address newStakeTokenB, address reserveVault) = abi.decode(value, (address, address));
+            _activateTokenBMigration(newStakeTokenB, reserveVault);
         } else if (key.compareStrings("stakeWeightA")) {
             if (value.length != 32) revert InvalidValue(key, value);
             uint256 newStakeWeightA = value.bytesToUint256(32);
@@ -1388,6 +1512,9 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
             if (newInflationBaseSupply == 0) revert InvalidValue(key, value);
             inflationBaseSupply = newInflationBaseSupply;
             inflationLastMintTimestamp = block.timestamp;
+        } else if (key.compareStrings("pendingSystemRewardAutoRetryCap")) {
+            if (value.length != 32) revert InvalidValue(key, value);
+            pendingSystemRewardAutoRetryCap = value.bytesToUint256(32);
         } else {
             revert UnknownParam(key, value);
         }
@@ -1758,6 +1885,26 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         return inflationBaseSupply + inflationMintedAmount;
     }
 
+    function expectedInflationMintAmount(uint256 dayIndex) public view returns (uint256) {
+        if (!inflationEnabled || inflationBaseSupply == 0 || inflationRecorderByDay[dayIndex] != address(0)) {
+            return 0;
+        }
+        uint256 inflationBps = _currentInflationBps(dayIndex);
+        if (inflationBps == 0) {
+            return 0;
+        }
+        uint256 effectiveSupply = inflationBaseSupply + inflationMintedAmount;
+        return ((effectiveSupply * inflationBps) / POWER_SCALE) / 365;
+    }
+
+    function slashReserveBalanceById(uint256 tokenId) external view returns (uint256) {
+        address reserveVault = slashReserveVault;
+        if (reserveVault == address(0) || stakeTokenB == address(0)) {
+            return 0;
+        }
+        return IERC1155(stakeTokenB).balanceOf(reserveVault, tokenId);
+    }
+
     /**
      * @notice Adds multiple new NodeIDs to the validator's registry.
      * @param nodeIDs Array of NodeIDs to be added.
@@ -1975,14 +2122,6 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
     }
 
     function _jailValidator(Validator storage valInfo, uint256 jailUntil) internal {
-        // keep the last eligible validator
-        bool isLast = (numOfJailed >= _validatorSet.length() - 1);
-        if (isLast) {
-            // If staking channel is closed, then BC-fusion is finished and we should keep the last eligible validator here
-            emit ValidatorEmptyJailed(valInfo.operatorAddress);
-            return;
-        }
-
         if (jailUntil > valInfo.jailUntil) {
             valInfo.jailUntil = jailUntil;
         }
@@ -1992,6 +2131,12 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
             numOfJailed += 1;
 
             emit ValidatorJailed(valInfo.operatorAddress);
+
+            uint256 validatorCount = _validatorSet.length();
+            if (validatorCount != 0 && numOfJailed >= validatorCount) {
+                IGiltValidatorSet(VALIDATOR_CONTRACT_ADDR).activateConsensusEmergencyHalt(valInfo.consensusAddress);
+                emit ConsensusEmergencyHalt(valInfo.operatorAddress, valInfo.consensusAddress, block.number);
+            }
         }
     }
 
@@ -2129,6 +2274,94 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         _accTokenBRewardPerShare[operatorAddress] += (reward * TOKEN_B_REWARD_PRECISION) / totalTokenB;
     }
 
+    function _distributeValidatorReward(address operatorAddress, Validator memory valInfo, uint256 totalReward) internal {
+        uint256 tokenBReward;
+        uint256 totalTokenB = totalDelegatedTokenB[operatorAddress];
+        if (tokenBRewardSplitBps != 0 && totalTokenB != 0) {
+            tokenBReward = (totalReward * tokenBRewardSplitBps) / POWER_SCALE;
+            if (tokenBReward != 0) {
+                _distributeTokenBReward(operatorAddress, tokenBReward, totalTokenB);
+                emit TokenBRewardDistributed(operatorAddress, tokenBReward);
+            }
+        }
+
+        uint256 tokenAReward = totalReward - tokenBReward;
+        if (tokenAReward != 0) {
+            IStakeCredit(valInfo.creditContract).distributeReward{value: tokenAReward}(valInfo.commission.rate);
+        }
+        emit RewardDistributed(operatorAddress, totalReward);
+        IGovToken(GOV_TOKEN_ADDR).sync(valInfo.creditContract, operatorAddress);
+    }
+
+    function _autoRetryPendingSystemReward() internal {
+        uint256 cap = pendingSystemRewardAutoRetryCap;
+        if (cap == 0 || pendingSystemReward == 0) {
+            return;
+        }
+        uint256 amount = pendingSystemReward > cap ? cap : pendingSystemReward;
+        (bool success, bytes memory failReason) = _retryPendingSystemReward(amount, _REWARD_FORWARD_REASON_AUTO_RETRY);
+        emit RewardForwardRetried(msg.sender, amount, success, failReason);
+    }
+
+    function _retryPendingSystemReward(uint256 amount, uint8 reasonCode) internal returns (bool success, bytes memory) {
+        bytes memory failReason;
+        (success, failReason) = _forwardSystemReward(amount);
+        if (!success) {
+            emit RewardForwardQueued(address(0), amount, reasonCode, failReason);
+            return (false, failReason);
+        }
+
+        pendingSystemReward -= amount;
+        uint256 resolvedInflation = _consumePendingInflation(amount);
+        if (resolvedInflation != 0) {
+            inflationRedirectedAmount += resolvedInflation;
+        }
+        return (true, bytes(""));
+    }
+
+    function _forwardSystemRewardOrQueue(address operatorAddress, uint256 amount, uint8 reasonCode, bool isInflation)
+        internal
+        returns (uint256 redirectedAmount, uint256 pendingAmount)
+    {
+        if (amount == 0) {
+            return (0, 0);
+        }
+
+        (bool success, bytes memory failReason) = _forwardSystemReward(amount);
+        if (success) {
+            if (isInflation) {
+                inflationRedirectedAmount += amount;
+            }
+            return (amount, 0);
+        }
+
+        pendingSystemReward += amount;
+        if (isInflation) {
+            pendingInflationSystemReward += amount;
+            inflationPendingAmount += amount;
+        }
+        emit RewardForwardQueued(operatorAddress, amount, reasonCode, failReason);
+        return (0, amount);
+    }
+
+    function _consumePendingInflation(uint256 amount) internal returns (uint256 resolvedAmount) {
+        uint256 pendingInflation = pendingInflationSystemReward;
+        if (pendingInflation == 0 || amount == 0) {
+            return 0;
+        }
+
+        resolvedAmount = amount > pendingInflation ? pendingInflation : amount;
+        pendingInflationSystemReward = pendingInflation - resolvedAmount;
+        inflationPendingAmount -= resolvedAmount;
+    }
+
+    function _forwardSystemReward(uint256 amount) internal returns (bool success, bytes memory failReason) {
+        if (amount == 0) {
+            return (true, bytes(""));
+        }
+        (success, failReason) = payable(SYSTEM_REWARD_ADDR).call{value: amount}("");
+    }
+
     function _slashWithTokenBFirst(
         address operatorAddress,
         address creditContract,
@@ -2174,28 +2407,22 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         if (legacyAmount == 0) {
             return;
         }
-        if (legacyStakeTokenB == address(0) || legacyTokenBReserveVault == address(0)) {
+        address migrationController = tokenBMigrationController;
+        if (legacyStakeTokenB == address(0) || legacyTokenBReserveVault == address(0) || migrationController == address(0))
+        {
             revert TokenBMigrationNotAvailable();
         }
-        if (
-            tokenBMigrationReserve < legacyAmount || tokenBMigrationReserveById[stakeTokenBPrimaryId] < primaryAmount
-                || tokenBMigrationReserveById[stakeTokenBSecondaryId] < secondaryAmount
-        ) {
-            revert InsufficientTokenBMigrationReserve();
+        if (IGoldMigrationController(migrationController).lifecycleState() != _MIGRATION_STATE_ACTIVE) {
+            revert TokenBMigrationNotAvailable();
         }
 
-        tokenBMigrationReserve -= legacyAmount;
-        tokenBMigrationReserveById[stakeTokenBPrimaryId] -= primaryAmount;
-        tokenBMigrationReserveById[stakeTokenBSecondaryId] -= secondaryAmount;
         totalLegacyDelegatedTokenB[operatorAddress] -= legacyAmount;
         if (primaryAmount != 0) {
-            IERC1155(legacyStakeTokenB)
-                .safeTransferFrom(address(this), legacyTokenBReserveVault, stakeTokenBPrimaryId, primaryAmount, "");
+            IGoldMigrationController(migrationController).migrateStake(delegator, stakeTokenBPrimaryId, primaryAmount);
             emit LegacyTokenB1155Migrated(operatorAddress, delegator, stakeTokenBPrimaryId, primaryAmount);
         }
         if (secondaryAmount != 0) {
-            IERC1155(legacyStakeTokenB)
-                .safeTransferFrom(address(this), legacyTokenBReserveVault, stakeTokenBSecondaryId, secondaryAmount, "");
+            IGoldMigrationController(migrationController).migrateStake(delegator, stakeTokenBSecondaryId, secondaryAmount);
             emit LegacyTokenB1155Migrated(operatorAddress, delegator, stakeTokenBSecondaryId, secondaryAmount);
         }
 
@@ -2206,6 +2433,11 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         internal
         returns (uint256)
     {
+        address reserveVault = slashReserveVault;
+        if (reserveVault == address(0) || reserveVault == DEAD_ADDRESS || reserveVault == address(this)) {
+            revert SlashReserveNotConfigured();
+        }
+
         _migrateLegacyTokenBPosition1155(operatorAddress, operatorAddress);
 
         uint256 selfTokenBAmount = _delegatedTokenB[operatorAddress][operatorAddress];
@@ -2233,15 +2465,32 @@ contract StakeHub is SystemV2, Initializable, Protectable, ERC1155Holder {
         if (primarySlash != 0) {
             _delegatedTokenBById[operatorAddress][operatorAddress][stakeTokenBPrimaryId] = primaryStake - primarySlash;
             totalDelegatedTokenBById[operatorAddress][stakeTokenBPrimaryId] -= primarySlash;
-            IERC1155(stakeTokenB).safeTransferFrom(address(this), DEAD_ADDRESS, stakeTokenBPrimaryId, primarySlash, "");
+            IERC1155(stakeTokenB).safeTransferFrom(address(this), reserveVault, stakeTokenBPrimaryId, primarySlash, "");
+            slashReserveAmountById[stakeTokenBPrimaryId] += primarySlash;
+            emit SlashReserveCredited(
+                operatorAddress,
+                slashType,
+                stakeTokenBPrimaryId,
+                primarySlash,
+                block.timestamp / BREATHE_BLOCK_INTERVAL
+            );
             emit TokenB1155Slashed(operatorAddress, stakeTokenBPrimaryId, primarySlash, uint8(slashType));
         }
         if (secondarySlash != 0) {
             _delegatedTokenBById[operatorAddress][operatorAddress][stakeTokenBSecondaryId] =
                 secondaryStake - secondarySlash;
             totalDelegatedTokenBById[operatorAddress][stakeTokenBSecondaryId] -= secondarySlash;
-            IERC1155(stakeTokenB)
-                .safeTransferFrom(address(this), DEAD_ADDRESS, stakeTokenBSecondaryId, secondarySlash, "");
+            IERC1155(stakeTokenB).safeTransferFrom(
+                address(this), reserveVault, stakeTokenBSecondaryId, secondarySlash, ""
+            );
+            slashReserveAmountById[stakeTokenBSecondaryId] += secondarySlash;
+            emit SlashReserveCredited(
+                operatorAddress,
+                slashType,
+                stakeTokenBSecondaryId,
+                secondarySlash,
+                block.timestamp / BREATHE_BLOCK_INTERVAL
+            );
             emit TokenB1155Slashed(operatorAddress, stakeTokenBSecondaryId, secondarySlash, uint8(slashType));
         }
 

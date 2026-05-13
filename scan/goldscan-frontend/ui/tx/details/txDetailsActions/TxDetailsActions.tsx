@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { TxAction } from 'types/api/txAction';
+import type { TxAction, TxActionGoldchain } from 'types/api/txAction';
 
 import config from 'configs/app';
 import TxDetailsActionsInterpretation from 'ui/tx/details/txDetailsActions/TxDetailsActionsInterpretation';
@@ -8,7 +8,7 @@ import TxDetailsActionsRaw from 'ui/tx/details/txDetailsActions/TxDetailsActions
 
 type Props = {
   isTxDataLoading: boolean;
-  actions?: Array<TxAction>;
+  actions?: Array<TxAction | TxActionGoldchain>;
   hash?: string;
 };
 

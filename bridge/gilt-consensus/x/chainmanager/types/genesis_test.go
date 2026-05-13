@@ -77,7 +77,7 @@ func TestGenesisState_Validate(t *testing.T) {
 		gs := types.GenesisState{}
 
 		err := gs.Validate()
-		require.NoError(t, err)
+		require.Error(t, err)
 	})
 }
 

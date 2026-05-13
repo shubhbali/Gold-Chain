@@ -95,6 +95,7 @@ for repo <- [
       Explorer.Repo.Blackfort,
       Explorer.Repo.Celo,
       Explorer.Repo.Filecoin,
+      Explorer.Repo.Goldchain,
       Explorer.Repo.Optimism,
       Explorer.Repo.PolygonEdge,
       Explorer.Repo.PolygonZkevm,

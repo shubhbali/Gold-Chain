@@ -24,6 +24,7 @@ contract StateReceiverTest is Test {
 
   function test_deployment() public view {
     assertEq(stateReceiver.rootSetter(), rootSetter);
+    assertEq(stateReceiver.bridgeOperator(), rootSetter);
   }
 
   function testRevert_commitState_OnlySystem() public {
@@ -43,9 +44,13 @@ contract StateReceiverTest is Test {
     address receiver = makeAddr("receiver");
     bytes memory recordBytes = _encodeRecord(stateId, receiver, "");
 
+    vm.expectEmit();
+    emit StateCommitted(stateId, false);
     vm.prank(SYSTEM_ADDRESS);
     assertFalse(stateReceiver.commitState(0, recordBytes));
     assertEq(stateReceiver.lastStateId(), 1);
+    assertEq(stateReceiver.failedStateSyncs(stateId), abi.encode(receiver, ""));
+    assertEq(stateReceiver.failedStateSyncReasons(stateId), 1);
   }
 
   function test_commitState_ReceiverReverts() public {
@@ -68,6 +73,7 @@ contract StateReceiverTest is Test {
     assertFalse(stateReceiver.commitState(0, recordBytes));
     assertEq(stateReceiver.lastStateId(), 1);
     assertEq(stateReceiver.failedStateSyncs(stateId), abi.encode(receiver, stateData));
+    assertEq(stateReceiver.failedStateSyncReasons(stateId), 2);
   }
 
   function test_commitState_Success() public {
@@ -90,7 +96,7 @@ contract StateReceiverTest is Test {
     assertEq(stateReceiver.lastStateId(), 1);
   }
 
-  function testRevert_ReplayFailedStateSync(uint256 stateId, bytes memory callData) public {
+  function test_ReplayFailedStateSyncRetainsFailureOnRevert(uint256 stateId, bytes memory callData) public {
     vm.assume(stateId > 0);
     vm.store(address(stateReceiver), bytes32(0), bytes32(stateId - 1));
     assertTrue(revertingReceiver.shouldIRevert());
@@ -104,8 +110,9 @@ contract StateReceiverTest is Test {
 
     assertTrue(revertingReceiver.shouldIRevert());
 
-    vm.expectRevert("TestRevertingReceiver");
+    vm.prank(rootSetter);
     stateReceiver.replayFailedStateSync(stateId);
+    assertEq(stateReceiver.failedStateSyncs(stateId), abi.encode(address(revertingReceiver), callData));
   }
 
   function test_ReplayFailedStateSync(uint256 stateId, bytes memory callData) public {
@@ -130,8 +137,10 @@ contract StateReceiverTest is Test {
       0,
       abi.encodeWithSignature("onStateReceive(uint256,bytes)", stateId, callData)
     );
+    vm.prank(rootSetter);
     stateReceiver.replayFailedStateSync(stateId);
 
+    vm.prank(rootSetter);
     vm.expectRevert("!found");
     stateReceiver.replayFailedStateSync(stateId);
   }
@@ -151,8 +160,9 @@ contract StateReceiverTest is Test {
     assertFalse(revertingReceiver.shouldIRevert());
 
     vm.expectCall(address(reenterer), 0, abi.encodeWithSignature("onStateReceive(uint256,bytes)", stateId, callData));
-    vm.expectRevert("!found");
+    vm.prank(rootSetter);
     stateReceiver.replayFailedStateSync(stateId);
+    assertEq(stateReceiver.failedStateSyncs(stateId), abi.encode(address(reenterer), callData));
   }
 
   function test_rootSetter(address random) public {
@@ -171,6 +181,7 @@ contract StateReceiverTest is Test {
     stateReceiver.setRootAndLeafCount(root, 1);
 
     vm.expectRevert(bytes("used"));
+    vm.prank(rootSetter);
     stateReceiver.replayHistoricFailedStateSync(proof, 0, 0, address(0), new bytes(0));
   }
 
@@ -180,6 +191,7 @@ contract StateReceiverTest is Test {
     stateReceiver.setRootAndLeafCount(root, 1);
 
     vm.expectRevert("!proof");
+    vm.prank(rootSetter);
     stateReceiver.replayHistoricFailedStateSync(
       proof,
       vm.randomUint(0, 2 ** 16 - 1),
@@ -217,6 +229,7 @@ contract StateReceiverTest is Test {
       vm.expectCall(receiver, 0, abi.encodeWithSignature("onStateReceive(uint256,bytes)", i + 1, stateDatas[i]));
       vm.expectEmit();
       emit StateSyncReplay(i + 1);
+      vm.prank(rootSetter);
       stateReceiver.replayHistoricFailedStateSync(
         abi.decode(proofs[i], (bytes32[16])),
         i,

@@ -2,81 +2,124 @@
 import { Pair, Token, Bundle } from '../types/schema'
 import { BigDecimal, Address } from '@graphprotocol/graph-ts/index'
 import { ZERO_BD, factoryContract, ADDRESS_ZERO, ONE_BD } from './helpers'
+import { WGILT_ADDRESS, QUOTE_TOKEN_ADDRESSES, ROUTE_TOKEN_ADDRESSES } from './goldchainPricingConfig'
 
-const WBNB_ADDRESS = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
-const BUSD_WBNB_PAIR = '0x1b96b92314c44b159149f7e0303511fb2fc4774f' // created block 589414
-const DAI_WBNB_PAIR = '0xf3010261b58b2874639ca2e860e9005e3be5de0b'  // created block 481116
-const USDT_WBNB_PAIR = '0x20bcc3b8a0091ddac2d0bc30f68e6cbb97de59cd' // created block 648115
+function normalizeAddress(address: string): string {
+  return address.toLowerCase()
+}
+
+function isZeroAddress(address: string): boolean {
+  return normalizeAddress(address) == ADDRESS_ZERO
+}
+
+function isWhitelisted(address: string): boolean {
+  let normalized = normalizeAddress(address)
+  for (let i = 0; i < WHITELIST.length; i++) {
+    if (WHITELIST[i] == normalized) {
+      return true
+    }
+  }
+  return false
+}
+
+function isRouteToken(address: string): boolean {
+  let normalized = normalizeAddress(address)
+  for (let i = 0; i < ROUTE_TOKEN_ADDRESSES.length; i++) {
+    if (normalizeAddress(ROUTE_TOKEN_ADDRESSES[i]) == normalized) {
+      return true
+    }
+  }
+  return false
+}
+
+function derivedEth(token: Token): BigDecimal {
+  return token.derivedETH === null ? ZERO_BD : (token.derivedETH as BigDecimal)
+}
 
 export function getEthPriceInUSD(): BigDecimal {
-  // fetch eth prices for each stablecoin
-  let usdtPair = Pair.load(USDT_WBNB_PAIR) // usdt is token0
-  let busdPair = Pair.load(BUSD_WBNB_PAIR) // busd is token1
-  let daiPair = Pair.load(DAI_WBNB_PAIR)   // dai is token0
+  let stableTokens: string[] = QUOTE_TOKEN_ADDRESSES.filter((token) => !isZeroAddress(token))
 
-  // all 3 have been created
-  if (daiPair !== null && busdPair !== null && usdtPair !== null) {
-    let totalLiquidityBNB = daiPair.reserve1.plus(busdPair.reserve0).plus(usdtPair.reserve1)
-    let daiWeight = daiPair.reserve1.div(totalLiquidityBNB)
-    let busdWeight = busdPair.reserve0.div(totalLiquidityBNB)
-    let usdtWeight = usdtPair.reserve1.div(totalLiquidityBNB)
-    return daiPair.token0Price
-      .times(daiWeight)
-      .plus(busdPair.token1Price.times(busdWeight))
-      .plus(usdtPair.token0Price.times(usdtWeight))
-    // busd and usdt have been created
-  } else if (busdPair !== null && usdtPair !== null) {
-    let totalLiquidityBNB = busdPair.reserve0.plus(usdtPair.reserve1)
-    let busdWeight = busdPair.reserve0.div(totalLiquidityBNB)
-    let usdtWeight = usdtPair.reserve1.div(totalLiquidityBNB)
-    return busdPair.token1Price.times(busdWeight).plus(usdtPair.token0Price.times(usdtWeight))
-    // usdt is the only pair so far
-  } else if (busdPair !== null) {
-    return busdPair.token1Price
-  } else if (usdtPair !== null) {
-    return usdtPair.token0Price
-  } else {
+  let weightedPrice = ZERO_BD
+  let totalWeight = ZERO_BD
+  for (let i = 0; i < stableTokens.length; i++) {
+    let stable = normalizeAddress(stableTokens[i])
+    let pairAddress = factoryContract.getPair(Address.fromString(WGILT_ADDRESS), Address.fromString(stable))
+    if (pairAddress.toHexString() == ADDRESS_ZERO) {
+      continue
+    }
+    let pair = Pair.load(pairAddress.toHexString())
+    if (pair === null) {
+      continue
+    }
+
+    let wgiltReserve = pair.token0.toLowerCase() == WGILT_ADDRESS ? pair.reserve0 : pair.reserve1
+    if (wgiltReserve.equals(ZERO_BD)) {
+      continue
+    }
+    let wgiltPriceInStable = pair.token0.toLowerCase() == WGILT_ADDRESS ? pair.token0Price : pair.token1Price
+    weightedPrice = weightedPrice.plus(wgiltPriceInStable.times(wgiltReserve))
+    totalWeight = totalWeight.plus(wgiltReserve)
+  }
+
+  if (totalWeight.equals(ZERO_BD)) {
     return ZERO_BD
   }
+  return weightedPrice.div(totalWeight)
 }
 
 // token where amounts should contribute to tracked volume and liquidity
-let WHITELIST: string[] = [
-  '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c', // WBNB
-  '0xe9e7cea3dedca5984780bafc599bd69add087d56', // BUSD
-  '0x55d398326f99059ff775485246999027b3197955', // USDT
-  '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // USDC
-  '0x23396cf899ca06c4472205fc903bdb4de249d6fc', // UST
-  '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', // DAI
-  '0x4bd17003473389a42daf6a0a729f6fdb328bbbd7', // VAI
-  '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c', // BTCB
-  '0x2170ed0880ac9a755fd29b2688956bd959f933f8', // WETH
-  '0x250632378e573c6be1ac2f97fcdf00515d0aa91b', // BETH
-]
+let WHITELIST: string[] = [WGILT_ADDRESS]
+
+for (let i = 0; i < QUOTE_TOKEN_ADDRESSES.length; i++) {
+  let token = normalizeAddress(QUOTE_TOKEN_ADDRESSES[i])
+  if (!isZeroAddress(token) && !isWhitelisted(token)) {
+    WHITELIST.push(token)
+  }
+}
 
 // minimum liquidity for price to get tracked
-let MINIMUM_LIQUIDITY_THRESHOLD_ETH = BigDecimal.fromString('2')
+let MINIMUM_LIQUIDITY_THRESHOLD_ETH = BigDecimal.fromString('1')
 
 /**
  * Search through graph to find derived Eth per token.
  * @todo update to be derived ETH (add stablecoin estimates)
  **/
 export function findEthPerToken(token: Token): BigDecimal {
-  if (token.id == WBNB_ADDRESS) {
+  if (normalizeAddress(token.id) == WGILT_ADDRESS) {
     return ONE_BD
   }
-  // loop through whitelist and check if paired with any
-  for (let i = 0; i < WHITELIST.length; ++i) {
-    let pairAddress = factoryContract.getPair(Address.fromString(token.id), Address.fromString(WHITELIST[i]))
+
+  // GOLD route tokens on Gold Chain should be priced directly against WGILT.
+  if (isRouteToken(token.id)) {
+    let pairAddress = factoryContract.getPair(Address.fromString(token.id), Address.fromString(WGILT_ADDRESS))
     if (pairAddress.toHexString() != ADDRESS_ZERO) {
       let pair = Pair.load(pairAddress.toHexString())
+      if (pair !== null && pair.reserveETH.gt(MINIMUM_LIQUIDITY_THRESHOLD_ETH)) {
+        return pair.token0.toLowerCase() == normalizeAddress(token.id) ? pair.token0Price : pair.token1Price
+      }
+    }
+  }
+
+  // loop through whitelist and check if paired with any
+  for (let i = 0; i < WHITELIST.length; ++i) {
+    let pairAddress = factoryContract.getPair(Address.fromString(token.id), Address.fromString(normalizeAddress(WHITELIST[i])))
+    if (pairAddress.toHexString() != ADDRESS_ZERO) {
+      let pair = Pair.load(pairAddress.toHexString())
+      if (pair === null) {
+        continue
+      }
+
       if (pair.token0 == token.id && pair.reserveETH.gt(MINIMUM_LIQUIDITY_THRESHOLD_ETH)) {
         let token1 = Token.load(pair.token1)
-        return pair.token1Price.times(token1.derivedETH as BigDecimal) // return token1 per our token * Eth per token 1
+        if (token1 !== null) {
+          return pair.token1Price.times(derivedEth(token1)) // return token1 per our token * Eth per token 1
+        }
       }
       if (pair.token1 == token.id && pair.reserveETH.gt(MINIMUM_LIQUIDITY_THRESHOLD_ETH)) {
         let token0 = Token.load(pair.token0)
-        return pair.token0Price.times(token0.derivedETH as BigDecimal) // return token0 per our token * ETH per token 0
+        if (token0 !== null) {
+          return pair.token0Price.times(derivedEth(token0)) // return token0 per our token * ETH per token 0
+        }
       }
     }
   }
@@ -95,12 +138,12 @@ export function getTrackedVolumeUSD(
   tokenAmount1: BigDecimal,
   token1: Token
 ): BigDecimal {
-  let bundle = Bundle.load('1')
-  let price0 = token0.derivedETH.times(bundle.ethPrice)
-  let price1 = token1.derivedETH.times(bundle.ethPrice)
+  let bundle = Bundle.load('1') as Bundle
+  let price0 = derivedEth(token0).times(bundle.ethPrice)
+  let price1 = derivedEth(token1).times(bundle.ethPrice)
 
   // both are whitelist tokens, take average of both amounts
-  if (WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
+  if (isWhitelisted(token0.id) && isWhitelisted(token1.id)) {
     return tokenAmount0
       .times(price0)
       .plus(tokenAmount1.times(price1))
@@ -108,12 +151,12 @@ export function getTrackedVolumeUSD(
   }
 
   // take full value of the whitelisted token amount
-  if (WHITELIST.includes(token0.id) && !WHITELIST.includes(token1.id)) {
+  if (isWhitelisted(token0.id) && !isWhitelisted(token1.id)) {
     return tokenAmount0.times(price0)
   }
 
   // take full value of the whitelisted token amount
-  if (!WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
+  if (!isWhitelisted(token0.id) && isWhitelisted(token1.id)) {
     return tokenAmount1.times(price1)
   }
 
@@ -134,21 +177,21 @@ export function getTrackedLiquidityUSD(
   tokenAmount1: BigDecimal,
   token1: Token
 ): BigDecimal {
-  let price0 = token0.derivedETH.times(bundle.ethPrice)
-  let price1 = token1.derivedETH.times(bundle.ethPrice)
+  let price0 = derivedEth(token0).times(bundle.ethPrice)
+  let price1 = derivedEth(token1).times(bundle.ethPrice)
 
   // both are whitelist tokens, take average of both amounts
-  if (WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
+  if (isWhitelisted(token0.id) && isWhitelisted(token1.id)) {
     return tokenAmount0.times(price0).plus(tokenAmount1.times(price1))
   }
 
   // take double value of the whitelisted token amount
-  if (WHITELIST.includes(token0.id) && !WHITELIST.includes(token1.id)) {
+  if (isWhitelisted(token0.id) && !isWhitelisted(token1.id)) {
     return tokenAmount0.times(price0).times(BigDecimal.fromString('2'))
   }
 
   // take double value of the whitelisted token amount
-  if (!WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
+  if (!isWhitelisted(token0.id) && isWhitelisted(token1.id)) {
     return tokenAmount1.times(price1).times(BigDecimal.fromString('2'))
   }
 

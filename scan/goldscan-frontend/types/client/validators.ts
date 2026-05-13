@@ -4,6 +4,7 @@ export const VALIDATORS_CHAIN_TYPE = [
   'stability',
   'blackfort',
   'zilliqa',
+  'goldchain',
 ] as const;
 
 export type ValidatorsChainType = ArrayElement<typeof VALIDATORS_CHAIN_TYPE>;

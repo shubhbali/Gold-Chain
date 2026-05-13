@@ -4,6 +4,7 @@ export const ROLLUP_TYPES = [
   'optimistic',
   'arbitrum',
   'shibarium',
+  'goldchain',
   'zkEvm',
   'zkSync',
   'scroll',

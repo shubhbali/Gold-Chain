@@ -3,6 +3,7 @@ import { parseEther } from "ethers/lib/utils";
 
 const config = require("../config");
 const currentNetwork = network.name;
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 async function main() {
   if (currentNetwork == "mainnet") {
@@ -38,6 +39,16 @@ async function main() {
     console.log("RewardToken deployed to:", rewardTokenAddress);
   } else if (currentNetwork == "mainnet" || currentNetwork == "goldchain") {
     rewardTokenAddress = config.RewardToken[currentNetwork];
+  }
+
+  if (
+    !config.StakedToken[currentNetwork] ||
+    config.StakedToken[currentNetwork] === ZERO_ADDRESS
+  ) {
+    throw new Error(`Missing staked token address for network ${currentNetwork}`);
+  }
+  if (!rewardTokenAddress || rewardTokenAddress === ZERO_ADDRESS) {
+    throw new Error(`Missing reward token address for network ${currentNetwork}`);
   }
 
   console.log("Deploying SmartChef...");

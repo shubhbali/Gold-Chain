@@ -2,6 +2,7 @@ pragma solidity 0.6.6;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {AccessControlMixin} from "../../common/AccessControlMixin.sol";
 import {RLPReader} from "../../lib/RLPReader.sol";
 import {ITokenPredicate} from "./ITokenPredicate.sol";
@@ -11,6 +12,7 @@ contract ERC20Predicate is ITokenPredicate, AccessControlMixin, Initializable {
     using RLPReader for bytes;
     using RLPReader for RLPReader.RLPItem;
     using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
     bytes32 public constant TOKEN_TYPE = keccak256("ERC20");
@@ -56,10 +58,21 @@ contract ERC20Predicate is ITokenPredicate, AccessControlMixin, Initializable {
         external
         override
         only(MANAGER_ROLE)
+        returns (bytes memory)
     {
-        uint256 amount = abi.decode(depositData, (uint256));
-        emit LockedERC20(depositor, depositReceiver, rootToken, amount);
-        IERC20(rootToken).safeTransferFrom(depositor, address(this), amount);
+        uint256 requestedAmount = abi.decode(depositData, (uint256));
+        IERC20 token = IERC20(rootToken);
+
+        uint256 beforeBalance = token.balanceOf(address(this));
+        token.safeTransferFrom(depositor, address(this), requestedAmount);
+        uint256 afterBalance = token.balanceOf(address(this));
+        require(afterBalance >= beforeBalance, "ERC20Predicate: BALANCE_DECREASED");
+
+        uint256 actualReceived = afterBalance.sub(beforeBalance);
+        require(actualReceived != 0, "ERC20Predicate: INVALID_AMOUNT");
+
+        emit LockedERC20(depositor, depositReceiver, rootToken, actualReceived);
+        return abi.encode(actualReceived);
     }
 
     /**

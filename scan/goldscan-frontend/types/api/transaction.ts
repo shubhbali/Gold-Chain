@@ -8,7 +8,7 @@ import type { OptimisticL2WithdrawalClaimInfo, OptimisticL2WithdrawalStatus } fr
 import type { ScrollL2BlockStatus } from './scrollL2';
 import type { TokenInfo } from './token';
 import type { TokenTransfer } from './tokenTransfer';
-import type { TxAction } from './txAction';
+import type { TxAction, TxActionGoldchain } from './txAction';
 import type { ZkSyncBatchesItem } from './zkSyncL2';
 
 export type TransactionRevertReason = {
@@ -58,7 +58,7 @@ export type Transaction = {
   method: string | null;
   transaction_types: Array<TransactionType>;
   transaction_tag: string | null;
-  actions: Array<TxAction>;
+  actions: Array<TxAction | TxActionGoldchain>;
   l1_fee?: string;
   l1_fee_scalar?: string;
   l1_gas_price?: string;

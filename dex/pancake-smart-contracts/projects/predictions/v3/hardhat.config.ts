@@ -19,12 +19,19 @@ const bscMainnet: NetworkUserConfig = {
   accounts: [process.env.KEY_MAINNET!],
 };
 
+const goldChain: NetworkUserConfig = {
+  url: process.env.GOLD_CHAIN_RPC_URL || process.env.NEXT_PUBLIC_GOLD_CHAIN_RPC || "http://127.0.0.1:8545",
+  chainId: 714,
+  accounts: process.env.KEY_GOLDCHAIN ? [process.env.KEY_GOLDCHAIN] : [],
+};
+
 const config = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {},
-    // testnet: bscTestnet,
-    // mainnet: bscMainnet,
+    testnet: bscTestnet,
+    mainnet: bscMainnet,
+    goldchain: goldChain,
   },
   solidity: {
     version: "0.8.4",

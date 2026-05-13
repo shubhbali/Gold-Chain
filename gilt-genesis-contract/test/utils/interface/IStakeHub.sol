@@ -55,6 +55,10 @@ interface StakeHub {
     error InvalidValidator();
     error TokenBMigrationNotAvailable();
     error InsufficientTokenBMigrationReserve();
+    error SlashReserveNotConfigured();
+    error InflationScheduleExceeded();
+    error InvalidInflationMintAmount(uint256 expectedAmount, uint256 actualAmount);
+    error InflationAlreadyRecorded(uint256 dayIndex);
 
     event BlackListed(address indexed target);
     event Claimed(address indexed operatorAddress, address indexed delegator, uint256 giltAmount);
@@ -93,6 +97,31 @@ interface StakeHub {
     event InflationMintRecorded(
         uint256 amount, uint256 inflationBps, uint256 totalMintedAmount, uint256 effectiveSupply
     );
+    event InflationRecordedV2(
+        uint256 mintedAmount,
+        uint256 distributedAmount,
+        uint256 redirectedAmount,
+        uint256 pendingAmount,
+        uint256 inflationBps,
+        uint256 totalMintedAmount,
+        uint256 effectiveSupply
+    );
+    event InflationIntervalRecorded(uint256 indexed dayIndex, address indexed consensusAddress, uint256 amount);
+    event InflationRedirected(address indexed consensusAddress, address indexed operatorAddress, uint256 amount);
+    event RewardForwardQueued(address indexed operatorAddress, uint256 amount, uint8 reasonCode, bytes failReason);
+    event RewardForwardRetried(address indexed caller, uint256 amount, bool success, bytes failReason);
+    event RewardForwardSwept(address indexed caller, address indexed recipient, uint256 amount, uint256 inflationAmount);
+    event SlashReserveCredited(
+        address indexed operatorAddress,
+        SlashType slashType,
+        uint256 indexed tokenId,
+        uint256 amount,
+        uint256 settlementEpoch
+    );
+    event SlashReserveSettled(address indexed recipient, uint256 indexed tokenId, uint256 amount, uint256 settlementEpoch);
+    event SlashReserveMigratedFromSelf(address indexed vault, uint256 indexed tokenId, uint256 amount);
+    event SlashReserveSelfMigrationFinalized(address indexed vault, uint256 migratedTokenCount);
+    event ConsensusEmergencyHalt(address indexed operatorAddress, address indexed consensusAddress, uint256 triggerBlock);
     event StakeCreditInitialized(address indexed operatorAddress, address indexed creditContract);
     event UnBlackListed(address indexed target);
     event Undelegated(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 giltAmount);
@@ -193,6 +222,17 @@ interface StakeHub {
     function inflationBaseSupply() external view returns (uint256);
     function inflationMintedAmount() external view returns (uint256);
     function inflationLastMintTimestamp() external view returns (uint256);
+    function inflationDistributedAmount() external view returns (uint256);
+    function inflationRedirectedAmount() external view returns (uint256);
+    function inflationPendingAmount() external view returns (uint256);
+    function inflationMintedByDay(uint256 dayIndex) external view returns (uint256);
+    function inflationRecorderByDay(uint256 dayIndex) external view returns (address);
+    function slashReserveVault() external view returns (address);
+    function slashReserveAmountById(uint256 tokenId) external view returns (uint256);
+    function slashReserveSelfMigrationCompleted() external view returns (bool);
+    function pendingSystemReward() external view returns (uint256);
+    function pendingSystemRewardAutoRetryCap() external view returns (uint256);
+    function pendingInflationSystemReward() external view returns (uint256);
     function minDelegationGILTChange() external view returns (uint256);
     function minBtoARatioBps() external view returns (uint256);
     function minSelfDelegationGILT() external view returns (uint256);
@@ -235,7 +275,13 @@ interface StakeHub {
     function pendingTokenBReward(address operatorAddress, address delegator) external view returns (uint256);
     function currentInflationBps(uint256 dayIndex) external view returns (uint256);
     function inflationEffectiveSupply() external view returns (uint256);
-    function recordInflationMint(uint256 amount) external;
+    function expectedInflationMintAmount(uint256 dayIndex) external view returns (uint256);
+    function slashReserveBalanceById(uint256 tokenId) external view returns (uint256);
+    function recordInflationMint(address consensusAddress) external payable;
+    function settleSlashReserve1155(address recipient, uint256 tokenId, uint256 amount) external;
+    function migrateSelfCustodiedSlashReserve(uint256[] calldata tokenIds, uint256[] calldata amounts) external;
+    function retryPendingSystemReward(uint256 maxAmount) external;
+    function sweepPendingSystemReward(address recipient, uint256 amount) external;
 
     function agentToOperator(address) external view returns (address);
     function legacyStakeTokenB() external view returns (address);
@@ -244,6 +290,7 @@ interface StakeHub {
     function tokenBCutoverVersion() external view returns (uint256);
     function tokenBMigrationReserve() external view returns (uint256);
     function tokenBMigrationReserveById(uint256 tokenId) external view returns (uint256);
+    function tokenBMigrationController() external view returns (address);
     function tokenBMigrationProposalId() external view returns (uint256);
     function pendingTokenBMigrationStakeTokenB() external view returns (address);
     function pendingTokenBMigrationReserveVault() external view returns (address);

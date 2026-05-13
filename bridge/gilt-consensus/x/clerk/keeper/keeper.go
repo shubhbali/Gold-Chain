@@ -23,10 +23,12 @@ type Keeper struct {
 	ChainKeeper    types.ChainKeeper
 	contractCaller helper.IContractCaller
 
-	Schema          collections.Schema
-	RecordsWithID   collections.Map[uint64, types.EventRecord]
-	RecordsWithTime collections.Map[collections.Pair[time.Time, uint64], uint64]
-	RecordSequences collections.Map[string, []byte]
+	Schema              collections.Schema
+	RecordsWithID       collections.Map[uint64, types.EventRecord]
+	RecordsWithTime     collections.Map[collections.Pair[time.Time, uint64], uint64]
+	RecordSequences     collections.Map[string, []byte]
+	BridgeLifecycle     collections.Map[string, []byte]
+	BridgeLifecycleByID collections.Map[uint64, string]
 }
 
 // NewKeeper creates a new keeper.
@@ -38,13 +40,15 @@ func NewKeeper(
 ) Keeper {
 	sb := collections.NewSchemaBuilder(storeService)
 	keeper := Keeper{
-		storeService:    storeService,
-		cdc:             cdc,
-		ChainKeeper:     ChainKeeper,
-		contractCaller:  contractCaller,
-		RecordsWithID:   collections.NewMap(sb, types.RecordsWithIDKeyPrefix, "recordsWithID", collections.Uint64Key, codec.CollValue[types.EventRecord](cdc)),
-		RecordsWithTime: collections.NewMap(sb, types.RecordsWithTimeKeyPrefix, "recordsWithTime", collections.PairKeyCodec(sdk.TimeKey, collections.Uint64Key), collections.Uint64Value),
-		RecordSequences: collections.NewMap(sb, types.RecordSequencesKeyPrefix, "recordSequences", collections.StringKey, collections.BytesValue),
+		storeService:        storeService,
+		cdc:                 cdc,
+		ChainKeeper:         ChainKeeper,
+		contractCaller:      contractCaller,
+		RecordsWithID:       collections.NewMap(sb, types.RecordsWithIDKeyPrefix, "recordsWithID", collections.Uint64Key, codec.CollValue[types.EventRecord](cdc)),
+		RecordsWithTime:     collections.NewMap(sb, types.RecordsWithTimeKeyPrefix, "recordsWithTime", collections.PairKeyCodec(sdk.TimeKey, collections.Uint64Key), collections.Uint64Value),
+		RecordSequences:     collections.NewMap(sb, types.RecordSequencesKeyPrefix, "recordSequences", collections.StringKey, collections.BytesValue),
+		BridgeLifecycle:     collections.NewMap(sb, types.BridgeLifecycleKeyPrefix, "bridgeLifecycle", collections.StringKey, collections.BytesValue),
+		BridgeLifecycleByID: collections.NewMap(sb, types.BridgeLifecycleIDIndex, "bridgeLifecycleByID", collections.Uint64Key, collections.StringValue),
 	}
 
 	schema, err := sb.Build()

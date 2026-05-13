@@ -22,6 +22,15 @@ contract('ScaledERC1155Predicate', (accounts) => {
       const contracts = await deployFreshRootContracts(accounts)
       dummyPaxgERC20 = contracts.dummyPaxgERC20
       scaledERC1155Predicate = contracts.scaledERC1155Predicate
+      await scaledERC1155Predicate.configureGoldRoutePrecision(
+        dummyPaxgERC20.target,
+        childTokenId,
+        18,
+        18,
+        scaleNumerator,
+        1,
+        1
+      )
 
       await dummyPaxgERC20.transfer(depositor.address, rootAmount)
       await dummyPaxgERC20.connect(depositor).approve(scaledERC1155Predicate.target, rootAmount)
@@ -42,6 +51,55 @@ contract('ScaledERC1155Predicate', (accounts) => {
           rootAmount * scaleNumerator
         )
     })
+
+    it('Should canonicalize fee-on-transfer deposits using actual received amount', async () => {
+      const FeeOnTransferERC20 = await ethers.getContractFactory('FeeOnTransferERC20')
+      const feeToken = await FeeOnTransferERC20.deploy('Fee PAXG', 'fPAXG', 100, accounts[9]) // 1%
+      await feeToken.waitForDeployment()
+
+      const requestedRootAmount = 200n
+      const expectedRootAmount = 198n
+      const childTokenIdForFee = 1n
+      await scaledERC1155Predicate.configureGoldRoutePrecision(
+        feeToken.target,
+        childTokenIdForFee,
+        18,
+        18,
+        scaleNumerator,
+        1,
+        1
+      )
+
+      await feeToken.mint(depositor.address, requestedRootAmount)
+      await feeToken.connect(depositor).approve(scaledERC1155Predicate.target, requestedRootAmount)
+
+      const feeDepositData = abi.encode(
+        ['uint256', 'uint256'],
+        [childTokenIdForFee.toString(), requestedRootAmount.toString()]
+      )
+
+      const canonicalData = await scaledERC1155Predicate.lockTokens.staticCall(
+        depositor.address,
+        depositReceiver,
+        feeToken.target,
+        feeDepositData
+      )
+      const [, canonicalRootAmount] = abi.decode(['uint256', 'uint256'], canonicalData)
+      expect(canonicalRootAmount).to.equal(expectedRootAmount)
+
+      await expect(
+        scaledERC1155Predicate.lockTokens(depositor.address, depositReceiver, feeToken.target, feeDepositData)
+      )
+        .to.emit(scaledERC1155Predicate, 'LockedScaledERC1155')
+        .withArgs(
+          depositor.address,
+          depositReceiver,
+          feeToken.target,
+          childTokenIdForFee,
+          expectedRootAmount,
+          expectedRootAmount * scaleNumerator
+        )
+    })
   })
 
   describe('exitTokens', () => {
@@ -56,6 +114,15 @@ contract('ScaledERC1155Predicate', (accounts) => {
       const contracts = await deployFreshRootContracts(accounts)
       dummyXautERC20 = contracts.dummyXautERC20
       scaledERC1155Predicate = contracts.scaledERC1155Predicate
+      await scaledERC1155Predicate.configureGoldRoutePrecision(
+        dummyXautERC20.target,
+        childTokenId,
+        18,
+        18,
+        scaleNumerator,
+        1,
+        1
+      )
 
       await dummyXautERC20.approve(scaledERC1155Predicate.target, rootAmount)
       const depositData = abi.encode(['uint256', 'uint256'], [childTokenId.toString(), rootAmount.toString()])

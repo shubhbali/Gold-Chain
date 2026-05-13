@@ -23,6 +23,18 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
     uint256 public scaleNumerator;
     uint256 public scaleDenominator;
 
+    struct RoutePrecision {
+        bool exists;
+        uint256 childTokenId;
+        uint8 rootDecimals;
+        uint8 goldDecimals;
+        uint256 scaleNumerator;
+        uint256 scaleDenominator;
+        uint256 rootUnit;
+    }
+
+    mapping(address => RoutePrecision) public routePrecisionByRootToken;
+
     event LockedScaledERC1155(
         address indexed depositor,
         address indexed depositReceiver,
@@ -38,6 +50,16 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
         uint256 childTokenId,
         uint256 childAmount,
         uint256 rootAmount
+    );
+
+    event GoldRoutePrecisionConfigured(
+        address indexed rootToken,
+        uint256 indexed childTokenId,
+        uint8 rootDecimals,
+        uint8 goldDecimals,
+        uint256 scaleNumerator,
+        uint256 scaleDenominator,
+        uint256 rootUnit
     );
 
     constructor() public {
@@ -57,25 +79,54 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
         scaleDenominator = _scaleDenominator;
     }
 
+    function configureGoldRoutePrecision(
+        address rootToken,
+        uint256 childTokenId,
+        uint8 rootDecimals,
+        uint8 goldDecimals,
+        uint256 routeScaleNumerator,
+        uint256 routeScaleDenominator,
+        uint256 rootUnit
+    ) external only(DEFAULT_ADMIN_ROLE) {
+        require(rootToken != address(0), "ScaledERC1155Predicate: INVALID_ROOT_TOKEN");
+        require(childTokenId != 0, "ScaledERC1155Predicate: INVALID_TOKEN_ID");
+        require(routeScaleNumerator != 0 && routeScaleDenominator != 0, "ScaledERC1155Predicate: BAD_RATIO");
+        require(rootUnit != 0, "ScaledERC1155Predicate: INVALID_ROOT_UNIT");
+
+        routePrecisionByRootToken[rootToken] = RoutePrecision({
+            exists: true,
+            childTokenId: childTokenId,
+            rootDecimals: rootDecimals,
+            goldDecimals: goldDecimals,
+            scaleNumerator: routeScaleNumerator,
+            scaleDenominator: routeScaleDenominator,
+            rootUnit: rootUnit
+        });
+
+        emit GoldRoutePrecisionConfigured(
+            rootToken,
+            childTokenId,
+            rootDecimals,
+            goldDecimals,
+            routeScaleNumerator,
+            routeScaleDenominator,
+            rootUnit
+        );
+    }
+
     function lockTokens(
         address depositor,
         address depositReceiver,
         address rootToken,
         bytes calldata depositData
-    ) external override only(MANAGER_ROLE) {
-        (uint256 childTokenId, uint256 rootAmount) = abi.decode(
-            depositData,
-            (uint256, uint256)
-        );
-        require(rootAmount != 0, "ScaledERC1155Predicate: INVALID_AMOUNT");
+    ) external override only(MANAGER_ROLE) returns (bytes memory) {
+        (uint256 childTokenId, uint256 requestedRootAmount) = abi.decode(depositData, (uint256, uint256));
+        require(requestedRootAmount != 0, "ScaledERC1155Predicate: INVALID_AMOUNT");
+        RoutePrecision memory route = _route(rootToken, childTokenId);
 
-        uint256 numeratorProduct = rootAmount.mul(scaleNumerator);
-        require(
-            numeratorProduct.mod(scaleDenominator) == 0,
-            "ScaledERC1155Predicate: NON_EXACT_DEPOSIT"
-        );
-
-        uint256 childAmount = numeratorProduct.div(scaleDenominator);
+        uint256 rootAmount = _pullAndMeasure(IERC20(rootToken), depositor, requestedRootAmount);
+        require(rootAmount.mod(route.rootUnit) == 0, "ScaledERC1155Predicate: INVALID_ROOT_DIVISIBILITY");
+        uint256 childAmount = _scaledAmountForDeposit(route, rootAmount);
         emit LockedScaledERC1155(
             depositor,
             depositReceiver,
@@ -84,7 +135,27 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
             rootAmount,
             childAmount
         );
-        IERC20(rootToken).safeTransferFrom(depositor, address(this), rootAmount);
+        return abi.encode(childTokenId, rootAmount);
+    }
+
+    function _pullAndMeasure(IERC20 token, address depositor, uint256 requestedRootAmount) private returns (uint256) {
+        uint256 beforeBalance = token.balanceOf(address(this));
+        token.safeTransferFrom(depositor, address(this), requestedRootAmount);
+        uint256 afterBalance = token.balanceOf(address(this));
+        require(afterBalance >= beforeBalance, "ScaledERC1155Predicate: BALANCE_DECREASED");
+
+        uint256 rootAmount = afterBalance.sub(beforeBalance);
+        require(rootAmount != 0, "ScaledERC1155Predicate: INVALID_AMOUNT");
+        return rootAmount;
+    }
+
+    function _scaledAmountForDeposit(RoutePrecision memory route, uint256 rootAmount) private pure returns (uint256) {
+        uint256 numeratorProduct = rootAmount.mul(route.scaleNumerator);
+        require(
+            numeratorProduct.mod(route.scaleDenominator) == 0,
+            "ScaledERC1155Predicate: NON_EXACT_DEPOSIT"
+        );
+        return numeratorProduct.div(route.scaleDenominator);
     }
 
     function exitTokens(
@@ -111,14 +182,9 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
             (uint256, uint256)
         );
         require(childAmount != 0, "ScaledERC1155Predicate: INVALID_AMOUNT");
-
-        uint256 denominatorProduct = childAmount.mul(scaleDenominator);
-        require(
-            denominatorProduct.mod(scaleNumerator) == 0,
-            "ScaledERC1155Predicate: NON_EXACT_EXIT"
-        );
-
-        uint256 rootAmount = denominatorProduct.div(scaleNumerator);
+        RoutePrecision memory route = _route(rootToken, childTokenId);
+        uint256 rootAmount = _rootAmountForExit(route, childAmount);
+        require(rootAmount.mod(route.rootUnit) == 0, "ScaledERC1155Predicate: INVALID_ROOT_DIVISIBILITY");
         IERC20(rootToken).safeTransfer(withdrawer, rootAmount);
 
         emit ExitedScaledERC1155(
@@ -139,5 +205,21 @@ contract ScaledERC1155Predicate is ITokenPredicate, AccessControlMixin, Initiali
         assembly {
             if iszero(ok) { revert(add(32, ret), ret) }
         }
+    }
+
+    function _route(address rootToken, uint256 childTokenId) private view returns (RoutePrecision memory) {
+        RoutePrecision memory route = routePrecisionByRootToken[rootToken];
+        require(route.exists, "ScaledERC1155Predicate: ROUTE_NOT_CONFIGURED");
+        require(route.childTokenId == childTokenId, "ScaledERC1155Predicate: TOKEN_ID_MISMATCH");
+        return route;
+    }
+
+    function _rootAmountForExit(RoutePrecision memory route, uint256 childAmount) private pure returns (uint256) {
+        uint256 denominatorProduct = childAmount.mul(route.scaleDenominator);
+        require(
+            denominatorProduct.mod(route.scaleNumerator) == 0,
+            "ScaledERC1155Predicate: NON_EXACT_EXIT"
+        );
+        return denominatorProduct.div(route.scaleNumerator);
     }
 }

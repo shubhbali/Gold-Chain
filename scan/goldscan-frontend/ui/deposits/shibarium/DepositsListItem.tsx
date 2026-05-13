@@ -16,7 +16,7 @@ const feature = config.features.rollup;
 type Props = { item: ShibariumDepositsItem; isLoading?: boolean };
 
 const DepositsListItem = ({ item, isLoading }: Props) => {
-  if (!(feature.isEnabled && feature.type === 'shibarium')) {
+  if (!(feature.isEnabled && (feature.type === 'shibarium' || feature.type === 'goldchain'))) {
     return null;
   }
 
@@ -78,3 +78,4 @@ const DepositsListItem = ({ item, isLoading }: Props) => {
 };
 
 export default DepositsListItem;
+

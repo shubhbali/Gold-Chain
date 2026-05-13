@@ -54,6 +54,7 @@ import (
 	bridge "github.com/giltchain/gilt-consensus/bridge/service"
 	"github.com/giltchain/gilt-consensus/bridge/util"
 	"github.com/giltchain/gilt-consensus/helper"
+	"github.com/giltchain/gilt-consensus/metrics"
 	"github.com/giltchain/gilt-consensus/version"
 )
 
@@ -66,6 +67,7 @@ const (
 	flagNodeCliHome      = "node-cli-home"
 	flagNodeHostPrefix   = "node-host-prefix"
 	flagAllowDuplicateIP = "allow-duplicate-ip"
+	flagBridgeMode       = "bridge-mode"
 )
 
 const (
@@ -170,6 +172,7 @@ func initRootCmd(
 		AddFlags: func(startCmd *cobra.Command) {
 			startCmd.Flags().Bool(helper.RestServerFlag, true, "Enable the REST server")
 			startCmd.Flags().Bool(helper.BridgeFlag, false, "Enable the bridge server")
+			startCmd.Flags().String(flagBridgeMode, "validator", "Bridge mode: validator or non-bridge")
 			startCmd.Flags().Bool(helper.AllProcessesFlag, false, "Enable all bridge processes")
 			startCmd.Flags().StringSlice(helper.OnlyProcessesFlag, []string{}, "Enable only the specified bridge process(es)")
 		},
@@ -229,11 +232,67 @@ func initRootCmd(
 				return err
 			}
 
+			configuredConsensusChainID := strings.TrimSpace(chainParam.ChainParams.GiltConsensusChainId)
+			configuredGiltChainID := strings.TrimSpace(chainParam.ChainParams.GiltChainId)
+			if helper.CanonicalizeChainID(configuredConsensusChainID) == "" {
+				return fmt.Errorf("invalid startup configuration: empty chainmanager giltconsensus_chain_id")
+			}
+			if helper.CanonicalizeChainID(configuredGiltChainID) == "" {
+				return fmt.Errorf("invalid startup configuration: empty chainmanager gilt_chain_id")
+			}
+
+			runtimeConsensusChainID := strings.TrimSpace(clientCtx.ChainID)
+			statusResp, statusErr := helper.GetNodeStatus(ctx, clientCtx)
+			if statusErr == nil && statusResp != nil {
+				runtimeConsensusChainID = strings.TrimSpace(statusResp.NodeInfo.Network)
+			}
+
+			if runtimeConsensusChainID != "" && !helper.ChainIDEqual(runtimeConsensusChainID, configuredConsensusChainID) {
+				return fmt.Errorf(
+					"bridge startup chain-id mismatch: runtime=%s configured=%s",
+					runtimeConsensusChainID,
+					configuredConsensusChainID,
+				)
+			}
+
 			clientCtx = clientCtx.
-				WithChainID(chainParam.ChainParams.GiltConsensusChainId)
+				WithChainID(configuredConsensusChainID)
+
+			bridgeEnabled := viper.GetBool(helper.BridgeFlag)
+			bridgeMode := strings.ToLower(strings.TrimSpace(viper.GetString(flagBridgeMode)))
+			if bridgeMode == "" {
+				bridgeMode = "validator"
+			}
+			if bridgeMode != "validator" && bridgeMode != "non-bridge" {
+				return fmt.Errorf("invalid --%s value %q (supported: validator, non-bridge)", flagBridgeMode, bridgeMode)
+			}
+
+			finalityPolicy := "ethereum_finalized_primary_confirmations_fallback"
+			svrCtx.Logger.Info(
+				"bridge runtime health",
+				"bridge_enabled",
+				bridgeEnabled,
+				"bridge_mode",
+				bridgeMode,
+				"finality_policy",
+				finalityPolicy,
+			)
+			metrics.SetBridgeRuntimeHealthMetrics(bridgeEnabled, bridgeMode, finalityPolicy)
+
+			if !bridgeEnabled && bridgeMode == "validator" {
+				return fmt.Errorf(
+					"bridge is disabled while running in validator mode; start with --%s=true or set --%s=non-bridge explicitly",
+					helper.BridgeFlag,
+					flagBridgeMode,
+				)
+			}
+
+			if !bridgeEnabled && bridgeMode == "non-bridge" {
+				svrCtx.Logger.Info("bridge is disabled by explicit non-bridge mode")
+			}
 
 			// start bridge
-			if viper.GetBool(helper.BridgeFlag) {
+			if bridgeEnabled {
 				bridge.AdjustDBValue(rootCmd)
 				g.Go(func() error {
 					return bridge.StartWithCtx(ctx, clientCtx)
@@ -265,6 +324,7 @@ func initRootCmd(
 
 	rootCmd.AddCommand(showPrivateKeyCmd())
 	rootCmd.AddCommand(VerifyGenesis(ctx, hApp))
+	rootCmd.AddCommand(bridgeChainIDStatsCmd())
 
 	rootCmd.AddCommand(veDecodeCmd())
 	rootCmd.AddCommand(showAccountCmd())
@@ -655,6 +715,26 @@ func showAccountCmd() *cobra.Command {
 
 			// prints json info
 			fmt.Printf("%s", string(b))
+		},
+	}
+}
+
+func bridgeChainIDStatsCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "bridge-chainid-stats",
+		Short: "Print chain ID validation rejection stats",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			invalidCount, lastInvalid := helper.ChainIDValidationStats()
+			payload := map[string]interface{}{
+				"invalid_chain_id_count": invalidCount,
+				"last_invalid_chain_id":  lastInvalid,
+			}
+			bz, err := json.MarshalIndent(payload, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(bz))
+			return nil
 		},
 	}
 }

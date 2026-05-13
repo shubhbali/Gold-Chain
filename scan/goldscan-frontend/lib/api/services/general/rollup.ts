@@ -39,6 +39,7 @@ import type {
   ScrollL2TxnBatchBlocks,
   ScrollL2MessagesResponse,
 } from 'types/api/scrollL2';
+import type { GoldchainBridgeTransfersResponse } from 'types/api/goldchain';
 import type { ShibariumWithdrawalsResponse, ShibariumDepositsResponse } from 'types/api/shibarium';
 import type {
   ZkEvmL2DepositsResponse,
@@ -281,6 +282,24 @@ export const GENERAL_API_ROLLUP_RESOURCES = {
     path: '/api/v2/shibarium/withdrawals/count',
   },
 
+  // GOLDCHAIN
+  goldchain_deposits: {
+    path: '/api/v2/goldchain/deposits',
+    filterFields: [],
+    paginated: true,
+  },
+  goldchain_deposits_count: {
+    path: '/api/v2/goldchain/deposits/count',
+  },
+  goldchain_withdrawals: {
+    path: '/api/v2/goldchain/withdrawals',
+    filterFields: [],
+    paginated: true,
+  },
+  goldchain_withdrawals_count: {
+    path: '/api/v2/goldchain/withdrawals/count',
+  },
+
   // SCROLL
   scroll_l2_deposits: {
     path: '/api/v2/scroll/deposits',
@@ -348,6 +367,10 @@ R extends 'general:shibarium_withdrawals' ? ShibariumWithdrawalsResponse :
 R extends 'general:shibarium_deposits' ? ShibariumDepositsResponse :
 R extends 'general:shibarium_withdrawals_count' ? number :
 R extends 'general:shibarium_deposits_count' ? number :
+R extends 'general:goldchain_withdrawals' ? GoldchainBridgeTransfersResponse :
+R extends 'general:goldchain_deposits' ? GoldchainBridgeTransfersResponse :
+R extends 'general:goldchain_withdrawals_count' ? number :
+R extends 'general:goldchain_deposits_count' ? number :
 R extends 'general:arbitrum_l2_messages' ? ArbitrumL2MessagesResponse :
 R extends 'general:arbitrum_l2_messages_count' ? number :
 R extends 'general:arbitrum_l2_txn_batches' ? ArbitrumL2TxnBatchesResponse :

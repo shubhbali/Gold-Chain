@@ -374,11 +374,11 @@ async function exitWrappedGiltDeposit(context, state) {
   const childBefore = await roughnetProvider.getBalance(roughnetUser.address);
   const rootBefore = await wrappedGilt.balanceOf(sepoliaUser.address);
 
-  const withdrawTx = await nativeGiltBridge.connect(roughnetUser).withdraw(amount);
+  const withdrawTx = await nativeGiltBridge.connect(roughnetUser).withdraw(amount, { value: amount });
   const withdrawReceipt = await waitForMined(withdrawTx);
   const childAfter = await roughnetProvider.getBalance(roughnetUser.address);
   const gas = feePaid(withdrawReceipt);
-  assertEq((childAfter + gas).toString(), (childBefore - amount).toString(), 'native GILT burned on withdraw');
+  assertEq((childAfter + gas + amount).toString(), childBefore.toString(), 'native GILT locked on withdraw');
 
   const logIndex = findLogIndex(withdrawReceipt, NATIVE_GILT_BRIDGE_ADDRESS);
   const exitData = await checkpointExitData(withdrawReceipt.hash, logIndex);
@@ -491,6 +491,7 @@ async function main() {
     childWeb3,
     roughnetProvider,
     addressBook,
+    giltconsensusUrl,
   });
 
   await waitForRpc(sepoliaProvider, 'Sepolia');

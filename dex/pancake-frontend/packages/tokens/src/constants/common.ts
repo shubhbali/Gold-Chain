@@ -3,10 +3,22 @@ import { ERC20Token } from '@pancakeswap/sdk'
 import { solanaTokens } from './solana'
 
 const GOLD_CHAIN_WEBSITE = process.env.NEXT_PUBLIC_GOLD_CHAIN_WEBSITE || 'http://localhost:3000'
+const isGoldChainProdBuild =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
+const ZERO_ADDRESS_PATTERN = /^0x0{40}$/i
+
+function requireGoldChainAddressEnv(key: string, fallback: `0x${string}`): `0x${string}` {
+  const value = (process.env[key] || fallback) as `0x${string}`
+  if (isGoldChainProdBuild && ZERO_ADDRESS_PATTERN.test(value)) {
+    throw new Error(`[gold-chain-config] Missing required address env: ${key}`)
+  }
+  return value
+}
+
 const GOLD_CHAIN_DEX_ADDRESS =
-  (process.env.NEXT_PUBLIC_GOLD_CHAIN_DEX_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`
+  requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_DEX_ADDRESS', '0x0000000000000000000000000000000000000000')
 const GOLD_CHAIN_USDT_ADDRESS =
-  (process.env.NEXT_PUBLIC_GOLD_CHAIN_USDT_ADDRESS || '0xcbB9911494cE910BA767dC569424659FB875d9c8') as `0x${string}`
+  requireGoldChainAddressEnv('NEXT_PUBLIC_GOLD_CHAIN_USDT_ADDRESS', '0xcbB9911494cE910BA767dC569424659FB875d9c8')
 
 export const CAKE_MAINNET = new ERC20Token(
   ChainId.GILT,

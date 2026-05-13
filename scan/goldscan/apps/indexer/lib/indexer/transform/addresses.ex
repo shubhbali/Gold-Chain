@@ -218,6 +218,58 @@ defmodule Indexer.Transform.Addresses do
         %{from: :block_number, to: :fetched_coin_balance_block_number},
         %{from: :address_hash, to: :hash}
       ]
+    ],
+    goldchain_bridge_transfers: [
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :account_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :counterparty_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :root_token_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :contract_address_hash, to: :hash}
+      ]
+    ],
+    goldchain_validator_events: [
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :validator_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :operator_address_hash, to: :hash}
+      ]
+    ],
+    goldchain_staking_events: [
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :operator_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :delegator_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :src_validator_address_hash, to: :hash}
+      ],
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :dst_validator_address_hash, to: :hash}
+      ]
+    ],
+    goldchain_governance_events: [
+      [
+        %{from: :block_number, to: :fetched_coin_balance_block_number},
+        %{from: :governance_actor_address_hash, to: :hash}
+      ]
     ]
   }
 
@@ -567,6 +619,37 @@ defmodule Indexer.Transform.Addresses do
           optional(:celo_pending_account_operations) => [
             %{
               required(:address_hash) => String.t()
+            }
+          ],
+          optional(:goldchain_bridge_transfers) => [
+            %{
+              required(:block_number) => non_neg_integer(),
+              optional(:account_address_hash) => String.t() | nil,
+              optional(:counterparty_address_hash) => String.t() | nil,
+              optional(:root_token_address_hash) => String.t() | nil,
+              optional(:contract_address_hash) => String.t() | nil
+            }
+          ],
+          optional(:goldchain_validator_events) => [
+            %{
+              required(:block_number) => non_neg_integer(),
+              optional(:validator_address_hash) => String.t() | nil,
+              optional(:operator_address_hash) => String.t() | nil
+            }
+          ],
+          optional(:goldchain_staking_events) => [
+            %{
+              required(:block_number) => non_neg_integer(),
+              optional(:operator_address_hash) => String.t() | nil,
+              optional(:delegator_address_hash) => String.t() | nil,
+              optional(:src_validator_address_hash) => String.t() | nil,
+              optional(:dst_validator_address_hash) => String.t() | nil
+            }
+          ],
+          optional(:goldchain_governance_events) => [
+            %{
+              required(:block_number) => non_neg_integer(),
+              optional(:governance_actor_address_hash) => String.t() | nil
             }
           ]
         }) :: [params]
