@@ -175,7 +175,10 @@ contract GiltGovernor is
      * @param key the key of the param
      * @param value the value of the param
      */
-    function updateParam(string calldata key, bytes calldata value) external onlyGov {
+    function updateParam(
+        string calldata key,
+        bytes calldata value
+    ) external onlyGov {
         if (key.compareStrings("votingDelay")) {
             if (value.length != 32) revert InvalidValue(key, value);
             uint256 newVotingDelay = value.bytesToUint256(32);
@@ -223,12 +226,7 @@ contract GiltGovernor is
      */
     function supportsInterface(
         bytes4 interfaceId
-    )
-        public
-        view
-        override(GovernorUpgradeable, IERC165Upgradeable, GovernorTimelockControlUpgradeable)
-        returns (bool)
-    {
+    ) public view override(GovernorUpgradeable, IERC165Upgradeable, GovernorTimelockControlUpgradeable) returns (bool) {
         return GovernorTimelockControlUpgradeable.supportsInterface(interfaceId);
     }
 

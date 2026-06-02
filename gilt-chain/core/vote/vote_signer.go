@@ -1,43 +1,42 @@
 package vote
 
 import (
-	"context"
+	"encoding/json"
 	"os"
-	"time"
+	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
-
-	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
-	validatorpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/validator-client"
-	"github.com/prysmaticlabs/prysm/v5/validator/accounts/iface"
-	"github.com/prysmaticlabs/prysm/v5/validator/accounts/wallet"
-	"github.com/prysmaticlabs/prysm/v5/validator/keymanager"
+	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
 
 	"github.com/ethereum/go-ethereum/core/types"
+	bls "github.com/ethereum/go-ethereum/crypto/blscompat"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/metrics"
-)
-
-const (
-	voteSignerTimeout = time.Second * 5
 )
 
 var votesSigningErrorCounter = metrics.NewRegisteredCounter("votesSigner/error", nil)
 
 type VoteSigner struct {
-	km     *keymanager.IKeymanager
-	PubKey [48]byte
+	secretKey bls.SecretKey
+	PubKey    [48]byte
+}
+
+type accountsKeystoreRepresentation struct {
+	Crypto map[string]interface{} `json:"crypto"`
+	ID     string                 `json:"uuid"`
+	Name   string                 `json:"name"`
+}
+
+type accountStore struct {
+	PrivateKeys [][]byte `json:"private_keys"`
+	PublicKeys  [][]byte `json:"public_keys"`
 }
 
 func NewVoteSigner(blsPasswordPath, blsWalletPath string) (*VoteSigner, error) {
-	dirExists, err := wallet.Exists(blsWalletPath)
-	if err != nil {
-		log.Error("Check BLS wallet exists", "err", err)
-		return nil, err
-	}
-	if !dirExists {
-		log.Error("BLS wallet did not exists.")
-		return nil, errors.New("BLS wallet did not exists")
+	if info, err := os.Stat(blsWalletPath); err != nil || !info.IsDir() {
+		log.Error("BLS wallet does not exist", "path", blsWalletPath, "err", err)
+		return nil, errors.New("BLS wallet does not exist")
 	}
 
 	walletPassword, err := os.ReadFile(blsPasswordPath)
@@ -47,35 +46,61 @@ func NewVoteSigner(blsPasswordPath, blsWalletPath string) (*VoteSigner, error) {
 	}
 	log.Info("Read BLS wallet password successfully")
 
-	w, err := wallet.OpenWallet(context.Background(), &wallet.Config{
-		WalletDir:      blsWalletPath,
-		WalletPassword: string(walletPassword),
-	})
+	accountsPath := filepath.Join(blsWalletPath, "accounts", "all-accounts.keystore.json")
+	encoded, err := os.ReadFile(accountsPath)
 	if err != nil {
-		log.Error("Open BLS wallet failed", "err", err)
+		log.Error("Read BLS accounts keystore failed", "path", accountsPath, "err", err)
 		return nil, err
 	}
-	log.Info("Open BLS wallet successfully")
 
-	km, err := w.InitializeKeymanager(context.Background(), iface.InitKeymanagerConfig{ListenForChanges: false})
-	if err != nil {
-		log.Error("Initialize key manager failed", "err", err)
-		return nil, err
+	keystore := &accountsKeystoreRepresentation{}
+	if err := json.Unmarshal(encoded, keystore); err != nil {
+		return nil, errors.Wrap(err, "could not decode BLS accounts keystore")
 	}
-	log.Info("Initialized keymanager successfully")
-
-	ctx, cancel := context.WithTimeout(context.Background(), voteSignerTimeout)
-	defer cancel()
-
-	pubKeys, err := km.FetchValidatingPublicKeys(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch validating public keys")
+	store, err := decryptAccountStore(keystore.Crypto, string(walletPassword))
+	if err != nil && strings.TrimSpace(string(walletPassword)) != string(walletPassword) {
+		store, err = decryptAccountStore(keystore.Crypto, strings.TrimSpace(string(walletPassword)))
 	}
+	if err != nil {
+		return nil, errors.Wrap(err, "could not decrypt BLS accounts keystore")
+	}
+	if len(store.PrivateKeys) == 0 {
+		return nil, errors.New("BLS accounts keystore has no private keys")
+	}
+	if len(store.PrivateKeys) != len(store.PublicKeys) {
+		return nil, errors.New("BLS accounts keystore has mismatched public/private keys")
+	}
+	secretKey, err := bls.SecretKeyFromBytes(store.PrivateKeys[0])
+	if err != nil {
+		return nil, errors.Wrap(err, "could not load BLS secret key")
+	}
+	pubKeyBytes := store.PublicKeys[0]
+	if len(pubKeyBytes) == 0 {
+		pubKeyBytes = secretKey.PublicKey().Marshal()
+	}
+	if len(pubKeyBytes) != len([48]byte{}) {
+		return nil, errors.New("BLS public key must be 48 bytes")
+	}
+	var pubKey [48]byte
+	copy(pubKey[:], pubKeyBytes)
 
 	return &VoteSigner{
-		km:     &km,
-		PubKey: pubKeys[0],
+		secretKey: secretKey,
+		PubKey:    pubKey,
 	}, nil
+}
+
+func decryptAccountStore(crypto map[string]interface{}, password string) (*accountStore, error) {
+	decryptor := keystorev4.New()
+	decrypted, err := decryptor.Decrypt(crypto, password)
+	if err != nil {
+		return nil, err
+	}
+	store := &accountStore{}
+	if err := json.Unmarshal(decrypted, store); err != nil {
+		return nil, err
+	}
+	return store, nil
 }
 
 func (signer *VoteSigner) SignVote(vote *types.VoteEnvelope) error {
@@ -88,16 +113,7 @@ func (signer *VoteSigner) SignVote(vote *types.VoteEnvelope) error {
 
 	voteDataHash := vote.Data.Hash()
 
-	ctx, cancel := context.WithTimeout(context.Background(), voteSignerTimeout)
-	defer cancel()
-
-	signature, err := (*signer.km).Sign(ctx, &validatorpb.SignRequest{
-		PublicKey:   pubKey[:],
-		SigningRoot: voteDataHash[:],
-	})
-	if err != nil {
-		return err
-	}
+	signature := signer.secretKey.Sign(voteDataHash[:])
 
 	copy(vote.VoteAddress[:], blsPubKey.Marshal()[:])
 	copy(vote.Signature[:], signature.Marshal()[:])

@@ -1,0 +1,126 @@
+{
+  "profile": "mainnet",
+  "chainId": 56,
+  "sourceChainId": "Gold-Chain-Mainnet",
+  "genesisTemplate": "./genesis-template.json",
+  "genesisOutput": "./genesis.json",
+  "reportOutput": "./launch-report-mainnet.md",
+  "gilt": {
+    "inflation": {
+      "enabled": true,
+      "starts": "block_1",
+      "rewardSource": "GILT_INFLATION_AND_FEES",
+      "initialRateBps": 1000,
+      "minimumRateBps": 150,
+      "decayBpsPerYear": 1500,
+      "baseSupplyWei": "3000000000000000000000000000"
+    },
+    "allocations": [
+      {
+        "address": "0xD1445cB51A14E781EB8032539e2aF254a67f1f03",
+        "balanceWei": "500000000000000000000000000"
+      },
+      {
+        "address": "0x9020565B91E731B63aC8c3297101A9Fe83806CEb",
+        "balanceWei": "500000000000000000000000000"
+      },
+      {
+        "address": "0x9E0d48A0c7459e2D13A2c693fdCFFdaC1E25dDc5",
+        "balanceWei": "500000000000000000000000000"
+      },
+      {
+        "address": "0x5122281d3A2AdD52e05B2813694D02f662a6bBD0",
+        "balanceWei": "500000000000000000000000000"
+      },
+      {
+        "address": "0x218D9e56fde6665646C6e0fc0EbA7dC609016655",
+        "balanceWei": "500000000000000000000000000"
+      },
+      {
+        "address": "0xE6f904b6f319A1824E5A167A9Be1592F87A5E6C8",
+        "balanceWei": "500000000000000000000000000"
+      }
+    ]
+  },
+  "validators": [
+    {
+      "consensusAddress": "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0",
+      "feeAddress": "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0",
+      "giltFeeAddress": "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0",
+      "votingPower": "0x0000000000000064",
+      "blsPublicKey": "0x81c0ae1ad54aeaea61d454dbfc58e5268e659b46ccd5099b31c5167698af671f709484b753b84c99ed0b8f2a83a8c1a9"
+    }
+  ],
+  "staking": {
+    "giltStakingEnabled": true,
+    "goldStakingEnabled": true,
+    "goldRewardSource": "GILT_PLUS_FEES",
+    "goldRewardSplitBps": 2000,
+    "ratioEnabledAtLaunch": false,
+    "transferGasLimit": 5000,
+    "minSelfDelegationGILTWei": "2000000000000000000000",
+    "minDelegationGILTChangeWei": "1000000000000000000",
+    "unbondPeriod": "7 days",
+    "unbondPeriodSeconds": 604800,
+    "redelegateFeeRate": 2,
+    "downtimeSlashAmountWei": "10000000000000000000",
+    "felonySlashAmountWei": "200000000000000000000",
+    "downtimeJailTimeSeconds": 172800,
+    "felonyJailTimeSeconds": 2592000,
+    "maxFelonyBetweenBreatheBlock": 2,
+    "stakeWeightA": 10000,
+    "stakeWeightB": 6000,
+    "maxBPowerRatioBps": 5000,
+    "minBtoARatioBps": 1000,
+    "maxElectedValidators": 45,
+    "slashReserveVault": "0x08E68Ec70FA3b629784fDB28887e206ce8561E08",
+    "pendingSystemRewardAutoRetryCapWei": "10000000000000000000"
+  },
+  "gold": {
+    "address": "0x0000000000000000000000000000000000003003",
+    "name": "Physical Gold",
+    "symbol": "PGOLD",
+    "uri": "ipfs://gold/{id}.json",
+    "admin": "0x08E68Ec70FA3b629784fDB28887e206ce8561E08",
+    "bridgeDepositor": "0x08E68Ec70FA3b629784fDB28887e206ce8561E08",
+    "bridgeScaleNumerator": "1",
+    "bridgeScaleDenominator": "1",
+    "type": "ERC1155",
+    "stakingEnabledFromDayOne": true,
+    "emitsGoldRewards": false,
+    "routePrecisionFinalizedAtLaunch": true,
+    "bridgeDepositsClosedAtLaunch": false,
+    "migrationMintingEnabledAtLaunch": false,
+    "migrationMintingFinalizedAtLaunch": false,
+    "tokenIds": {
+      "paxgBacked": 1,
+      "xautBacked": 2
+    },
+    "routes": {
+      "paxg": {
+        "tokenId": 1,
+        "rootDecimals": 18,
+        "goldDecimals": 18,
+        "scaleNumerator": "1",
+        "scaleDenominator": "1",
+        "rootUnit": "1"
+      },
+      "xaut": {
+        "tokenId": 2,
+        "rootDecimals": 6,
+        "goldDecimals": 18,
+        "scaleNumerator": "1000000000000",
+        "scaleDenominator": "1",
+        "rootUnit": "1"
+      }
+    }
+  },
+  "migration": {
+    "launchState": "OFF",
+    "governanceActivatesLater": true
+  },
+  "governance": {
+    "stakeHubProtector": "0x08E68Ec70FA3b629784fDB28887e206ce8561E08",
+    "governorProtector": "0x08E68Ec70FA3b629784fDB28887e206ce8561E08"
+  }
+}

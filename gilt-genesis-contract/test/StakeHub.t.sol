@@ -8,11 +8,17 @@ import "../contracts/PhysicalGold1155.sol";
 import "./utils/Deployer.sol";
 
 interface IStakeCredit {
-    function balanceOf(address account) external view returns (uint256);
+    function balanceOf(
+        address account
+    ) external view returns (uint256);
     function totalPooledGILT() external view returns (uint256);
     function totalSupply() external view returns (uint256);
-    function getPooledGILTByShares(uint256 shares) external view returns (uint256);
-    function getSharesByPooledGILT(uint256 giltAmount) external view returns (uint256);
+    function getPooledGILTByShares(
+        uint256 shares
+    ) external view returns (uint256);
+    function getSharesByPooledGILT(
+        uint256 giltAmount
+    ) external view returns (uint256);
 }
 
 contract RevertingReceiver {
@@ -31,6 +37,18 @@ contract StakeHubTest is Deployer {
     error ExceedsMaxNodeIDs();
     error DuplicateNodeID();
     error InvalidNodeID();
+
+    PhysicalGold1155 private _rewardOldGold;
+    PhysicalGold1155 private _rewardNewGold;
+    LegacyGoldReserveVault private _rewardReserveVault;
+    address private _rewardValidator;
+    address private _rewardConsensusAddress;
+    address private _rewardDelegator;
+    uint256 private _rewardPaxgTokenId;
+    uint256 private _rewardTokenBAmount;
+    uint256 private _rewardAmount;
+    uint256 private _rewardExpectedTokenBReward;
+    uint256 private _rewardStakeA;
 
     event ConsensusAddressEdited(address indexed operatorAddress, address indexed newAddress);
     event CommissionRateEdited(address indexed operatorAddress, uint64 commissionRate);
@@ -52,7 +70,9 @@ contract StakeHubTest is Deployer {
         uint256 amount,
         uint256 settlementEpoch
     );
-    event SlashReserveSettled(address indexed recipient, uint256 indexed tokenId, uint256 amount, uint256 settlementEpoch);
+    event SlashReserveSettled(
+        address indexed recipient, uint256 indexed tokenId, uint256 amount, uint256 settlementEpoch
+    );
     event SlashReserveMigratedFromSelf(address indexed vault, uint256 indexed tokenId, uint256 amount);
     event SlashReserveSelfMigrationFinalized(address indexed vault, uint256 migratedTokenCount);
     event TokenBRewardDistributed(address indexed operatorAddress, uint256 reward);
@@ -84,9 +104,15 @@ contract StakeHubTest is Deployer {
     event InflationRedirected(address indexed consensusAddress, address indexed operatorAddress, uint256 amount);
     event RewardForwardQueued(address indexed operatorAddress, uint256 amount, uint8 reasonCode, bytes failReason);
     event RewardForwardRetried(address indexed caller, uint256 amount, bool success, bytes failReason);
-    event RewardForwardSwept(address indexed caller, address indexed recipient, uint256 amount, uint256 inflationAmount);
-    event ConsensusEmergencyHalt(address indexed operatorAddress, address indexed consensusAddress, uint256 triggerBlock);
-    event MigrateSuccess(address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 giltAmount);
+    event RewardForwardSwept(
+        address indexed caller, address indexed recipient, uint256 amount, uint256 inflationAmount
+    );
+    event ConsensusEmergencyHalt(
+        address indexed operatorAddress, address indexed consensusAddress, uint256 triggerBlock
+    );
+    event MigrateSuccess(
+        address indexed operatorAddress, address indexed delegator, uint256 shares, uint256 giltAmount
+    );
     event MigrateFailed(
         address indexed operatorAddress, address indexed delegator, uint256 giltAmount, StakeMigrationRespCode respCode
     );
@@ -99,13 +125,36 @@ contract StakeHubTest is Deployer {
         VALIDATOR_JAILED
     }
 
-    receive() external payable {}
+    receive() external payable { }
 
     function setUp() public {
         vm.mockCall(address(0x66), bytes(""), hex"01");
     }
 
-    function _setActiveValidators(address[] memory operators, uint64[] memory votingPowers) internal {
+    function testLaunchState_UsesConfiguredInflationGoldAndMigrationDefaults() public {
+        uint256 dayIndex = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+
+        assertTrue(stakeHub.inflationEnabled(), "GILT inflation should be enabled from launch");
+        assertEq(stakeHub.inflationStartDayIndex(), dayIndex, "inflation should start from launch day");
+        assertEq(stakeHub.inflationRateInitialBps(), 1_000, "wrong launch inflation initial bps");
+        assertEq(stakeHub.inflationRateMinBps(), 150, "wrong launch inflation minimum bps");
+        assertEq(stakeHub.inflationDecayBpsPerYear(), 1_500, "wrong launch inflation decay bps");
+        assertEq(stakeHub.inflationBaseSupply(), 3_000_000_000 ether, "wrong launch inflation base supply");
+        assertGt(stakeHub.expectedInflationMintAmount(dayIndex), 0, "inflation should mint from block 1 interval");
+
+        assertEq(stakeHub.stakeTokenBPrimaryId(), 1, "PAXG-backed GOLD id must be 1");
+        assertEq(stakeHub.stakeTokenBSecondaryId(), 2, "XAUT-backed GOLD id must be 2");
+        assertEq(stakeHub.tokenBRewardSplitBps(), 2_000, "wrong GOLD reward split");
+
+        assertEq(stakeHub.legacyStakeTokenB(), address(0), "migration legacy token should be off at launch");
+        assertEq(stakeHub.tokenBCutoverVersion(), 0, "migration cutover should be off at launch");
+        assertEq(stakeHub.tokenBMigrationController(), address(0), "migration controller should be unset at launch");
+    }
+
+    function _setActiveValidators(
+        address[] memory operators,
+        uint64[] memory votingPowers
+    ) internal {
         address[] memory consensusAddrs = new address[](operators.length);
         bytes[] memory voteAddrs = new bytes[](operators.length);
         for (uint256 i; i < operators.length; ++i) {
@@ -118,7 +167,9 @@ contract StakeHubTest is Deployer {
         giltValidatorSet.updateValidatorSetV2(consensusAddrs, votingPowers, voteAddrs);
     }
 
-    function _configureGold1155(PhysicalGold1155 gold) internal returns (LegacyGoldReserveVault reserveVault) {
+    function _configureGold1155(
+        PhysicalGold1155 gold
+    ) internal returns (LegacyGoldReserveVault reserveVault) {
         reserveVault = new LegacyGoldReserveVault();
         vm.startPrank(GOV_HUB_ADDR);
         stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
@@ -128,10 +179,10 @@ contract StakeHubTest is Deployer {
         vm.stopPrank();
     }
 
-    function _configureGold1155WithUnbond(PhysicalGold1155 gold, uint256 unbondPeriod_)
-        internal
-        returns (LegacyGoldReserveVault reserveVault)
-    {
+    function _configureGold1155WithUnbond(
+        PhysicalGold1155 gold,
+        uint256 unbondPeriod_
+    ) internal returns (LegacyGoldReserveVault reserveVault) {
         reserveVault = new LegacyGoldReserveVault();
         vm.startPrank(GOV_HUB_ADDR);
         stakeHub.updateParam("stakeTokenBPrimaryId", abi.encode(uint256(1)));
@@ -156,8 +207,16 @@ contract StakeHubTest is Deployer {
         vm.stopPrank();
     }
 
-    function _bridgeMintGold(PhysicalGold1155 gold, address account, uint256 tokenId, uint256 amount) internal {
+    function _bridgeMintGold(
+        PhysicalGold1155 gold,
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) internal {
         gold.setBridgeDepositor(address(this));
+        if (!gold.bridgeRoutePrecisionFinalized()) {
+            gold.finalizeBridgeRoutePrecision();
+        }
         gold.deposit(account, abi.encode(tokenId, amount));
     }
 
@@ -166,11 +225,20 @@ contract StakeHubTest is Deployer {
         PhysicalGold1155 newGold,
         LegacyGoldReserveVault reserveVault
     ) internal returns (GoldMigrationController controller) {
+        return _prepareMigrationControllerWithBindings(oldGold, newGold, reserveVault, address(stakeHub));
+    }
+
+    function _prepareMigrationControllerWithBindings(
+        PhysicalGold1155 oldGold,
+        PhysicalGold1155 newGold,
+        LegacyGoldReserveVault reserveVault,
+        address stakeMigrationCaller
+    ) internal returns (GoldMigrationController controller) {
         controller = new GoldMigrationController();
         newGold.setMigrationController(address(controller));
 
         vm.startPrank(GOV_HUB_ADDR);
-        controller.activatePrepare(address(oldGold), address(newGold), address(reserveVault), address(stakeHub));
+        controller.activatePrepare(address(oldGold), address(newGold), address(reserveVault), stakeMigrationCaller);
         controller.activateMigration();
         stakeHub.updateParam("tokenBMigrationController", abi.encodePacked(address(controller)));
         vm.stopPrank();
@@ -188,7 +256,7 @@ contract StakeHubTest is Deployer {
         // create failed with duplicate consensus address
         uint256 delegation = 2000 ether;
         uint256 toLock = stakeHub.LOCK_AMOUNT();
-        StakeHub.Commission memory commission = StakeHub.Commission({rate: 10, maxRate: 100, maxChangeRate: 5});
+        StakeHub.Commission memory commission = StakeHub.Commission({ rate: 10, maxRate: 100, maxChangeRate: 5 });
         StakeHub.Description memory description = StakeHub.Description({
             moniker: string.concat("T", vm.toString(uint24(uint160(operatorAddress)))),
             identity: vm.toString(operatorAddress),
@@ -201,21 +269,21 @@ contract StakeHubTest is Deployer {
         bytes memory blsProof = new bytes(96);
 
         vm.expectRevert(StakeHub.DuplicateConsensusAddress.selector);
-        stakeHub.createValidator{value: delegation + toLock}(
+        stakeHub.createValidator{ value: delegation + toLock }(
             consensusAddress, blsPubKey, blsProof, commission, description
         );
 
         // create failed with duplicate vote address
         consensusAddress = address(uint160(uint256(keccak256(blsPubKey))));
         vm.expectRevert(StakeHub.DuplicateVoteAddress.selector);
-        stakeHub.createValidator{value: delegation + toLock}(
+        stakeHub.createValidator{ value: delegation + toLock }(
             consensusAddress, voteAddress, blsProof, commission, description
         );
 
         // create failed with duplicate moniker
         description = stakeHub.getValidatorDescription(validator);
         vm.expectRevert(StakeHub.DuplicateMoniker.selector);
-        stakeHub.createValidator{value: delegation + toLock}(
+        stakeHub.createValidator{ value: delegation + toLock }(
             consensusAddress, blsPubKey, blsProof, commission, description
         );
     }
@@ -283,11 +351,11 @@ contract StakeHubTest is Deployer {
 
         // failed with too small delegation amount
         vm.expectRevert(StakeHub.DelegationAmountTooSmall.selector);
-        stakeHub.delegate{value: 1}(validator, false);
+        stakeHub.delegate{ value: 1 }(validator, false);
 
         // success case
         uint256 giltAmount = 100 ether;
-        stakeHub.delegate{value: giltAmount}(validator, false);
+        stakeHub.delegate{ value: giltAmount }(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
         assertEq(shares, giltAmount);
         uint256 pooledGILT = IStakeCredit(credit).getPooledGILTByShares(shares);
@@ -302,7 +370,7 @@ contract StakeHubTest is Deployer {
         vm.startPrank(delegator);
 
         uint256 giltAmount = 100 ether;
-        stakeHub.delegate{value: giltAmount}(validator, false);
+        stakeHub.delegate{ value: giltAmount }(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
 
         // failed with not enough shares
@@ -347,7 +415,7 @@ contract StakeHubTest is Deployer {
         assertEq(_totalPooledGILT, toLock, "wrong total pooled GILT");
 
         // 2. delegate again
-        stakeHub.delegate{value: selfDelegation}(validator, false);
+        stakeHub.delegate{ value: selfDelegation }(validator, false);
         _totalShares = IStakeCredit(credit).totalSupply();
         assertEq(_totalShares, selfDelegation + toLock, "wrong total shares");
         _totalPooledGILT = IStakeCredit(credit).totalPooledGILT();
@@ -363,7 +431,7 @@ contract StakeHubTest is Deployer {
         vm.startPrank(delegator);
 
         uint256 giltAmount = 100 ether;
-        stakeHub.delegate{value: giltAmount}(validator1, false);
+        stakeHub.delegate{ value: giltAmount }(validator1, false);
         uint256 oldShares = IStakeCredit(credit1).balanceOf(delegator);
 
         // failed with too small redelegation amount
@@ -396,7 +464,7 @@ contract StakeHubTest is Deployer {
     function testDelegateGold1155AndUndelegateGold1155() public {
         (address validator,,,) = _createValidator(2000 ether);
         address delegator = _getNextUserAddress();
-        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json", 1, 1, address(this));
         uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
 
         _configureGold1155WithUnbond(gold, 7 days);
@@ -490,7 +558,7 @@ contract StakeHubTest is Deployer {
         );
     }
 
-    function testTokenBMigration1155_AutoConvertsStakedLegacyPosition() public {
+    function testTokenBMigration1155_LegacyStakeMustUnstakeBeforeNewStake() public {
         (address validator,,,) = _createValidator(2000 ether);
         address[] memory activeValidators = new address[](1);
         activeValidators[0] = validator;
@@ -520,31 +588,38 @@ contract StakeHubTest is Deployer {
         stakeHub.updateParam("activateTokenBMigration", abi.encode(address(newGold), address(reserveVault)));
         assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 250 ether, "wrong snapped legacy amount");
 
+        _bridgeMintGold(newGold, delegator, paxgTokenId, 100 ether);
+        vm.startPrank(delegator);
+        newGold.setApprovalForAll(address(stakeHub), true);
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, 100 ether);
+        vm.stopPrank();
+
         vm.prank(delegator);
         stakeHub.undelegateTokenB1155(validator, paxgTokenId, 100 ether);
 
-        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), 150 ether, "legacy PAXG should move");
-        assertEq(oldGold.balanceOf(address(reserveVault), xautTokenId), 100 ether, "legacy XAUT should move");
-        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 0, "legacy validator stake should be cleared");
+        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), 0, "legacy PAXG must not auto-move");
+        assertEq(oldGold.balanceOf(address(reserveVault), xautTokenId), 0, "legacy XAUT must not auto-move");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 150 ether, "legacy validator stake should reduce");
         assertEq(
             stakeHub.getLegacyDelegatedTokenBById(validator, delegator, paxgTokenId),
-            0,
-            "legacy PAXG stake should be cleared"
+            50 ether,
+            "wrong remaining legacy PAXG stake"
         );
         assertEq(
             stakeHub.getLegacyDelegatedTokenBById(validator, delegator, xautTokenId),
-            0,
-            "legacy XAUT stake should be cleared"
+            100 ether,
+            "wrong remaining legacy XAUT stake"
         );
 
         vm.warp(block.timestamp + stakeHub.unbondPeriod());
-        uint256 newGoldBefore = newGold.balanceOf(delegator, paxgTokenId);
+        uint256 oldGoldBefore = oldGold.balanceOf(delegator, paxgTokenId);
         vm.prank(delegator);
         stakeHub.claimTokenB(validator, 0);
         assertEq(
-            newGold.balanceOf(delegator, paxgTokenId) - newGoldBefore,
+            oldGold.balanceOf(delegator, paxgTokenId) - oldGoldBefore,
             100 ether,
-            "claim should pay new PAXG-backed gold"
+            "claim should return old PAXG-backed GOLD"
         );
         assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 150 ether, "remaining stake should stay intact");
     }
@@ -587,13 +662,132 @@ contract StakeHubTest is Deployer {
         assertEq(
             oldGold.balanceOf(delegator, xautTokenId) - oldGoldBefore, 40 ether, "legacy XAUT unbond should stay legacy"
         );
-        assertEq(
-            oldGold.balanceOf(address(reserveVault), paxgTokenId), 150 ether, "remaining PAXG should move to reserve"
-        );
-        assertEq(
-            oldGold.balanceOf(address(reserveVault), xautTokenId), 60 ether, "remaining XAUT should move to reserve"
-        );
+        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), 0, "remaining PAXG must not auto-move");
+        assertEq(oldGold.balanceOf(address(reserveVault), xautTokenId), 0, "remaining XAUT must not auto-move");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 210 ether, "legacy stake should remain staked");
         assertEq(stakeHub.getDelegatedTokenB(validator, delegator), 210 ether, "remaining stake should stay intact");
+    }
+
+    function testTokenBMigration1155_LegacyStakeStopsEarningAndFinalGoldEarnsAfterRestake() public {
+        _setUpLegacyGoldRewardFreezeCase();
+        _assertLegacyGoldRewardFreezeAndRestake();
+    }
+
+    function _setUpLegacyGoldRewardFreezeCase() internal {
+        address credit;
+        (_rewardValidator,, credit,) = _createValidator(2000 ether);
+        _rewardDelegator = _getNextUserAddress();
+        _rewardOldGold = new PhysicalGold1155("ipfs://old/{id}.json", 1000, 1, address(this));
+        _rewardNewGold = new PhysicalGold1155("ipfs://new/{id}.json", 1000, 1, address(this));
+        _rewardReserveVault = new LegacyGoldReserveVault();
+        _rewardPaxgTokenId = _rewardOldGold.PAXG_TOKEN_ID();
+        _rewardTokenBAmount = 100 ether;
+        _rewardAmount = 100 ether;
+        _rewardExpectedTokenBReward = _rewardAmount * stakeHub.tokenBRewardSplitBps() / 10_000;
+
+        _configureGold1155WithUnbond(_rewardOldGold, 7 days);
+        _mintAndDelegateGold(
+            _rewardOldGold, _rewardValidator, _rewardDelegator, _rewardPaxgTokenId, _rewardTokenBAmount
+        );
+        _rewardStakeA = IStakeCredit(credit).totalPooledGILT();
+        _assertLegacyGoldCountsBeforeMigration();
+
+        _rewardConsensusAddress = stakeHub.getValidatorConsensusAddress(_rewardValidator);
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + _rewardAmount);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: _rewardAmount }(_rewardConsensusAddress);
+        assertEq(
+            stakeHub.pendingTokenBReward(_rewardValidator, _rewardDelegator),
+            _rewardExpectedTokenBReward,
+            "wrong pre-cutover GOLD reward"
+        );
+        _rewardStakeA = IStakeCredit(credit).totalPooledGILT();
+
+        _activateRewardFreezeMigration();
+    }
+
+    function _assertLegacyGoldCountsBeforeMigration() internal view {
+        (, uint256[] memory votingPowersBefore,,) = stakeHub.getValidatorElectionInfo(0, 0);
+        assertGt(votingPowersBefore[0], _rewardStakeA, "legacy GOLD should count before migration cutover");
+    }
+
+    function _activateRewardFreezeMigration() internal {
+        _prepareMigrationController(_rewardOldGold, _rewardNewGold, _rewardReserveVault);
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.updateParam(
+            "activateTokenBMigration", abi.encode(address(_rewardNewGold), address(_rewardReserveVault))
+        );
+        assertEq(
+            stakeHub.totalLegacyDelegatedTokenB(_rewardValidator), _rewardTokenBAmount, "legacy stake should be snapped"
+        );
+
+        (, uint256[] memory votingPowersAfterCutover,,) = stakeHub.getValidatorElectionInfo(0, 0);
+        assertEq(votingPowersAfterCutover[0], _rewardStakeA, "legacy GOLD should not add power after cutover");
+    }
+
+    function _assertLegacyGoldRewardFreezeAndRestake() internal {
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + _rewardAmount);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: _rewardAmount }(_rewardConsensusAddress);
+        assertEq(
+            stakeHub.pendingTokenBReward(_rewardValidator, _rewardDelegator),
+            _rewardExpectedTokenBReward,
+            "legacy GOLD should not earn after cutover"
+        );
+
+        uint256 balanceBefore = _rewardDelegator.balance;
+        vm.prank(_rewardDelegator);
+        stakeHub.claimTokenBReward(_rewardValidator);
+        assertEq(
+            _rewardDelegator.balance - balanceBefore,
+            _rewardExpectedTokenBReward,
+            "claim should pay pre-cutover reward only"
+        );
+        assertEq(
+            _rewardOldGold.balanceOf(address(_rewardReserveVault), _rewardPaxgTokenId),
+            0,
+            "legacy GOLD must not auto-move"
+        );
+        assertEq(
+            _rewardNewGold.balanceOf(address(stakeHub), _rewardPaxgTokenId),
+            0,
+            "new GOLD must not appear without restake"
+        );
+
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + _rewardAmount);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: _rewardAmount }(_rewardConsensusAddress);
+        assertEq(
+            stakeHub.pendingTokenBReward(_rewardValidator, _rewardDelegator),
+            0,
+            "legacy GOLD should not earn future GILT rewards after claim"
+        );
+
+        vm.prank(_rewardDelegator);
+        stakeHub.undelegateTokenB1155(_rewardValidator, _rewardPaxgTokenId, _rewardTokenBAmount);
+
+        vm.warp(block.timestamp + stakeHub.unbondPeriod());
+        uint256 oldGoldBefore = _rewardOldGold.balanceOf(_rewardDelegator, _rewardPaxgTokenId);
+        vm.prank(_rewardDelegator);
+        stakeHub.claimTokenB(_rewardValidator, 0);
+        assertEq(
+            _rewardOldGold.balanceOf(_rewardDelegator, _rewardPaxgTokenId) - oldGoldBefore,
+            _rewardTokenBAmount,
+            "withdrawal should return old GOLD after migration"
+        );
+
+        _mintAndDelegateGold(
+            _rewardNewGold, _rewardValidator, _rewardDelegator, _rewardPaxgTokenId, _rewardTokenBAmount
+        );
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + _rewardAmount);
+        vm.prank(VALIDATOR_CONTRACT_ADDR);
+        stakeHub.distributeReward{ value: _rewardAmount }(_rewardConsensusAddress);
+        assertEq(
+            stakeHub.pendingTokenBReward(_rewardValidator, _rewardDelegator),
+            _rewardExpectedTokenBReward,
+            "new final GOLD should earn future GILT rewards after restake"
+        );
     }
 
     function testTokenBMigration_GovernanceControlledAndControllerGated() public {
@@ -623,6 +817,10 @@ contract StakeHubTest is Deployer {
         vm.prank(validator1);
         stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
 
+        vm.expectRevert(StakeHub.TokenBMigrationNotAvailable.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
         GoldMigrationController controller = new GoldMigrationController();
         newGold.setMigrationController(address(controller));
 
@@ -633,15 +831,125 @@ contract StakeHubTest is Deployer {
 
         vm.expectRevert(StakeHub.TokenBMigrationNotAvailable.selector);
         vm.prank(GOV_HUB_ADDR);
-        stakeHub.updateParam("activateTokenBMigration", abi.encode(address(newGold), address(reserveVault)));
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
 
         vm.startPrank(GOV_HUB_ADDR);
         controller.activateMigration();
-        stakeHub.updateParam("activateTokenBMigration", abi.encode(address(newGold), address(reserveVault)));
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
         vm.stopPrank();
 
         assertEq(stakeHub.legacyStakeTokenB(), address(oldGold), "wrong legacy token");
         assertEq(stakeHub.stakeTokenB(), address(newGold), "wrong active token");
+    }
+
+    function testTokenBMigration_RejectsWrongControllerBindings() public {
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 otherOldGold = new PhysicalGold1155("ipfs://other-old/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 otherNewGold = new PhysicalGold1155("ipfs://other-new/{id}.json", 1000, 1, address(this));
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        LegacyGoldReserveVault otherReserveVault = new LegacyGoldReserveVault();
+
+        _configureGold1155(oldGold);
+
+        _prepareMigrationControllerWithBindings(otherOldGold, newGold, reserveVault, address(stakeHub));
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        _prepareMigrationControllerWithBindings(oldGold, otherNewGold, reserveVault, address(stakeHub));
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        _prepareMigrationControllerWithBindings(oldGold, newGold, otherReserveVault, address(stakeHub));
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        _prepareMigrationControllerWithBindings(oldGold, newGold, reserveVault, address(this));
+        vm.expectRevert(StakeHub.InvalidRequest.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        GoldMigrationController pausedController =
+            _prepareMigrationControllerWithBindings(oldGold, newGold, reserveVault, address(stakeHub));
+        vm.prank(GOV_HUB_ADDR);
+        pausedController.setMigrationPaused(true);
+        vm.expectRevert(StakeHub.TokenBMigrationNotAvailable.selector);
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+    }
+
+    function testTokenBMigration1155_MigrateLegacyStakeThroughController() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator = _getNextUserAddress();
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json", 1000, 1, address(this));
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        uint256 paxgTokenId = oldGold.PAXG_TOKEN_ID();
+        uint256 xautTokenId = oldGold.XAUT_TOKEN_ID();
+        uint256 paxgAmount = 150 ether;
+        uint256 xautAmount = 100 ether;
+
+        _configureGold1155WithUnbond(oldGold, 7 days);
+        _mintAndDelegateGold(oldGold, validator, delegator, paxgTokenId, paxgAmount);
+        _mintAndDelegateGold(oldGold, validator, delegator, xautTokenId, xautAmount);
+        GoldMigrationController controller = _prepareMigrationController(oldGold, newGold, reserveVault);
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        vm.prank(delegator);
+        stakeHub.migrateLegacyTokenB(validator);
+
+        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), paxgAmount, "legacy PAXG not captured");
+        assertEq(oldGold.balanceOf(address(reserveVault), xautTokenId), xautAmount, "legacy XAUT not captured");
+        assertEq(newGold.balanceOf(address(stakeHub), paxgTokenId), paxgAmount, "final PAXG not minted to StakeHub");
+        assertEq(newGold.balanceOf(address(stakeHub), xautTokenId), xautAmount, "final XAUT not minted to StakeHub");
+        assertEq(controller.legacyCapturedById(paxgTokenId), paxgAmount, "wrong captured PAXG counter");
+        assertEq(controller.finalMintedById(xautTokenId), xautAmount, "wrong minted XAUT counter");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 0, "legacy validator stake not cleared");
+        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator), 0, "delegator still marked legacy");
+        assertEq(
+            stakeHub.getDelegatedTokenB(validator, delegator),
+            paxgAmount + xautAmount,
+            "delegated amount should remain staked"
+        );
+
+        _bridgeMintGold(newGold, delegator, paxgTokenId, 10 ether);
+        vm.startPrank(delegator);
+        newGold.setApprovalForAll(address(stakeHub), true);
+        stakeHub.delegateTokenB1155(validator, paxgTokenId, 10 ether);
+        vm.stopPrank();
+
+        assertEq(stakeHub.getDelegatedTokenB(validator, delegator), paxgAmount + xautAmount + 10 ether);
+    }
+
+    function testTokenBMigration1155_BatchMigratesLegacyDelegators() public {
+        (address validator,,,) = _createValidator(2000 ether);
+        address delegator1 = _getNextUserAddress();
+        address delegator2 = _getNextUserAddress();
+        PhysicalGold1155 oldGold = new PhysicalGold1155("ipfs://old/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 newGold = new PhysicalGold1155("ipfs://new/{id}.json", 1000, 1, address(this));
+        LegacyGoldReserveVault reserveVault = new LegacyGoldReserveVault();
+        uint256 paxgTokenId = oldGold.PAXG_TOKEN_ID();
+
+        _configureGold1155WithUnbond(oldGold, 7 days);
+        _mintAndDelegateGold(oldGold, validator, delegator1, paxgTokenId, 40 ether);
+        _mintAndDelegateGold(oldGold, validator, delegator2, paxgTokenId, 60 ether);
+        _prepareMigrationController(oldGold, newGold, reserveVault);
+
+        vm.prank(GOV_HUB_ADDR);
+        stakeHub.activateTokenBMigration(address(newGold), address(reserveVault));
+
+        stakeHub.migrateLegacyTokenBDelegators(validator, 0, 0);
+
+        assertEq(oldGold.balanceOf(address(reserveVault), paxgTokenId), 100 ether, "legacy GOLD not captured");
+        assertEq(newGold.balanceOf(address(stakeHub), paxgTokenId), 100 ether, "final GOLD not minted to StakeHub");
+        assertEq(stakeHub.totalLegacyDelegatedTokenB(validator), 0, "legacy validator stake not cleared");
+        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator1), 0, "delegator1 still legacy");
+        assertEq(stakeHub.getLegacyDelegatedTokenB(validator, delegator2), 0, "delegator2 still legacy");
     }
 
     function testUpdateParam_StakeTokenBIsLaunchOnlyAndMigrationActivationRequiresControllerState() public {
@@ -792,22 +1100,22 @@ contract StakeHubTest is Deployer {
 
     function testReceiveBNB() public {
         // send to stakeHub directly
-        (bool success,) = address(stakeHub).call{value: 1 ether}("");
+        (bool success,) = address(stakeHub).call{ value: 1 ether }("");
         assertTrue(!success);
-        (success,) = address(stakeHub).call{value: 1 ether}(hex"12");
+        (success,) = address(stakeHub).call{ value: 1 ether }(hex"12");
         assertTrue(!success);
 
         // send to credit contract directly
         (,, address credit,) = _createValidator(2000 ether);
-        (success,) = credit.call{value: 1 ether}("");
+        (success,) = credit.call{ value: 1 ether }("");
         assertTrue(!success);
-        (success,) = credit.call{value: 1 ether}(hex"12");
+        (success,) = credit.call{ value: 1 ether }(hex"12");
         assertTrue(!success);
 
         // send to credit contract by stakeHub
         vm.deal(address(stakeHub), 1 ether);
         vm.prank(address(stakeHub));
-        (success,) = credit.call{value: 1 ether}("");
+        (success,) = credit.call{ value: 1 ether }("");
         assertTrue(success);
     }
 
@@ -819,7 +1127,7 @@ contract StakeHubTest is Deployer {
         // 1. delegate 100 GILT and get 100 * 1e18 shares
         uint256 delegation = 100 ether;
         vm.prank(delegator);
-        stakeHub.delegate{value: delegation}(validator, false);
+        stakeHub.delegate{ value: delegation }(validator, false);
         uint256 shares = IStakeCredit(credit).balanceOf(delegator);
         assertEq(shares, delegation);
 
@@ -830,7 +1138,7 @@ contract StakeHubTest is Deployer {
         emit RewardDistributed(validator, reward);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
 
         // 3. check shares
         // reward: 100 ether
@@ -858,7 +1166,7 @@ contract StakeHubTest is Deployer {
         uint256 expectedShares = 100 ether * uint256(2001095460947794084238) / uint256(2096245121370775821038);
         address newDelegator = _getNextUserAddress();
         vm.prank(newDelegator);
-        stakeHub.delegate{value: delegation}(validator, false);
+        stakeHub.delegate{ value: delegation }(validator, false);
         uint256 newShares = IStakeCredit(credit).balanceOf(newDelegator);
         assertEq(newShares, expectedShares, "wrong new shares");
     }
@@ -889,7 +1197,7 @@ contract StakeHubTest is Deployer {
         emit TokenBRewardDistributed(validator, expectedTokenBReward);
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit RewardDistributed(validator, reward);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
         vm.stopPrank();
 
         assertEq(
@@ -924,17 +1232,20 @@ contract StakeHubTest is Deployer {
 
         uint256 mintedAmount = stakeHub.expectedInflationMintAmount(dayIndex);
         assertGt(mintedAmount, 0, "expected inflation amount must be non-zero");
+        vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + mintedAmount);
         vm.startPrank(VALIDATOR_CONTRACT_ADDR);
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit InflationIntervalRecorded(dayIndex, consensusAddress, mintedAmount);
         vm.expectEmit(false, false, false, true, address(stakeHub));
         emit InflationMintRecorded(mintedAmount, 1000, mintedAmount, 2_000_000 ether + mintedAmount);
-        stakeHub.recordInflationMint{value: mintedAmount}(consensusAddress);
+        stakeHub.recordInflationMint{ value: mintedAmount }(consensusAddress);
         vm.stopPrank();
 
         assertEq(stakeHub.inflationMintedAmount(), mintedAmount, "wrong minted inflation amount");
         assertEq(stakeHub.inflationDistributedAmount(), mintedAmount, "wrong distributed inflation amount");
-        assertEq(stakeHub.inflationEffectiveSupply(), 2_000_000 ether + mintedAmount, "wrong effective inflation supply");
+        assertEq(
+            stakeHub.inflationEffectiveSupply(), 2_000_000 ether + mintedAmount, "wrong effective inflation supply"
+        );
         assertEq(stakeHub.inflationLastMintTimestamp(), block.timestamp, "wrong last mint timestamp");
         assertEq(stakeHub.inflationRecorderByDay(dayIndex), consensusAddress, "wrong inflation recorder by day");
     }
@@ -955,11 +1266,9 @@ contract StakeHubTest is Deployer {
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + expectedAmount);
         vm.startPrank(VALIDATOR_CONTRACT_ADDR);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                StakeHub.InvalidInflationMintAmount.selector, expectedAmount, expectedAmount - 1
-            )
+            abi.encodeWithSelector(StakeHub.InvalidInflationMintAmount.selector, expectedAmount, expectedAmount - 1)
         );
-        stakeHub.recordInflationMint{value: expectedAmount - 1}(consensusAddress);
+        stakeHub.recordInflationMint{ value: expectedAmount - 1 }(consensusAddress);
         vm.stopPrank();
     }
 
@@ -977,11 +1286,11 @@ contract StakeHubTest is Deployer {
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + expectedAmount * 2);
 
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.recordInflationMint{value: expectedAmount}(consensusAddress);
+        stakeHub.recordInflationMint{ value: expectedAmount }(consensusAddress);
 
         vm.startPrank(VALIDATOR_CONTRACT_ADDR);
         vm.expectRevert(abi.encodeWithSelector(StakeHub.InflationAlreadyRecorded.selector, dayIndex));
-        stakeHub.recordInflationMint{value: expectedAmount}(consensusAddress);
+        stakeHub.recordInflationMint{ value: expectedAmount }(consensusAddress);
         vm.stopPrank();
     }
 
@@ -992,8 +1301,8 @@ contract StakeHubTest is Deployer {
         );
         stakeHub.updateParam("tokenBRewardSplitBps", abi.encode(uint256(1000)));
 
-        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationEnabled", hex"01"));
-        stakeHub.updateParam("inflationEnabled", hex"01");
+        vm.expectRevert(abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationEnabled", hex"02"));
+        stakeHub.updateParam("inflationEnabled", hex"02");
 
         vm.expectRevert(
             abi.encodeWithSelector(StakeHub.InvalidValue.selector, "inflationRateInitialBps", abi.encode(uint256(0)))
@@ -1033,7 +1342,7 @@ contract StakeHubTest is Deployer {
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: 100 ether}(consensusAddress);
+        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
 
         uint256 d1PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator1);
         uint256 d2PendingRound1 = stakeHub.pendingTokenBReward(validator, delegator2);
@@ -1051,7 +1360,7 @@ contract StakeHubTest is Deployer {
 
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + 100 ether);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: 100 ether}(consensusAddress);
+        stakeHub.distributeReward{ value: 100 ether }(consensusAddress);
 
         uint256 d1PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator1);
         uint256 d2PendingRound2 = stakeHub.pendingTokenBReward(validator, delegator2);
@@ -1092,7 +1401,7 @@ contract StakeHubTest is Deployer {
         vm.expectEmit(true, true, false, true, address(stakeHub));
         emit RewardDistributed(validator, reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
 
         assertEq(address(systemReward).balance, systemRewardBefore, "system reward pool should not be touched");
     }
@@ -1109,7 +1418,7 @@ contract StakeHubTest is Deployer {
         emit RewardDistributeFailed(address(0), "INVALID_VALIDATOR");
         vm.expectEmit(true, false, false, false, address(stakeHub));
         emit RewardForwardQueued(address(0), reward, 1, "");
-        stakeHub.distributeReward{value: reward}(address(0xBEEF));
+        stakeHub.distributeReward{ value: reward }(address(0xBEEF));
         vm.stopPrank();
 
         assertEq(stakeHub.pendingSystemReward(), reward, "forward failure should queue reward");
@@ -1149,7 +1458,7 @@ contract StakeHubTest is Deployer {
         emit InflationRedirected(consensusAddress, validator, inflationAmount);
         vm.expectEmit(true, false, false, false, address(stakeHub));
         emit RewardForwardQueued(validator, inflationAmount, 2, "");
-        stakeHub.recordInflationMint{value: inflationAmount}(consensusAddress);
+        stakeHub.recordInflationMint{ value: inflationAmount }(consensusAddress);
         vm.stopPrank();
 
         assertEq(stakeHub.inflationMintedAmount(), inflationAmount, "minted inflation mismatch");
@@ -1173,7 +1482,7 @@ contract StakeHubTest is Deployer {
 
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(address(0xCAFE));
+        stakeHub.distributeReward{ value: reward }(address(0xCAFE));
         assertEq(stakeHub.pendingSystemReward(), reward, "pending reward should be queued");
 
         address recipient = _getNextUserAddress();
@@ -1236,9 +1545,10 @@ contract StakeHubTest is Deployer {
         vm.prank(reserveVault);
         gold.setApprovalForAll(address(stakeHub), true);
 
-        vm.prank(GOV_HUB_ADDR);
         vm.expectEmit(true, true, false, true, address(stakeHub));
-        emit SlashReserveSettled(recipient, paxgTokenId, slashAmt, block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL());
+        uint256 settlementEpoch = block.timestamp / stakeHub.BREATHE_BLOCK_INTERVAL();
+        emit SlashReserveSettled(recipient, paxgTokenId, slashAmt, settlementEpoch);
+        vm.prank(GOV_HUB_ADDR);
         stakeHub.settleSlashReserve1155(recipient, paxgTokenId, slashAmt);
 
         assertEq(gold.balanceOf(recipient, paxgTokenId), slashAmt, "settled reserve amount mismatch");
@@ -1250,7 +1560,7 @@ contract StakeHubTest is Deployer {
         (address validator, address consensusAddress,,) = _createValidator(selfDelegation);
         _createValidator(selfDelegation); // avoid emergency-halt single-validator edge path
 
-        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json", 1000, 1, address(this));
+        PhysicalGold1155 gold = new PhysicalGold1155("ipfs://gold/{id}.json", 1, 1, address(this));
         uint256 paxgTokenId = gold.PAXG_TOKEN_ID();
         address reserveVault = _getNextUserAddress();
 
@@ -1282,7 +1592,11 @@ contract StakeHubTest is Deployer {
         emit SlashReserveSelfMigrationFinalized(reserveVault, 1);
         stakeHub.migrateSelfCustodiedSlashReserve(tokenIds, amounts);
 
-        assertEq(gold.balanceOf(address(stakeHub), paxgTokenId), 0, "self-custodied reserve should be migrated out");
+        assertEq(
+            gold.balanceOf(address(stakeHub), paxgTokenId),
+            1 ether,
+            "self-custodied reserve should be migrated without moving active stake"
+        );
         assertEq(gold.balanceOf(reserveVault, paxgTokenId), slashAmt * 2, "vault should include slashed and migrated");
         assertTrue(stakeHub.slashReserveSelfMigrationCompleted(), "migration flag should be finalized");
 
@@ -1315,12 +1629,12 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{value: 100 ether}(validator, false);
+        stakeHub.delegate{ value: 100 ether }(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledGILTByShares(IStakeCredit(credit).balanceOf(delegator));
@@ -1368,12 +1682,12 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{value: 100 ether}(validator, false);
+        stakeHub.delegate{ value: 100 ether }(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledGILTByShares(IStakeCredit(credit).balanceOf(delegator));
@@ -1400,13 +1714,13 @@ contract StakeHubTest is Deployer {
 
         address delegator = _getNextUserAddress();
         vm.prank(delegator);
-        stakeHub.delegate{value: 100 ether}(validator, false);
+        stakeHub.delegate{ value: 100 ether }(validator, false);
 
         address consensusAddress = stakeHub.getValidatorConsensusAddress(validator);
         bytes memory voteAddr = stakeHub.getValidatorVoteAddress(validator);
         vm.deal(VALIDATOR_CONTRACT_ADDR, VALIDATOR_CONTRACT_ADDR.balance + reward);
         vm.prank(VALIDATOR_CONTRACT_ADDR);
-        stakeHub.distributeReward{value: reward}(consensusAddress);
+        stakeHub.distributeReward{ value: reward }(consensusAddress);
 
         uint256 preDelegatorBnbAmount =
             IStakeCredit(credit).getPooledGILTByShares(IStakeCredit(credit).balanceOf(delegator));

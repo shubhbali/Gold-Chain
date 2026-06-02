@@ -1,79 +1,86 @@
 package parlia
 
 import (
+	"encoding/hex"
 	"math/big"
 	"testing"
-
-	"github.com/ethereum/go-ethereum/params"
 )
 
-func TestCurrentInflationBpsForDay(t *testing.T) {
-	cfg := &stakeHubInflationState{
-		startDayIndex:   10,
-		initialBps:      1_000,
-		minBps:          100,
-		decayBpsPerYear: 5_000,
-	}
-	cases := []struct {
-		dayIndex uint64
-		want     uint64
+func TestMintableInflationRewardUsesStakeHubExpectedAmount(t *testing.T) {
+	firstAmount := big.NewInt(1_234_567_890)
+	nextAmount := big.NewInt(2_345_678_901)
+
+	tests := []struct {
+		name string
+		cfg  *stakeHubInflationState
+		want *big.Int
 	}{
-		{10, 1_000},
-		{10 + 365, 500},
-		{10 + 730, 250},
-		{10 + 1_095, 125},
-		{10 + 1_460, 100},
+		{
+			name: "first eligible interval mints exact expected amount",
+			cfg: &stakeHubInflationState{
+				enabled:            true,
+				dayIndex:           42,
+				expectedMintAmount: firstAmount,
+			},
+			want: firstAmount,
+		},
+		{
+			name: "duplicate same-day interval mints zero",
+			cfg: &stakeHubInflationState{
+				enabled:            true,
+				dayIndex:           42,
+				expectedMintAmount: firstAmount,
+				mintedByDay:        firstAmount,
+			},
+			want: new(big.Int),
+		},
+		{
+			name: "next interval mints exact expected amount",
+			cfg: &stakeHubInflationState{
+				enabled:            true,
+				dayIndex:           43,
+				expectedMintAmount: nextAmount,
+			},
+			want: nextAmount,
+		},
+		{
+			name: "disabled inflation mints zero",
+			cfg: &stakeHubInflationState{
+				enabled:            false,
+				dayIndex:           44,
+				expectedMintAmount: firstAmount,
+			},
+			want: new(big.Int),
+		},
 	}
-	for _, tc := range cases {
-		if got := currentInflationBpsForDay(cfg, tc.dayIndex); got != tc.want {
-			t.Fatalf("day %d: got %d want %d", tc.dayIndex, got, tc.want)
-		}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mintableInflationReward(tt.cfg)
+			if got.Cmp(tt.want) != 0 {
+				t.Fatalf("got %s want %s", got, tt.want)
+			}
+			if tt.want.Sign() > 0 && got == tt.cfg.expectedMintAmount {
+				t.Fatal("mintable reward must copy StakeHub expected amount")
+			}
+		})
 	}
 }
 
-func TestMintableInflationRewardForFullYear(t *testing.T) {
-	cfg := &stakeHubInflationState{
-		enabled:           true,
-		startDayIndex:     0,
-		initialBps:        1_000,
-		minBps:            150,
-		decayBpsPerYear:   1_500,
-		baseSupply:        new(big.Int).Mul(big.NewInt(1_000), big.NewInt(params.Ether)),
-		mintedAmount:      new(big.Int),
-		lastMintTimestamp: 1,
-	}
-
-	blockTime := uint64(365*24*60*60 + 1)
-	got := mintableInflationReward(cfg, blockTime)
-	want := new(big.Int).Mul(big.NewInt(100), big.NewInt(params.Ether))
-	diff := new(big.Int).Sub(new(big.Int).Set(want), got)
-	if diff.Sign() < 0 {
-		diff.Neg(diff)
-	}
-	if diff.Cmp(big.NewInt(1_000_000_000_000)) > 0 {
-		t.Fatalf("got %s want %s diff %s", got, want, diff)
+func TestEncodeExpectedInflationMintAmountCall(t *testing.T) {
+	data := encodeSingleUint64Call("expectedInflationMintAmount(uint256)", 42)
+	got := hex.EncodeToString(data)
+	want := "f951a906000000000000000000000000000000000000000000000000000000000000002a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }
 
-func TestMintableInflationRewardCompoundsAcrossRateBoundary(t *testing.T) {
-	cfg := &stakeHubInflationState{
-		enabled:           true,
-		startDayIndex:     0,
-		initialBps:        1_000,
-		minBps:            150,
-		decayBpsPerYear:   5_000,
-		baseSupply:        new(big.Int).Mul(big.NewInt(1_000), big.NewInt(params.Ether)),
-		mintedAmount:      new(big.Int),
-		lastMintTimestamp: 1,
-	}
-
-	blockTime := uint64((365+365/2)*24*60*60 + 1)
-	got := mintableInflationReward(cfg, blockTime)
-
-	yearOne := new(big.Int).Mul(big.NewInt(100), big.NewInt(params.Ether))
-	halfYearTwo := new(big.Int).Mul(big.NewInt(27), big.NewInt(params.Ether))
-	minWant := new(big.Int).Add(yearOne, halfYearTwo)
-	if got.Cmp(minWant) < 0 {
-		t.Fatalf("got %s want at least %s", got, minWant)
+func TestEncodeInflationMintedByDayCall(t *testing.T) {
+	data := encodeSingleUint64Call("inflationMintedByDay(uint256)", 42)
+	got := hex.EncodeToString(data)
+	want := "a3fdc48e000000000000000000000000000000000000000000000000000000000000002a"
+	if got != want {
+		t.Fatalf("got %s want %s", got, want)
 	}
 }

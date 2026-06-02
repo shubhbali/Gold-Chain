@@ -4,9 +4,6 @@ import "../lib/0.6.x/RLPDecode.sol";
 import "../lib/0.6.x/Memory.sol";
 
 contract GiltValidatorSetTool {
-    bytes public constant INIT_VALIDATORSET_BYTES =
-        hex"f84580f842f840949fb29aac15b9a4b7f17c3385939b007540f4d791949fb29aac15b9a4b7f17c3385939b007540f4d791949fb29aac15b9a4b7f17c3385939b007540f4d79164";
-
     using RLPDecode for *;
 
     struct Validator {
@@ -19,11 +16,6 @@ contract GiltValidatorSetTool {
     struct IbcValidatorSetPackage {
         uint8 packageType;
         Validator[] validatorSet;
-    }
-
-    function init() external pure {
-        bool valid = decodeValidatorSetSynPackage(INIT_VALIDATORSET_BYTES);
-        require(valid, "failed to init");
     }
 
     function decodeValidatorSetSynPackage(bytes memory msgBytes) internal pure returns (bool) {

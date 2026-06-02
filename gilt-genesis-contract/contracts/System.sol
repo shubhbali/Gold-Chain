@@ -1,9 +1,5 @@
 pragma solidity 0.6.4;
 
-import "./interface/0.6.x/ISystemReward.sol";
-import "./interface/0.6.x/IRelayerHub.sol";
-import "./interface/0.6.x/ILightClient.sol";
-
 contract System {
     bool public alreadyInit;
 
@@ -12,23 +8,23 @@ contract System {
     address public constant VALIDATOR_CONTRACT_ADDR = 0x0000000000000000000000000000000000001000;
     address public constant SLASH_CONTRACT_ADDR = 0x0000000000000000000000000000000000001001;
     address public constant SYSTEM_REWARD_ADDR = 0x0000000000000000000000000000000000001002;
-    address public constant LIGHT_CLIENT_ADDR = 0x0000000000000000000000000000000000001003;
-    address public constant TOKEN_HUB_ADDR = 0x0000000000000000000000000000000000001004;
-    address public constant INCENTIVIZE_ADDR = 0x0000000000000000000000000000000000001005;
-    address public constant RELAYERHUB_CONTRACT_ADDR = 0x0000000000000000000000000000000000001006;
+    address internal constant LIGHT_CLIENT_ADDR = 0x0000000000000000000000000000000000001003;
+    address internal constant TOKEN_HUB_ADDR = 0x0000000000000000000000000000000000001004;
+    address internal constant INCENTIVIZE_ADDR = 0x0000000000000000000000000000000000001005;
+    address internal constant RELAYERHUB_CONTRACT_ADDR = 0x0000000000000000000000000000000000001006;
     address public constant GOV_HUB_ADDR = 0x0000000000000000000000000000000000001007;
-    address public constant TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000001008;
-    address public constant CROSS_CHAIN_CONTRACT_ADDR = 0x0000000000000000000000000000000000002000;
-    address public constant STAKING_CONTRACT_ADDR = 0x0000000000000000000000000000000000002001;
+    address internal constant TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000001008;
+    address internal constant CROSS_CHAIN_CONTRACT_ADDR = 0x0000000000000000000000000000000000002000;
+    address internal constant STAKING_CONTRACT_ADDR = 0x0000000000000000000000000000000000002001;
     address public constant STAKE_HUB_ADDR = 0x0000000000000000000000000000000000002002;
     address public constant STAKE_CREDIT_ADDR = 0x0000000000000000000000000000000000002003;
     address public constant GOVERNOR_ADDR = 0x0000000000000000000000000000000000002004;
     address public constant GOV_TOKEN_ADDR = 0x0000000000000000000000000000000000002005;
     address public constant TIMELOCK_ADDR = 0x0000000000000000000000000000000000002006;
-    address public constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000002007;
-    address public constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
-    address public constant STATE_RECEIVER_ADDR = 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE;
-    address public constant NATIVE_GILT_BRIDGE_ADDR = 0x0000000000000000000000000000000000003002;
+    address internal constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000002007;
+    address internal constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
+    address internal constant STATE_RECEIVER_ADDR = 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE;
+    address internal constant NATIVE_GILT_BRIDGE_ADDR = 0x0000000000000000000000000000000000003002;
 
     modifier onlyCoinbase() {
         require(msg.sender == block.coinbase, "the message sender must be the block producer");
@@ -55,11 +51,6 @@ contract System {
         _;
     }
 
-    modifier onlyTokenHub() {
-        require(msg.sender == TOKEN_HUB_ADDR, "the message sender must be token hub contract");
-        _;
-    }
-
     modifier onlyGov() {
         require(msg.sender == GOV_HUB_ADDR, "the message sender must be governance contract");
         _;
@@ -75,21 +66,6 @@ contract System {
         _;
     }
 
-    modifier onlyRelayerIncentivize() {
-        require(msg.sender == INCENTIVIZE_ADDR, "the message sender must be incentivize contract");
-        _;
-    }
-
-    modifier onlyRelayer() {
-        require(IRelayerHub(RELAYERHUB_CONTRACT_ADDR).isRelayer(msg.sender), "the msg sender is not a relayer");
-        _;
-    }
-
-    modifier onlyTokenManager() {
-        require(msg.sender == TOKEN_MANAGER_ADDR, "the msg sender must be tokenManager");
-        _;
-    }
-
     modifier onlyStakeHub() {
         require(msg.sender == STAKE_HUB_ADDR, "the msg sender must be stakeHub");
         _;
@@ -97,16 +73,6 @@ contract System {
 
     modifier onlyGovernorTimelock() {
         require(msg.sender == TIMELOCK_ADDR, "the msg sender must be governor timelock contract");
-        _;
-    }
-
-    modifier onlyTokenRecoverPortal() {
-        require(msg.sender == TOKEN_RECOVER_PORTAL_ADDR, "the msg sender must be token recover portal");
-        _;
-    }
-
-    modifier onlySystem() {
-        require(msg.sender == STATE_RECEIVER_ADDR, "the msg sender must be system");
         _;
     }
 

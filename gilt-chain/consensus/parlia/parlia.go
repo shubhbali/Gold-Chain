@@ -17,7 +17,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/lru"
 	"github.com/holiman/uint256"
-	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/willf/bitset"
 	"golang.org/x/crypto/sha3"
 
@@ -38,6 +37,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	bls "github.com/ethereum/go-ethereum/crypto/blscompat"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/internal/ethapi"
 	"github.com/ethereum/go-ethereum/log"
@@ -102,22 +102,14 @@ var (
 	attestationVoteCountGauge         = metrics.NewRegisteredGauge("parlia/attestation/voteCount", nil)
 
 	systemContracts = map[common.Address]bool{
-		common.HexToAddress(systemcontracts.ValidatorContract):          true,
-		common.HexToAddress(systemcontracts.SlashContract):              true,
-		common.HexToAddress(systemcontracts.SystemRewardContract):       true,
-		common.HexToAddress(systemcontracts.LightClientContract):        true,
-		common.HexToAddress(systemcontracts.RelayerHubContract):         true,
-		common.HexToAddress(systemcontracts.GovHubContract):             true,
-		common.HexToAddress(systemcontracts.TokenHubContract):           true,
-		common.HexToAddress(systemcontracts.RelayerIncentivizeContract): true,
-		common.HexToAddress(systemcontracts.CrossChainContract):         true,
-		common.HexToAddress(systemcontracts.StakeHubContract):           true,
-		common.HexToAddress(systemcontracts.GovernorContract):           true,
-		common.HexToAddress(systemcontracts.GovTokenContract):           true,
-		common.HexToAddress(systemcontracts.TimelockContract):           true,
-		common.HexToAddress(systemcontracts.GeneralNativeTokenManager):  true,
-		common.HexToAddress(systemcontracts.TokenRecoverPortalContract): true,
-		common.HexToAddress(systemcontracts.NativeGiltBridgeContract):   true,
+		common.HexToAddress(systemcontracts.ValidatorContract):    true,
+		common.HexToAddress(systemcontracts.SlashContract):        true,
+		common.HexToAddress(systemcontracts.SystemRewardContract): true,
+		common.HexToAddress(systemcontracts.GovHubContract):       true,
+		common.HexToAddress(systemcontracts.StakeHubContract):     true,
+		common.HexToAddress(systemcontracts.GovernorContract):     true,
+		common.HexToAddress(systemcontracts.GovTokenContract):     true,
+		common.HexToAddress(systemcontracts.TimelockContract):     true,
 	}
 )
 
@@ -199,6 +191,13 @@ type SignerTxFn func(accounts.Account, *types.Transaction, *big.Int) (*types.Tra
 
 func isToSystemContract(to common.Address) bool {
 	return systemContracts[to]
+}
+
+func initialSystemContracts() []string {
+	return []string{
+		systemcontracts.ValidatorContract,
+		systemcontracts.SlashContract,
+	}
 }
 
 // ecrecover extracts the Ethereum account address from a signed header.
@@ -2118,22 +2117,13 @@ func (p *Parlia) initContract(state vm.StateDB, header *types.Header, chain core
 	// method
 	method := "init"
 	// contracts
-	contracts := []string{
-		systemcontracts.ValidatorContract,
-		systemcontracts.SlashContract,
-		systemcontracts.LightClientContract,
-		systemcontracts.RelayerHubContract,
-		systemcontracts.TokenHubContract,
-		systemcontracts.RelayerIncentivizeContract,
-		systemcontracts.CrossChainContract,
-	}
 	// get packed data
 	data, err := p.validatorSetABI.Pack(method)
 	if err != nil {
 		log.Error("Unable to pack tx for init validator set", "error", err)
 		return err
 	}
-	for _, c := range contracts {
+	for _, c := range initialSystemContracts() {
 		msg := p.getSystemMessage(header.Coinbase, common.HexToAddress(c), data, common.Big0)
 		// apply message
 		log.Trace("init contract", "block hash", header.Hash(), "contract", c)
@@ -2257,8 +2247,10 @@ func (p *Parlia) applyTransaction(
 		}
 	}
 
+	snapshot := state.Snapshot()
 	gasUsed, err := applyMessage(msg, evm, state, header, p.chainConfig, chainContext)
 	if err != nil {
+		state.RevertToSnapshot(snapshot)
 		return err
 	}
 	*txs = append(*txs, expectedTx)

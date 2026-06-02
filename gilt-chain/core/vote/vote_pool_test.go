@@ -18,22 +18,11 @@ package vote
 
 import (
 	"container/heap"
-	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"math/big"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
-	"github.com/prysmaticlabs/prysm/v5/validator/accounts"
-	"github.com/prysmaticlabs/prysm/v5/validator/accounts/iface"
-	"github.com/prysmaticlabs/prysm/v5/validator/keymanager"
-	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -42,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	bls "github.com/ethereum/go-ethereum/crypto/blscompat"
 	"github.com/ethereum/go-ethereum/eth/downloader"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/params"
@@ -53,8 +43,6 @@ var (
 
 	// testAddr is the Ethereum address of the tester account.
 	testAddr = crypto.PubkeyToAddress(testKey.PublicKey)
-
-	password = "secretPassword"
 
 	timeThreshold = 30
 )
@@ -148,8 +136,6 @@ func TestInvalidVotePool(t *testing.T) {
 }
 
 func testVotePool(t *testing.T, isValidRules bool) {
-	walletPasswordDir, walletDir := setUpKeyManager(t)
-
 	genesis := &core.Genesis{
 		Config: params.TestChainConfig,
 		Alloc:  types.GenesisAlloc{testAddr: {Balance: big.NewInt(1000000)}},
@@ -182,10 +168,7 @@ func testVotePool(t *testing.T, isValidRules bool) {
 	file.Close()
 	os.Remove(journal)
 
-	voteManager, err := NewVoteManager(newTestBackend(), chain, votePool, journal, walletPasswordDir, walletDir, mockEngine)
-	if err != nil {
-		t.Fatalf("failed to create vote managers")
-	}
+	voteManager := newTestVoteManager(t, newTestBackend(), chain, votePool, journal, newTestVoteSigner(t), mockEngine)
 
 	voteJournal := voteManager.journal
 
@@ -406,56 +389,49 @@ func testVotePool(t *testing.T, isValidRules bool) {
 	}
 }
 
-func setUpKeyManager(t *testing.T) (string, string) {
-	walletDir := filepath.Join(t.TempDir(), "wallet")
-	opts := []accounts.Option{}
-	opts = append(opts, accounts.WithWalletDir(walletDir))
-	opts = append(opts, accounts.WithWalletPassword(password))
-	opts = append(opts, accounts.WithKeymanagerType(keymanager.Local))
-	opts = append(opts, accounts.WithSkipMnemonicConfirm(true))
-	acc, err := accounts.NewCLIManager(opts...)
+func newTestVoteManager(t *testing.T, eth Backend, chain *core.BlockChain, pool *VotePool, journalPath string, signer *VoteSigner, engine consensus.PoSA) *VoteManager {
+	t.Helper()
+
+	voteJournal, err := NewVoteJournal(journalPath)
 	if err != nil {
-		t.Fatalf("New Accounts CLI Manager failed: %v.", err)
-	}
-	walletPasswordDir := filepath.Join(t.TempDir(), "password")
-	if err := os.MkdirAll(filepath.Dir(walletPasswordDir), 0700); err != nil {
-		t.Fatalf("failed to create walletPassword dir: %v", err)
-	}
-	if err := os.WriteFile(walletPasswordDir, []byte(password), 0600); err != nil {
-		t.Fatalf("failed to write wallet password dir: %v", err)
+		t.Fatalf("failed to create vote journal: %v", err)
 	}
 
-	w, err := acc.WalletCreate(context.Background())
-	if err != nil {
-		t.Fatalf("failed to create wallet: %v", err)
+	voteManager := &VoteManager{
+		eth:                    eth,
+		chain:                  chain,
+		highestVerifiedBlockCh: make(chan core.HighestVerifiedBlockEvent, highestVerifiedBlockChanSize),
+		syncVoteCh:             make(chan core.NewVoteEvent, voteBufferForPut),
+		pool:                   pool,
+		signer:                 signer,
+		journal:                voteJournal,
+		engine:                 engine,
 	}
-	km, _ := w.InitializeKeymanager(context.Background(), iface.InitKeymanagerConfig{ListenForChanges: false})
-	k, _ := km.(keymanager.Importer)
-	secretKey, _ := bls.RandKey()
-	encryptor := keystorev4.New()
+	voteManager.highestVerifiedBlockSub = voteManager.chain.SubscribeHighestVerifiedHeaderEvent(voteManager.highestVerifiedBlockCh)
+	voteManager.syncVoteSub = voteManager.pool.SubscribeNewVoteEvent(voteManager.syncVoteCh)
+
+	go voteManager.loop()
+
+	return voteManager
+}
+
+func newTestVoteSigner(t *testing.T) *VoteSigner {
+	t.Helper()
+
+	secretKey, err := bls.RandKey()
+	if err != nil {
+		t.Fatalf("failed to create BLS test key: %v", err)
+	}
+
 	pubKeyBytes := secretKey.PublicKey().Marshal()
-	cryptoFields, err := encryptor.Encrypt(secretKey.Marshal(), password)
-	if err != nil {
-		t.Fatalf("failed: %v", err)
+	var pubKey [48]byte
+	if len(pubKeyBytes) != len(pubKey) {
+		t.Fatalf("BLS test public key must be %d bytes, got %d", len(pubKey), len(pubKeyBytes))
 	}
+	copy(pubKey[:], pubKeyBytes)
 
-	id, _ := uuid.NewRandom()
-	keystore := &keymanager.Keystore{
-		Crypto:  cryptoFields,
-		ID:      id.String(),
-		Pubkey:  fmt.Sprintf("%x", pubKeyBytes),
-		Version: encryptor.Version(),
-		Name:    encryptor.Name(),
+	return &VoteSigner{
+		secretKey: secretKey,
+		PubKey:    pubKey,
 	}
-
-	encodedFile, _ := json.MarshalIndent(keystore, "", "\t")
-	keyStoreDir := filepath.Join(t.TempDir(), "keystore")
-	keystoreFile, _ := os.Create(fmt.Sprintf("%s/keystore-%s.json", keyStoreDir, "publichh"))
-	keystoreFile.Write(encodedFile)
-	accounts.ImportAccounts(context.Background(), &accounts.ImportAccountsConfig{
-		Importer:        k,
-		Keystores:       []*keymanager.Keystore{keystore},
-		AccountPassword: password,
-	})
-	return walletPasswordDir, walletDir
 }

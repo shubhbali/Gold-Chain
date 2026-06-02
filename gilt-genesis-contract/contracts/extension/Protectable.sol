@@ -52,7 +52,9 @@ abstract contract Protectable is Initializable {
     }
 
     function __Protectable_init_unchained(address protector) internal onlyInitializing {
-        _protector = protector;
+        if (_protector == address(0)) {
+            _protector = protector;
+        }
     }
 
     /*----------------- external functions -----------------*/

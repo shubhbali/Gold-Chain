@@ -7,6 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
@@ -41,7 +42,7 @@ func TestAllCodesHash(t *testing.T) {
 		}
 	}
 	allCodeHash := sha256.Sum256(allCodes)
-	require.Equal(t, allCodeHash[:], common.Hex2Bytes("833cc0fc87c46ad8a223e44ccfdc16a51a7e7383525136441bd0c730f06023df"))
+	require.Equal(t, allCodeHash[:], common.Hex2Bytes("b45e3c7531e0b041d5ce8fd42e4b0c21506134dcfebf503f1463d9ed739b1d55"))
 }
 
 func TestUpgradeBuildInSystemContractNilInterface(t *testing.T) {
@@ -70,4 +71,35 @@ func TestUpgradeBuildInSystemContractNilValue(t *testing.T) {
 	GenesisHash = params.GILTGenesisHash
 
 	upgradeBuildInSystemContract(config, blockNumber, lastBlockTime, blockTime, statedb)
+}
+
+func TestFinalGoldConfigSkipsHistoricalSystemContractUpgrades(t *testing.T) {
+	oldGenesisHash := GenesisHash
+	defer func() { GenesisHash = oldGenesisHash }()
+
+	config := *params.GILTChainConfig
+	require.True(t, config.DisableHistoricalSystemContractUpgrades)
+	require.True(t, params.ChapelChainConfig.DisableHistoricalSystemContractUpgrades)
+	GenesisHash = params.GILTGenesisHash
+
+	statedb, err := state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
+	require.NoError(t, err)
+
+	upgradeBuildInSystemContract(&config, big.NewInt(37959559), 1713419337, 1713419340, statedb)
+	require.Empty(t, statedb.GetCode(common.HexToAddress(StakeHubContract)))
+}
+
+func TestHistoricalSystemContractUpgradesRemainExplicitlyAvailable(t *testing.T) {
+	oldGenesisHash := GenesisHash
+	defer func() { GenesisHash = oldGenesisHash }()
+
+	config := *params.GILTChainConfig
+	config.DisableHistoricalSystemContractUpgrades = false
+	GenesisHash = params.GILTGenesisHash
+
+	statedb, err := state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
+	require.NoError(t, err)
+
+	upgradeBuildInSystemContract(&config, big.NewInt(37959559), 1713419337, 1713419340, statedb)
+	require.NotEmpty(t, statedb.GetCode(common.HexToAddress(StakeHubContract)))
 }

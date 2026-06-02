@@ -48,10 +48,10 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
     event paramChange(string key, bytes value);
     event failedFelony(address indexed validator, uint256 slashCount, bytes failReason);
 
-    event maliciousVoteSlashed(bytes32 indexed voteAddrSlice);  // @dev deprecated
-    event knownResponse(uint32 code);  // @dev deprecated
-    event unKnownResponse(uint32 code);  // @dev deprecated
-    event crashResponse();  // @dev deprecated
+    event maliciousVoteSlashed(bytes32 indexed voteAddrSlice); // @dev deprecated
+    event knownResponse(uint32 code); // @dev deprecated
+    event unKnownResponse(uint32 code); // @dev deprecated
+    event crashResponse(); // @dev deprecated
 
     struct Indicator {
         uint256 height;
@@ -94,11 +94,17 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         revert("deprecated");
     }
 
-    function handleAckPackage(uint8, bytes calldata msgBytes) external override onlyCrossChainContract onlyInit {
+    function handleAckPackage(
+        uint8,
+        bytes calldata
+    ) external override onlyCrossChainContract onlyInit {
         revert("deprecated");
     }
 
-    function handleFailAckPackage(uint8, bytes calldata) external override onlyCrossChainContract onlyInit {
+    function handleFailAckPackage(
+        uint8,
+        bytes calldata
+    ) external override onlyCrossChainContract onlyInit {
         revert("deprecated");
     }
 
@@ -108,7 +114,9 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
      *
      * @param validator The validator who should have produced the current block
      */
-    function slash(address validator) external onlyCoinbase onlyInit oncePerBlock onlyZeroGasPrice {
+    function slash(
+        address validator
+    ) external onlyCoinbase onlyInit oncePerBlock onlyZeroGasPrice {
         if (!IGiltValidatorSet(VALIDATOR_CONTRACT_ADDR).isCurrentValidator(validator)) {
             return;
         }
@@ -194,7 +202,11 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         _downtimeSlash(validator, count, shouldRevert);
     }
 
-    function _downtimeSlash(address validator, uint256 count, bool shouldRevert) internal {
+    function _downtimeSlash(
+        address validator,
+        uint256 count,
+        bool shouldRevert
+    ) internal {
         if (shouldRevert) {
             IStakeHub(STAKE_HUB_ADDR).downtimeSlash(validator);
         } else {
@@ -207,7 +219,9 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         }
     }
 
-    function submitFinalityViolationEvidence(FinalityEvidence memory _evidence) public onlyInit {
+    function submitFinalityViolationEvidence(
+        FinalityEvidence memory _evidence
+    ) public onlyInit {
         require(enableMaliciousVoteSlash, "malicious vote slash not enabled");
         if (felonySlashRewardRatio == 0) {
             felonySlashRewardRatio = INIT_FELONY_SLASH_REWARD_RATIO;
@@ -267,7 +281,10 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         IStakeHub(STAKE_HUB_ADDR).maliciousVoteSlash(_evidence.voteAddr);
     }
 
-    function submitDoubleSignEvidence(bytes memory header1, bytes memory header2) public onlyInit {
+    function submitDoubleSignEvidence(
+        bytes memory header1,
+        bytes memory header2
+    ) public onlyInit {
         if (felonySlashRewardRatio == 0) {
             felonySlashRewardRatio = INIT_FELONY_SLASH_REWARD_RATIO;
         }
@@ -287,7 +304,9 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         bytes memory output = new bytes(52);
         assembly {
             let len := mload(input)
-            if iszero(staticcall(not(0), 0x68, add(input, 0x20), len, add(output, 0x20), 0x34)) { revert(0, 0) }
+            if iszero(staticcall(not(0), 0x68, add(input, 0x20), len, add(output, 0x20), 0x34)) {
+                revert(0, 0)
+            }
         }
 
         address signer;
@@ -312,11 +331,16 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
      *
      * @param validator Who will be jailed
      */
-    function sendFelonyPackage(address validator) external override(ISlashIndicator) onlyValidatorContract onlyInit {
+    function sendFelonyPackage(
+        address validator
+    ) external override(ISlashIndicator) onlyValidatorContract onlyInit {
         emit failedFelony(validator, 0, "deprecated");
     }
 
-    function _verifyBLSSignature(VoteData memory vote, bytes memory voteAddr) internal view returns (bool) {
+    function _verifyBLSSignature(
+        VoteData memory vote,
+        bytes memory voteAddr
+    ) internal view returns (bool) {
         bytes[] memory elements = new bytes[](4);
         bytes memory _bytes = new bytes(32);
         elements[0] = vote.srcNum.encodeUint();
@@ -339,7 +363,9 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         bytes memory output = new bytes(1);
         assembly {
             let len := mload(input)
-            if iszero(staticcall(not(0), 0x66, add(input, 0x20), len, add(output, 0x20), 0x01)) { revert(0, 0) }
+            if iszero(staticcall(not(0), 0x66, add(input, 0x20), len, add(output, 0x20), 0x01)) {
+                revert(0, 0)
+            }
         }
         if (BytesLib.toUint8(output, 0) != uint8(1)) {
             return false;
@@ -347,14 +373,22 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         return true;
     }
 
-    function _bytesConcat(bytes memory data, bytes memory _bytes, uint256 index, uint256 len) internal pure {
+    function _bytesConcat(
+        bytes memory data,
+        bytes memory _bytes,
+        uint256 index,
+        uint256 len
+    ) internal pure {
         for (uint256 i; i < len; ++i) {
             data[index++] = _bytes[i];
         }
     }
 
     /*----------------- Param update -----------------*/
-    function updateParam(string calldata key, bytes calldata value) external override onlyInit onlyGov {
+    function updateParam(
+        string calldata key,
+        bytes calldata value
+    ) external override onlyInit onlyGov {
         if (Memory.compareStrings(key, "misdemeanorThreshold")) {
             require(value.length == 32, "length of misdemeanorThreshold mismatch");
             uint256 newMisdemeanorThreshold = BytesToTypes.bytesToUint256(32, value);
@@ -397,12 +431,16 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
     }
 
     /*----------------- query api -----------------*/
-    function getSlashIndicator(address validator) external view returns (uint256, uint256) {
+    function getSlashIndicator(
+        address validator
+    ) external view returns (uint256, uint256) {
         Indicator memory indicator = indicators[validator];
         return (indicator.height, indicator.count);
     }
 
-    function encodeSlashPackage(address valAddr) internal view returns (bytes memory) {
+    function encodeSlashPackage(
+        address valAddr
+    ) internal view returns (bytes memory) {
         bytes[] memory elements = new bytes[](4);
         elements[0] = valAddr.encodeAddress();
         elements[1] = uint256(block.number).encodeUint();
@@ -411,7 +449,9 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         return elements.encodeList();
     }
 
-    function encodeVoteSlashPackage(bytes memory voteAddr) internal view returns (bytes memory) {
+    function encodeVoteSlashPackage(
+        bytes memory voteAddr
+    ) internal view returns (bytes memory) {
         bytes[] memory elements = new bytes[](4);
         elements[0] = voteAddr.encodeBytes();
         elements[1] = uint256(block.number).encodeUint();

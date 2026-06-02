@@ -155,3 +155,47 @@ func TestTimestampCompatError(t *testing.T) {
 	require.Equal(t, newTimestampCompatError(errWhat, newUint64(0), newUint64(1681338455)).Error(),
 		"mismatching Shanghai fork timestamp in database (have timestamp 0, want timestamp 1681338455, rewindto timestamp 0)")
 }
+
+func TestFinalGoldActiveSystemContractsExcludeLegacyBSCBridgeAddresses(t *testing.T) {
+	legacyBSCBridgeAddresses := map[string]string{
+		"LightClientContract":        "0x0000000000000000000000000000000000001003",
+		"TokenHubContract":           "0x0000000000000000000000000000000000001004",
+		"RelayerIncentivizeContract": "0x0000000000000000000000000000000000001005",
+		"RelayerHubContract":         "0x0000000000000000000000000000000000001006",
+		"TokenManagerContract":       "0x0000000000000000000000000000000000001008",
+		"CrossChainContract":         "0x0000000000000000000000000000000000002000",
+	}
+
+	for _, tc := range []struct {
+		name   string
+		config *ChainConfig
+		times  []uint64
+	}{
+		{
+			name:   "GILT mainnet",
+			config: GILTChainConfig,
+			times:  []uint64{0, *GILTChainConfig.PragueTime, math.MaxUint64},
+		},
+		{
+			name:   "Chapel",
+			config: ChapelChainConfig,
+			times:  []uint64{0, *ChapelChainConfig.PragueTime, math.MaxUint64},
+		},
+	} {
+		for _, at := range tc.times {
+			active := tc.config.ActiveSystemContracts(at)
+			for contractName, legacyAddress := range legacyBSCBridgeAddresses {
+				for activeName, activeAddress := range active {
+					if activeAddress.Hex() == legacyAddress {
+						t.Fatalf("%s active system contracts at time %d expose inert legacy BSC bridge address %s as %s",
+							tc.name, at, legacyAddress, activeName)
+					}
+				}
+				if _, ok := active[contractName]; ok {
+					t.Fatalf("%s active system contracts at time %d expose inert legacy BSC bridge key %s",
+						tc.name, at, contractName)
+				}
+			}
+		}
+	}
+}

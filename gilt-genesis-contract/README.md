@@ -48,32 +48,46 @@ All system contracts will be flattened and output into `${workspace}/contracts/f
 
 ## How to generate genesis file
 
-1. Edit `init_holders.js` file to alloc the initial GILT holder.
-2. Edit `validators.js` file to alloc the initial validator set.
-3. Edit system contracts setting as needed.
-4. Run `node scripts/generate-genesis.js` will generate genesis.json
+Use `launch-config/testnet.json` or `launch-config/mainnet.json` as the only
+human-edited launch input. The official launch commands below validate config,
+compile contracts, check ABI/storage/bytecode integrity, generate genesis, write
+the launch report, and build the node.
 
-## How to generate mainnet/testnet/dev genesis file
+## Final testnet/mainnet launch pipeline
 
-```shell 
-# build mainnet genesis file & clean
-npm run generate:mainnet && poetry run python -m scripts.generate recover
+Use one launch path for both public launch profiles. These commands validate
+the launch config, run `forge clean`, compile the system contracts, check
+canonical ABIs, check storage layouts, check runtime sizes, generate the genesis
+file and launch report, then build `gilt-chain`.
 
-# build testnet genesis file & clean
-npm run generate:testnet && poetry run python -m scripts.generate recover
-
-# build local dev-net genesis file & clean
-npm run generate:dev && poetry run python -m scripts.generate recover
+```shell
+npm run launch:core:testnet
+npm run launch:core:mainnet
 ```
-Check the `genesis.json` file, and you can get the exact compiled bytecode for different network.
-(`poetry run python -m scripts.generate --help ` for more details)
+
+For config-only checks:
+
+```shell
+npm run launch:validate:testnet
+npm run launch:validate:mainnet
+```
+
+For individual artifact gates after `forge build`:
+
+```shell
+npm run abi:check
+npm run launch:storage
+npm run launch:runtime
+```
+
+The old source-mutating `scripts.generate` / `generate.py` path and the old
+`scripts/generate-genesis.js` path are disabled for production launch.
+
 ```
 # you can verify the bytecode in genesis.json with solc, take ./contracts/StakeHub.sol for example:
 solc-select use 0.8.17
 solc --optimize --optimize-runs 200 --abi --metadata-hash none --bin-runtime ./contracts/StakeHub.sol --base-path . --include-path ./node_modules/ -o output
 ```
-
-You can refer to `generate:dev` in `package.json` for more details about how to custom params for local dev-net.
 
 ## update ABI files
 
@@ -92,16 +106,6 @@ forge build
 
 // generate interface
 cast interface ${workspace}/out/{contract_name}.sol/${contract_name}.json -p ^0.8.0 -n ${contract_name} > ${workspace}/test/utils/interface/I${contract_name}.sol
-```
-
-## BEP-171 unlock bot
-```shell script
-npm install ts-node -g
-
-cp .env.example .env
-# set UNLOCK_RECEIVER, OPERATOR_PRIVATE_KEY to .env
-
-ts-node scripts/bep171-unlock-bot.ts 
 ```
 
 ## Gold Migration Helpers

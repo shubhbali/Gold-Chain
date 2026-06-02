@@ -16,6 +16,8 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
     address public migrationController;
     bool public migrationMintingEnabled;
     bool public migrationMintingFinalized;
+    bool public bridgeRoutePrecisionFinalized;
+    bool public bridgeDepositsClosed;
     uint256 public immutable bridgeScaleNumerator;
     uint256 public immutable bridgeScaleDenominator;
 
@@ -36,6 +38,15 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
     event MigrationMintingEnabledSet(bool enabled);
     event MigrationMintingFinalized();
     event MigrationMint(address indexed account, uint256 indexed tokenId, uint256 amount, bytes32 migrationRef);
+    event BridgeRoutePrecisionFinalized();
+    event BridgeDepositsClosed();
+    event GoldRedemptionRequested(
+        address indexed redeemer,
+        address indexed recipient,
+        uint256 indexed tokenId,
+        uint256 goldAmount,
+        uint256 rootReleaseAmount
+    );
     event BridgeRoutePrecisionSet(
         uint256 indexed tokenId,
         uint8 rootDecimals,
@@ -45,7 +56,12 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         uint256 rootUnit
     );
 
-    constructor(string memory uri_, uint256 scaleNumerator_, uint256 scaleDenominator_, address admin_) ERC1155(uri_) {
+    constructor(
+        string memory uri_,
+        uint256 scaleNumerator_,
+        uint256 scaleDenominator_,
+        address admin_
+    ) ERC1155(uri_) {
         require(scaleNumerator_ != 0 && scaleDenominator_ != 0, "invalid bridge ratio");
         require(admin_ != address(0), "invalid admin");
         name = "Physical Gold";
@@ -58,7 +74,9 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         emit BridgeRatioInitialized(scaleNumerator_, scaleDenominator_);
     }
 
-    function setBridgeDepositor(address newBridgeDepositor) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setBridgeDepositor(
+        address newBridgeDepositor
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(newBridgeDepositor != address(0), "invalid bridge depositor");
         address previousBridgeDepositor = bridgeDepositor;
         if (previousBridgeDepositor != address(0) && previousBridgeDepositor != newBridgeDepositor) {
@@ -69,7 +87,9 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         emit BridgeDepositorUpdated(previousBridgeDepositor, newBridgeDepositor);
     }
 
-    function setMigrationController(address newMigrationController) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMigrationController(
+        address newMigrationController
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!migrationMintingFinalized, "migration minting finalized");
         require(newMigrationController != address(0), "invalid migration controller");
         address previousController = migrationController;
@@ -85,18 +105,48 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         uint256 scaleDenominator_,
         uint256 rootUnit
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(!bridgeRoutePrecisionFinalized, "bridge route precision finalized");
         _setBridgeRoutePrecision(tokenId, rootDecimals, goldDecimals, scaleNumerator_, scaleDenominator_, rootUnit);
     }
 
-    function setMigrationMintingEnabled(bool enabled) external {
-        require(msg.sender == migrationController || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "missing migration authority");
+    function finalizeBridgeRoutePrecision() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(!bridgeRoutePrecisionFinalized, "bridge route precision finalized");
+        RoutePrecision memory paxgRoute = bridgeRoutePrecision[PAXG_TOKEN_ID];
+        RoutePrecision memory xautRoute = bridgeRoutePrecision[XAUT_TOKEN_ID];
+
+        require(paxgRoute.enabled, "PAXG route not configured");
+        require(xautRoute.enabled, "XAUT route not configured");
+        require(paxgRoute.rootDecimals == 18 && paxgRoute.goldDecimals == 18, "invalid PAXG route precision");
+        require(xautRoute.rootDecimals == 6 && xautRoute.goldDecimals == 18, "invalid XAUT route precision");
+
+        bridgeRoutePrecisionFinalized = true;
+        emit BridgeRoutePrecisionFinalized();
+    }
+
+    function closeBridgeDeposits() external {
+        require(
+            msg.sender == migrationController || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "missing migration authority"
+        );
+        require(!bridgeDepositsClosed, "bridge deposits closed");
+        bridgeDepositsClosed = true;
+        emit BridgeDepositsClosed();
+    }
+
+    function setMigrationMintingEnabled(
+        bool enabled
+    ) external {
+        require(
+            msg.sender == migrationController || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "missing migration authority"
+        );
         require(!migrationMintingFinalized, "migration minting finalized");
         migrationMintingEnabled = enabled;
         emit MigrationMintingEnabledSet(enabled);
     }
 
     function finalizeMigrationMinting() external {
-        require(msg.sender == migrationController || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "missing migration authority");
+        require(
+            msg.sender == migrationController || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "missing migration authority"
+        );
         require(!migrationMintingFinalized, "migration minting finalized");
         migrationMintingEnabled = false;
         migrationMintingFinalized = true;
@@ -104,9 +154,12 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         emit MigrationMintingFinalized();
     }
 
-    function mintForMigration(address account, uint256 tokenId, uint256 amount, bytes32 migrationRef)
-        external
-    {
+    function mintForMigration(
+        address account,
+        uint256 tokenId,
+        uint256 amount,
+        bytes32 migrationRef
+    ) external {
         require(msg.sender == migrationController, "only migration controller");
         require(migrationMintingEnabled, "migration minting disabled");
         require(_isSupportedTokenId(tokenId), "unsupported token id");
@@ -116,18 +169,12 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         emit MigrationMint(account, tokenId, amount, migrationRef);
     }
 
-    function burn(address account, uint256 tokenId, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _burn(account, tokenId, amount);
-    }
-
-    function burnBatch(address account, uint256[] calldata tokenIds, uint256[] calldata amounts)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        _burnBatch(account, tokenIds, amounts);
-    }
-
-    function deposit(address account, bytes calldata depositData) external {
+    function deposit(
+        address account,
+        bytes calldata depositData
+    ) external {
+        require(bridgeRoutePrecisionFinalized, "bridge route precision not finalized");
+        require(!bridgeDepositsClosed, "bridge deposits closed");
         require(msg.sender == bridgeDepositor, "only bridge depositor");
         require(hasRole(BRIDGE_MINTER_ROLE, msg.sender), "missing bridge role");
         require(account != address(0), "invalid account");
@@ -143,22 +190,49 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         _mint(account, tokenId, scaledAmount / route.scaleDenominator, "");
     }
 
-    function withdrawSingle(uint256 tokenId, uint256 amount) external {
+    function withdrawSingle(
+        uint256 tokenId,
+        uint256 amount
+    ) external {
+        _withdrawSingle(tokenId, amount, msg.sender, msg.sender);
+    }
+
+    function withdrawSingle(
+        uint256 tokenId,
+        uint256 amount,
+        address recipient
+    ) external {
+        _withdrawSingle(tokenId, amount, msg.sender, recipient);
+    }
+
+    function _withdrawSingle(
+        uint256 tokenId,
+        uint256 amount,
+        address redeemer,
+        address recipient
+    ) internal {
+        require(bridgeRoutePrecisionFinalized, "bridge route precision not finalized");
         require(_isSupportedTokenId(tokenId), "unsupported token id");
         require(amount != 0, "invalid amount");
+        require(recipient != address(0), "invalid recipient");
         RoutePrecision memory route = _route(tokenId);
         uint256 scaledAmount = amount * route.scaleDenominator;
         require(scaledAmount % route.scaleNumerator == 0, "non exact withdraw");
         uint256 rootAmount = scaledAmount / route.scaleNumerator;
         require(rootAmount % route.rootUnit == 0, "invalid route divisibility");
-        _burn(msg.sender, tokenId, amount);
+        _burn(redeemer, tokenId, amount);
+        emit GoldRedemptionRequested(redeemer, recipient, tokenId, amount, rootAmount);
     }
 
-    function _isSupportedTokenId(uint256 tokenId) internal pure returns (bool) {
+    function _isSupportedTokenId(
+        uint256 tokenId
+    ) internal pure returns (bool) {
         return tokenId == PAXG_TOKEN_ID || tokenId == XAUT_TOKEN_ID;
     }
 
-    function _route(uint256 tokenId) internal view returns (RoutePrecision memory) {
+    function _route(
+        uint256 tokenId
+    ) internal view returns (RoutePrecision memory) {
         RoutePrecision memory route = bridgeRoutePrecision[tokenId];
         require(route.enabled, "route not configured");
         return route;
@@ -185,14 +259,7 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
             rootUnit: rootUnit
         });
 
-        emit BridgeRoutePrecisionSet(
-            tokenId,
-            rootDecimals,
-            goldDecimals,
-            scaleNumerator_,
-            scaleDenominator_,
-            rootUnit
-        );
+        emit BridgeRoutePrecisionSet(tokenId, rootDecimals, goldDecimals, scaleNumerator_, scaleDenominator_, rootUnit);
     }
 
     function _beforeTokenTransfer(
@@ -206,7 +273,9 @@ contract PhysicalGold1155 is ERC1155, ERC1155Supply, AccessControl {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC1155, AccessControl) returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

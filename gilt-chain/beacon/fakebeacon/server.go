@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/internal/ethapi"
 	"github.com/gorilla/mux"
-	"github.com/prysmaticlabs/prysm/v5/api/server/middleware"
 )
 
 const (
@@ -58,7 +57,6 @@ func (s *Service) Run() {
 
 func (s *Service) newRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.Use(middleware.NormalizeQueryValuesHandler)
 	for _, e := range s.endpoints() {
 		r.HandleFunc(e.path, e.handler).Methods(e.methods...)
 	}

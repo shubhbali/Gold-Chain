@@ -1080,6 +1080,10 @@ func upgradeBuildInSystemContract(config *params.ChainConfig, blockNumber *big.I
 	if config == nil || blockNumber == nil || statedb == nil || reflect.ValueOf(statedb).IsNil() {
 		return
 	}
+	if config.DisableHistoricalSystemContractUpgrades {
+		log.Debug("Skip historical system-contract upgrades for final Gold Chain config", "height", blockNumber.String())
+		return
+	}
 
 	var network string
 	switch GenesisHash {
@@ -1197,7 +1201,9 @@ func applySystemContractUpgrade(upgrade *Upgrade, blockNumber *big.Int, statedb 
 			}
 		}
 
-		newContractCode, err := hex.DecodeString(strings.TrimSpace(cfg.Code))
+		code := strings.TrimSpace(cfg.Code)
+		code = strings.TrimPrefix(strings.TrimPrefix(code, "0x"), "0X")
+		newContractCode, err := hex.DecodeString(code)
 		if err != nil {
 			panic(fmt.Errorf("failed to decode new contract code: %s", err.Error()))
 		}

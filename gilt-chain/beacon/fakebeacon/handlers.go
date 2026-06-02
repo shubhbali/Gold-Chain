@@ -1,14 +1,12 @@
 package fakebeacon
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/prysmaticlabs/prysm/v5/api/server/structs"
-	"github.com/prysmaticlabs/prysm/v5/network/httputil"
 )
 
 const MaxBlobsPerBlock = 6
@@ -20,42 +18,64 @@ var (
 	sidecarsMethodPrefix = "/eth/v1/beacon/blob_sidecars/{slot}"
 )
 
+type versionResponse struct {
+	Data versionData `json:"data"`
+}
+
+type versionData struct {
+	Version string `json:"version"`
+}
+
+type specResponse struct {
+	Data ReducedConfigData `json:"data"`
+}
+
+type errorResponse struct {
+	Message string `json:"message"`
+}
+
+func writeJSON(w http.ResponseWriter, resp interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func handleError(w http.ResponseWriter, message string, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(errorResponse{Message: message})
+}
+
 func VersionMethod(w http.ResponseWriter, r *http.Request) {
-	resp := &structs.GetVersionResponse{
-		Data: &structs.Version{
-			Version: "",
-		},
-	}
-	httputil.WriteJson(w, resp)
+	writeJSON(w, &versionResponse{Data: versionData{Version: ""}})
 }
 
 func SpecMethod(w http.ResponseWriter, r *http.Request) {
-	httputil.WriteJson(w, &structs.GetSpecResponse{Data: configSpec()})
+	writeJSON(w, &specResponse{Data: configSpec()})
 }
 
 func GenesisMethod(w http.ResponseWriter, r *http.Request) {
-	httputil.WriteJson(w, beaconGenesis())
+	writeJSON(w, beaconGenesis())
 }
 
 func (s *Service) SidecarsMethod(w http.ResponseWriter, r *http.Request) {
 	indices, err := parseIndices(r.URL)
 	if err != nil {
-		httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+		handleError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	segments := strings.Split(r.URL.Path, "/")
 	slot, err := strconv.ParseUint(segments[len(segments)-1], 10, 64)
 	if err != nil {
-		httputil.HandleError(w, "not a valid slot(timestamp)", http.StatusBadRequest)
+		handleError(w, "not a valid slot(timestamp)", http.StatusBadRequest)
 		return
 	}
 
 	resp, err := beaconBlobSidecars(r.Context(), s.backend, slot, indices)
 	if err != nil {
-		httputil.HandleError(w, err.Error(), http.StatusBadRequest)
+		handleError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	httputil.WriteJson(w, resp)
+	writeJSON(w, resp)
 }
 
 // parseIndices filters out invalid and duplicate blob indices

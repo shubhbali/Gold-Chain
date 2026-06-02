@@ -70,6 +70,110 @@ func TestAPIsExposeBorNamespace(t *testing.T) {
 	}
 }
 
+func TestFinalGoldParliaSystemTxTargetsExcludeLegacyBSCBridgeAddresses(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		config *params.ChainConfig
+	}{
+		{name: "GILT mainnet", config: params.GILTChainConfig},
+		{name: "Chapel", config: params.ChapelChainConfig},
+	} {
+		engine := New(tc.config, rawdb.NewMemoryDatabase(), nil, common.Hash{}, BridgeConfig{})
+		for target, targetName := range legacyBSCBridgeSystemTargets() {
+			target := target
+			if engine.IsSystemContract(&target) {
+				t.Fatalf("%s Parlia system tx allowlist still privileges inert legacy BSC bridge target %s (%s)",
+					tc.name, targetName, target.Hex())
+			}
+		}
+	}
+}
+
+func TestFinalGoldBlockOneInitTargetsOnlyActiveCoreContracts(t *testing.T) {
+	coinbase := common.HexToAddress("0x1000000000000000000000000000000000000001")
+	header := &types.Header{
+		Number:     common.Big1,
+		ParentHash: common.Hash{},
+		Coinbase:   coinbase,
+		Difficulty: diffInTurn,
+		GasLimit:   30_000_000,
+	}
+	statedb, err := state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
+	if err != nil {
+		t.Fatalf("failed to create stateDB: %v", err)
+	}
+
+	engine := New(params.GILTChainConfig, rawdb.NewMemoryDatabase(), nil, common.Hash{}, BridgeConfig{})
+	engine.val = coinbase
+	initTargets := make([]common.Address, 0)
+	engine.signTxFn = func(_ accounts.Account, tx *types.Transaction, _ *big.Int) (*types.Transaction, error) {
+		if tx.To() == nil {
+			t.Fatal("block-1 init emitted contract creation instead of a system tx target")
+		}
+		initTargets = append(initTargets, *tx.To())
+		return tx, nil
+	}
+
+	txs := make([]*types.Transaction, 0)
+	receipts := make([]*types.Receipt, 0)
+	usedGas := uint64(0)
+	if err := engine.initContract(statedb, header, blockOneInitChain{config: params.GILTChainConfig, engine: engine}, &txs, &receipts, nil, &usedGas, true, nil); err != nil {
+		t.Fatalf("block-1 init failed: %v", err)
+	}
+	if len(initTargets) == 0 {
+		t.Fatal("block-1 init did not emit any system tx targets")
+	}
+
+	finalCoreTargets := finalGoldActiveCoreSystemTargets()
+	for _, target := range initTargets {
+		if legacyName, ok := legacyBSCBridgeSystemTargets()[target]; ok {
+			t.Fatalf("block-1 init targets inert legacy BSC bridge contract %s (%s)", legacyName, target.Hex())
+		}
+		if !finalCoreTargets[target] {
+			t.Fatalf("block-1 init targets non-final core contract %s", target.Hex())
+		}
+	}
+}
+
+func legacyBSCBridgeSystemTargets() map[common.Address]string {
+	return map[common.Address]string{
+		common.HexToAddress(systemcontracts.LightClientContract):        "LightClientContract",
+		common.HexToAddress(systemcontracts.TokenHubContract):           "TokenHubContract",
+		common.HexToAddress(systemcontracts.RelayerIncentivizeContract): "RelayerIncentivizeContract",
+		common.HexToAddress(systemcontracts.RelayerHubContract):         "RelayerHubContract",
+		common.HexToAddress(systemcontracts.TokenManagerContract):       "TokenManagerContract",
+		common.HexToAddress(systemcontracts.CrossChainContract):         "CrossChainContract",
+	}
+}
+
+func finalGoldActiveCoreSystemTargets() map[common.Address]bool {
+	targets := make(map[common.Address]bool, len(systemContracts))
+	for target := range systemContracts {
+		targets[target] = true
+	}
+	for target := range legacyBSCBridgeSystemTargets() {
+		delete(targets, target)
+	}
+	return targets
+}
+
+type blockOneInitChain struct {
+	config *params.ChainConfig
+	engine consensus.Engine
+}
+
+func (c blockOneInitChain) Config() *params.ChainConfig { return c.config }
+
+func (c blockOneInitChain) CurrentHeader() *types.Header { return nil }
+
+func (c blockOneInitChain) GetHeader(common.Hash, uint64) *types.Header { return nil }
+
+func (c blockOneInitChain) GetHeaderByNumber(uint64) *types.Header { return nil }
+
+func (c blockOneInitChain) GetHeaderByHash(common.Hash) *types.Header { return nil }
+
+func (c blockOneInitChain) Engine() consensus.Engine { return c.engine }
+
 // refer Snapshot.SignRecently
 func signRecently(idx int, recents map[uint64]int, turnLength int) bool {
 	recentSignTimes := 0
@@ -662,6 +766,7 @@ func TestParlia_applyTransactionTracing(t *testing.T) {
 		t.Fatalf("failed to create database with ancient backend")
 	}
 
+	defer db.Close()
 	trieDB := triedb.NewDatabase(db, nil)
 	defer trieDB.Close()
 
@@ -736,6 +841,54 @@ func TestParlia_applyTransactionTracing(t *testing.T) {
 
 	if !slices.Equal(recording.records, expectedRecords) {
 		t.Errorf("expected \n%s\n\ngot\n\n%s", formatRecords(recording.records), formatRecords(expectedRecords))
+	}
+}
+
+func TestFinalGoldSystemContractsExcludeReservedLegacyBridgeAddresses(t *testing.T) {
+	active := []string{
+		systemcontracts.ValidatorContract,
+		systemcontracts.SlashContract,
+		systemcontracts.SystemRewardContract,
+		systemcontracts.GovHubContract,
+		systemcontracts.StakeHubContract,
+		systemcontracts.GovernorContract,
+		systemcontracts.GovTokenContract,
+		systemcontracts.TimelockContract,
+	}
+	for _, addr := range active {
+		if !isToSystemContract(common.HexToAddress(addr)) {
+			t.Fatalf("expected active final core system contract %s", addr)
+		}
+	}
+
+	reservedLegacy := []string{
+		systemcontracts.LightClientContract,
+		systemcontracts.TokenHubContract,
+		systemcontracts.RelayerIncentivizeContract,
+		systemcontracts.RelayerHubContract,
+		systemcontracts.TokenManagerContract,
+		systemcontracts.CrossChainContract,
+		systemcontracts.StakingContract,
+		systemcontracts.GeneralNativeTokenManager,
+		systemcontracts.TokenRecoverPortalContract,
+		systemcontracts.StateReceiverContract,
+		systemcontracts.NativeGiltBridgeContract,
+	}
+	for _, addr := range reservedLegacy {
+		if isToSystemContract(common.HexToAddress(addr)) {
+			t.Fatalf("reserved legacy address must not be a privileged system tx target: %s", addr)
+		}
+	}
+}
+
+func TestFinalGoldInitialSystemContractsExcludeReservedLegacyBridgeContracts(t *testing.T) {
+	want := []string{
+		systemcontracts.ValidatorContract,
+		systemcontracts.SlashContract,
+	}
+	got := initialSystemContracts()
+	if !slices.Equal(got, want) {
+		t.Fatalf("unexpected initial system contracts: got %v want %v", got, want)
 	}
 }
 

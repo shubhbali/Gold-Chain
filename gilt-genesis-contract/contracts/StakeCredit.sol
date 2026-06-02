@@ -82,7 +82,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
      * @param _validator validator's operator address
      * @param _moniker validator's moniker
      */
-    function initialize(address _validator, string calldata _moniker) external payable initializer onlyStakeHub {
+    function initialize(
+        address _validator,
+        string calldata _moniker
+    ) external payable initializer onlyStakeHub {
         string memory name_ = string.concat("Stake ", _moniker, " Credit");
         string memory symbol_ = string.concat("st", _moniker);
         __ERC20_init_unchained(name_, symbol_);
@@ -111,7 +114,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
      * @param shares the amount of shares to be undelegated
      * @return giltAmount the amount of GILT to be unlocked
      */
-    function undelegate(address delegator, uint256 shares) external onlyStakeHub returns (uint256 giltAmount) {
+    function undelegate(
+        address delegator,
+        uint256 shares
+    ) external onlyStakeHub returns (uint256 giltAmount) {
         if (shares == 0) revert ZeroShares();
         if (shares > balanceOf(delegator)) revert InsufficientBalance();
 
@@ -133,7 +139,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
      * @param shares the amount of shares to be undelegated
      * @return giltAmount the amount of GILT unlocked
      */
-    function unbond(address delegator, uint256 shares) external onlyStakeHub returns (uint256 giltAmount) {
+    function unbond(
+        address delegator,
+        uint256 shares
+    ) external onlyStakeHub returns (uint256 giltAmount) {
         if (shares == 0) revert ZeroShares();
         if (shares > balanceOf(delegator)) revert InsufficientBalance();
 
@@ -148,7 +157,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
      * @param number the number of unbond requests to be claimed. 0 means claim all
      * @return _totalGiltAmount the total amount of GILT claimed
      */
-    function claim(address payable delegator, uint256 number) external onlyStakeHub nonReentrant returns (uint256) {
+    function claim(
+        address payable delegator,
+        uint256 number
+    ) external onlyStakeHub nonReentrant returns (uint256) {
         // number == 0 means claim all
         // number should not exceed the length of the queue
         if (_unbondRequestsQueue[delegator].length() == 0) revert NoUnbondRequest();
@@ -245,7 +257,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
     /**
      * @return the unbond request at _index.
      */
-    function unbondRequest(address delegator, uint256 _index) public view returns (UnbondRequest memory) {
+    function unbondRequest(
+        address delegator,
+        uint256 _index
+    ) public view returns (UnbondRequest memory) {
         bytes32 hash = _unbondRequestsQueue[delegator].at(_index);
         return _unbondRequests[hash];
     }
@@ -282,7 +297,10 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
     /**
      * @return the sum of first `number` requests' GILT locked in delegator's unbond queue.
      */
-    function lockedGILTs(address delegator, uint256 number) public view returns (uint256) {
+    function lockedGILTs(
+        address delegator,
+        uint256 number
+    ) public view returns (uint256) {
         // number == 0 means all
         // number should not exceed the length of the queue
         if (_unbondRequestsQueue[delegator].length() == 0) {
@@ -337,14 +355,20 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
         totalPooledGILT = initAmount;
     }
 
-    function _mintAndSync(address account, uint256 giltAmount) internal returns (uint256 shares) {
+    function _mintAndSync(
+        address account,
+        uint256 giltAmount
+    ) internal returns (uint256 shares) {
         // shares here could be zero
         shares = getSharesByPooledGILT(giltAmount);
         _mint(account, shares);
         totalPooledGILT += giltAmount;
     }
 
-    function _burnAndSync(address account, uint256 shares) internal returns (uint256 giltAmount) {
+    function _burnAndSync(
+        address account,
+        uint256 shares
+    ) internal returns (uint256 giltAmount) {
         giltAmount = getPooledGILTByShares(shares);
         _burn(account, shares);
         totalPooledGILT -= giltAmount;
@@ -358,11 +382,19 @@ contract StakeCredit is SystemV2, Initializable, ReentrancyGuardUpgradeable, ERC
         sequence.increment();
     }
 
-    function _transfer(address, address, uint256) internal pure override {
+    function _transfer(
+        address,
+        address,
+        uint256
+    ) internal pure override {
         revert TransferNotAllowed();
     }
 
-    function _approve(address, address, uint256) internal pure override {
+    function _approve(
+        address,
+        address,
+        uint256
+    ) internal pure override {
         revert ApproveNotAllowed();
     }
 }

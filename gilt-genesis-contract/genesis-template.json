@@ -1,6 +1,7 @@
 {
   "config": {
     "chainId": {{chainId}},
+    "disableHistoricalSystemContractUpgrades": true,
     "homesteadBlock": 0,
     "eip150Block": 0,
     "eip155Block": 0,
@@ -64,7 +65,8 @@
     },
     "0x0000000000000000000000000000000000001000": {
       "balance": "0x0",
-      "code": "{{validatorContract}}"
+      "code": "{{validatorContract}}",
+      "storage": {{ validatorSetGenesisStorage | safe }}
     },
     "0x0000000000000000000000000000000000001001": {
       "balance": "0x0",
@@ -79,7 +81,7 @@
       "code": "{{tendermintLightClient}}"
     },
     "0x0000000000000000000000000000000000001004": {
-      "balance": "{{initLockedGILTOnTokenHub}}",
+      "balance": "0x0",
       "code": "{{tokenHub}}"
     },
     "0x0000000000000000000000000000000000001005": {
@@ -108,7 +110,44 @@
     },
     "0x0000000000000000000000000000000000002002": {
       "balance": "0x0",
-      "code": "{{stakeHub}}"
+      "code": "{{stakeHub}}",
+      "storage": {{ stakeHubGenesisStorage | safe }}
+    },
+    "0x0000000000000000000000000000000000002010": {
+      "balance": "0x0",
+      "code": "{{stakeHubValidatorsModule}}"
+    },
+    "0x0000000000000000000000000000000000002011": {
+      "balance": "0x0",
+      "code": "{{stakeHubGiltStakingModule}}"
+    },
+    "0x0000000000000000000000000000000000002012": {
+      "balance": "0x0",
+      "code": "{{stakeHubGoldStakingModule}}"
+    },
+    "0x0000000000000000000000000000000000002013": {
+      "balance": "0x0",
+      "code": "{{stakeHubRewardsModule}}"
+    },
+    "0x0000000000000000000000000000000000002014": {
+      "balance": "0x0",
+      "code": "{{stakeHubInflationModule}}"
+    },
+    "0x0000000000000000000000000000000000002015": {
+      "balance": "0x0",
+      "code": "{{stakeHubSlashingModule}}"
+    },
+    "0x0000000000000000000000000000000000002016": {
+      "balance": "0x0",
+      "code": "{{stakeHubMigrationModule}}"
+    },
+    "0x0000000000000000000000000000000000002017": {
+      "balance": "0x0",
+      "code": "{{stakeHubParamsModule}}"
+    },
+    "0x0000000000000000000000000000000000002018": {
+      "balance": "0x0",
+      "code": "{{stakeHubValidatorViewsModule}}"
     },
     "0x0000000000000000000000000000000000002003": {
       "balance": "0x0",
@@ -137,6 +176,11 @@
     "0x0000000000000000000000000000000000003002": {
       "balance": "0x0",
       "code": "{{nativeGiltBridge}}"
+    },
+    "{{goldAddress}}": {
+      "balance": "0x0",
+      "code": "{{physicalGold1155}}",
+      "storage": {{ physicalGoldGenesisStorage | safe }}
     }{% for v in initHolders %},
     "{{ v.address.replace('0x', '') }}": {
       "balance": "0x{{ v.balance }}"

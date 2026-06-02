@@ -22,21 +22,38 @@ const SYSTEM_CONTRACTS = [
   { name: "GiltValidatorSet", abiFile: "giltvalidatorset.abi", expectedSolc: "0.6.4" },
   { name: "SlashIndicator", abiFile: "slashindicator.abi", expectedSolc: "0.6.4" },
   { name: "SystemReward", abiFile: "systemreward.abi", expectedSolc: "0.6.4" },
-  { name: "TendermintLightClient", abiFile: "tendermintlightclient.abi", expectedSolc: "0.6.4" },
-  { name: "TokenHub", abiFile: "tokenhub.abi", expectedSolc: "0.6.4" },
-  { name: "RelayerIncentivize", abiFile: "relayerincentivize.abi", expectedSolc: "0.6.4" },
-  { name: "RelayerHub", abiFile: "relayerhub.abi", expectedSolc: "0.6.4" },
   { name: "GovHub", abiFile: "govhub.abi", expectedSolc: "0.6.4" },
-  { name: "TokenManager", abiFile: "tokenmanager.abi", expectedSolc: "0.6.4" },
-  { name: "CrossChain", abiFile: "crosschain.abi", expectedSolc: "0.6.4" },
-  { name: "Staking", abiFile: "staking.abi", expectedSolc: "0.6.4" },
   { name: "StakeHub", abiFile: "stakehub.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubValidators", abiFile: "stakehubvalidators.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubGiltStaking", abiFile: "stakehubgiltstaking.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubGoldStaking", abiFile: "stakehubgoldstaking.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubRewards", abiFile: "stakehubrewards.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubInflation", abiFile: "stakehubinflation.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubSlashing", abiFile: "stakehubslashing.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubMigration", abiFile: "stakehubmigration.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubParams", abiFile: "stakehubparams.abi", expectedSolc: "0.8.17" },
+  { name: "StakeHubValidatorViews", abiFile: "stakehubvalidatorviews.abi", expectedSolc: "0.8.17" },
   { name: "StakeCredit", abiFile: "stakecredit.abi", expectedSolc: "0.8.17" },
   { name: "GiltGovernor", abiFile: "giltgovernor.abi", expectedSolc: "0.8.17" },
   { name: "GovToken", abiFile: "govtoken.abi", expectedSolc: "0.8.17" },
   { name: "GiltTimelock", abiFile: "gilttimelock.abi", expectedSolc: "0.8.17" },
-  { name: "TokenRecoverPortal", abiFile: "tokenrecoverportal.abi", expectedSolc: "0.8.17" },
+  { name: "PhysicalGold1155", abiFile: "physicalgold1155.abi", expectedSolc: "0.8.17" },
 ];
+
+const EXPECTED_ABI_FILES = new Set(SYSTEM_CONTRACTS.map((contract) => contract.abiFile));
+const SNAPSHOT_MISSING_FILE = "__ABI_INTEGRITY_MISSING_FILE__";
+
+const STAKE_HUB_MODULE_NAMES = new Set([
+  "StakeHubValidators",
+  "StakeHubGiltStaking",
+  "StakeHubGoldStaking",
+  "StakeHubRewards",
+  "StakeHubInflation",
+  "StakeHubSlashing",
+  "StakeHubMigration",
+  "StakeHubParams",
+  "StakeHubValidatorViews",
+]);
 
 const SOLC_VERSION_BY_PREFIX = {
   "0.6.4": "0.6.4+commit.1dca32f3",
@@ -108,6 +125,51 @@ function writeIfChanged(filePath, content) {
   return false;
 }
 
+function snapshotFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return SNAPSHOT_MISSING_FILE;
+  }
+  return fs.readFileSync(filePath, "utf8");
+}
+
+function snapshotGeneratedOutputs() {
+  const files = [MANIFEST_PATH, PARLIA_ABI_GO];
+  if (fs.existsSync(ABI_ROOT)) {
+    for (const entry of fs.readdirSync(ABI_ROOT)) {
+      if (entry.endsWith(".abi")) {
+        files.push(path.join(ABI_ROOT, entry));
+      }
+    }
+  }
+  for (const abiFile of EXPECTED_ABI_FILES) {
+    files.push(path.join(ABI_ROOT, abiFile));
+  }
+
+  const uniqueFiles = [...new Set(files)].sort();
+  const snapshot = new Map();
+  for (const filePath of uniqueFiles) {
+    snapshot.set(filePath, snapshotFile(filePath));
+  }
+  return snapshot;
+}
+
+function assertGeneratedOutputsUnchanged(before) {
+  const after = snapshotGeneratedOutputs();
+  const allFiles = [...new Set([...before.keys(), ...after.keys()])].sort();
+  const changed = [];
+  for (const filePath of allFiles) {
+    const oldContent = before.has(filePath) ? before.get(filePath) : SNAPSHOT_MISSING_FILE;
+    const newContent = after.has(filePath) ? after.get(filePath) : SNAPSHOT_MISSING_FILE;
+    if (oldContent !== newContent) {
+      changed.push(path.relative(GENESIS_ROOT, filePath).replace(/\\/g, "/"));
+    }
+  }
+
+  if (changed.length > 0) {
+    throw new Error(`ABI regeneration is not idempotent. Run npm run abi:export.\n${changed.join("\n")}`);
+  }
+}
+
 function runOrThrow(command, args, cwd) {
   execFileSync(command, args, {
     cwd,
@@ -125,6 +187,61 @@ function runCapture(command, args, cwd) {
 
 function artifactPath(contractName) {
   return path.join(OUT_ROOT, `${contractName}.sol`, `${contractName}.json`);
+}
+
+function readAbiFromArtifactOrFallback(contract, allowExistingAbiFallback) {
+  const aPath = artifactPath(contract.name);
+  if (fs.existsSync(aPath)) {
+    const artifact = readJson(aPath);
+    const compilerVersion = compilerVersionOf(artifact);
+    assertCompilerVersion(contract.name, contract.expectedSolc, compilerVersion);
+    return { compilerVersion, abi: normalizeAbi(artifact.abi) };
+  }
+
+  if (!allowExistingAbiFallback) {
+    throw new Error(`Missing artifact: ${aPath}. Run forge build first.`);
+  }
+
+  const existingAbiPath = path.join(ABI_ROOT, contract.abiFile);
+  if (!fs.existsSync(existingAbiPath)) {
+    throw new Error(`Missing artifact and fallback ABI: ${aPath} and ${existingAbiPath}`);
+  }
+  const compilerVersion = SOLC_VERSION_BY_PREFIX[contract.expectedSolc] || `${contract.expectedSolc}+fallback`;
+  return { compilerVersion, abi: normalizeAbi(readJson(existingAbiPath)) };
+}
+
+function abiItemKey(item) {
+  if (item.type === "function" || item.type === "event" || item.type === "error") {
+    const iface = new Interface([item]);
+    const fragment = iface.fragments[0];
+    return `${item.type}:${fragment.format("sighash")}`;
+  }
+  if (item.type === "fallback" || item.type === "receive") {
+    return item.type;
+  }
+  return `${item.type}:${item.name || ""}:${stableJson(item.inputs || [])}`;
+}
+
+function mergeAbiItems(abis) {
+  const seen = new Set();
+  const merged = [];
+  for (const abi of abis) {
+    for (const item of abi) {
+      const key = abiItemKey(item);
+      if (!seen.has(key)) {
+        seen.add(key);
+        merged.push(item);
+      }
+    }
+  }
+  return normalizeAbi(merged);
+}
+
+function mergedStakeHubAbi(baseAbi, allowExistingAbiFallback) {
+  const moduleAbis = SYSTEM_CONTRACTS.filter((contract) => STAKE_HUB_MODULE_NAMES.has(contract.name)).map(
+    (contract) => readAbiFromArtifactOrFallback(contract, allowExistingAbiFallback).abi,
+  );
+  return mergeAbiItems([baseAbi, ...moduleAbis]);
 }
 
 function compilerVersionOf(artifact) {
@@ -279,7 +396,7 @@ function assertNoManualInlineAbiArrays() {
   }
 }
 
-function writeParliaCurrentAbis(canonicalValidatorSetJson, canonicalStakeHubJson) {
+function writeParliaCurrentAbis(canonicalValidatorSetJson, canonicalSlashJson, canonicalStakeHubJson) {
   const currentContent = readText(PARLIA_ABI_GO);
   const beforeLuban = parseBacktickConst(currentContent, "validatorSetABIBeforeLuban");
 
@@ -291,25 +408,33 @@ const validatorSetABIBeforeLuban = \`${beforeLuban}\`
 
 const validatorSetABI = \`${canonicalValidatorSetJson}\`
 
+const slashABI = \`${canonicalSlashJson}\`
+
 const stakeABI = \`${canonicalStakeHubJson}\`
 `;
 
   writeIfChanged(PARLIA_ABI_GO, next);
 }
 
-function verifyParliaCurrentAbiAlignment(canonicalValidatorSetJson, canonicalStakeHubJson) {
+function verifyParliaCurrentAbiAlignment(canonicalValidatorSetJson, canonicalSlashJson, canonicalStakeHubJson) {
   const content = readText(PARLIA_ABI_GO);
   const embeddedValidatorSet = parseBacktickConst(content, "validatorSetABI");
+  const embeddedSlash = parseBacktickConst(content, "slashABI");
   const embeddedStakeHub = parseBacktickConst(content, "stakeABI");
 
   const canonicalValidatorSet = normalizeAbiJsonString(canonicalValidatorSetJson);
+  const canonicalSlash = normalizeAbiJsonString(canonicalSlashJson);
   const canonicalStakeHub = normalizeAbiJsonString(canonicalStakeHubJson);
 
   const embeddedValidatorSetNormalized = normalizeAbiJsonString(embeddedValidatorSet);
+  const embeddedSlashNormalized = normalizeAbiJsonString(embeddedSlash);
   const embeddedStakeHubNormalized = normalizeAbiJsonString(embeddedStakeHub);
 
   if (embeddedValidatorSetNormalized !== canonicalValidatorSet) {
     throw new Error("Parlia validatorSetABI does not match canonical giltvalidatorset.abi");
+  }
+  if (embeddedSlashNormalized !== canonicalSlash) {
+    throw new Error("Parlia slashABI does not match canonical slashindicator.abi");
   }
   if (embeddedStakeHubNormalized !== canonicalStakeHub) {
     throw new Error("Parlia stakeABI does not match canonical stakehub.abi");
@@ -325,24 +450,9 @@ function exportCanonicalAbis({ skipBuild, allowExistingAbiFallback }) {
   const generatedAbiByFile = new Map();
 
   for (const contract of SYSTEM_CONTRACTS) {
-    const aPath = artifactPath(contract.name);
-    let compilerVersion = "";
-    let normalizedAbi;
-    if (fs.existsSync(aPath)) {
-      const artifact = readJson(aPath);
-      compilerVersion = compilerVersionOf(artifact);
-      assertCompilerVersion(contract.name, contract.expectedSolc, compilerVersion);
-      normalizedAbi = normalizeAbi(artifact.abi);
-    } else {
-      if (!allowExistingAbiFallback) {
-        throw new Error(`Missing artifact: ${aPath}. Run forge build first.`);
-      }
-      const existingAbiPath = path.join(ABI_ROOT, contract.abiFile);
-      if (!fs.existsSync(existingAbiPath)) {
-        throw new Error(`Missing artifact and fallback ABI: ${aPath} and ${existingAbiPath}`);
-      }
-      compilerVersion = SOLC_VERSION_BY_PREFIX[contract.expectedSolc] || `${contract.expectedSolc}+fallback`;
-      normalizedAbi = normalizeAbi(readJson(existingAbiPath));
+    let { compilerVersion, abi: normalizedAbi } = readAbiFromArtifactOrFallback(contract, allowExistingAbiFallback);
+    if (contract.name === "StakeHub") {
+      normalizedAbi = mergedStakeHubAbi(normalizedAbi, allowExistingAbiFallback);
     }
     const abiJson = `${JSON.stringify(normalizedAbi)}\n`;
     const abiPath = path.join(ABI_ROOT, contract.abiFile);
@@ -370,45 +480,24 @@ function exportCanonicalAbis({ skipBuild, allowExistingAbiFallback }) {
   writeIfChanged(MANIFEST_PATH, `${JSON.stringify(stableValue(manifest), null, 2)}\n`);
 
   const canonicalValidatorSetJson = generatedAbiByFile.get("giltvalidatorset.abi");
+  const canonicalSlashJson = generatedAbiByFile.get("slashindicator.abi");
   const canonicalStakeHubJson = generatedAbiByFile.get("stakehub.abi");
-  if (!canonicalValidatorSetJson || !canonicalStakeHubJson) {
-    throw new Error("Canonical StakeHub/GiltValidatorSet ABI export missing");
+  if (!canonicalValidatorSetJson || !canonicalSlashJson || !canonicalStakeHubJson) {
+    throw new Error("Canonical StakeHub/SlashIndicator/GiltValidatorSet ABI export missing");
   }
 
-  writeParliaCurrentAbis(canonicalValidatorSetJson, canonicalStakeHubJson);
-  verifyParliaCurrentAbiAlignment(canonicalValidatorSetJson, canonicalStakeHubJson);
+  writeParliaCurrentAbis(canonicalValidatorSetJson, canonicalSlashJson, canonicalStakeHubJson);
+  verifyParliaCurrentAbiAlignment(canonicalValidatorSetJson, canonicalSlashJson, canonicalStakeHubJson);
   assertNoManualInlineAbiArrays();
   failOnCaseVariantTrackedAbis();
 }
 
-function assertGitCleanAfterRegeneration() {
-  const trackedTargets = [
-    "abi",
-    "scripts/abi-integrity.js",
-    "scripts/live-roughnet-gold-flow.js",
-    "scripts/check-gold-migration-state.js",
-    "scripts/activate-gold-migration.js",
-    "../gilt-chain/consensus/parlia/abi.go",
-    "../gilt-chain/cmd/jsutils/getchainstatus.js",
-    "../bridge/pos-portal/scripts/deploy-live-bridge.mjs",
-  ];
-
-  const status = runCapture("git", ["status", "--short", "--", ...trackedTargets], GENESIS_ROOT)
-    .split(/\r?\n/)
-    .filter(Boolean);
-
-  if (status.length > 0) {
-    throw new Error(
-      `ABI regeneration produced uncommitted changes. Run npm run abi:export and commit results.\n${status.join("\n")}`,
-    );
-  }
-}
-
 function main() {
   const { command, skipBuild, allowExistingAbiFallback } = parseArgs();
+  const generatedOutputSnapshot = command === "check" ? snapshotGeneratedOutputs() : null;
   exportCanonicalAbis({ skipBuild, allowExistingAbiFallback });
   if (command === "check") {
-    assertGitCleanAfterRegeneration();
+    assertGeneratedOutputsUnchanged(generatedOutputSnapshot);
   }
   console.log(`ABI integrity ${command} completed successfully.`);
 }

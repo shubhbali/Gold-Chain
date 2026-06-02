@@ -10,7 +10,7 @@ contract GovHub is System, IApplication {
 
     event failReasonWithStr(string message);
     event failReasonWithBytes(bytes message);
-    event paramChange(string key, bytes value);  // @dev deprecated
+    event paramChange(string key, bytes value); // @dev deprecated
 
     struct ParamChangePackage {
         string key;
@@ -20,27 +20,39 @@ contract GovHub is System, IApplication {
 
     function handleSynPackage(
         uint8,
-        bytes calldata msgBytes
-    ) external override onlyCrossChainContract returns (bytes memory responsePayload) {
+        bytes calldata
+    ) external override onlyCrossChainContract returns (bytes memory) {
         revert("deprecated");
     }
 
     // should not happen
-    function handleAckPackage(uint8, bytes calldata) external override onlyCrossChainContract {
+    function handleAckPackage(
+        uint8,
+        bytes calldata
+    ) external override onlyCrossChainContract {
         revert("deprecated");
     }
 
     // should not happen
-    function handleFailAckPackage(uint8, bytes calldata) external override onlyCrossChainContract {
+    function handleFailAckPackage(
+        uint8,
+        bytes calldata
+    ) external override onlyCrossChainContract {
         revert("deprecated");
     }
 
-    function updateParam(string calldata key, bytes calldata value, address target) external onlyGovernorTimelock {
+    function updateParam(
+        string calldata key,
+        bytes calldata value,
+        address target
+    ) external onlyGovernorTimelock {
         ParamChangePackage memory proposal = ParamChangePackage(key, value, target);
         notifyUpdates(proposal);
     }
 
-    function notifyUpdates(ParamChangePackage memory proposal) internal returns (uint32) {
+    function notifyUpdates(
+        ParamChangePackage memory proposal
+    ) internal returns (uint32) {
         if (!isContract(proposal.target)) {
             emit failReasonWithStr("the target is not a contract");
             return ERROR_TARGET_NOT_CONTRACT;

@@ -2,26 +2,16 @@
 pragma solidity ^0.8.10;
 
 interface GiltValidatorSet {
-    event batchTransfer(uint256 amount);
-    event batchTransferFailed(uint256 indexed amount, string reason);
-    event batchTransferLowerFailed(uint256 indexed amount, bytes reason);
     event deprecatedDeposit(address indexed validator, uint256 amount);
     event deprecatedFinalityRewardDeposit(address indexed validator, uint256 amount);
-    event directTransfer(address payable indexed validator, uint256 amount);
-    event directTransferFail(address payable indexed validator, uint256 amount);
-    event failReasonWithStr(string message);
     event feeBurned(uint256 amount);
     event finalityRewardDeposit(address indexed validator, uint256 amount);
     event paramChange(string key, bytes value);
     event systemTransfer(uint256 amount);
-    event tmpValidatorSetUpdated(uint256 validatorsNum);
-    event unexpectedPackage(uint8 channelId, bytes msgBytes);
     event validatorDeposit(address indexed validator, uint256 amount);
-    event validatorEmptyJailed(address indexed validator);
     event validatorEnterMaintenance(address indexed validator);
     event validatorExitMaintenance(address indexed validator);
     event validatorFelony(address indexed validator, uint256 amount);
-    event validatorJailed(address indexed validator);
     event validatorMisdemeanor(address indexed validator, uint256 amount);
     event validatorSetUpdated();
     event ConsensusEmergencyHalt(address indexed validator, uint256 haltTimestamp);
@@ -54,7 +44,6 @@ interface GiltValidatorSet {
     function INIT_MAX_NUM_OF_MAINTAINING() external view returns (uint256);
     function INIT_NUM_OF_CABINETS() external view returns (uint256);
     function INIT_SYSTEM_REWARD_RATIO() external view returns (uint256);
-    function INIT_VALIDATORSET_BYTES() external view returns (bytes memory);
     function JAIL_MESSAGE_TYPE() external view returns (uint8);
     function LIGHT_CLIENT_ADDR() external view returns (address);
     function MAX_NUM_OF_VALIDATORS() external view returns (uint256);
@@ -84,8 +73,12 @@ interface GiltValidatorSet {
     function consensusEmergencyHaltTimestamp() external view returns (uint256);
     function consensusEmergencyHaltValidator() external view returns (address);
     function burnRatioInitialized() external view returns (bool);
-    function canEnterMaintenance(uint256 index) external view returns (bool);
-    function currentValidatorSet(uint256)
+    function canEnterMaintenance(
+        uint256 index
+    ) external view returns (bool);
+    function currentValidatorSet(
+        uint256
+    )
         external
         view
         returns (
@@ -96,56 +89,90 @@ interface GiltValidatorSet {
             bool jailed,
             uint256 incoming
         );
-    function currentValidatorSetMap(address) external view returns (uint256);
-    function currentVoteAddrFullSet(uint256) external view returns (bytes memory);
-    function deposit(address valAddr) external payable;
-    function depositInflation(address valAddr) external payable;
-    function distributeFinalityReward(address[] memory valAddrs, uint256[] memory weights) external;
+    function currentValidatorSetMap(
+        address
+    ) external view returns (uint256);
+    function currentVoteAddrFullSet(
+        uint256
+    ) external view returns (bytes memory);
+    function deposit(
+        address valAddr
+    ) external payable;
+    function depositInflation(
+        address valAddr
+    ) external payable;
+    function distributeFinalityReward(
+        address[] memory valAddrs,
+        uint256[] memory weights
+    ) external;
     function enterMaintenance() external;
     function exitMaintenance() external;
     function expireTimeSecondGap() external view returns (uint256);
-    function felony(address validator) external;
-    function activateConsensusEmergencyHalt(address validator) external;
-    function getCurrentValidatorIndex(address validator) external view returns (uint256);
-    function getIncoming(address validator) external view returns (uint256);
+    function felony(
+        address validator
+    ) external;
+    function activateConsensusEmergencyHalt(
+        address validator
+    ) external;
+    function getCurrentValidatorIndex(
+        address validator
+    ) external view returns (uint256);
+    function getIncoming(
+        address validator
+    ) external view returns (uint256);
     function getLivingValidators() external view returns (address[] memory, bytes[] memory);
     function getMiningValidators() external view returns (address[] memory, bytes[] memory);
     function getTurnLength() external view returns (uint256);
     function getValidators() external view returns (address[] memory);
     function getWorkingValidatorCount() external view returns (uint256 workingValidatorCount);
-    function handleAckPackage(uint8 channelId, bytes memory msgBytes) external;
-    function handleFailAckPackage(uint8 channelId, bytes memory msgBytes) external;
-    function handleSynPackage(uint8, bytes memory msgBytes) external returns (bytes memory responsePayload);
     function init() external;
     function systemRewardBaseRatio() external view returns (uint256);
-    function isCurrentValidator(address validator) external view returns (bool);
-    function isMonitoredForMaliciousVote(bytes memory voteAddr) external view returns (bool);
+    function isCurrentValidator(
+        address validator
+    ) external view returns (bool);
+    function isMonitoredForMaliciousVote(
+        bytes memory voteAddr
+    ) external view returns (bool);
     function isSystemRewardIncluded() external view returns (bool);
-    function isWorkingValidator(uint256 index) external view returns (bool);
+    function isWorkingValidator(
+        uint256 index
+    ) external view returns (bool);
     function maintainSlashScale() external view returns (uint256);
     function maxNumOfCandidates() external view returns (uint256);
     function maxNumOfMaintaining() external view returns (uint256);
     function maxNumOfWorkingCandidates() external view returns (uint256);
-    function misdemeanor(address validator) external;
+    function misdemeanor(
+        address validator
+    ) external;
     function numOfCabinets() external view returns (uint256);
     function numOfJailed() external view returns (uint256);
     function numOfMaintaining() external view returns (uint256);
     function previousBalanceOfSystemReward() external view returns (uint256);
     function previousHeight() external view returns (uint256);
-    function previousVoteAddrFullSet(uint256) external view returns (bytes memory);
-    function removeTmpMigratedValidator(address validator) external;
-    function recoverConsensus(address[] memory consensusAddrs, uint64[] memory votingPowers, bytes[] memory voteAddrs)
-        external;
+    function previousVoteAddrFullSet(
+        uint256
+    ) external view returns (bytes memory);
+    function removeTmpMigratedValidator(
+        address validator
+    ) external;
+    function recoverConsensus(
+        address[] memory consensusAddrs,
+        uint64[] memory votingPowers,
+        bytes[] memory voteAddrs
+    ) external;
     function totalInComing() external view returns (uint256);
     function turnLength() external view returns (uint256);
-    function updateParam(string memory key, bytes memory value) external;
+    function validatorBootstrapHash() external view returns (bytes32);
+    function updateParam(
+        string memory key,
+        bytes memory value
+    ) external;
     function updateValidatorSetV2(
         address[] memory _consensusAddrs,
         uint64[] memory _votingPowers,
         bytes[] memory _voteAddrs
     ) external;
-    function validatorExtraSet(uint256)
-        external
-        view
-        returns (uint256 enterMaintenanceHeight, bool isMaintaining, bytes memory voteAddress);
+    function validatorExtraSet(
+        uint256
+    ) external view returns (uint256 enterMaintenanceHeight, bool isMaintaining, bytes memory voteAddress);
 }

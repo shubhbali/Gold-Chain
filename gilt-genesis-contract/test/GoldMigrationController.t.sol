@@ -28,6 +28,7 @@ contract GoldMigrationControllerTest is Test {
 
         finalGold.setMigrationController(address(controller));
         legacyGold.setBridgeDepositor(address(this));
+        legacyGold.finalizeBridgeRoutePrecision();
         legacyGold.deposit(stakeHubCaller, abi.encode(tokenId, amount));
 
         vm.startPrank(stakeHubCaller);

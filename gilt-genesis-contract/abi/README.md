@@ -8,17 +8,19 @@ Manual edits are not allowed.
 | GiltValidatorSet       | 0x0000000000000000000000000000000000001000 | [bscvalidatorset](giltvalidatorset.abi)             |
 | SlashIndicator        | 0x0000000000000000000000000000000000001001 | [slashindicator](slashindicator.abi)               |
 | SystemReward          | 0x0000000000000000000000000000000000001002 | [systemreward](systemreward.abi)                   |
-| TendermintLightClient | 0x0000000000000000000000000000000000001003 | [tendermintlightclient](tendermintlightclient.abi) |
-| TokenHub              | 0x0000000000000000000000000000000000001004 | [tokenhub](tokenhub.abi)                           |
-| RelayerIncentivize    | 0x0000000000000000000000000000000000001005 | [relayerincentivize](relayerincentivize.abi)       |
-| RelayerHub            | 0x0000000000000000000000000000000000001006 | [relayerhub](relayerhub.abi)                       |
 | GovHub                | 0x0000000000000000000000000000000000001007 | [govhub](govhub.abi)                               |
-| TokenManager          | 0x0000000000000000000000000000000000001008 | [tokenmanager](tokenmanager.abi)                   |
-| CrossChain            | 0x0000000000000000000000000000000000002000 | [crosschain](crosschain.abi)                       |
-| Staking               | 0x0000000000000000000000000000000000002001 | [staking](staking.abi)                             |
 | StakeHub              | 0x0000000000000000000000000000000000002002 | [stakehub](stakehub.abi)                           |
+| StakeHubValidators    | 0x0000000000000000000000000000000000002010 | [stakehubvalidators](stakehubvalidators.abi)       |
+| StakeHubGiltStaking   | 0x0000000000000000000000000000000000002011 | [stakehubgiltstaking](stakehubgiltstaking.abi)     |
+| StakeHubGoldStaking   | 0x0000000000000000000000000000000000002012 | [stakehubgoldstaking](stakehubgoldstaking.abi)     |
+| StakeHubRewards       | 0x0000000000000000000000000000000000002013 | [stakehubrewards](stakehubrewards.abi)             |
+| StakeHubInflation     | 0x0000000000000000000000000000000000002014 | [stakehubinflation](stakehubinflation.abi)         |
+| StakeHubSlashing      | 0x0000000000000000000000000000000000002015 | [stakehubslashing](stakehubslashing.abi)           |
+| StakeHubMigration     | 0x0000000000000000000000000000000000002016 | [stakehubmigration](stakehubmigration.abi)         |
+| StakeHubParams        | 0x0000000000000000000000000000000000002017 | [stakehubparams](stakehubparams.abi)               |
+| StakeHubValidatorViews | 0x0000000000000000000000000000000000002018 | [stakehubvalidatorviews](stakehubvalidatorviews.abi) |
 | StakeCredit           | 0x0000000000000000000000000000000000002003 | [stakecredit](stakecredit.abi)                     |
 | GiltGovernor           | 0x0000000000000000000000000000000000002004 | [bscgovernor](giltgovernor.abi)                     |
 | GovToken              | 0x0000000000000000000000000000000000002005 | [govtoken](govtoken.abi)                           |
 | GiltTimelock           | 0x0000000000000000000000000000000000002006 | [bsctimelock](gilttimelock.abi)                     |
-| TokenRecoverPortal    | 0x0000000000000000000000000000000000003000 | [tokenrecoverportal](tokenrecoverportal.abi)                     |
+| PhysicalGold1155      | configured in launch config                | [physicalgold1155](physicalgold1155.abi)           |

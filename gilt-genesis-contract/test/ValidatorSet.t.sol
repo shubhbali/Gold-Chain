@@ -155,6 +155,7 @@ contract ValidatorSetTest is Deployer {
         assertGt(amount, 0, "expected inflation amount must be non-zero");
         vm.stopPrank();
 
+        vm.deal(coinbase, coinbase.balance + amount);
         vm.startPrank(coinbase);
         vm.expectEmit(true, false, false, true, address(giltValidatorSet));
         emit inflationRewardDeposit(consensusAddress, amount);
@@ -191,6 +192,7 @@ contract ValidatorSetTest is Deployer {
         assertGt(expectedAmount, 1, "expected inflation amount too small for mismatch test");
         vm.stopPrank();
 
+        vm.deal(coinbase, coinbase.balance + expectedAmount);
         vm.startPrank(coinbase);
         vm.expectRevert("invalid inflation amount");
         giltValidatorSet.depositInflation{ value: expectedAmount - 1 }(consensusAddress);

@@ -1,3 +1,6 @@
+//go:build !windows
+// +build !windows
+
 package main
 
 import (
@@ -12,7 +15,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/logrusorgru/aurora"
-	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/prysmaticlabs/prysm/v5/encoding/bytesutil"
 	"github.com/prysmaticlabs/prysm/v5/io/prompt"
 	validatorpb "github.com/prysmaticlabs/prysm/v5/proto/prysm/v1alpha1/validator-client"
@@ -28,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	bls "github.com/ethereum/go-ethereum/crypto/blscompat"
 	"github.com/ethereum/go-ethereum/internal/flags"
 	"github.com/ethereum/go-ethereum/signer/core"
 )

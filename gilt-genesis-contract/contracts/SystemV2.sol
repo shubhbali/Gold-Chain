@@ -7,7 +7,6 @@ contract SystemV2 {
     address internal constant SLASH_CONTRACT_ADDR = 0x0000000000000000000000000000000000001001;
     address internal constant SYSTEM_REWARD_ADDR = 0x0000000000000000000000000000000000001002;
     address internal constant LIGHT_CLIENT_ADDR = 0x0000000000000000000000000000000000001003;
-    address internal constant TOKEN_HUB_ADDR = 0x0000000000000000000000000000000000001004;
     address internal constant INCENTIVIZE_ADDR = 0x0000000000000000000000000000000000001005;
     address internal constant RELAYERHUB_CONTRACT_ADDR = 0x0000000000000000000000000000000000001006;
     address internal constant GOV_HUB_ADDR = 0x0000000000000000000000000000000000001007;
@@ -19,9 +18,6 @@ contract SystemV2 {
     address internal constant GOVERNOR_ADDR = 0x0000000000000000000000000000000000002004;
     address internal constant GOV_TOKEN_ADDR = 0x0000000000000000000000000000000000002005;
     address internal constant TIMELOCK_ADDR = 0x0000000000000000000000000000000000002006;
-    address internal constant GENERAL_NATIVE_TOKEN_MANAGER_ADDR = 0x0000000000000000000000000000000000002007;
-    address internal constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
-    address internal constant NATIVE_GILT_BRIDGE_ADDR = 0x0000000000000000000000000000000000003002;
 
     /*----------------- errors -----------------*/
     // @notice signature: 0x97b88354
@@ -76,11 +72,6 @@ contract SystemV2 {
 
     modifier onlyStakeHub() {
         if (msg.sender != STAKE_HUB_ADDR) revert OnlySystemContract(STAKE_HUB_ADDR);
-        _;
-    }
-
-    modifier onlyTokenRecoverPortal() {
-        require(msg.sender == TOKEN_RECOVER_PORTAL_ADDR, "the msg sender must be token recover portal");
         _;
     }
 }

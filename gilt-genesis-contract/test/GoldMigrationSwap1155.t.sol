@@ -34,10 +34,12 @@ contract GoldMigrationSwap1155Test is Test {
         uint256 xautTokenId = legacyGold.XAUT_TOKEN_ID();
         uint256 paxgAmount = 50 ether;
         uint256 xautAmount = 20 ether;
+        uint256 xautRootAmount = 20 * 1e6;
 
         legacyGold.setBridgeDepositor(address(this));
+        legacyGold.finalizeBridgeRoutePrecision();
         legacyGold.deposit(user, abi.encode(paxgTokenId, paxgAmount));
-        legacyGold.deposit(user, abi.encode(xautTokenId, xautAmount));
+        legacyGold.deposit(user, abi.encode(xautTokenId, xautRootAmount));
         vm.startPrank(user);
         legacyGold.setApprovalForAll(address(controller), true);
         swap.swap(paxgTokenId, paxgAmount);
