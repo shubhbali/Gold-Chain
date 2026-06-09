@@ -34,6 +34,7 @@ export async function main(argv = process.argv.slice(2)) {
     goldChainClient: new RpcAdapterPlaceholder('goldChain'),
     ethereumFinality: config.ethereum.finality,
     goldChainFinality: config.goldChain.finality,
+    routes: config.routes,
     store,
   });
   return relayer.runOnce();

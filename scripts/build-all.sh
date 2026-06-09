@@ -38,7 +38,7 @@ fi
 
 if have forge; then
   run_in gilt-genesis-contract forge build
-  run_in gilt-genesis-contract forge test -vvv --match-contract "GoldLaunchAcceptance|GoldProductionRoutes|GoldMigration|ValidatorSetBootstrap|PhysicalGold1155Bridge"
+  run_in gilt-genesis-contract forge test -vvv --match-contract "GoldLaunchAcceptance|GoldProductionRoutes|GoldMigration|ValidatorSetBootstrap|PhysicalGold1155Bridge|BridgeCustodyHardening"
 
   # Bridge contracts currently live under top-level bridge/* while the Foundry project
   # remains gilt-genesis-contract. Compile them explicitly until a dedicated Foundry

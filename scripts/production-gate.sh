@@ -98,7 +98,7 @@ if ! grep -q 'contract GoldBridgeMinter' gilt-genesis-contract/contracts/gold/Go
 fi
 
 if have forge; then
-  run bash -c 'cd gilt-genesis-contract && forge test -vvv --match-contract "GoldProductionRoutes|GoldMigration"'
+  run bash -c 'cd gilt-genesis-contract && forge test -vvv --match-contract "GoldProductionRoutes|GoldMigration|BridgeCustodyHardening"'
 else
   echo "WARN: forge not found; old bridged redemption/migration tests were not executed" >&2
 fi

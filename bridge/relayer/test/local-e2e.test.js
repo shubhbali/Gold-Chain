@@ -119,6 +119,10 @@ function makeRelayer(root, child, store = new MemoryRelayerStore()) {
     goldChainClient: child,
     ethereumFinality: { minConfirmations: 3, requireFinalizedTag: true },
     goldChainFinality: { minConfirmations: 2, requireFinalizedTag: true },
+    routes: {
+      [PAXG]: { symbol: 'PAXG', enabled: true },
+      [XAUT]: { symbol: 'XAUT', enabled: true },
+    },
     store,
     logger: { info() {} },
   });
@@ -133,6 +137,7 @@ test('requires explicit finality policies', () => {
     ethereumFinality: { minConfirmations: 0 },
     goldChainFinality: { minConfirmations: 2 },
     store: new MemoryRelayerStore(),
+    routes: { [PAXG]: { symbol: 'PAXG', enabled: true } },
   }), /explicit finality policies/);
 });
 
@@ -206,6 +211,20 @@ test('PAXG lock -> finalized relay -> route GOLD mint -> GOLD burn -> finalized 
 
   assert.deepEqual(await relayer.runOnce(), { depositsRelayed: 0, withdrawalsRelayed: 0 }, 'withdrawal replay is ignored');
   assert.equal(root.balance(PAXG, ETH_RECIPIENT), 40n);
+});
+
+test('relayer rejects route-symbol mismatches before mint or release', async () => {
+  const root = new LocalEthereumRoot();
+  const child = new LocalGoldChild();
+  const relayer = makeRelayer(root, child);
+
+  root.setBalance(PAXG, USER, 100n);
+  root.mine();
+  root.deposit({ routeId: PAXG, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 10n, symbol: 'XAUT' });
+  root.mine(2);
+
+  await assert.rejects(() => relayer.runOnce(), /symbol XAUT does not match route 1 PAXG/);
+  assert.equal(child.balance(PAXG, GOLD_RECIPIENT), 0n);
 });
 
 test('XAUT route remains separate from PAXG route accounting', async () => {

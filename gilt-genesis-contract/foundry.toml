@@ -8,6 +8,7 @@ libs = ['lib', 'node_modules']
 remappings = [
     'ds-test/=lib/forge-std/lib/ds-test/src/',
     'forge-std/=lib/forge-std/src/',
+    'bridge/=../bridge/',
 ]
 cache = true
 cache_path = 'cache'
