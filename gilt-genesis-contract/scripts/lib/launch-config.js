@@ -134,6 +134,32 @@ function validateRootRelativePath(value, label, errors, options = {}) {
   }
 }
 
+function validateOptionalRootRelativePath(value, label, errors, options = {}) {
+  if (value == null) {
+    return;
+  }
+  validateRootRelativePath(value, label, errors, options);
+}
+
+function validateGenesisOutputPath(value, profile, errors) {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push("genesisOutput is required");
+    return;
+  }
+  if (path.isAbsolute(value)) {
+    errors.push("genesisOutput must be relative to gilt-genesis-contract");
+    return;
+  }
+
+  const repoRoot = path.resolve(GENESIS_ROOT, "..");
+  const resolved = resolveFromRoot(value);
+  const relative = path.relative(repoRoot, resolved).replace(/\\/g, "/");
+  const expected = `chain/genesis/out/${profile}/genesis.json`;
+  if (relative !== expected) {
+    errors.push("genesisOutput must be the canonical chain/genesis output path");
+  }
+}
+
 function validatePositiveBigInt(value, label, errors) {
   try {
     parsePositiveBigInt(value, label);
@@ -172,8 +198,8 @@ function validateLaunchConfig(config) {
   assert(SUPPORTED_PROFILES.has(config.profile), "profile must be testnet or mainnet", errors);
   assert(Number.isInteger(config.chainId) && config.chainId > 0, "chainId must be a positive integer", errors);
   assert(typeof config.sourceChainId === "string" && config.sourceChainId.length > 0, "sourceChainId is required", errors);
-  validateRootRelativePath(config.genesisTemplate, "genesisTemplate", errors, { mustExist: true });
-  validateRootRelativePath(config.genesisOutput, "genesisOutput", errors);
+  validateOptionalRootRelativePath(config.genesisTemplate, "genesisTemplate", errors, { mustExist: true });
+  validateGenesisOutputPath(config.genesisOutput, config.profile, errors);
   validateRootRelativePath(config.reportOutput, "reportOutput", errors);
 
   const allocations = config.gilt?.allocations || [];
@@ -193,9 +219,33 @@ function validateLaunchConfig(config) {
   assert(inflation.rewardSource === "GILT_INFLATION_AND_FEES", "GILT reward source must be GILT_INFLATION_AND_FEES", errors);
   assert(Number.isInteger(inflation.initialRateBps) && inflation.initialRateBps > 0, "inflation initialRateBps is required", errors);
   assert(Number.isInteger(inflation.minimumRateBps) && inflation.minimumRateBps > 0, "inflation minimumRateBps is required", errors);
+  assert(
+    Number.isInteger(inflation.maxAnnualInflationBps) && inflation.maxAnnualInflationBps > 0,
+    "inflation maxAnnualInflationBps is required",
+    errors,
+  );
+  assert(inflation.maxAnnualInflationBps <= 1000, "inflation maxAnnualInflationBps must be 1000 or lower", errors);
+  assert(
+    inflation.initialRateBps <= inflation.maxAnnualInflationBps,
+    "inflation initialRateBps must not exceed maxAnnualInflationBps",
+    errors,
+  );
   assert(inflation.initialRateBps >= inflation.minimumRateBps, "inflation initial rate must be >= minimum rate", errors);
   assert(Number.isInteger(inflation.decayBpsPerYear) && inflation.decayBpsPerYear >= 0, "inflation decayBpsPerYear is required", errors);
   validatePositiveBigInt(inflation.baseSupplyWei, "gilt.inflation.baseSupplyWei", errors);
+  try {
+    const baseSupply = parsePositiveBigInt(inflation.baseSupplyWei, "gilt.inflation.baseSupplyWei");
+    const allocationSum = allocations.reduce((total, allocation) => {
+      try {
+        return total + parsePositiveBigInt(allocation.balanceWei, "allocation.balanceWei");
+      } catch (_) {
+        return total;
+      }
+    }, 0n);
+    assert(allocationSum === baseSupply, "initial GILT allocation sum must equal inflation baseSupplyWei", errors);
+  } catch (_) {
+    // validatePositiveBigInt already records malformed base supply.
+  }
 
   const validators = config.validators || [];
   assert(Array.isArray(validators) && validators.length > 0, "at least one validator is required", errors);

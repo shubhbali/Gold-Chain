@@ -6,12 +6,16 @@
 **/.live-chain-runtime-*/
 **/.localcache/
 **/node_modules/
+**/.next/
 
-bridge/gilt-consensus/.deps/
+chain/genesis/out/
+.gold-testnet*/
+.sim-giltconsensus/
+.sim-live/
+.simulation-root/
+
 scan/goldscan/_build/
 scan/goldscan/deps/
 scan/goldscan-frontend/.next/
 
 .claude/
-bridge/gilt-consensus/.claude/
-bridge/gilt-consensus/CLAUDE.md

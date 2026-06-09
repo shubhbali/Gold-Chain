@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-###################
-# Remove giltconsensus installation
-###################
-sudo systemctl daemon-reload

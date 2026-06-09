@@ -1,0 +1,45 @@
+chain:
+  name: Gold Chain
+  chainId: 7777777
+  networkId: 7777777
+  nativeSymbol: GILT
+  blockTimeSeconds: 3
+
+forks:
+  activateFromGenesis:
+    homestead: true
+    eip150: true
+    eip155: true
+    eip158: true
+    byzantium: true
+    constantinople: true
+    petersburg: true
+    istanbul: true
+    berlin: true
+    london: true
+    shanghai: true
+    cancun: false
+  compressedTestSchedule: false
+
+consensus:
+  engine: parlia
+  epochLength: 200
+
+validators:
+  - name: validator-0
+    consensusAddress: "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0"
+    feeAddress: "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0"
+    giltFeeAddress: "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0"
+    blsPublicKey: "0x81c0ae1ad54aeaea61d454dbfc58e5268e659b46ccd5099b31c5167698af671f709484b753b84c99ed0b8f2a83a8c1a9"
+    votingPower: 100
+
+systemContracts:
+  validatorSet: "0x0000000000000000000000000000000000001000"
+  slash: "0x0000000000000000000000000000000000001001"
+  systemReward: "0x0000000000000000000000000000000000001002"
+  stakeHub: "0x0000000000000000000000000000000000002002"
+  govHub: "0x0000000000000000000000000000000000001007"
+  governor: "0x0000000000000000000000000000000000002004"
+  timelock: "0x0000000000000000000000000000000000002005"
+  goldBridge: "0x0000000000000000000000000000000000003000"
+  goldAsset: "0x0000000000000000000000000000000000003001"

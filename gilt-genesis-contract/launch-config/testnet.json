@@ -1,9 +1,9 @@
 {
   "profile": "testnet",
-  "chainId": 714,
+  "chainId": 7777778,
   "sourceChainId": "Gold-Chain-Testnet",
-  "genesisTemplate": "./genesis-template.json",
-  "genesisOutput": "./genesis-testnet.json",
+  "genesisTemplate": null,
+  "genesisOutput": "../chain/genesis/out/testnet/genesis.json",
   "reportOutput": "./launch-report-testnet.md",
   "gilt": {
     "inflation": {
@@ -13,6 +13,7 @@
       "initialRateBps": 1000,
       "minimumRateBps": 150,
       "decayBpsPerYear": 1500,
+      "maxAnnualInflationBps": 1000,
       "baseSupplyWei": "3000000000000000000000000000"
     },
     "allocations": [
@@ -122,5 +123,7 @@
   "governance": {
     "stakeHubProtector": "0x30151DA466EC8AB345BEF3d6983023E050fb0673",
     "governorProtector": "0x30151DA466EC8AB345BEF3d6983023E050fb0673"
-  }
+  },
+  "canonicalChainSpec": "../../chain/spec/gold-testnet.yaml",
+  "canonicalGenesisBuilder": "../../chain/genesis/build-genesis.js"
 }

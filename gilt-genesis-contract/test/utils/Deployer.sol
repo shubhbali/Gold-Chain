@@ -89,7 +89,7 @@ contract Deployer is Test {
     constructor() {
         // please use the following command to run the test on mainnet fork instead: forge test --rpc-url ${fork_url}
         // vm.createSelectFork("gilt");
-        assertEq(block.chainid, 56);
+        assertEq(block.chainid, 7777777);
 
         // setup system contracts
         giltValidatorSet = GiltValidatorSet(VALIDATOR_CONTRACT_ADDR);

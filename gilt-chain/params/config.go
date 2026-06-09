@@ -212,7 +212,7 @@ var (
 	}
 
 	GILTChainConfig = &ChainConfig{
-		ChainID:                                 big.NewInt(56),
+		ChainID:                                 big.NewInt(7777777),
 		DisableHistoricalSystemContractUpgrades: true,
 		HomesteadBlock:                          big.NewInt(0),
 		EIP150Block:                             big.NewInt(0),
@@ -263,7 +263,7 @@ var (
 	}
 
 	ChapelChainConfig = &ChainConfig{
-		ChainID:                                 big.NewInt(97),
+		ChainID:                                 big.NewInt(7777778),
 		DisableHistoricalSystemContractUpgrades: true,
 		HomesteadBlock:                          big.NewInt(0),
 		EIP150Block:                             big.NewInt(0),
@@ -313,9 +313,9 @@ var (
 		},
 	}
 
-	// used to test hard fork upgrade, following the local gilt-genesis-contract genesis definitions
+	// DEV-ONLY: formerly a compressed hard-fork harness. It must not be used for persistent testnet/mainnet.
 	RialtoChainConfig = &ChainConfig{
-		ChainID:             big.NewInt(714),
+		ChainID:             big.NewInt(7777779),
 		HomesteadBlock:      big.NewInt(0),
 		EIP150Block:         big.NewInt(0),
 		EIP155Block:         big.NewInt(0),
@@ -327,19 +327,19 @@ var (
 		MuirGlacierBlock:    big.NewInt(0),
 		RamanujanBlock:      big.NewInt(0),
 		NielsBlock:          big.NewInt(0),
-		MirrorSyncBlock:     big.NewInt(1),
-		BrunoBlock:          big.NewInt(1),
-		EulerBlock:          big.NewInt(2),
-		NanoBlock:           big.NewInt(3),
-		MoranBlock:          big.NewInt(3),
-		GibbsBlock:          big.NewInt(4),
-		PlanckBlock:         big.NewInt(5),
-		LubanBlock:          big.NewInt(6),
-		PlatoBlock:          big.NewInt(7),
-		BerlinBlock:         big.NewInt(8),
-		LondonBlock:         big.NewInt(8),
-		HertzBlock:          big.NewInt(8),
-		HertzfixBlock:       big.NewInt(8),
+		MirrorSyncBlock:     big.NewInt(0),
+		BrunoBlock:          big.NewInt(0),
+		EulerBlock:          big.NewInt(0),
+		NanoBlock:           big.NewInt(0),
+		MoranBlock:          big.NewInt(0),
+		GibbsBlock:          big.NewInt(0),
+		PlanckBlock:         big.NewInt(0),
+		LubanBlock:          big.NewInt(0),
+		PlatoBlock:          big.NewInt(0),
+		BerlinBlock:         big.NewInt(0),
+		LondonBlock:         big.NewInt(0),
+		HertzBlock:          big.NewInt(0),
+		HertzfixBlock:       big.NewInt(0),
 		ShanghaiTime:        newUint64(0),
 		KeplerTime:          newUint64(0),
 		FeynmanTime:         newUint64(0),

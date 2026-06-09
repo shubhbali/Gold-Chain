@@ -759,8 +759,23 @@ func decodePrealloc(data string) types.GenesisAlloc {
 		} `rlp:"optional"`
 	}
 	if err := rlp.NewStream(strings.NewReader(data), 0).Decode(&p); err != nil {
-		panic(err)
+		return decodePreallocLegacySlots(data, err)
 	}
+	return genesisAllocFromPrealloc(p)
+}
+
+func genesisAllocFromPrealloc(p []struct {
+	Addr    *big.Int
+	Balance *big.Int
+	Misc    *struct {
+		Nonce uint64
+		Code  []byte
+		Slots []struct {
+			Key common.Hash
+			Val common.Hash
+		}
+	} `rlp:"optional"`
+}) types.GenesisAlloc {
 	ga := make(types.GenesisAlloc, len(p))
 	for _, account := range p {
 		acc := types.Account{Balance: account.Balance}
@@ -771,6 +786,38 @@ func decodePrealloc(data string) types.GenesisAlloc {
 			acc.Storage = make(map[common.Hash]common.Hash)
 			for _, slot := range account.Misc.Slots {
 				acc.Storage[slot.Key] = slot.Val
+			}
+		}
+		ga[common.BigToAddress(account.Addr)] = acc
+	}
+	return ga
+}
+
+func decodePreallocLegacySlots(data string, originalErr error) types.GenesisAlloc {
+	var p []struct {
+		Addr    *big.Int
+		Balance *big.Int
+		Misc    *struct {
+			Nonce uint64
+			Code  []byte
+			Slots []common.Hash
+		} `rlp:"optional"`
+	}
+	if err := rlp.NewStream(strings.NewReader(data), 0).Decode(&p); err != nil {
+		panic(originalErr)
+	}
+	ga := make(types.GenesisAlloc, len(p))
+	for _, account := range p {
+		acc := types.Account{Balance: account.Balance}
+		if account.Misc != nil {
+			acc.Nonce = account.Misc.Nonce
+			acc.Code = account.Misc.Code
+			if len(account.Misc.Slots)%2 != 0 {
+				panic("legacy genesis prealloc storage has odd key/value slot count")
+			}
+			acc.Storage = make(map[common.Hash]common.Hash, len(account.Misc.Slots)/2)
+			for i := 0; i < len(account.Misc.Slots); i += 2 {
+				acc.Storage[account.Misc.Slots[i]] = account.Misc.Slots[i+1]
 			}
 		}
 		ga[common.BigToAddress(account.Addr)] = acc

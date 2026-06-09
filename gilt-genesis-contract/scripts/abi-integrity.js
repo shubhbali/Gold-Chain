@@ -13,7 +13,6 @@ const OUT_ROOT = path.join(GENESIS_ROOT, "out");
 const MANIFEST_PATH = path.join(ABI_ROOT, "manifest.json");
 const PARLIA_ABI_GO = path.join(MONOREPO_ROOT, "gilt-chain", "consensus", "parlia", "abi.go");
 const GETCHAINSTATUS_PATH = path.join(MONOREPO_ROOT, "gilt-chain", "cmd", "jsutils", "getchainstatus.js");
-const DEPLOY_LIVE_BRIDGE_PATH = path.join(MONOREPO_ROOT, "bridge", "pos-portal", "scripts", "deploy-live-bridge.mjs");
 const LIVE_ROUGHNET_GOLD_FLOW_PATH = path.join(GENESIS_ROOT, "scripts", "live-roughnet-gold-flow.js");
 const CHECK_GOLD_MIGRATION_STATE_PATH = path.join(GENESIS_ROOT, "scripts", "check-gold-migration-state.js");
 const ACTIVATE_GOLD_MIGRATION_PATH = path.join(GENESIS_ROOT, "scripts", "activate-gold-migration.js");
@@ -356,10 +355,6 @@ function assertNoManualInlineAbiArrays() {
   const checks = [
     {
       filePath: GETCHAINSTATUS_PATH,
-      patterns: systemAbiArrayPatterns,
-    },
-    {
-      filePath: DEPLOY_LIVE_BRIDGE_PATH,
       patterns: systemAbiArrayPatterns,
     },
     {

@@ -280,6 +280,7 @@ function renderMarkdownReport(summary) {
   lines.push(`- GILT reward source: ${summary.giltInflation.rewardSource}`);
   lines.push(`- GILT inflation base supply wei: ${summary.giltInflation.baseSupplyWei}`);
   lines.push(`- GILT inflation initial rate: ${summary.giltInflation.initialRateBps} bps`);
+  lines.push(`- GILT inflation maximum annual rate: ${summary.giltInflation.maxAnnualInflationBps} bps`);
   lines.push(`- GILT inflation minimum rate: ${summary.giltInflation.minimumRateBps} bps`);
   lines.push(`- GILT inflation yearly decay: ${summary.giltInflation.decayBpsPerYear} bps`);
   lines.push(`- GILT staking: ${summary.staking.giltStakingEnabled ? "ON" : "OFF"}`);

@@ -547,9 +547,9 @@ func (f *faucet) apiHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Info("Faucet request valid", "url", msg.URL, "tier", msg.Tier, "user", username, "address", address, "ip", ip)
 
-		// now, it is ok to send tGILT (or legacy tGILT) and other tokens
+		// now, it is ok to send tGILT and configured token payouts
 		var tx *types.Transaction
-		if msg.Symbol == "GILT" || msg.Symbol == "GILT" {
+		if msg.Symbol == "GILT" {
 			// User wasn't funded recently, create the funding transaction
 			amount := new(big.Int).Div(new(big.Int).Mul(big.NewInt(int64(*payoutFlag)), ether), big.NewInt(10))
 			amount = new(big.Int).Mul(amount, new(big.Int).Exp(big.NewInt(5), big.NewInt(int64(msg.Tier)), nil))

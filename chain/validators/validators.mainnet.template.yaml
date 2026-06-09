@@ -1,0 +1,7 @@
+validators:
+  - name: validator-0
+    consensusAddress: "0x0000000000000000000000000000000000000000"
+    signerKeystorePath: "/secure/path/not-in-repo/validator-0/keystore"
+    nodeKeyPath: "/secure/path/not-in-repo/validator-0/nodekey"
+    feeAddress: "0x0000000000000000000000000000000000000000"
+    blsPublicKey: "0x00"

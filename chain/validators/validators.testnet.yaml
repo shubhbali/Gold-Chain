@@ -1,0 +1,19 @@
+validators:
+  - name: validator-0
+    consensusAddress: "0x00a44640e2e82c8d03da6cf594d627414f743bad"
+    signerKeystorePath: "/secure/path/not-in-repo/validator-0/keystore"
+    nodeKeyPath: "/secure/path/not-in-repo/validator-0/nodekey"
+    feeAddress: "0x00a44640e2e82c8d03da6cf594d627414f743bad"
+    blsPublicKey: "0x81c0ae1ad54aeaea61d454dbfc58e5268e659b46ccd5099b31c5167698af671f709484b753b84c99ed0b8f2a83a8c1a9"
+  - name: validator-1
+    consensusAddress: "0x7a2340c4e3894837744c9fb680820e0376bc75dc"
+    signerKeystorePath: "/secure/path/not-in-repo/validator-1/keystore"
+    nodeKeyPath: "/secure/path/not-in-repo/validator-1/nodekey"
+    feeAddress: "0x7a2340c4e3894837744c9fb680820e0376bc75dc"
+    blsPublicKey: "0x2392a4df7658cf5a39fbb35641dbd565b5f88e2f0a1417631bcae709342a7bd95b69156f664331fcd040269016080ba0"
+  - name: validator-2
+    consensusAddress: "0x71519d7171a3d43303dbec072478906cc10c68b5"
+    signerKeystorePath: "/secure/path/not-in-repo/validator-2/keystore"
+    nodeKeyPath: "/secure/path/not-in-repo/validator-2/nodekey"
+    feeAddress: "0x71519d7171a3d43303dbec072478906cc10c68b5"
+    blsPublicKey: "0x5f640ab29a46935b1d9540caa62fa4b82eabfc7fc23bad50186ffc805e666e016bf8d470227f26cbea85c9502718fc72"

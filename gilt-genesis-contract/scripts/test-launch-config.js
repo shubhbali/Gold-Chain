@@ -215,7 +215,18 @@ function runtimeByteLength(bytecode) {
 }
 
 function assertConcreteGenesisOldBscPredeploysInert() {
-  const canonicalGenesis = JSON.parse(fs.readFileSync(path.join(GENESIS_ROOT, "genesis.json"), "utf8"));
+  const canonicalGenesisPath = path.join(GENESIS_ROOT, "genesis.json");
+  if (!fs.existsSync(canonicalGenesisPath)) {
+    for (const artifact of CONCRETE_GENESIS_ARTIFACTS) {
+      assert(
+        !fs.existsSync(path.join(GENESIS_ROOT, artifact)),
+        `${artifact} must not remain without canonical genesis.json after source-mutating genesis deprecation`,
+      );
+    }
+    return;
+  }
+
+  const canonicalGenesis = JSON.parse(fs.readFileSync(canonicalGenesisPath, "utf8"));
   const canonicalTokenHub = genesisAllocEntry(canonicalGenesis, TOKEN_HUB_ADDRESS);
   assert(canonicalTokenHub?.code, "canonical genesis TokenHub reserved predeploy code is missing");
   assert(runtimeByteLength(canonicalTokenHub.code) <= 512, "canonical TokenHub reserved predeploy code must stay small");
@@ -241,9 +252,15 @@ function assertLaunchAcceptance(config, profile) {
   assert.strictEqual(config.gilt.inflation.enabled, true);
   assert.strictEqual(config.gilt.inflation.starts, "block_1");
   assert.strictEqual(config.gilt.inflation.rewardSource, "GILT_INFLATION_AND_FEES");
-  assert.ok(config.gilt.inflation.initialRateBps > 0);
-  assert.ok(config.gilt.inflation.minimumRateBps > 0);
-  assert.ok(BigInt(config.gilt.inflation.baseSupplyWei) > 0n);
+  assert.strictEqual(config.gilt.inflation.initialRateBps, 1000);
+  assert.strictEqual(config.gilt.inflation.minimumRateBps, 150);
+  assert.strictEqual(config.gilt.inflation.decayBpsPerYear, 1500);
+  assert.strictEqual(config.gilt.inflation.maxAnnualInflationBps, 1000);
+  assert.strictEqual(config.gilt.inflation.baseSupplyWei, "3000000000000000000000000000");
+  assert.strictEqual(
+    config.gilt.allocations.reduce((total, allocation) => total + BigInt(allocation.balanceWei), 0n).toString(),
+    config.gilt.inflation.baseSupplyWei,
+  );
   assert.strictEqual(config.staking.goldStakingEnabled, true);
   assert.strictEqual(config.staking.goldRewardSource, "GILT_PLUS_FEES");
   assert.ok(config.staking.goldRewardSplitBps > 0);
@@ -333,7 +350,7 @@ mustExecFail(process.execPath, ["scripts/generate-genesis.js"], "old source-muta
 {
   const broken = clone(config);
   broken.genesisOutput = "../genesis.json";
-  mustFail(broken, "genesisOutput must stay inside gilt-genesis-contract");
+  mustFail(broken, "genesisOutput must be the canonical chain/genesis output path");
 }
 
 {
@@ -421,6 +438,24 @@ mustExecFail(process.execPath, ["scripts/generate-genesis.js"], "old source-muta
 
 {
   const broken = clone(config);
+  broken.gilt.inflation.initialRateBps = 1001;
+  mustFail(broken, "inflation initialRateBps must not exceed maxAnnualInflationBps");
+}
+
+{
+  const broken = clone(config);
+  broken.gilt.inflation.maxAnnualInflationBps = 1001;
+  mustFail(broken, "inflation maxAnnualInflationBps must be 1000 or lower");
+}
+
+{
+  const broken = clone(config);
+  broken.gilt.allocations[0].balanceWei = "1";
+  mustFail(broken, "initial GILT allocation sum must equal inflation baseSupplyWei");
+}
+
+{
+  const broken = clone(config);
   broken.gold.tokenIds.paxgBacked = 7;
   mustFail(broken, "PAXG-backed GOLD token ID must be 1");
 }
@@ -481,6 +516,7 @@ withTempDir((tempDir) => {
   assert(!report.includes("Initial locked GILT on TokenHub"));
   assert(report.includes(`GILT reward source: ${config.gilt.inflation.rewardSource}`));
   assert(report.includes(`GILT inflation base supply wei: ${config.gilt.inflation.baseSupplyWei}`));
+  assert(report.includes(`GILT inflation maximum annual rate: ${config.gilt.inflation.maxAnnualInflationBps} bps`));
   assert(report.includes("- GILT staking: ON"));
   assert(report.includes(`Max elected validators: ${config.staking.maxElectedValidators}`));
   assert(report.includes(`GOLD contract address: ${config.gold.address}`));

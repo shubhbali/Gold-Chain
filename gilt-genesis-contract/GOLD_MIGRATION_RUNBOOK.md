@@ -102,18 +102,21 @@ AMOUNT_WEI=... \
 node scripts/swap-legacy-gold.js
 ```
 
-### 4. Phase transition bundle (controller + root bridge together)
+## Phase transition bundle
+
+The old Polygon PoS portal phase script was removed in the production overhaul. Phase transitions now belong to the canonical Gold contracts:
 
 ```bash
-ROOT_CHAIN_MANAGER_ADDRESS=... \
-ROOT_OLD_GOLD_TOKEN=... \
-MIGRATION_CONTROLLER_ADDRESS=... \
-PHASE=EXIT_ONLY \
-EXIT_CUTOFF_BLOCK=... \
-node ../bridge/pos-portal/scripts/gold-migration-phase-calldata.mjs
+# Generate/apply governance calldata through the canonical GoldPhaseRegistry,
+# GoldBridgeMinter, GoldRootCustody, and GoldMigrationController stack.
+# Do not use the removed Polygon PoS portal; it is not a production fallback.
 ```
 
-Use `PHASE=FINALIZED` (same `EXIT_CUTOFF_BLOCK`) when finalizing after cutoff.
+Use `GoldPhaseRegistry` transitions in order:
+
+```text
+BridgeBacked -> MigrationAnnounced -> BridgeDepositsStopped -> MigrationOpen -> LegacyRedemptionOnly
+```
 
 ## Dry Run Checklist
 
