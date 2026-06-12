@@ -73,7 +73,9 @@ for f in \
   gilt-genesis-contract/contracts/gold/ReserveGoldController.sol \
   gilt-genesis-contract/contracts/gold/GoldMigrationController.sol \
   bridge/ethereum/contracts/GoldRootCustody.sol \
-  bridge/gold-chain/contracts/GoldChildBridge.sol; do
+  bridge/gold-chain/contracts/GoldChildBridge.sol \
+  bridge/shared/contracts/BridgeMessageLib.sol \
+  bridge/shared/contracts/BridgeThresholdVerifier.sol; do
   [[ -f "$f" ]] || fail "missing canonical contract $f"
 done
 
@@ -89,6 +91,15 @@ if ! grep -q 'PAXG' bridge/relayer/src/constants.js || ! grep -q 'XAUT' bridge/r
   fail "bridge relayer route constants must include PAXG and XAUT"
 fi
 
+if ! grep -q 'verifier.verify' bridge/ethereum/contracts/GoldRootCustody.sol || \
+   ! grep -q 'verifier.verify' bridge/gold-chain/contracts/GoldChildBridge.sol; then
+  fail "root and child bridge finalization must be threshold/proof-gated"
+fi
+
+if grep -n 'function finalizeWithdrawal' -A8 bridge/ethereum/contracts/GoldRootCustody.sol | grep -q 'onlyFinalizer'; then
+  fail "ETH withdrawal release must be permissionless once threshold proof is valid"
+fi
+
 # GOLD authority split must be represented by separate bridge, reserve, migration, and phase contracts.
 if ! grep -q 'contract GoldBridgeMinter' gilt-genesis-contract/contracts/gold/GoldBridgeMinter.sol || \
    ! grep -q 'contract ReserveGoldController' gilt-genesis-contract/contracts/gold/ReserveGoldController.sol || \
@@ -98,13 +109,14 @@ if ! grep -q 'contract GoldBridgeMinter' gilt-genesis-contract/contracts/gold/Go
 fi
 
 if have forge; then
-  run bash -c 'cd gilt-genesis-contract && forge test -vvv --match-contract "GoldProductionRoutes|GoldMigration|BridgeCustodyHardening"'
+  run bash -c 'cd gilt-genesis-contract && forge test -vvv --match-contract "GoldProductionRoutes|GoldMigration|BridgeCustodyHardening|BridgeThresholdVerifier"'
 else
   echo "WARN: forge not found; old bridged redemption/migration tests were not executed" >&2
 fi
 
 if have npm && [[ -d bridge/relayer ]]; then
   run bash -c 'cd bridge/relayer && npm run check && npm test'
+  run node --input-type=module -e "import { validateRelayerConfig } from './bridge/relayer/src/config.js'; import fs from 'node:fs'; validateRelayerConfig(JSON.parse(fs.readFileSync('bridge/relayer/config.local.example.json','utf8')));"
 else
   echo "WARN: npm or bridge/relayer missing; relayer tests were not executed" >&2
 fi

@@ -1,24 +1,41 @@
 import { promises as fs } from 'node:fs';
 import { validateRelayerConfig } from './config.js';
+import { LiveEvmBridgeClient } from './live-rpc-client.js';
 import { GoldBridgeRelayer } from './relayer.js';
 import { JsonRelayerStore } from './store.js';
-
-class RpcAdapterPlaceholder {
-  constructor(name) { this.name = name; }
-  unsupported() {
-    throw new Error(`${this.name} RPC adapter is not wired in this package yet; instantiate GoldBridgeRelayer with production clients that implement the relayer client interface`);
-  }
-  async getHeadBlock() { this.unsupported(); }
-  async getDeposits() { this.unsupported(); }
-  async getWithdrawals() { this.unsupported(); }
-  async finalizeDeposit() { this.unsupported(); }
-  async finalizeWithdrawal() { this.unsupported(); }
-}
 
 export async function loadConfig(configPath) {
   if (!configPath) throw new Error('config path is required');
   const raw = await fs.readFile(configPath, 'utf8');
   return validateRelayerConfig(JSON.parse(raw));
+}
+
+function buildClients(config) {
+  const signerSetVersion = config.relayer.signerSetVersion ?? 1;
+  return {
+    ethereumClient: new LiveEvmBridgeClient({
+      side: 'ethereum',
+      rpcUrl: config.ethereum.rpcUrl,
+      keyPath: config.relayer.keyPath,
+      sourceChainId: config.ethereum.chainId,
+      destinationChainId: config.goldChain.chainId,
+      rootCustodyAddress: config.ethereum.rootCustodyAddress,
+      childBridgeAddress: config.goldChain.childBridgeAddress,
+      routes: config.routes,
+      signerSetVersion,
+    }),
+    goldChainClient: new LiveEvmBridgeClient({
+      side: 'goldChain',
+      rpcUrl: config.goldChain.rpcUrl,
+      keyPath: config.relayer.keyPath,
+      sourceChainId: config.goldChain.chainId,
+      destinationChainId: config.ethereum.chainId,
+      rootCustodyAddress: config.ethereum.rootCustodyAddress,
+      childBridgeAddress: config.goldChain.childBridgeAddress,
+      routes: config.routes,
+      signerSetVersion,
+    }),
+  };
 }
 
 export async function main(argv = process.argv.slice(2)) {
@@ -27,15 +44,21 @@ export async function main(argv = process.argv.slice(2)) {
   const store = new JsonRelayerStore(config.statePath ?? './relayer-state.json');
   await store.load();
 
-  // The relayer core is production-safe and finality-gated. Concrete signing/RPC clients
-  // are injected by deployment code so tests cannot accidentally become production paths.
+  const { ethereumClient, goldChainClient } = buildClients(config);
   const relayer = new GoldBridgeRelayer({
-    ethereumClient: new RpcAdapterPlaceholder('ethereum'),
-    goldChainClient: new RpcAdapterPlaceholder('goldChain'),
+    ethereumClient,
+    goldChainClient,
+    ethereumChainId: config.ethereum.chainId,
+    goldChainChainId: config.goldChain.chainId,
+    rootCustodyAddress: config.ethereum.rootCustodyAddress,
+    childBridgeAddress: config.goldChain.childBridgeAddress,
     ethereumFinality: config.ethereum.finality,
     goldChainFinality: config.goldChain.finality,
     routes: config.routes,
     store,
+    rescanOverlapBlocks: config.relayer.rescanOverlapBlocks ?? 0,
+    ethereumStartBlock: config.ethereum.startBlock,
+    goldChainStartBlock: config.goldChain.startBlock,
   });
   return relayer.runOnce();
 }

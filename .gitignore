@@ -10,6 +10,7 @@
 
 chain/genesis/out/
 .gold-testnet*/
+.sepolia-wallets/
 .sim-giltconsensus/
 .sim-live/
 .simulation-root/

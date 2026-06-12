@@ -16,6 +16,11 @@ export function normalizeRouteId(routeId) {
   return normalized;
 }
 
+export const EVENT_TOPICS = Object.freeze({
+  DEPOSITED: '0x614cd53614cbca0a11d120abc455cd6a3ce52b864035eb075598aa8eaedf2926',
+  WITHDRAWAL_INITIATED: '0xdf75afe746a835b4c48a0c4d91c13b28a6eb75a2672745834e751fe3e171c9b4',
+});
+
 export function eventKey(direction, eventId) {
   if (!direction || !eventId) throw new Error('direction and eventId are required');
   return `${direction}:${String(eventId).toLowerCase()}`;

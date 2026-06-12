@@ -1,0 +1,45 @@
+{
+  "environment": "testnet",
+  "statePath": "/root/workspaces/gold/gold-chain/.sepolia-wallets/relayer-state.json",
+  "ethereum": {
+    "rpcUrl": "https://ethereum-sepolia.publicnode.com",
+    "chainId": 11155111,
+    "rootCustodyAddress": "0x919366360b44c1FaC9deE62390faA566E6C187A3",
+    "startBlock": 11040450,
+    "finality": {
+      "minConfirmations": 1,
+      "requireSafeTag": false,
+      "requireFinalizedTag": false
+    }
+  },
+  "goldChain": {
+    "rpcUrl": "http://127.0.0.1:8545",
+    "chainId": 7777778,
+    "childBridgeAddress": "0xa693e6C9E23a0Ce84874C20B977A5d42EC80F1E2",
+    "startBlock": 0,
+    "finality": {
+      "minConfirmations": 1,
+      "requireSafeTag": false,
+      "requireFinalizedTag": false
+    }
+  },
+  "relayer": {
+    "keyPath": "/root/workspaces/gold/gold-chain/.sepolia-wallets/bridge-relayer-private-key.txt",
+    "signerSetVersion": 1,
+    "rescanOverlapBlocks": 6
+  },
+  "routes": {
+    "1": {
+      "symbol": "PAXG",
+      "rootToken": "0x5F171623c5cBb03aff6f40499ec085AC47C77bD2",
+      "enabled": true,
+      "mockOnly": true
+    },
+    "2": {
+      "symbol": "XAUT",
+      "rootToken": "0x81bc5936dd024bbc75c2deB23Ff41b9B5bf41dd7",
+      "enabled": true,
+      "mockOnly": true
+    }
+  }
+}

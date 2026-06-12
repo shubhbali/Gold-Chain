@@ -22,8 +22,17 @@ export class JsonRelayerStore {
   }
 
   async save() {
-    await fs.mkdir(path.dirname(this.filePath), { recursive: true });
-    await fs.writeFile(this.filePath, `${JSON.stringify(this.state, null, 2)}\n`);
+    const dir = path.dirname(this.filePath);
+    await fs.mkdir(dir, { recursive: true });
+    const tmp = `${this.filePath}.${process.pid}.${Date.now()}.tmp`;
+    const handle = await fs.open(tmp, 'w');
+    try {
+      await handle.writeFile(`${JSON.stringify(this.state, null, 2)}\n`);
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    await fs.rename(tmp, this.filePath);
   }
 
   hasProcessed(key) {

@@ -10,6 +10,7 @@ import "../../contracts/gold/GoldMigrationController.sol";
 
 contract GoldProductionRoutesTest is Test {
     address admin = address(0xA11CE);
+    address bridgeCaller = address(0xB012);
     address user = address(0xB0B);
 
     GoldRouteToken gold;
@@ -27,10 +28,26 @@ contract GoldProductionRoutesTest is Test {
         migration = new GoldMigrationController(gold, phases, reserve, admin);
 
         gold.grantRole(gold.BRIDGE_MINTER_ROLE(), address(bridgeMinter));
+        bridgeMinter.grantRole(bridgeMinter.CHILD_BRIDGE_ROLE(), bridgeCaller);
         gold.grantRole(gold.RESERVE_MINTER_ROLE(), address(reserve));
         gold.grantRole(gold.MIGRATION_CONTROLLER_ROLE(), address(migration));
         reserve.grantRole(reserve.RESERVE_ISSUER_ROLE(), address(migration));
         vm.stopPrank();
+    }
+
+    function testAdminCannotMintOrBurnBridgeClaimsDirectly() public {
+        uint256 paxgRouteId = gold.PAXG_ROUTE_ID();
+
+        vm.prank(admin);
+        vm.expectRevert();
+        bridgeMinter.finalizeDeposit(keccak256("admin mint"), paxgRouteId, 1 ether, user);
+
+        vm.prank(bridgeCaller);
+        bridgeMinter.finalizeDeposit(keccak256("bridge mint"), paxgRouteId, 1 ether, user);
+
+        vm.prank(admin);
+        vm.expectRevert();
+        bridgeMinter.burnForWithdrawal(user, paxgRouteId, 1 ether);
     }
 
     function testPaxgAndXautRoutesMintSeparatelyAndBurnOnlyOwnRoute() public {
@@ -39,7 +56,7 @@ contract GoldProductionRoutesTest is Test {
         uint256 paxgRouteId = gold.PAXG_ROUTE_ID();
         uint256 xautRouteId = gold.XAUT_ROUTE_ID();
 
-        vm.startPrank(admin);
+        vm.startPrank(bridgeCaller);
         bridgeMinter.finalizeDeposit(paxgDeposit, paxgRouteId, 10 ether, user);
         bridgeMinter.finalizeDeposit(xautDeposit, xautRouteId, 20 ether, user);
         vm.stopPrank();
@@ -47,7 +64,7 @@ contract GoldProductionRoutesTest is Test {
         assertEq(gold.balanceOf(user, paxgRouteId), 10 ether);
         assertEq(gold.balanceOf(user, xautRouteId), 20 ether);
 
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.burnForWithdrawal(user, paxgRouteId, 4 ether);
 
         assertEq(gold.balanceOf(user, paxgRouteId), 6 ether);
@@ -58,18 +75,18 @@ contract GoldProductionRoutesTest is Test {
         bytes32 depositId = keccak256("deposit");
         uint256 paxgRouteId = gold.PAXG_ROUTE_ID();
 
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.finalizeDeposit(depositId, paxgRouteId, 1 ether, user);
 
         vm.expectRevert(abi.encodeWithSelector(GoldBridgeMinter.AlreadyProcessed.selector, depositId));
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.finalizeDeposit(depositId, paxgRouteId, 1 ether, user);
     }
 
     function testBridgeDepositsStopButWithdrawalsStillWork() public {
         uint256 paxgRouteId = gold.PAXG_ROUTE_ID();
 
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.finalizeDeposit(keccak256("deposit"), paxgRouteId, 10 ether, user);
 
         vm.startPrank(admin);
@@ -78,10 +95,10 @@ contract GoldProductionRoutesTest is Test {
         vm.stopPrank();
 
         vm.expectRevert(GoldPhaseRegistry.DepositsClosed.selector);
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.finalizeDeposit(keccak256("blocked"), paxgRouteId, 1 ether, user);
 
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.burnForWithdrawal(user, paxgRouteId, 3 ether);
 
         assertEq(gold.balanceOf(user, paxgRouteId), 7 ether);
@@ -90,7 +107,7 @@ contract GoldProductionRoutesTest is Test {
     function testMigrationBurnsLegacyClaimAndMintsReserveBackedGold() public {
         uint256 xautRouteId = gold.XAUT_ROUTE_ID();
 
-        vm.prank(admin);
+        vm.prank(bridgeCaller);
         bridgeMinter.finalizeDeposit(keccak256("deposit"), xautRouteId, 5 ether, user);
 
         vm.startPrank(admin);

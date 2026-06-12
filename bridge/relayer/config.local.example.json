@@ -1,0 +1,40 @@
+{
+  "environment": "local",
+  "ethereum": {
+    "rpcUrl": "http://127.0.0.1:9545",
+    "chainId": 31337,
+    "rootCustodyAddress": "0x0000000000000000000000000000000000000001",
+    "finality": {
+      "minConfirmations": 2,
+      "requireSafeTag": false,
+      "requireFinalizedTag": false
+    }
+  },
+  "goldChain": {
+    "rpcUrl": "http://127.0.0.1:8545",
+    "chainId": 7777778,
+    "childBridgeAddress": "0x0000000000000000000000000000000000000002",
+    "finality": {
+      "minConfirmations": 2,
+      "requireSafeTag": false,
+      "requireFinalizedTag": false
+    }
+  },
+  "relayer": {
+    "keyPath": "/secure/local-relayer-private-key.txt",
+    "signerSetVersion": 1,
+    "rescanOverlapBlocks": 12
+  },
+  "routes": {
+    "1": {
+      "symbol": "PAXG",
+      "rootToken": "0x0000000000000000000000000000000000000003",
+      "enabled": true
+    },
+    "2": {
+      "symbol": "XAUT",
+      "rootToken": "0x0000000000000000000000000000000000000004",
+      "enabled": true
+    }
+  }
+}

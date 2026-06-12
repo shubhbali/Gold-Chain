@@ -28,7 +28,6 @@ contract GoldBridgeMinter is AccessControl {
         gold = gold_;
         phases = phases_;
         _grantRole(DEFAULT_ADMIN_ROLE, admin_);
-        _grantRole(CHILD_BRIDGE_ROLE, admin_);
     }
 
     function finalizeDeposit(bytes32 depositId, uint256 routeId, uint256 amount, address recipient)
