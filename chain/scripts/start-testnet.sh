@@ -11,6 +11,7 @@ GETH="${GETH:-$ROOT/gilt-chain/build/bin/geth}"
 LOG_DIR="$DATADIR/logs"
 PID_DIR="$DATADIR/pids"
 RPC_API="eth,net,web3,admin,miner,personal,txpool"
+WS_API="eth,net,web3,net,debug"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "FAIL missing command: $1" >&2; exit 1; }; }
 rpc() {
@@ -42,6 +43,7 @@ node_enode() {
 pid_running() { [[ -f "$1" ]] && kill -0 "$(cat "$1")" >/dev/null 2>&1; }
 start_node() {
   local idx="$1" rpc_port="$2" p2p_port="$3" bootnode_arg="$4"
+  local ws_port=$((rpc_port + 100))
   local node_dir="$DATADIR/node$idx" pid_file="$PID_DIR/node$idx.pid" log_file="$LOG_DIR/node$idx.log"
   local addr; addr="$(validator_addr "$idx")"
   if port_up "$rpc_port"; then
@@ -60,12 +62,13 @@ start_node() {
     --port "$p2p_port" \
     $bootnode_arg \
     --http --http.addr 127.0.0.1 --http.port "$rpc_port" --http.api "$RPC_API" --http.vhosts '*' \
+    --ws --ws.addr 127.0.0.1 --ws.port "$ws_port" --ws.api "$WS_API" --ws.origins '*' \
     --allow-insecure-unlock --unlock "$addr" --password "$PASSWORD_FILE" \
     --mine --miner.etherbase "$addr" --syncmode full --verbosity 3 \
     >"$log_file" 2>&1 &
   echo $! > "$pid_file"
   wait_rpc "$rpc_port"
-  echo "PASS node$idx started pid=$(cat "$pid_file") rpc=$rpc_port"
+  echo "PASS node$idx started pid=$(cat "$pid_file") rpc=$rpc_port ws=$ws_port"
 }
 
 need node
