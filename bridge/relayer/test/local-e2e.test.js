@@ -75,8 +75,8 @@ class LocalEthereumRoot {
     return deposit;
   }
 
-  async getDeposits({ fromBlock }) {
-    return this.deposits.filter((deposit) => deposit.blockNumber >= fromBlock);
+  async getDeposits({ fromBlock, toBlock = Number.MAX_SAFE_INTEGER }) {
+    return this.deposits.filter((deposit) => deposit.blockNumber >= fromBlock && deposit.blockNumber <= toBlock);
   }
 
   async finalizeWithdrawal({ withdrawalId, routeId, amount, recipient, proof, submitter = 'permissionless-keeper' }) {
@@ -152,8 +152,8 @@ class LocalGoldChild {
     return withdrawal;
   }
 
-  async getWithdrawals({ fromBlock }) {
-    return this.withdrawals.filter((withdrawal) => withdrawal.blockNumber >= fromBlock);
+  async getWithdrawals({ fromBlock, toBlock = Number.MAX_SAFE_INTEGER }) {
+    return this.withdrawals.filter((withdrawal) => withdrawal.blockNumber >= fromBlock && withdrawal.blockNumber <= toBlock);
   }
 }
 
@@ -468,4 +468,43 @@ test('relayer rescan overlap and on-chain processed check make restart idempoten
   assert.deepEqual(await relayer.runOnce(), { depositsRelayed: 0, withdrawalsRelayed: 0 });
   assert.equal(child.balance(PAXG, GOLD_RECIPIENT), 10n);
   assert(child.finalizedDeposits.has(deposit.depositId));
+});
+
+test('relayer cursor advances through empty finalized ranges after processed overlap events', async () => {
+  const root = new LocalEthereumRoot();
+  const child = new LocalGoldChild();
+  const store = new MemoryRelayerStore();
+  const relayer = makeRelayer(root, child, store);
+
+  root.setBalance(PAXG, USER, 100n);
+  root.mine(10);
+  const deposit = root.deposit({ routeId: PAXG, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 10n, symbol: 'PAXG' });
+  root.mine(10);
+  store.setCursor('ethereumDeposits', 11);
+  store.markProcessed(`root-lock-to-child-mint:${deposit.depositId}`);
+
+  assert.equal(await relayer.relayDeposits(), 0);
+  assert.equal(store.getCursor('ethereumDeposits'), 19);
+});
+
+test('relayer cursor does not advance past unfinalized events in the non-overlap range', async () => {
+  const root = new LocalEthereumRoot();
+  const child = new LocalGoldChild();
+  const store = new MemoryRelayerStore();
+  const relayer = makeRelayer(root, child, store);
+
+  root.setBalance(PAXG, USER, 100n);
+  root.mine(10);
+  const processedDeposit = root.deposit({ routeId: PAXG, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 10n, symbol: 'PAXG' });
+  root.mine(4);
+  root.setBalance(PAXG, USER, 100n);
+  const unsafeDeposit = root.deposit({ routeId: PAXG, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 10n, symbol: 'PAXG' });
+  unsafeDeposit.finalized = false;
+  root.mine(10);
+  store.setCursor('ethereumDeposits', 11);
+  store.markProcessed(`root-lock-to-child-mint:${processedDeposit.depositId}`);
+
+  assert.equal(await relayer.relayDeposits(), 0);
+  assert.equal(store.getCursor('ethereumDeposits'), 14);
+  assert.equal(child.balance(PAXG, GOLD_RECIPIENT), 0n);
 });

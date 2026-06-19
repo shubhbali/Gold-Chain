@@ -69,6 +69,21 @@ function validateBridgeEvent(event, idField, routes, expected) {
   }
 }
 
+function bridgeEventIdentity(event) {
+  return `${String(event.txHash).toLowerCase()}:${event.logIndex}`;
+}
+
+function nextCursorAfterFinalizedScan({ events, finalized, cursor, scanToBlock }) {
+  const finalizedIdentities = new Set(finalized.map(bridgeEventIdentity));
+  const earliestUnfinalizedBlock = events
+    .filter((event) => event.blockNumber >= cursor && !finalizedIdentities.has(bridgeEventIdentity(event)))
+    .reduce((earliest, event) => Math.min(earliest, event.blockNumber), Number.POSITIVE_INFINITY);
+  const safeAdvanceThrough = Number.isFinite(earliestUnfinalizedBlock)
+    ? earliestUnfinalizedBlock - 1
+    : scanToBlock;
+  return Math.max(cursor, safeAdvanceThrough + 1);
+}
+
 export class GoldBridgeRelayer {
   constructor({ ethereumClient, goldChainClient, ethereumChainId, goldChainChainId, rootCustodyAddress, childBridgeAddress, ethereumFinality, goldChainFinality, routes, store, logger = console, rescanOverlapBlocks = 0, ethereumStartBlock = 0, goldChainStartBlock = 0, maxScanBlocksPerRun = 0 }) {
     requireMethod(ethereumClient, 'getHeadBlock');
@@ -155,9 +170,7 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${deposit.symbol ?? 'GOLD'} deposit ${deposit.depositId}`);
     }
-    const nextCursor = finalized.length > 0
-      ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
-      : scanToBlock + 1;
+    const nextCursor = nextCursorAfterFinalizedScan({ events: deposits, finalized, cursor, scanToBlock });
     if (nextCursor > cursor) {
       this.store.setCursor('ethereumDeposits', nextCursor);
     }
@@ -209,9 +222,7 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${withdrawal.symbol ?? 'GOLD'} withdrawal ${withdrawal.withdrawalId}`);
     }
-    const nextCursor = finalized.length > 0
-      ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
-      : scanToBlock + 1;
+    const nextCursor = nextCursorAfterFinalizedScan({ events: withdrawals, finalized, cursor, scanToBlock });
     if (nextCursor > cursor) {
       this.store.setCursor('goldWithdrawals', nextCursor);
     }
