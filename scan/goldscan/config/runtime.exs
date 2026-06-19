@@ -341,7 +341,11 @@ config :explorer, Explorer.Chain.Goldchain.Profile,
   staking_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_STAKING_CONTRACTS"),
   governance_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_GOVERNANCE_CONTRACTS"),
   migration_contracts: ConfigHelper.parse_list_env_var("INDEXER_GOLDCHAIN_MIGRATION_CONTRACTS"),
-  root_route_asset_by_token: ConfigHelper.parse_json_env_var("INDEXER_GOLDCHAIN_ROUTE_ASSET_BY_ROOT_TOKEN_JSON"),
+  root_route_asset_by_token:
+    ConfigHelper.parse_json_env_var(
+      "INDEXER_GOLDCHAIN_ROUTE_ASSET_BY_ROOT_TOKEN_JSON",
+      ~s({"0x45804880de22913dafe09f4980848ece6ecbaf78":"paxg","0x68749665ff8d2d112fa859aa293f07a622782f38":"xaut"})
+    ),
   bridge_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_BRIDGE_TOPICS_JSON"),
   validator_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_VALIDATOR_TOPICS_JSON"),
   staking_topics: ConfigHelper.parse_json_with_atom_keys_env_var("INDEXER_GOLDCHAIN_STAKING_TOPICS_JSON"),

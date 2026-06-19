@@ -19,4 +19,15 @@ scan/goldscan/_build/
 scan/goldscan/deps/
 scan/goldscan-frontend/.next/
 
+# Runtime state/artifacts must stay out of source control.
+scan/goldscan/docker-compose/services/goldscan-db-data*/
+scan/goldscan/docker-compose/services/logs/prod/
+**/logs/prod/
+**/*.dets
+**/chaindata/
+**/postgres-data/
+**/postgres_data/
+**/pgdata/
+**/pg_data/
+
 .claude/
