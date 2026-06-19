@@ -1,3 +1,5 @@
+import { canonicalRouteSpec, normalizeRouteId } from './constants.js';
+
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -45,13 +47,49 @@ function assertRoutes(config) {
     if (!isObject(config.routes[required])) throw new Error(`route ${required} is required`);
   }
   for (const [routeId, route] of Object.entries(config.routes)) {
-    const id = Number(routeId);
-    if (!Number.isSafeInteger(id) || id <= 0) throw new Error(`invalid route id ${routeId}`);
-    if (!['PAXG', 'XAUT'].includes(route.symbol)) throw new Error(`unsupported route ${routeId} symbol ${route.symbol}`);
+    const id = normalizeRouteId(routeId);
+    const canonical = canonicalRouteSpec(id);
+    if (route.symbol !== canonical.symbol) throw new Error(`route ${routeId} symbol must be ${canonical.symbol}`);
     if (!isAddressLike(route.rootToken)) throw new Error(`route ${routeId}.rootToken must be an EVM address`);
     if (route.enabled !== true) throw new Error(`route ${routeId} must be explicitly enabled`);
     if (route.mockOnly === true && config.environment === 'production') {
       throw new Error(`route ${routeId} is mockOnly and cannot be used in production`);
+    }
+    if (!isObject(route.scaling)) throw new Error(`route ${routeId}.scaling is required`);
+    if (Number(route.scaling.rootDecimals) !== canonical.rootDecimals) {
+      throw new Error(`route ${routeId}.scaling.rootDecimals must be ${canonical.rootDecimals}`);
+    }
+    if (Number(route.scaling.goldDecimals) !== canonical.goldDecimals) {
+      throw new Error(`route ${routeId}.scaling.goldDecimals must be ${canonical.goldDecimals}`);
+    }
+    if (Number(route.scaling.scalingExponent) !== canonical.scalingExponent) {
+      throw new Error(`route ${routeId}.scaling.scalingExponent must be ${canonical.scalingExponent}`);
+    }
+  }
+}
+
+function assertSignerPolicy(config) {
+  const policy = config.relayer.signerSet;
+  if (policy === undefined) {
+    if (config.environment === 'production') throw new Error('production relayer.signerSet is required');
+    return;
+  }
+  if (!isObject(policy)) throw new Error('relayer.signerSet must be an object');
+  const threshold = Number(policy.threshold);
+  if (!Number.isSafeInteger(threshold) || threshold <= 0) throw new Error('relayer.signerSet.threshold must be a positive integer');
+  if (!Array.isArray(policy.signers) || policy.signers.length === 0) throw new Error('relayer.signerSet.signers are required');
+  for (const signer of policy.signers) {
+    if (!isAddressLike(signer)) throw new Error(`relayer.signerSet signer ${signer} must be an EVM address`);
+  }
+  const uniqueSigners = new Set(policy.signers.map((signer) => signer.toLowerCase()));
+  if (uniqueSigners.size !== policy.signers.length) throw new Error('relayer.signerSet.signers must be unique');
+  if (threshold > uniqueSigners.size) throw new Error('relayer.signerSet.threshold cannot exceed signer count');
+  if (threshold === 1 && uniqueSigners.size === 1) throw new Error('relayer.signerSet cannot be 1-of-1');
+  if (config.environment === 'production' && threshold < 2) throw new Error('production relayer.signerSet.threshold must be at least 2');
+  if (config.relayer.submitterAddress !== undefined) {
+    if (!isAddressLike(config.relayer.submitterAddress)) throw new Error('relayer.submitterAddress must be an EVM address');
+    if (uniqueSigners.has(config.relayer.submitterAddress.toLowerCase())) {
+      throw new Error('relayer submitter address must not also be a bridge signer');
     }
   }
 }
@@ -76,10 +114,37 @@ export function validateRelayerConfig(config) {
     const rescanOverlapBlocks = Number(config.relayer.rescanOverlapBlocks);
     if (!Number.isSafeInteger(rescanOverlapBlocks) || rescanOverlapBlocks < 0) throw new Error('relayer.rescanOverlapBlocks must be >= 0');
   }
+  assertSignerPolicy(config);
   return Object.freeze({
     ...config,
     ethereum: Object.freeze({ ...config.ethereum, chainId: Number(config.ethereum.chainId), startBlock: Number(config.ethereum.startBlock ?? 0) }),
     goldChain: Object.freeze({ ...config.goldChain, chainId: Number(config.goldChain.chainId), startBlock: Number(config.goldChain.startBlock ?? 0) }),
     relayer: Object.freeze({ ...config.relayer, signerSetVersion: Number(config.relayer.signerSetVersion ?? 1), rescanOverlapBlocks: Number(config.relayer.rescanOverlapBlocks ?? 0) }),
   });
+}
+
+async function defaultRpc(rpcUrl, method, params = []) {
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+  });
+  if (!response.ok) throw new Error(`${method} HTTP ${response.status}`);
+  const body = await response.json();
+  if (body.error) throw new Error(`${method} RPC error ${body.error.message ?? JSON.stringify(body.error)}`);
+  return body.result;
+}
+
+async function assertCodeAt(rpcFn, chainName, rpcUrl, address, fieldName) {
+  const code = await rpcFn(rpcUrl, 'eth_getCode', [address, 'latest']);
+  if (typeof code !== 'string' || code === '0x' || code === '0x0') {
+    throw new Error(`${chainName}.${fieldName} has zero code at ${address}`);
+  }
+}
+
+export async function assertBridgeContractsHaveCode(config, { rpc = defaultRpc } = {}) {
+  const normalized = validateRelayerConfig(config);
+  await assertCodeAt(rpc, 'ethereum', normalized.ethereum.rpcUrl, normalized.ethereum.rootCustodyAddress, 'rootCustodyAddress');
+  await assertCodeAt(rpc, 'goldChain', normalized.goldChain.rpcUrl, normalized.goldChain.childBridgeAddress, 'childBridgeAddress');
+  return true;
 }

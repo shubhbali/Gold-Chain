@@ -46,7 +46,10 @@ contract GoldPhaseRegistry is AccessControl {
     }
 
     function withdrawalsEnabled() external view returns (bool) {
-        return phase != GoldPhase.LegacySunset;
+        // Old bridged GOLD claims are asset-backed redemption claims. Governance may stop
+        // new legacy issuance/yield during migration, but it must not admin-stop redemption
+        // of outstanding PAXG/XAUT-backed route claims.
+        return true;
     }
 
     function _isValidTransition(GoldPhase current, GoldPhase next) internal pure returns (bool) {

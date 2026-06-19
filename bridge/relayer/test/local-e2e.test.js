@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { GoldBridgeRelayer } from '../src/relayer.js';
 import { MemoryRelayerStore } from '../src/store.js';
-import { validateRelayerConfig } from '../src/config.js';
-import { EVENT_TOPICS } from '../src/constants.js';
+import { assertBridgeContractsHaveCode, validateRelayerConfig } from '../src/config.js';
+import { EVENT_TOPICS, goldAmountToRootAmount, rootAmountToGoldAmount } from '../src/constants.js';
 
 const PAXG = 1;
 const XAUT = 2;
@@ -16,6 +16,8 @@ const ROOT_CUSTODY = '0x0000000000000000000000000000000000000abc';
 const CHILD_BRIDGE = '0x0000000000000000000000000000000000000def';
 const PAXG_ROOT_TOKEN = '0x0000000000000000000000000000000000000011';
 const XAUT_ROOT_TOKEN = '0x0000000000000000000000000000000000000022';
+const PAXG_SCALING = Object.freeze({ rootDecimals: 18, goldDecimals: 18, scalingExponent: 0 });
+const XAUT_SCALING = Object.freeze({ rootDecimals: 6, goldDecimals: 18, scalingExponent: 12 });
 const DUMMY_SIGNATURE = '0x' + '11'.repeat(65);
 function bytes32(prefix, nonce) { return `0x${prefix}${String(nonce).padStart(64 - prefix.length, '0')}`; }
 
@@ -165,8 +167,8 @@ function makeRelayer(root, child, store = new MemoryRelayerStore()) {
     goldChainFinality: { minConfirmations: 2, requireFinalizedTag: true },
     rescanOverlapBlocks: 2,
     routes: {
-      [PAXG]: { symbol: 'PAXG', rootToken: PAXG_ROOT_TOKEN, enabled: true },
-      [XAUT]: { symbol: 'XAUT', rootToken: XAUT_ROOT_TOKEN, enabled: true },
+      [PAXG]: { symbol: 'PAXG', rootToken: PAXG_ROOT_TOKEN, enabled: true, scaling: PAXG_SCALING },
+      [XAUT]: { symbol: 'XAUT', rootToken: XAUT_ROOT_TOKEN, enabled: true, scaling: XAUT_SCALING },
     },
     store,
     logger: { info() {} },
@@ -186,12 +188,12 @@ test('requires explicit finality policies', () => {
     ethereumFinality: { minConfirmations: 0 },
     goldChainFinality: { minConfirmations: 2 },
     store: new MemoryRelayerStore(),
-    routes: { [PAXG]: { symbol: 'PAXG', enabled: true } },
+    routes: { [PAXG]: { symbol: 'PAXG', enabled: true, scaling: PAXG_SCALING } },
   }), /explicit finality policies/);
 });
 
-test('config rejects mock-only production routes and missing finality', () => {
-  const base = {
+function productionConfig() {
+  return {
     environment: 'production',
     ethereum: {
       rpcUrl: 'https://eth.example',
@@ -205,12 +207,27 @@ test('config rejects mock-only production routes and missing finality', () => {
       childBridgeAddress: '0x0000000000000000000000000000000000000002',
       finality: { minConfirmations: 20, requireFinalizedTag: true },
     },
-    relayer: { keyPath: '/secure/relayer.json' },
+    relayer: {
+      keyPath: '/secure/relayer.json',
+      submitterAddress: '0x0000000000000000000000000000000000000abc',
+      signerSet: {
+        threshold: 2,
+        signers: [
+          '0x0000000000000000000000000000000000000a01',
+          '0x0000000000000000000000000000000000000a02',
+          '0x0000000000000000000000000000000000000a03',
+        ],
+      },
+    },
     routes: {
-      1: { symbol: 'PAXG', rootToken: '0x0000000000000000000000000000000000000011', enabled: true },
-      2: { symbol: 'XAUT', rootToken: '0x0000000000000000000000000000000000000022', enabled: true },
+      1: { symbol: 'PAXG', rootToken: PAXG_ROOT_TOKEN, enabled: true, scaling: PAXG_SCALING },
+      2: { symbol: 'XAUT', rootToken: XAUT_ROOT_TOKEN, enabled: true, scaling: XAUT_SCALING },
     },
   };
+}
+
+test('config rejects mock-only production routes and missing finality', () => {
+  const base = productionConfig();
   assert.equal(validateRelayerConfig(base).environment, 'production');
   assert.throws(() => validateRelayerConfig({ ...base, ethereum: { ...base.ethereum, finality: { minConfirmations: 1 } } }), /production ethereum finality/);
   assert.throws(() => validateRelayerConfig({ ...base, ethereum: { ...base.ethereum, finality: undefined } }), /finality is required/);
@@ -218,6 +235,56 @@ test('config rejects mock-only production routes and missing finality', () => {
     ...base,
     routes: { ...base.routes, 1: { ...base.routes[1], mockOnly: true } },
   }), /mockOnly/);
+});
+
+test('config rejects missing route scaling and unsafe production signer policy', () => {
+  const base = productionConfig();
+  assert.throws(() => validateRelayerConfig({
+    ...base,
+    routes: { ...base.routes, 2: { ...base.routes[2], scaling: undefined } },
+  }), /route 2\.scaling is required/);
+  assert.throws(() => validateRelayerConfig({
+    ...base,
+    routes: { ...base.routes, 2: { ...base.routes[2], scaling: { rootDecimals: 18, goldDecimals: 18, scalingExponent: 0 } } },
+  }), /route 2\.scaling\.rootDecimals must be 6/);
+  assert.throws(() => validateRelayerConfig({
+    ...base,
+    relayer: { ...base.relayer, signerSet: { threshold: 1, signers: ['0x0000000000000000000000000000000000000a01'] } },
+  }), /cannot be 1-of-1/);
+  assert.throws(() => validateRelayerConfig({
+    ...base,
+    relayer: { ...base.relayer, signerSet: { threshold: 1, signers: base.relayer.signerSet.signers } },
+  }), /production relayer\.signerSet\.threshold must be at least 2/);
+  assert.throws(() => validateRelayerConfig({
+    ...base,
+    relayer: { ...base.relayer, submitterAddress: base.relayer.signerSet.signers[0] },
+  }), /must not also be a bridge signer/);
+});
+
+test('config RPC code gate rejects zero-code bridge addresses', async () => {
+  const base = productionConfig();
+  await assert.rejects(() => assertBridgeContractsHaveCode(base, {
+    rpc: async (rpcUrl, method, params) => {
+      assert.equal(method, 'eth_getCode');
+      if (rpcUrl === base.ethereum.rpcUrl && params[0] === base.ethereum.rootCustodyAddress) return '0x';
+      return '0x60016000';
+    },
+  }), /ethereum\.rootCustodyAddress has zero code/);
+  await assert.rejects(() => assertBridgeContractsHaveCode(base, {
+    rpc: async (rpcUrl, method, params) => {
+      assert.equal(method, 'eth_getCode');
+      if (rpcUrl === base.goldChain.rpcUrl && params[0] === base.goldChain.childBridgeAddress) return '0x';
+      return '0x60016000';
+    },
+  }), /goldChain\.childBridgeAddress has zero code/);
+  assert.equal(await assertBridgeContractsHaveCode(base, { rpc: async () => '0x60016000' }), true);
+});
+
+test('route scaling converts XAUT 6-decimal root units to 18-decimal GOLD and back exactly', () => {
+  assert.equal(rootAmountToGoldAmount(PAXG, 1_000000000000000000n), 1_000000000000000000n);
+  assert.equal(rootAmountToGoldAmount(XAUT, 1_000000n), 1_000000000000000000n);
+  assert.equal(goldAmountToRootAmount(XAUT, 25_000000000000000000n), 25_000000n);
+  assert.throws(() => goldAmountToRootAmount(XAUT, 1n), /not redeemable exactly/);
 });
 
 test('PAXG lock -> finalized relay -> route GOLD mint -> GOLD burn -> finalized relay -> PAXG release', async () => {
@@ -331,29 +398,29 @@ test('XAUT route remains separate from PAXG route accounting', async () => {
   const relayer = makeRelayer(root, child);
 
   root.setBalance(PAXG, USER, 500n);
-  root.setBalance(XAUT, USER, 700n);
+  root.setBalance(XAUT, USER, 700_000000n);
   root.mine();
   root.deposit({ routeId: PAXG, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 50n, symbol: 'PAXG' });
-  root.deposit({ routeId: XAUT, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 70n, symbol: 'XAUT' });
+  root.deposit({ routeId: XAUT, from: USER, goldRecipient: GOLD_RECIPIENT, amount: 70_000000n, symbol: 'XAUT' });
   root.mine(2);
 
   assert.deepEqual(await relayer.runOnce(), { depositsRelayed: 2, withdrawalsRelayed: 0 });
   assert.equal(child.balance(PAXG, GOLD_RECIPIENT), 50n);
-  assert.equal(child.balance(XAUT, GOLD_RECIPIENT), 70n);
+  assert.equal(child.balance(XAUT, GOLD_RECIPIENT), 70_000000000000000000n);
   assert.equal(root.lockedByRoute.get(PAXG), 50n);
-  assert.equal(root.lockedByRoute.get(XAUT), 70n);
+  assert.equal(root.lockedByRoute.get(XAUT), 70_000000n);
 
   child.mine();
-  child.withdraw({ routeId: XAUT, account: GOLD_RECIPIENT, ethereumRecipient: ETH_RECIPIENT, amount: 25n, symbol: 'XAUT' });
+  child.withdraw({ routeId: XAUT, account: GOLD_RECIPIENT, ethereumRecipient: ETH_RECIPIENT, amount: 25_000000000000000000n, symbol: 'XAUT' });
   child.mine(1);
   assert.deepEqual(await relayer.runOnce(), { depositsRelayed: 0, withdrawalsRelayed: 1 });
 
   assert.equal(root.balance(PAXG, ETH_RECIPIENT), 0n);
-  assert.equal(root.balance(XAUT, ETH_RECIPIENT), 25n);
+  assert.equal(root.balance(XAUT, ETH_RECIPIENT), 25_000000n);
   assert.equal(root.lockedByRoute.get(PAXG), 50n);
-  assert.equal(root.lockedByRoute.get(XAUT), 45n);
+  assert.equal(root.lockedByRoute.get(XAUT), 45_000000n);
   assert.equal(child.routeSupply.get(PAXG), 50n);
-  assert.equal(child.routeSupply.get(XAUT), 45n);
+  assert.equal(child.routeSupply.get(XAUT), 45_000000000000000000n);
 });
 
 

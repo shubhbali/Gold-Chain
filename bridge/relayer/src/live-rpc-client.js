@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { promisify } from 'node:util';
-import { EVENT_TOPICS, normalizeRouteId } from './constants.js';
+import { EVENT_TOPICS, goldAmountToRootAmount, normalizeRouteId, rootAmountToGoldAmount } from './constants.js';
 
 const execFileAsync = promisify(execFile);
 const BRIDGE_MESSAGE_TYPEHASH = '0xbd96b36be634fe104cbb12f9f0e5ff814cff6ae76dcd6f361b0557d0a016bc82';
@@ -229,7 +229,7 @@ export class LiveEvmBridgeClient {
       token: route.rootToken,
       sender: event.from,
       recipient: event.goldRecipient,
-      amount: event.amount,
+      amount: rootAmountToGoldAmount(routeId, event.amount),
       nonce: BigInt(event.depositId),
       sourceBlockNumber: event.sourceBlockNumber,
       signerSetVersion: event.signerSetVersion,
@@ -273,7 +273,7 @@ export class LiveEvmBridgeClient {
       token: route.rootToken,
       sender: event.account,
       recipient: event.ethereumRecipient,
-      amount: event.amount,
+      amount: goldAmountToRootAmount(routeId, event.amount),
       nonce: BigInt(event.withdrawalId),
       sourceBlockNumber: event.sourceBlockNumber,
       signerSetVersion: event.signerSetVersion,

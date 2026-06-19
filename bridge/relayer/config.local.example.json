@@ -29,12 +29,22 @@
     "1": {
       "symbol": "PAXG",
       "rootToken": "0x0000000000000000000000000000000000000003",
-      "enabled": true
+      "enabled": true,
+      "scaling": {
+        "rootDecimals": 18,
+        "goldDecimals": 18,
+        "scalingExponent": 0
+      }
     },
     "2": {
       "symbol": "XAUT",
       "rootToken": "0x0000000000000000000000000000000000000004",
-      "enabled": true
+      "enabled": true,
+      "scaling": {
+        "rootDecimals": 6,
+        "goldDecimals": 18,
+        "scalingExponent": 12
+      }
     }
   }
 }

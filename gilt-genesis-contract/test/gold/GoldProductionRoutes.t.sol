@@ -104,6 +104,27 @@ contract GoldProductionRoutesTest is Test {
         assertEq(gold.balanceOf(user, paxgRouteId), 7 ether);
     }
 
+    function testLegacyRedemptionsCannotBeAdminStoppedThroughFullMigrationLifecycle() public {
+        uint256 paxgRouteId = gold.PAXG_ROUTE_ID();
+
+        vm.prank(bridgeCaller);
+        bridgeMinter.finalizeDeposit(keccak256("legacy deposit"), paxgRouteId, 10 ether, user);
+
+        vm.startPrank(admin);
+        phases.setPhase(GoldPhaseRegistry.GoldPhase.MigrationAnnounced);
+        phases.setPhase(GoldPhaseRegistry.GoldPhase.BridgeDepositsStopped);
+        phases.setPhase(GoldPhaseRegistry.GoldPhase.MigrationOpen);
+        phases.setPhase(GoldPhaseRegistry.GoldPhase.LegacyRedemptionOnly);
+        phases.setPhase(GoldPhaseRegistry.GoldPhase.LegacySunset);
+        vm.stopPrank();
+
+        assertTrue(phases.withdrawalsEnabled());
+        vm.prank(bridgeCaller);
+        bridgeMinter.burnForWithdrawal(user, paxgRouteId, 4 ether);
+
+        assertEq(gold.balanceOf(user, paxgRouteId), 6 ether);
+    }
+
     function testMigrationBurnsLegacyClaimAndMintsReserveBackedGold() public {
         uint256 xautRouteId = gold.XAUT_ROUTE_ID();
 

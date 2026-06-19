@@ -1,4 +1,4 @@
-import { EVENT_TOPICS, eventKey, FLOW, normalizeRouteId } from './constants.js';
+import { EVENT_TOPICS, eventKey, FLOW, goldAmountToRootAmount, normalizeRouteId, rootAmountToGoldAmount } from './constants.js';
 import { filterFinalizedEvents } from './finality.js';
 
 function requireMethod(client, name) {
@@ -120,11 +120,13 @@ export class GoldBridgeRelayer {
         this.store.markProcessed(key);
         continue;
       }
-      const route = this.routes.get(normalizeRouteId(deposit.routeId));
+      const routeId = normalizeRouteId(deposit.routeId);
+      const route = this.routes.get(routeId);
+      const goldAmount = rootAmountToGoldAmount(routeId, deposit.amount);
       await this.goldChainClient.finalizeDeposit({
         depositId: deposit.depositId,
-        routeId: normalizeRouteId(deposit.routeId),
-        amount: deposit.amount,
+        routeId,
+        amount: goldAmount,
         recipient: deposit.goldRecipient,
         proof: {
           rootToken: route.rootToken,
@@ -170,10 +172,12 @@ export class GoldBridgeRelayer {
         this.store.markProcessed(key);
         continue;
       }
+      const routeId = normalizeRouteId(withdrawal.routeId);
+      const rootAmount = goldAmountToRootAmount(routeId, withdrawal.amount);
       await this.ethereumClient.finalizeWithdrawal({
         withdrawalId: withdrawal.withdrawalId,
-        routeId: normalizeRouteId(withdrawal.routeId),
-        amount: withdrawal.amount,
+        routeId,
+        amount: rootAmount,
         recipient: withdrawal.ethereumRecipient,
         proof: {
           account: withdrawal.account,
