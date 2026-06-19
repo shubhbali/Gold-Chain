@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   frontend:
-    image: ${GOLDCHAIN_FRONTEND_IMAGE:-goldchain-goldscan-frontend-local:testnet}
+    image: ${GOLDCHAIN_FRONTEND_IMAGE:-goldchain-goldscan-frontend-local:mainnet}
     pull_policy: never
     build:
       context: ../../../goldscan-frontend
@@ -12,4 +12,4 @@ services:
     container_name: 'frontend'
     env_file:
       -  ../envs/common-frontend.env
-      -  ../goldchain-testnet.frontend.env
+      -  ${GOLDCHAIN_FRONTEND_ENV_FILE:-../goldchain-mainnet.frontend.env}

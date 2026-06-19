@@ -10,6 +10,7 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
   import Explorer.Helper, only: [decode_data: 2]
 
   alias Indexer.Helper
+  alias Indexer.Transform.Goldchain.Lifecycle.TransferIds
 
   @bridge_state_to_event_type %{
     locked: :bridge_lock,
@@ -350,20 +351,8 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
 
       finality_status = finality_for_block(log.block_number, latest_block, confirmations)
       route_asset = resolve_route_asset(token_id, root_token, root_route_asset_by_token)
-      canonical_transfer_id =
-        canonical_transfer_id(
-          transfer_id,
-          direction,
-          route_asset,
-          account,
-          counterparty,
-          root_token,
-          token_id,
-          amount,
-          payload_child_amount
-        )
-
-      event_id = canonical_event_id(canonical_transfer_id)
+      canonical_transfer_id = TransferIds.canonical_transfer_id(transfer_id, direction, log)
+      event_id = TransferIds.canonical_event_id(canonical_transfer_id)
 
       %{
         event_id: event_id,
@@ -403,6 +392,7 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
             leg_finality_status: to_string(finality_status)
           }
           |> Map.merge(payload_metadata)
+          |> mark_correlation_status(transfer_id)
       }
     else
       _ -> nil
@@ -416,9 +406,18 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
   defp correlate_bridge_transfers([]), do: []
 
   defp correlate_bridge_transfers(bridge_events) do
-    bridge_events
-    |> Enum.group_by(& &1.canonical_transfer_id)
-    |> Enum.map(fn {_canonical_id, events} -> build_canonical_bridge_transfer(events) end)
+    {correlatable_events, uncorrelatable_events} =
+      Enum.split_with(bridge_events, &protocol_correlatable?/1)
+
+    correlated_transfers =
+      correlatable_events
+      |> Enum.group_by(& &1.canonical_transfer_id)
+      |> Enum.map(fn {_canonical_id, events} -> build_canonical_bridge_transfer(events) end)
+
+    uncorrelatable_transfers =
+      Enum.map(uncorrelatable_events, fn event -> build_canonical_bridge_transfer([event]) end)
+
+    (correlated_transfers ++ uncorrelatable_transfers)
     |> Enum.sort_by(
       fn transfer ->
         {transfer.block_number || 0, transfer.log_index || 0}
@@ -426,6 +425,8 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
       :desc
     )
   end
+
+  defp protocol_correlatable?(event), do: not is_nil(event.cross_chain_transfer_id)
 
   defp build_canonical_bridge_transfer(events) do
     ordered_events = Enum.sort_by(events, &{&1.block_number || 0, &1.log_index || 0})
@@ -1349,54 +1350,6 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
       (root_token && Map.get(root_route_asset_by_token, normalize_address(root_token)))
   end
 
-  defp canonical_transfer_id(
-         transfer_id,
-         direction,
-         route_asset,
-         account,
-         counterparty,
-         root_token,
-         token_id,
-         root_amount,
-         child_amount
-       ) do
-    if is_nil(transfer_id) do
-      participant = fallback_participant(account, counterparty)
-      effective_amount = first_non_nil([child_amount, root_amount]) || 0
-
-      fallback_seed =
-        [
-          "fallback",
-          to_string(direction || :unknown),
-          route_asset && to_string(route_asset),
-          participant,
-          normalize_address(root_token),
-          token_id || 0,
-          effective_amount
-        ]
-        |> Enum.map(&to_string_or_empty/1)
-        |> Enum.join(":")
-
-      "xfer-fallback-" <> short_hash(fallback_seed)
-    else
-      "xfer-#{transfer_id}-#{direction || :unknown}"
-    end
-  end
-
-  defp fallback_participant(account, counterparty) do
-    account = normalize_address(account)
-    counterparty = normalize_address(counterparty)
-
-    cond do
-      is_nil(counterparty) -> account
-      counterparty == burn_address() -> account
-      true -> counterparty
-    end
-  end
-
-  defp canonical_event_id(canonical_transfer_id) do
-    "0x" <> Base.encode16(ExKeccak.hash_256("canonical:#{canonical_transfer_id}"), case: :lower)
-  end
 
   defp canonical_direction(events) do
     if Enum.any?(events, &(&1.direction == :withdrawal)), do: :withdrawal, else: :deposit
@@ -1455,17 +1408,16 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
     Enum.find(values, &(not is_nil(&1)))
   end
 
-  defp short_hash(value) do
-    value
-    |> to_string_or_empty()
-    |> ExKeccak.hash_256()
-    |> Base.encode16(case: :lower)
-    |> String.slice(0, 32)
+  defp mark_correlation_status(metadata, nil) do
+    Map.merge(metadata, %{
+      "correlation_status" => "uncorrelatable",
+      "correlation_reason" => "missing_protocol_transfer_id"
+    })
   end
 
-  defp to_string_or_empty(nil), do: ""
-  defp to_string_or_empty(value) when is_binary(value), do: value
-  defp to_string_or_empty(value), do: to_string(value)
+  defp mark_correlation_status(metadata, _transfer_id) do
+    Map.put(metadata, "correlation_status", "protocol_transfer_id")
+  end
 
   defp log_event_id(log, family, event_type) do
     seed = "#{family}:#{event_type}:#{Helper.address_hash_to_string(log.transaction_hash, true)}:#{log.index}"

@@ -32,6 +32,18 @@ validators:
     giltFeeAddress: "0x225D6AF01985dd4f627abbe1ee0062Fce8C3f5D0"
     blsPublicKey: "0x81c0ae1ad54aeaea61d454dbfc58e5268e659b46ccd5099b31c5167698af671f709484b753b84c99ed0b8f2a83a8c1a9"
     votingPower: 100
+  - name: validator-1
+    consensusAddress: "0xC6049922999d79c0A954168cdE3B70B2f68742EC"
+    feeAddress: "0xC6049922999d79c0A954168cdE3B70B2f68742EC"
+    giltFeeAddress: "0xC6049922999d79c0A954168cdE3B70B2f68742EC"
+    blsPublicKey: "0x2392a4df7658cf5a39fbb35641dbd565b5f88e2f0a1417631bcae709342a7bd95b69156f664331fcd040269016080ba0"
+    votingPower: 100
+  - name: validator-2
+    consensusAddress: "0x04c61ACc61ea1A3785E5A8e01cE6A0110D704E82"
+    feeAddress: "0x04c61ACc61ea1A3785E5A8e01cE6A0110D704E82"
+    giltFeeAddress: "0x04c61ACc61ea1A3785E5A8e01cE6A0110D704E82"
+    blsPublicKey: "0x5f640ab29a46935b1d9540caa62fa4b82eabfc7fc23bad50186ffc805e666e016bf8d470227f26cbea85c9502718fc72"
+    votingPower: 100
 
 systemContracts:
   validatorSet: "0x0000000000000000000000000000000000001000"
