@@ -50,6 +50,7 @@ class LocalEthereumRoot {
     this.lockedByRoute.set(routeId, this.lockedByRoute.get(routeId) + amount);
     const deposit = {
       depositId: bytes32('de', ++this.nextNonce),
+      protocolTransferId: bytes32('de', this.nextNonce),
       routeId,
       symbol,
       from,
@@ -125,6 +126,7 @@ class LocalGoldChild {
     this.routeSupply.set(routeId, this.routeSupply.get(routeId) - amount);
     const withdrawal = {
       withdrawalId: bytes32('fa', ++this.nextNonce),
+      protocolTransferId: bytes32('fa', this.nextNonce),
       routeId,
       symbol,
       account,

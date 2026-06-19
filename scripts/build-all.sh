@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# Foundry's installer places binaries here by default; include it so non-interactive
+# CI/agent shells build the canonical genesis artifacts instead of failing later.
+export PATH="$HOME/.foundry/bin:$PATH"
+
 run() {
   echo "+ $*" >&2
   "$@"
@@ -17,6 +21,16 @@ run_in() {
 }
 
 have() { command -v "$1" >/dev/null 2>&1; }
+
+# Canonical genesis embeds Foundry artifacts from gilt-genesis-contract/out.
+# Build them before genesis/preflight so generated predeploy bytecode and storage
+# layouts are canonical rather than stale or missing.
+if have forge; then
+  run_in gilt-genesis-contract forge build
+else
+  echo "ERROR: forge not found; canonical genesis generation requires gilt-genesis-contract Foundry artifacts. Install Foundry and rerun." >&2
+  exit 1
+fi
 
 # Canonical genesis and validator preflight must run before any client/contract tests.
 run node chain/genesis/build-genesis.js --network testnet
@@ -37,7 +51,6 @@ else
 fi
 
 if have forge; then
-  run_in gilt-genesis-contract forge build
   run_in gilt-genesis-contract forge test -vvv --match-contract "GoldLaunchAcceptance|GoldProductionRoutes|GoldMigration|ValidatorSetBootstrap|PhysicalGold1155Bridge|BridgeCustodyHardening"
 
   # Bridge contracts currently live under top-level bridge/* while the Foundry project

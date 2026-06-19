@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# Foundry installs here by default; production gate must not silently skip Forge tests
+# in non-interactive shells.
+export PATH="$HOME/.foundry/bin:$PATH"
+
 fail() { echo "PRODUCTION GATE FAIL: $*" >&2; exit 1; }
 have() { command -v "$1" >/dev/null 2>&1; }
 run() { echo "+ $*" >&2; "$@"; }
@@ -60,11 +64,19 @@ if ! grep -q 'eth_sendTransaction' chain/scripts/persistent-testnet-acceptance.j
 fi
 
 if [[ -n "${GOLD_ACCEPTANCE_RPC:-}" ]]; then
+  [[ -n "${GOLD_ACCEPTANCE_EXPECTED_CHAIN_ID:-}" ]] || fail "GOLD_ACCEPTANCE_EXPECTED_CHAIN_ID is required when GOLD_ACCEPTANCE_RPC is set"
+  [[ -n "${GOLD_ACCEPTANCE_EXPECTED_GENESIS_HASH:-}" ]] || fail "GOLD_ACCEPTANCE_EXPECTED_GENESIS_HASH is required when GOLD_ACCEPTANCE_RPC is set"
+  [[ -n "${GOLD_ACCEPTANCE_PROOF_OUT:-}" ]] || fail "GOLD_ACCEPTANCE_PROOF_OUT is required when GOLD_ACCEPTANCE_RPC is set"
+  [[ -n "${GOLD_ACCEPTANCE_DATADIR:-}" ]] || fail "GOLD_ACCEPTANCE_DATADIR is required when GOLD_ACCEPTANCE_RPC is set"
   run node chain/scripts/persistent-testnet-acceptance.js \
     --network testnet \
+    --launch-mode \
     --rpc "$GOLD_ACCEPTANCE_RPC" \
+    --datadir "$GOLD_ACCEPTANCE_DATADIR" \
     --target-block "${GOLD_ACCEPTANCE_TARGET_BLOCK:-10000}" \
-    ${GOLD_ACCEPTANCE_REQUIRE_TX:+--require-tx}
+    --expected-chain-id "$GOLD_ACCEPTANCE_EXPECTED_CHAIN_ID" \
+    --expected-genesis-hash "$GOLD_ACCEPTANCE_EXPECTED_GENESIS_HASH" \
+    --proof-out "$GOLD_ACCEPTANCE_PROOF_OUT"
 else
   echo "WARN: GOLD_ACCEPTANCE_RPC not set; live chainId/genesis/block/tx acceptance check not run" >&2
 fi

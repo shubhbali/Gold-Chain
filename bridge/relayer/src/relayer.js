@@ -30,7 +30,13 @@ function validateBridgeEvent(event, idField, routes, expected) {
   if (!event || !isBytes32(event[idField])) {
     throw new Error(`bridge event missing valid ${idField}`);
   }
-  if (event.messageId !== undefined && event.messageId.toLowerCase() !== event[idField].toLowerCase()) {
+  if (!isBytes32(event.protocolTransferId)) {
+    throw new Error(`bridge event ${event[idField]} missing valid protocolTransferId`);
+  }
+  if (event.protocolTransferId.toLowerCase() !== event[idField].toLowerCase()) {
+    throw new Error(`bridge event ${event[idField]} protocolTransferId mismatch`);
+  }
+  if (event.messageId !== undefined && event.messageId.toLowerCase() !== event.protocolTransferId.toLowerCase()) {
     throw new Error(`bridge event ${event[idField]} messageId mismatch`);
   }
   if (event.sourceChainId !== expected.sourceChainId) {

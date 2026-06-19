@@ -26,7 +26,12 @@ Options:
   --init-datadir                    Initialize empty datadir from generated genesis
   --reset-datadir-confirmed         Allow destructive datadir reset before init
   --offline                         Only run generated-genesis/datadir/preflight checks; skip RPC
+  --require-rpc                     Fail before offline exit unless an explicit --rpc/GOLD_ACCEPTANCE_RPC is supplied
   --require-tx                      Fail if a fresh eth_sendTransaction receipt cannot be produced
+  --expected-chain-id <n>           Require generated/RPC chainId to equal this value
+  --expected-genesis-hash <hash>    Require RPC genesis block hash to equal this hash
+  --proof-out <file>                Write machine-readable acceptance proof JSON
+  --launch-mode                     Mainnet-grade launch proof mode: requires RPC and fresh tx
   --tx-from <address>               Sender for eth_sendTransaction (default: first eth_accounts entry)
   --tx-to <address>                 Recipient for fresh tx (default: tx-from)
   --help                            Show this help
@@ -39,14 +44,20 @@ function args() {
     network: 'testnet',
     datadir: null,
     datadirProvided: false,
-    rpc: 'http://127.0.0.1:8545',
+    rpc: process.env.GOLD_ACCEPTANCE_RPC || 'http://127.0.0.1:8545',
+    rpcProvided: Boolean(process.env.GOLD_ACCEPTANCE_RPC),
     targetBlock: 10000,
     timeoutSeconds: 600,
     intervalSeconds: 5,
     initDatadir: false,
     resetDatadir: false,
     offline: false,
+    requireRpc: false,
     requireTx: false,
+    launchMode: false,
+    expectedChainId: null,
+    expectedGenesisHash: null,
+    proofOut: null,
     txFrom: null,
     txTo: null,
   };
@@ -59,23 +70,33 @@ function args() {
     if (a === '--help' || a === '-h') usage();
     else if (a === '--network') out.network = next();
     else if (a === '--datadir') { out.datadir = next(); out.datadirProvided = true; }
-    else if (a === '--rpc') out.rpc = next();
+    else if (a === '--rpc') { out.rpc = next(); out.rpcProvided = true; }
     else if (a === '--target-block') out.targetBlock = Number(next());
     else if (a === '--timeout-seconds') out.timeoutSeconds = Number(next());
     else if (a === '--interval-seconds') out.intervalSeconds = Number(next());
     else if (a === '--init-datadir') out.initDatadir = true;
     else if (a === '--reset-datadir-confirmed') out.resetDatadir = true;
     else if (a === '--offline') out.offline = true;
+    else if (a === '--require-rpc') out.requireRpc = true;
     else if (a === '--require-tx') out.requireTx = true;
+    else if (a === '--expected-chain-id') out.expectedChainId = Number(next());
+    else if (a === '--expected-genesis-hash') out.expectedGenesisHash = next().toLowerCase();
+    else if (a === '--proof-out') out.proofOut = path.resolve(ROOT, next());
+    else if (a === '--launch-mode') { out.requireRpc = true; out.requireTx = true; out.launchMode = true; }
     else if (a === '--tx-from') out.txFrom = next();
     else if (a === '--tx-to') out.txTo = next();
     else usage();
   }
   if (!['testnet', 'mainnet'].includes(out.network)) usage();
+  if (out.expectedChainId !== null && (!Number.isFinite(out.expectedChainId) || out.expectedChainId <= 0)) throw new Error('expectedChainId must be a positive number');
+  if (out.expectedGenesisHash !== null && !/^0x[0-9a-f]{64}$/.test(out.expectedGenesisHash)) throw new Error('expectedGenesisHash must be a 32-byte hex hash');
   for (const k of ['targetBlock', 'timeoutSeconds', 'intervalSeconds']) {
     if (!Number.isFinite(out[k]) || out[k] < 0) throw new Error(`${k} must be a non-negative number`);
   }
   if (out.datadir) out.datadir = path.resolve(ROOT, out.datadir);
+  if (out.launchMode && !out.proofOut) throw new Error('--launch-mode requires --proof-out for machine-readable launch evidence');
+  if (out.launchMode && out.expectedChainId === null) throw new Error('--launch-mode requires --expected-chain-id');
+  if (out.launchMode && out.expectedGenesisHash === null) throw new Error('--launch-mode requires --expected-genesis-hash');
   return out;
 }
 
@@ -197,10 +218,10 @@ async function waitForBlock(url, target, timeoutSeconds, intervalSeconds) {
   return current;
 }
 
-async function freshTx(url, opts) {
+async function freshTx(url, opts, rpcClient = rpc) {
   let from = opts.txFrom;
   if (!from) {
-    const accounts = await rpc(url, 'eth_accounts');
+    const accounts = await rpcClient(url, 'eth_accounts');
     if (Array.isArray(accounts) && accounts.length) from = accounts[0];
   }
   if (!from) {
@@ -210,20 +231,30 @@ async function freshTx(url, opts) {
     return { skipped: true };
   }
   const to = opts.txTo || from;
-  const txHash = await rpc(url, 'eth_sendTransaction', [{ from, to, value: '0x0' }]);
+  const txHash = await rpcClient(url, 'eth_sendTransaction', [{ from, to, value: '0x0' }]);
   const deadline = Date.now() + opts.timeoutSeconds * 1000;
   let receipt = null;
   while (!receipt && Date.now() < deadline) {
-    receipt = await rpc(url, 'eth_getTransactionReceipt', [txHash]);
+    receipt = await rpcClient(url, 'eth_getTransactionReceipt', [txHash]);
     if (!receipt) await sleep(opts.intervalSeconds * 1000);
   }
   if (!receipt) throw new Error(`fresh transaction was not included before timeout: ${txHash}`);
+  if (receipt.status !== '0x1') throw new Error(`fresh transaction failed: hash=${txHash} status=${receipt.status}`);
   console.log(`PASS fresh transaction receipt: hash=${txHash} block=${hexNum(receipt.blockNumber)} status=${receipt.status}`);
   return { txHash, receipt };
 }
 
+function writeProof(file, proof) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(proof, null, 2)}\n`);
+}
+
 async function main() {
   const opts = args();
+  if (opts.offline && opts.requireRpc) throw new Error('--require-rpc/--launch-mode forbids offline acceptance');
+  if (opts.requireRpc && !opts.rpcProvided) {
+    throw new Error('--require-rpc/--launch-mode requires explicit --rpc or GOLD_ACCEPTANCE_RPC; refusing implicit localhost proof');
+  }
   const genesisPath = path.join(ROOT, 'chain/genesis/out', opts.network, 'genesis.json');
   const validatorsPath = path.join(ROOT, 'chain/genesis/out', opts.network, 'validators.conf');
 
@@ -233,6 +264,7 @@ async function main() {
   const genesis = loadJson(genesisPath);
   const chainId = Number(genesis.config && genesis.config.chainId);
   if (!chainId || chainId === 56) throw new Error(`invalid Gold Chain chainId in generated genesis: ${chainId}`);
+  if (opts.expectedChainId !== null && chainId !== opts.expectedChainId) throw new Error(`generated chainId mismatch: generated=${chainId}, expected=${opts.expectedChainId}`);
   const validators = validatorsFromExtraData(genesis.extraData);
   const genesisSha = sha256(genesisPath);
   console.log(`PASS generated genesis: network=${opts.network} chainId=${chainId} validators=${validators.length} sha256=${genesisSha}`);
@@ -259,18 +291,42 @@ async function main() {
 
   const rpcChainId = hexNum(await rpc(opts.rpc, 'eth_chainId'));
   if (rpcChainId !== chainId) throw new Error(`RPC chainId mismatch: rpc=${rpcChainId}, generated=${chainId}`);
+  if (opts.expectedChainId !== null && rpcChainId !== opts.expectedChainId) throw new Error(`RPC chainId mismatch: rpc=${rpcChainId}, expected=${opts.expectedChainId}`);
   console.log(`PASS RPC chainId: ${rpcChainId}`);
 
   const genesisBlock = await rpc(opts.rpc, 'eth_getBlockByNumber', ['0x0', false]);
   if (!genesisBlock || !/^0x[0-9a-fA-F]{64}$/.test(genesisBlock.hash || '')) throw new Error('RPC did not return a valid genesis block hash');
-  console.log(`PASS RPC genesis block hash: ${genesisBlock.hash}`);
+  const rpcGenesisHash = genesisBlock.hash.toLowerCase();
+  if (opts.expectedGenesisHash !== null && rpcGenesisHash !== opts.expectedGenesisHash) throw new Error(`RPC genesis hash mismatch: rpc=${rpcGenesisHash}, expected=${opts.expectedGenesisHash}`);
+  console.log(`PASS RPC genesis block hash: ${rpcGenesisHash}`);
 
-  await waitForBlock(opts.rpc, opts.targetBlock, opts.timeoutSeconds, opts.intervalSeconds);
-  await freshTx(opts.rpc, opts);
+  const headBlock = await waitForBlock(opts.rpc, opts.targetBlock, opts.timeoutSeconds, opts.intervalSeconds);
+  const tx = await freshTx(opts.rpc, opts);
+  const proof = {
+    status: 'pass',
+    mode: opts.launchMode ? 'launch' : 'acceptance',
+    generatedAt: new Date().toISOString(),
+    network: opts.network,
+    rpc: opts.rpc,
+    chainId,
+    genesisSha256: genesisSha,
+    rpcGenesisHash,
+    validators: validators.length,
+    headBlock,
+    freshTransaction: tx,
+  };
+  if (opts.proofOut) {
+    writeProof(opts.proofOut, proof);
+    console.log(`PASS wrote acceptance proof: ${path.relative(ROOT, opts.proofOut)}`);
+  }
   console.log('PASS persistent-testnet acceptance checks');
 }
 
-main().catch(err => {
-  console.error(`PERSISTENT TESTNET ACCEPTANCE FAIL: ${err.message}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(err => {
+    console.error(`PERSISTENT TESTNET ACCEPTANCE FAIL: ${err.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = { freshTx, writeProof };
