@@ -23,6 +23,8 @@ function buildClients(config) {
       childBridgeAddress: config.goldChain.childBridgeAddress,
       routes: config.routes,
       signerSetVersion,
+      logPageSize: config.ethereum.logPageSize,
+      logPageDelayMs: config.ethereum.logPageDelayMs,
     }),
     goldChainClient: new LiveEvmBridgeClient({
       side: 'goldChain',
@@ -34,6 +36,8 @@ function buildClients(config) {
       childBridgeAddress: config.goldChain.childBridgeAddress,
       routes: config.routes,
       signerSetVersion,
+      logPageSize: config.goldChain.logPageSize,
+      logPageDelayMs: config.goldChain.logPageDelayMs,
     }),
   };
 }
@@ -57,6 +61,7 @@ export async function main(argv = process.argv.slice(2)) {
     routes: config.routes,
     store,
     rescanOverlapBlocks: config.relayer.rescanOverlapBlocks ?? 0,
+    maxScanBlocksPerRun: config.relayer.maxScanBlocksPerRun ?? 0,
     ethereumStartBlock: config.ethereum.startBlock,
     goldChainStartBlock: config.goldChain.startBlock,
   });

@@ -24,6 +24,7 @@ function word(data, index) { return `0x${strip0x(data).slice(index * 64, (index 
 function dataAddress(data, index) { return `0x${strip0x(word(data, index)).slice(24)}`; }
 function dataUint(data, index) { return BigInt(word(data, index)); }
 function lower(value) { return String(value).toLowerCase(); }
+function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
 async function rpc(rpcUrl, method, params = []) {
   const response = await fetch(rpcUrl, {
@@ -31,10 +32,33 @@ async function rpc(rpcUrl, method, params = []) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
   });
-  if (!response.ok) throw new Error(`${method} HTTP ${response.status}`);
+  if (!response.ok) {
+    const error = new Error(`${method} HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
   const body = await response.json();
-  if (body.error) throw new Error(`${method} RPC error ${body.error.message ?? JSON.stringify(body.error)}`);
+  if (body.error) {
+    const error = new Error(`${method} RPC error ${body.error.message ?? JSON.stringify(body.error)}`);
+    error.rpcError = body.error;
+    throw error;
+  }
   return body.result;
+}
+
+async function rpcWithRetry(rpcUrl, method, params = [], { attempts = 4, baseDelayMs = 1000 } = {}) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await rpc(rpcUrl, method, params);
+    } catch (error) {
+      lastError = error;
+      const retryable = error.status === 429 || error.status === 503 || /rate|too many|timeout/i.test(error.message);
+      if (!retryable || attempt === attempts) throw error;
+      await sleep(baseDelayMs * attempt);
+    }
+  }
+  throw lastError;
 }
 
 function hexBlock(block) {
@@ -74,10 +98,11 @@ async function getLogsFromReceipts(rpcUrl, filter, fromBlock, toBlock) {
   return logs;
 }
 
-async function getLogsPaged(rpcUrl, filter, { fromBlock = 0, toBlock = 'latest', pageSize = 100, fallbackToReceipts = false, forceReceipts = false } = {}) {
+async function getLogsPaged(rpcUrl, filter, { fromBlock = 0, toBlock = 'latest', pageSize = 100, fallbackToReceipts = false, forceReceipts = false, pageDelayMs = 0 } = {}) {
   if (!Number.isSafeInteger(fromBlock) || fromBlock < 0) throw new Error('fromBlock must be a non-negative safe integer');
   if (!Number.isSafeInteger(pageSize) || pageSize <= 0) throw new Error('pageSize must be a positive safe integer');
-  const latest = toBlock === 'latest' ? Number(BigInt(await rpc(rpcUrl, 'eth_blockNumber'))) : Number(toBlock);
+  if (!Number.isSafeInteger(pageDelayMs) || pageDelayMs < 0) throw new Error('pageDelayMs must be a non-negative safe integer');
+  const latest = toBlock === 'latest' ? Number(BigInt(await rpcWithRetry(rpcUrl, 'eth_blockNumber'))) : Number(toBlock);
   if (!Number.isSafeInteger(latest) || latest < 0) throw new Error('latest block must be a non-negative safe integer');
   if (fromBlock > latest) return [];
 
@@ -90,12 +115,13 @@ async function getLogsPaged(rpcUrl, filter, { fromBlock = 0, toBlock = 'latest',
       continue;
     }
     try {
-      const page = await rpc(rpcUrl, 'eth_getLogs', [{
+      const page = await rpcWithRetry(rpcUrl, 'eth_getLogs', [{
         ...filter,
         fromBlock: hexBlock(start),
         toBlock: hexBlock(end),
       }]);
       logs.push(...page);
+      if (pageDelayMs > 0 && end < latest) await sleep(pageDelayMs);
     } catch (error) {
       if (!fallbackToReceipts) throw error;
       const page = await getLogsFromReceipts(rpcUrl, filter, start, end);
@@ -161,7 +187,7 @@ function blockNumber(log) { return Number(BigInt(log.blockNumber)); }
 function logIndex(log) { return Number(BigInt(log.logIndex)); }
 
 export class LiveEvmBridgeClient {
-  constructor({ rpcUrl, keyPath, sourceChainId, destinationChainId, rootCustodyAddress, childBridgeAddress, routes, signerSetVersion = 1, side }) {
+  constructor({ rpcUrl, keyPath, sourceChainId, destinationChainId, rootCustodyAddress, childBridgeAddress, routes, signerSetVersion = 1, side, logPageSize = 100, logPageDelayMs = 0 }) {
     if (!['ethereum', 'goldChain'].includes(side)) throw new Error('side must be ethereum or goldChain');
     this.rpcUrl = rpcUrl;
     this.keyPath = keyPath;
@@ -172,27 +198,31 @@ export class LiveEvmBridgeClient {
     this.routes = routes;
     this.signerSetVersion = Number(signerSetVersion);
     this.side = side;
+    this.logPageSize = Number(logPageSize);
+    if (!Number.isSafeInteger(this.logPageSize) || this.logPageSize <= 0) throw new Error('logPageSize must be a positive safe integer');
+    this.logPageDelayMs = Number(logPageDelayMs);
+    if (!Number.isSafeInteger(this.logPageDelayMs) || this.logPageDelayMs < 0) throw new Error('logPageDelayMs must be a non-negative safe integer');
   }
 
   async getHeadBlock() {
     return Number(BigInt(await rpc(this.rpcUrl, 'eth_blockNumber')));
   }
 
-  async getDeposits({ fromBlock = 0 }) {
+  async getDeposits({ fromBlock = 0, toBlock = 'latest' }) {
     if (this.side !== 'ethereum') throw new Error('getDeposits only valid for ethereum side');
     const logs = await getLogsPaged(this.rpcUrl, {
       address: this.rootCustodyAddress,
       topics: [EVENT_TOPICS.DEPOSITED],
-    }, { fromBlock, pageSize: 1000 });
+    }, { fromBlock, toBlock, pageSize: this.logPageSize, pageDelayMs: this.logPageDelayMs });
     return Promise.all(logs.map((log) => this.decodeDeposit(log)));
   }
 
-  async getWithdrawals({ fromBlock = 0 }) {
+  async getWithdrawals({ fromBlock = 0, toBlock = 'latest' }) {
     if (this.side !== 'goldChain') throw new Error('getWithdrawals only valid for goldChain side');
     const logs = await getLogsPaged(this.rpcUrl, {
       address: this.childBridgeAddress,
       topics: [EVENT_TOPICS.WITHDRAWAL_INITIATED],
-    }, { fromBlock, forceReceipts: true });
+    }, { fromBlock, toBlock, forceReceipts: true });
     return Promise.all(logs.map((log) => this.decodeWithdrawal(log)));
   }
 
@@ -205,6 +235,7 @@ export class LiveEvmBridgeClient {
       eventName: 'Deposited',
       topic0: log.topics[0],
       messageId: depositId,
+      protocolTransferId: depositId,
       depositId,
       routeId,
       from: topicAddress(log.topics[3]),
@@ -249,6 +280,7 @@ export class LiveEvmBridgeClient {
       eventName: 'WithdrawalInitiated',
       topic0: log.topics[0],
       messageId: withdrawalId,
+      protocolTransferId: withdrawalId,
       withdrawalId,
       routeId,
       account: topicAddress(log.topics[3]),

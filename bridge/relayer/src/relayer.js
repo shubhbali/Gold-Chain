@@ -70,7 +70,7 @@ function validateBridgeEvent(event, idField, routes, expected) {
 }
 
 export class GoldBridgeRelayer {
-  constructor({ ethereumClient, goldChainClient, ethereumChainId, goldChainChainId, rootCustodyAddress, childBridgeAddress, ethereumFinality, goldChainFinality, routes, store, logger = console, rescanOverlapBlocks = 0, ethereumStartBlock = 0, goldChainStartBlock = 0 }) {
+  constructor({ ethereumClient, goldChainClient, ethereumChainId, goldChainChainId, rootCustodyAddress, childBridgeAddress, ethereumFinality, goldChainFinality, routes, store, logger = console, rescanOverlapBlocks = 0, ethereumStartBlock = 0, goldChainStartBlock = 0, maxScanBlocksPerRun = 0 }) {
     requireMethod(ethereumClient, 'getHeadBlock');
     requireMethod(ethereumClient, 'getDeposits');
     requireMethod(ethereumClient, 'finalizeWithdrawal');
@@ -87,6 +87,7 @@ export class GoldBridgeRelayer {
     if (!Number.isSafeInteger(rescanOverlapBlocks) || rescanOverlapBlocks < 0) throw new Error('rescanOverlapBlocks must be >= 0');
     if (!Number.isSafeInteger(ethereumStartBlock) || ethereumStartBlock < 0) throw new Error('ethereumStartBlock must be >= 0');
     if (!Number.isSafeInteger(goldChainStartBlock) || goldChainStartBlock < 0) throw new Error('goldChainStartBlock must be >= 0');
+    if (!Number.isSafeInteger(maxScanBlocksPerRun) || maxScanBlocksPerRun < 0) throw new Error('maxScanBlocksPerRun must be >= 0');
     if (!ethereumFinality?.minConfirmations || !goldChainFinality?.minConfirmations) {
       throw new Error('explicit finality policies are required for both chains');
     }
@@ -99,6 +100,7 @@ export class GoldBridgeRelayer {
     this.rescanOverlapBlocks = rescanOverlapBlocks;
     this.ethereumStartBlock = ethereumStartBlock;
     this.goldChainStartBlock = goldChainStartBlock;
+    this.maxScanBlocksPerRun = maxScanBlocksPerRun;
     this.ethereumFinality = ethereumFinality;
     this.goldChainFinality = goldChainFinality;
     this.routes = normalizeRoutes(routes);
@@ -110,7 +112,12 @@ export class GoldBridgeRelayer {
     const headBlock = await this.ethereumClient.getHeadBlock();
     const cursor = this.store.getCursor('ethereumDeposits', this.ethereumStartBlock);
     const fromBlock = Math.max(0, cursor - this.rescanOverlapBlocks);
-    const deposits = await this.ethereumClient.getDeposits({ fromBlock });
+    const finalizedThroughBlock = Math.max(this.ethereumStartBlock, headBlock - this.ethereumFinality.minConfirmations + 1);
+    const scanToBlock = this.maxScanBlocksPerRun > 0
+      ? Math.min(finalizedThroughBlock, fromBlock + this.maxScanBlocksPerRun - 1)
+      : finalizedThroughBlock;
+    if (scanToBlock < fromBlock) return 0;
+    const deposits = await this.ethereumClient.getDeposits({ fromBlock, toBlock: scanToBlock });
     const finalized = filterFinalizedEvents({ chainName: 'ethereum', headBlock, events: deposits, finality: this.ethereumFinality });
     let relayed = 0;
     for (const deposit of finalized) {
@@ -148,10 +155,9 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${deposit.symbol ?? 'GOLD'} deposit ${deposit.depositId}`);
     }
-    const finalizedThroughBlock = Math.max(this.ethereumStartBlock, headBlock - this.ethereumFinality.minConfirmations + 1);
     const nextCursor = finalized.length > 0
       ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
-      : finalizedThroughBlock + 1;
+      : scanToBlock + 1;
     if (nextCursor > cursor) {
       this.store.setCursor('ethereumDeposits', nextCursor);
     }
@@ -162,7 +168,12 @@ export class GoldBridgeRelayer {
     const headBlock = await this.goldChainClient.getHeadBlock();
     const cursor = this.store.getCursor('goldWithdrawals', this.goldChainStartBlock);
     const fromBlock = Math.max(0, cursor - this.rescanOverlapBlocks);
-    const withdrawals = await this.goldChainClient.getWithdrawals({ fromBlock });
+    const finalizedThroughBlock = Math.max(this.goldChainStartBlock, headBlock - this.goldChainFinality.minConfirmations + 1);
+    const scanToBlock = this.maxScanBlocksPerRun > 0
+      ? Math.min(finalizedThroughBlock, fromBlock + this.maxScanBlocksPerRun - 1)
+      : finalizedThroughBlock;
+    if (scanToBlock < fromBlock) return 0;
+    const withdrawals = await this.goldChainClient.getWithdrawals({ fromBlock, toBlock: scanToBlock });
     const finalized = filterFinalizedEvents({ chainName: 'goldChain', headBlock, events: withdrawals, finality: this.goldChainFinality });
     let relayed = 0;
     for (const withdrawal of finalized) {
@@ -198,10 +209,9 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${withdrawal.symbol ?? 'GOLD'} withdrawal ${withdrawal.withdrawalId}`);
     }
-    const finalizedThroughBlock = Math.max(this.goldChainStartBlock, headBlock - this.goldChainFinality.minConfirmations + 1);
     const nextCursor = finalized.length > 0
       ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
-      : finalizedThroughBlock + 1;
+      : scanToBlock + 1;
     if (nextCursor > cursor) {
       this.store.setCursor('goldWithdrawals', nextCursor);
     }

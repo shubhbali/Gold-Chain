@@ -38,6 +38,14 @@ function assertChainConfig(name, chain, addressField, environment) {
     const startBlock = Number(chain.startBlock);
     if (!Number.isSafeInteger(startBlock) || startBlock < 0) throw new Error(`${name}.startBlock must be >= 0`);
   }
+  if (chain.logPageSize !== undefined) {
+    const logPageSize = Number(chain.logPageSize);
+    if (!Number.isSafeInteger(logPageSize) || logPageSize <= 0) throw new Error(`${name}.logPageSize must be a positive integer`);
+  }
+  if (chain.logPageDelayMs !== undefined) {
+    const logPageDelayMs = Number(chain.logPageDelayMs);
+    if (!Number.isSafeInteger(logPageDelayMs) || logPageDelayMs < 0) throw new Error(`${name}.logPageDelayMs must be a non-negative integer`);
+  }
   assertFinalityPolicy(name, chain.finality, environment);
 }
 
@@ -114,12 +122,33 @@ export function validateRelayerConfig(config) {
     const rescanOverlapBlocks = Number(config.relayer.rescanOverlapBlocks);
     if (!Number.isSafeInteger(rescanOverlapBlocks) || rescanOverlapBlocks < 0) throw new Error('relayer.rescanOverlapBlocks must be >= 0');
   }
+  if (config.relayer.maxScanBlocksPerRun !== undefined) {
+    const maxScanBlocksPerRun = Number(config.relayer.maxScanBlocksPerRun);
+    if (!Number.isSafeInteger(maxScanBlocksPerRun) || maxScanBlocksPerRun < 0) throw new Error('relayer.maxScanBlocksPerRun must be >= 0');
+  }
   assertSignerPolicy(config);
   return Object.freeze({
     ...config,
-    ethereum: Object.freeze({ ...config.ethereum, chainId: Number(config.ethereum.chainId), startBlock: Number(config.ethereum.startBlock ?? 0) }),
-    goldChain: Object.freeze({ ...config.goldChain, chainId: Number(config.goldChain.chainId), startBlock: Number(config.goldChain.startBlock ?? 0) }),
-    relayer: Object.freeze({ ...config.relayer, signerSetVersion: Number(config.relayer.signerSetVersion ?? 1), rescanOverlapBlocks: Number(config.relayer.rescanOverlapBlocks ?? 0) }),
+    ethereum: Object.freeze({
+      ...config.ethereum,
+      chainId: Number(config.ethereum.chainId),
+      startBlock: Number(config.ethereum.startBlock ?? 0),
+      logPageSize: Number(config.ethereum.logPageSize ?? 1000),
+      logPageDelayMs: Number(config.ethereum.logPageDelayMs ?? 0),
+    }),
+    goldChain: Object.freeze({
+      ...config.goldChain,
+      chainId: Number(config.goldChain.chainId),
+      startBlock: Number(config.goldChain.startBlock ?? 0),
+      logPageSize: Number(config.goldChain.logPageSize ?? 100),
+      logPageDelayMs: Number(config.goldChain.logPageDelayMs ?? 0),
+    }),
+    relayer: Object.freeze({
+      ...config.relayer,
+      signerSetVersion: Number(config.relayer.signerSetVersion ?? 1),
+      rescanOverlapBlocks: Number(config.relayer.rescanOverlapBlocks ?? 0),
+      maxScanBlocksPerRun: Number(config.relayer.maxScanBlocksPerRun ?? 0),
+    }),
   });
 }
 
