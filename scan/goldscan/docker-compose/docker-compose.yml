@@ -30,14 +30,15 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
-        RELEASE_VERSION: 9.0.2
+        RELEASE_VERSION: ${GOLDCHAIN_RELEASE_VERSION:-10.0.6}
+        DISABLE_WEBAPP: "false"
     links:
       - db:database
     environment:
-        ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:8545/
-        ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:8545/
-        ETHEREUM_JSONRPC_WS_URL: ws://host.docker.internal:8545/
-        CHAIN_ID: '1337'
+        ETHEREUM_JSONRPC_HTTP_URL: ${GOLDCHAIN_RPC_HTTP_URL:-http://host.docker.internal:8545/}
+        ETHEREUM_JSONRPC_TRACE_URL: ${GOLDCHAIN_RPC_TRACE_URL:-http://host.docker.internal:8545/}
+        ETHEREUM_JSONRPC_WS_URL: ${GOLDCHAIN_RPC_WS_URL:-ws://host.docker.internal:8545/}
+        CHAIN_ID: ${GOLDCHAIN_CHAIN_ID:-7777778}
 
   nft_media_handler:
     depends_on:
@@ -49,7 +50,7 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
-        RELEASE_VERSION: 9.0.2
+        RELEASE_VERSION: ${GOLDCHAIN_RELEASE_VERSION:-10.0.6}
 
   visualizer:
     extends:

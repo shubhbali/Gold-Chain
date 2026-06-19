@@ -140,8 +140,12 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${deposit.symbol ?? 'GOLD'} deposit ${deposit.depositId}`);
     }
-    if (finalized.length > 0) {
-      this.store.setCursor('ethereumDeposits', Math.max(...finalized.map((event) => event.blockNumber)) + 1);
+    const finalizedThroughBlock = Math.max(this.ethereumStartBlock, headBlock - this.ethereumFinality.minConfirmations + 1);
+    const nextCursor = finalized.length > 0
+      ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
+      : finalizedThroughBlock + 1;
+    if (nextCursor > cursor) {
+      this.store.setCursor('ethereumDeposits', nextCursor);
     }
     return relayed;
   }
@@ -184,8 +188,12 @@ export class GoldBridgeRelayer {
       relayed += 1;
       this.logger.info?.(`relayed finalized ${withdrawal.symbol ?? 'GOLD'} withdrawal ${withdrawal.withdrawalId}`);
     }
-    if (finalized.length > 0) {
-      this.store.setCursor('goldWithdrawals', Math.max(...finalized.map((event) => event.blockNumber)) + 1);
+    const finalizedThroughBlock = Math.max(this.goldChainStartBlock, headBlock - this.goldChainFinality.minConfirmations + 1);
+    const nextCursor = finalized.length > 0
+      ? Math.max(...finalized.map((event) => event.blockNumber)) + 1
+      : finalizedThroughBlock + 1;
+    if (nextCursor > cursor) {
+      this.store.setCursor('goldWithdrawals', nextCursor);
     }
     return relayed;
   }

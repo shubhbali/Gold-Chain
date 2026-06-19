@@ -83,7 +83,7 @@ defmodule GoldScanWeb.Mixfile do
       # Integrates Absinthe subscriptions with Phoenix
       {:absinthe_phoenix, "~> 2.0.0"},
       # Plug support for Absinthe
-      {:absinthe_plug, path: "../../vendor/absinthe_plug", override: true},
+      {:absinthe_plug, "~> 1.5.8", override: true},
       # Absinthe support for the Relay framework
       {:absinthe_relay, "~> 1.5"},
       {:benchee, "~> 1.5.0", only: :test},

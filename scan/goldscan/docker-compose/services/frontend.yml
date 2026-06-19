@@ -2,10 +2,14 @@ version: '3.9'
 
 services:
   frontend:
-    image: ghcr.io/goldscan/frontend:${FRONTEND_DOCKER_TAG:-latest}
-    pull_policy: always
+    image: ${GOLDCHAIN_FRONTEND_IMAGE:-goldchain-goldscan-frontend-local:testnet}
+    pull_policy: never
+    build:
+      context: ../../../goldscan-frontend
+      dockerfile: ./Dockerfile
     platform: linux/amd64
     restart: always
     container_name: 'frontend'
     env_file:
       -  ../envs/common-frontend.env
+      -  ../goldchain-testnet.frontend.env

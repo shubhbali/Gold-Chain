@@ -19,67 +19,66 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
     released: :bridge_release
   }
 
-  defp event_topic(signature), do: "0x" <> Base.encode16(ExKeccak.hash_256(signature), case: :lower)
 
-  @erc20_transfer_topic event_topic("Transfer(address,address,uint256)")
-  @erc1155_transfer_single_topic event_topic("TransferSingle(address,address,address,uint256,uint256)")
-  @native_gilt_deposited_topic event_topic("NativeGiltDeposited(address,uint256)")
-  @state_synced_topic event_topic("StateSynced(uint256,address,bytes)")
-  @locked_scaled_erc1155_topic_legacy event_topic("LockedScaledERC1155(address,address,address,uint256,uint256)")
-  @exited_scaled_erc1155_topic_legacy event_topic("ExitedScaledERC1155(address,address,uint256,uint256)")
-  @locked_scaled_erc1155_topic event_topic("LockedScaledERC1155(address,address,address,uint256,uint256,uint256)")
-  @exited_scaled_erc1155_topic event_topic("ExitedScaledERC1155(address,address,uint256,uint256,uint256)")
-  @locked_wrapped_gilt_topic event_topic("LockedWrappedGilt(address,address,address,uint256)")
-  @exited_wrapped_gilt_topic event_topic("ExitedWrappedGilt(address,address,uint256)")
-  @locked_erc20_topic event_topic("LockedERC20(address,address,address,uint256)")
-  @locked_mintable_erc20_topic event_topic("LockedMintableERC20(address,address,address,uint256)")
-  @exited_erc20_topic event_topic("ExitedERC20(address,address,uint256)")
-  @exited_mintable_erc20_topic event_topic("ExitedMintableERC20(address,address,uint256)")
-  @locked_batch_erc1155_topic event_topic("LockedBatchERC1155(address,address,address,uint256[],uint256[])")
-  @locked_batch_mintable_erc1155_topic event_topic("LockedBatchMintableERC1155(address,address,address,uint256[],uint256[])")
-  @locked_batch_chain_exit_erc1155_topic event_topic("LockedBatchChainExitERC1155(address,address,address,uint256[],uint256[])")
-  @exited_erc1155_topic event_topic("ExitedERC1155(address,address,address,uint256,uint256)")
-  @exited_batch_erc1155_topic event_topic("ExitedBatchERC1155(address,address,address,uint256[],uint256[])")
-  @exited_mintable_erc1155_topic event_topic("ExitedMintableERC1155(address,address,address,uint256,uint256)")
-  @exited_batch_mintable_erc1155_topic event_topic("ExitedBatchMintableERC1155(address,address,address,uint256[],uint256[])")
-  @locked_ether_topic event_topic("LockedEther(address,address,uint256)")
-  @exited_ether_topic event_topic("ExitedEther(address,uint256)")
-  @validator_set_updated_topic event_topic("validatorSetUpdated()")
-  @validator_deposit_topic event_topic("validatorDeposit(address,uint256)")
-  @validator_misdemeanor_topic event_topic("validatorMisdemeanor(address,uint256)")
-  @validator_felony_topic event_topic("validatorFelony(address,uint256)")
-  @validator_enter_maintenance_topic event_topic("validatorEnterMaintenance(address)")
-  @validator_exit_maintenance_topic event_topic("validatorExitMaintenance(address)")
-  @finality_reward_deposit_topic event_topic("finalityRewardDeposit(address,uint256)")
-  @fee_burned_topic event_topic("feeBurned(uint256)")
+  @erc20_transfer_topic "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  @erc1155_transfer_single_topic "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62"
+  @native_gilt_deposited_topic "0xc221810ad0e3bd1642287ccca475afa5e8bbda40dcd530831a38d8496172578a"
+  @state_synced_topic "0x103fed9db65eac19c4d870f49ab7520fe03b99f1838e5996caf47e9e43308392"
+  @locked_scaled_erc1155_topic_legacy "0xb5253c4d78beed4e3a1c142dffdb2f93a04d7c5e97fd56c08d8c762d2c881e91"
+  @exited_scaled_erc1155_topic_legacy "0xfe981088b77c9d96be5f304b4db754ed2734f2434cad4e73b53147c251c79f6f"
+  @locked_scaled_erc1155_topic "0x2213c543677a81854e3c7dfbcfbb091309e2ef30e35a2a60bab69185b2e4ba81"
+  @exited_scaled_erc1155_topic "0xbfec0e380085911b08df36cec417889b47e14715b246825974ee44c9f9f52863"
+  @locked_wrapped_gilt_topic "0x376677db932e29d7d2bcd59fdf3a6dca08445b9104f93fd41c4dbe7ef4f9fcfb"
+  @exited_wrapped_gilt_topic "0x262149ddcbac4a6e328c8bf36497eb10ebb5a89668041de2ffcc2262c4e13fc1"
+  @locked_erc20_topic "0x9b217a401a5ddf7c4d474074aff9958a18d48690d77cc2151c4706aa7348b401"
+  @locked_mintable_erc20_topic "0x31472eae9e158460fea5622d1fcb0c5bdc65b6ffb51827f7bc9ef5788410c34c"
+  @exited_erc20_topic "0xbb61bd1b26b3684c7c028ff1a8f6dabcac2fac8ac57b66fa6b1efb6edeab03c4"
+  @exited_mintable_erc20_topic "0x42315cb7471194a6f162099cd1052b95b750612a46472e887f7784b95aa2c4c3"
+  @locked_batch_erc1155_topic "0x5a921678b5779e4471b77219741a417a6ad6ec5d89fa5c8ce8cd7bd2d9f34186"
+  @locked_batch_mintable_erc1155_topic "0x1f512d82dee9e34be6d1fbe7e9eee79cb3185b84686ce1968a3e95f76fdb8c6a"
+  @locked_batch_chain_exit_erc1155_topic "0xecf1f094c6a68f46c74b2e3aae719d6996bf2172e8bac7413a744748938da99e"
+  @exited_erc1155_topic "0xb49b534e4a6ffb5f20d7994c4e2921360f77f27525061da3318b2739241239a1"
+  @exited_batch_erc1155_topic "0xb1e13b57f14f66b7b74efca5036e3f2ef128a5e0cab93ece340c891344f034dd"
+  @exited_mintable_erc1155_topic "0x02758c5b369a62fd5f7b52e72e443a7723af61ea7164f54bdd0b5dd39842c2ea"
+  @exited_batch_mintable_erc1155_topic "0x0f8b689c50d88d81136377378b18a7fb01e9d3873f444f0aebebdd1b6c6fec30"
+  @locked_ether_topic "0x3e799b2d61372379e767ef8f04d65089179b7a6f63f9be3065806456c7309f1b"
+  @exited_ether_topic "0x0fc0eed41f72d3da77d0f53b9594fc7073acd15ee9d7c536819a70a67c57ef3c"
+  @validator_set_updated_topic "0xedd8d7296956dd970ab4de3f2fc03be2b0ffc615d20cd4c72c6e44f928630ebf"
+  @validator_deposit_topic "0x93a090ecc682c002995fad3c85b30c5651d7fd29b0be5da9d784a3302aedc055"
+  @validator_misdemeanor_topic "0x8cd4e147d8af98a9e3b6724021b8bf6aed2e5dac71c38f2dce8161b82585b25d"
+  @validator_felony_topic "0x3b6f9ef90462b512a1293ecec018670bf7b7f1876fb727590a8a6d7643130a70"
+  @validator_enter_maintenance_topic "0xf62981a567ec3cec866c6fa93c55bcdf841d6292d18b8d522ececa769375d82d"
+  @validator_exit_maintenance_topic "0xb9d38178dc641ff1817967a63c9078cbcd955a9f1fcd75e0e3636de615d44d3b"
+  @finality_reward_deposit_topic "0xcb0aad6cf9cd03bdf6137e359f541c42f38b39f007cae8e89e88aa7d8c6617b2"
+  @fee_burned_topic "0x627059660ea01c4733a328effb2294d2f86905bf806da763a89cee254de8bee5"
 
-  @validator_created_topic event_topic("ValidatorCreated(address,address,address,bytes)")
-  @stake_credit_initialized_topic event_topic("StakeCreditInitialized(address,address)")
-  @consensus_address_edited_topic event_topic("ConsensusAddressEdited(address,address)")
-  @vote_address_edited_topic event_topic("VoteAddressEdited(address,bytes)")
-  @delegated_topic event_topic("Delegated(address,address,uint256,uint256)")
-  @undelegated_topic event_topic("Undelegated(address,address,uint256,uint256)")
-  @redelegated_topic event_topic("Redelegated(address,address,address,uint256,uint256,uint256)")
-  @reward_distributed_topic event_topic("RewardDistributed(address,uint256)")
-  @validator_slashed_topic event_topic("ValidatorSlashed(address,uint256,uint256,uint8)")
-  @claimed_topic event_topic("Claimed(address,address,uint256)")
+  @validator_created_topic "0xaecd9fb95e79c75a3a1de93362c6be5fe6ab65770d8614be583884161cd8228d"
+  @stake_credit_initialized_topic "0xd481492e4e93bb36b4c12a5af93f03be3bf04b454dfbc35dd2663fa26f44d5b0"
+  @consensus_address_edited_topic "0x6e4e747ca35203f16401c69805c7dd52fff67ef60b0ebc5c7fe16890530f2235"
+  @vote_address_edited_topic "0x783156582145bd0ff7924fae6953ba054cf1233eb60739a200ddb10de068ff0d"
+  @delegated_topic "0x24d7bda8602b916d64417f0dbfe2e2e88ec9b1157bd9f596dfdb91ba26624e04"
+  @undelegated_topic "0x3aace7340547de7b9156593a7652dc07ee900cea3fd8f82cb6c9d38b40829802"
+  @redelegated_topic "0xfdac6e81913996d95abcc289e90f2d8bd235487ce6fe6f821e7d21002a1915b4"
+  @reward_distributed_topic "0xe34918ff1c7084970068b53fd71ad6d8b04e9f15d3886cbf006443e6cdc52ea6"
+  @validator_slashed_topic "0x6e9a2ee7aee95665e3a774a212eb11441b217e3e4656ab9563793094689aabb2"
+  @claimed_topic "0xf7a40077ff7a04c7e61f6f26fb13774259ddf1b6bce9ecf26a8276cdd3992683"
 
-  @lifecycle_changed_topic event_topic("LifecycleChanged(uint8,uint8,uint256)")
-  @migration_prepared_topic event_topic("MigrationPrepared(address,address,address,address)")
-  @migration_paused_set_topic event_topic("MigrationPausedSet(bool)")
-  @stake_migration_caller_updated_topic event_topic("StakeMigrationCallerUpdated(address,address)")
-  @wallet_migration_router_updated_topic event_topic("WalletMigrationRouterUpdated(address,address)")
-  @wallet_migrated_topic event_topic("WalletMigrated(address,uint256,uint256,bytes32)")
-  @stake_migrated_topic event_topic("StakeMigrated(address,address,uint256,uint256,bytes32)")
-  @gold_swapped_topic event_topic("GoldSwapped(address,uint256,uint256)")
-  @router_migrated_topic event_topic("RouterMigrated(address,uint256,uint256)")
-  @governance_param_change_topic event_topic("ParamChange(string,bytes)")
-  @proposal_created_topic event_topic("ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)")
-  @proposal_canceled_topic event_topic("ProposalCanceled(uint256)")
-  @proposal_executed_topic event_topic("ProposalExecuted(uint256)")
-  @proposal_queued_topic event_topic("ProposalQueued(uint256,uint256)")
-  @vote_cast_topic event_topic("VoteCast(address,uint256,uint8,uint256,string)")
-  @vote_cast_with_params_topic event_topic("VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)")
+  @lifecycle_changed_topic "0x25f99d052de99503e90a911ffc00c46b0452ef3c5fe5599520ac03218ba7797a"
+  @migration_prepared_topic "0x4cf0c1ea5dceb87375e3e5ba680d6819a24a4fded089d27d16c1a59a3fcb060d"
+  @migration_paused_set_topic "0x335b784f538a4188326e0cbf8aa87c0d5f7164304653923e0daa4be03ecc4d32"
+  @stake_migration_caller_updated_topic "0x0909057a819745a440ab89bcbf4afed06907df17fa39bc2874ad70fdfc6d00f6"
+  @wallet_migration_router_updated_topic "0x53e9d7d0c96ece35de1236ecae186a92e804795bb0fee69f2ff1f51cb96fb34d"
+  @wallet_migrated_topic "0x3cb2c9ea96d80d807ea50ecffe8ef07630e116e7cb411589e6d5cff8c7d0ff1b"
+  @stake_migrated_topic "0x6f3f0b1b3726b8facd05ad7b112f6b2e2dfee290e51f995ff7b2bec103cb26a0"
+  @gold_swapped_topic "0x78cb6dbca4be5076a927cc6eca8fb93584b83e3d68009dd22ac038aa1f71ac15"
+  @router_migrated_topic "0x6a52ac7145a275e52ff6a1c5670004d515b8e95031b622cbd97118afba4834b5"
+  @governance_param_change_topic "0xf1ce9b2cbf50eeb05769a29e2543fd350cab46894a7dd9978a12d534bb20e633"
+  @proposal_created_topic "0x7d84a6263ae0d98d3329bd7b46bb4e8d6f98cd35a7adb45c274c8b7fd5ebd5e0"
+  @proposal_canceled_topic "0x789cf55be980739dad1d0699b93b58e806b51c9d96619bfa8fe0a28abaa7b30c"
+  @proposal_executed_topic "0x712ae1383f79ac853f8d882153778e0260ef8f03b504e2866e0593e04d2b291f"
+  @proposal_queued_topic "0x9a2e42fd6722813d69113e7d0079d3d940171428df7373df9c7f7617cfda2892"
+  @vote_cast_topic "0xb8e138887d0aa13bab447e82de9d5c1777041ecd21ca36ba824ff1e6c07ddda4"
+  @vote_cast_with_params_topic "0xe2babfbac5889a709b63bb7f598b324e08bc5a4fb9ec647fb3cbc9ec07eb8712"
 
   @root_lock_topics [
     @locked_scaled_erc1155_topic_legacy,
@@ -537,32 +536,32 @@ defmodule Indexer.Transform.Goldchain.Lifecycle do
 
   defp parse_validator_event(log, topic, latest_block, block_timestamp, confirmations, validator_topics) do
     {event_type, parser_fun} =
-      case topic do
-        t when t == Map.get(validator_topics, :validator_set_updated) ->
+      cond do
+        topic == Map.get(validator_topics, :validator_set_updated) ->
           {:validator_set_updated, fn _log -> %{} end}
 
-        t when t == Map.get(validator_topics, :validator_deposit) ->
+        topic == Map.get(validator_topics, :validator_deposit) ->
           {:validator_deposit, &parse_validator_amount_event/1}
 
-        t when t == Map.get(validator_topics, :validator_misdemeanor) ->
+        topic == Map.get(validator_topics, :validator_misdemeanor) ->
           {:validator_misdemeanor, &parse_validator_amount_event/1}
 
-        t when t == Map.get(validator_topics, :validator_felony) ->
+        topic == Map.get(validator_topics, :validator_felony) ->
           {:validator_felony, &parse_validator_amount_event/1}
 
-        t when t == Map.get(validator_topics, :validator_enter_maintenance) ->
+        topic == Map.get(validator_topics, :validator_enter_maintenance) ->
           {:validator_enter_maintenance, &parse_validator_address_event/1}
 
-        t when t == Map.get(validator_topics, :validator_exit_maintenance) ->
+        topic == Map.get(validator_topics, :validator_exit_maintenance) ->
           {:validator_exit_maintenance, &parse_validator_address_event/1}
 
-        t when t == Map.get(validator_topics, :finality_reward_deposit) ->
+        topic == Map.get(validator_topics, :finality_reward_deposit) ->
           {:finality_reward_deposit, &parse_validator_amount_event/1}
 
-        t when t == Map.get(validator_topics, :fee_burned) ->
+        topic == Map.get(validator_topics, :fee_burned) ->
           {:fee_burned, &parse_amount_only_event/1}
 
-        _ ->
+        true ->
           {nil, nil}
       end
 

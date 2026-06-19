@@ -104,7 +104,7 @@ defmodule GoldScan.Mixfile do
   defp deps do
     [
       {:prometheus_ex, "~> 5.1.0", override: true},
-      {:absinthe_plug, path: "vendor/absinthe_plug", override: true},
+      {:absinthe_plug, "~> 1.5.8", override: true},
       {:tesla, "~> 1.16.0"},
       {:mint, "~> 1.7.1"},
       # Documentation

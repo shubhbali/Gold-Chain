@@ -37,6 +37,74 @@ async function rpc(rpcUrl, method, params = []) {
   return body.result;
 }
 
+function hexBlock(block) {
+  return `0x${BigInt(block).toString(16)}`;
+}
+
+function logMatchesFilter(log, filter) {
+  if (filter.address && String(log.address).toLowerCase() !== String(filter.address).toLowerCase()) return false;
+  if (Array.isArray(filter.topics)) {
+    for (let i = 0; i < filter.topics.length; i += 1) {
+      const expected = filter.topics[i];
+      if (expected == null) continue;
+      const actual = log.topics?.[i];
+      if (Array.isArray(expected)) {
+        if (!expected.map((topic) => String(topic).toLowerCase()).includes(String(actual).toLowerCase())) return false;
+      } else if (String(actual).toLowerCase() !== String(expected).toLowerCase()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+async function getLogsFromReceipts(rpcUrl, filter, fromBlock, toBlock) {
+  const logs = [];
+  for (let block = fromBlock; block <= toBlock; block += 1) {
+    const blockData = await rpc(rpcUrl, 'eth_getBlockByNumber', [hexBlock(block), true]);
+    for (const tx of blockData?.transactions ?? []) {
+      const txHash = typeof tx === 'string' ? tx : tx.hash;
+      if (!txHash) continue;
+      const receipt = await rpc(rpcUrl, 'eth_getTransactionReceipt', [txHash]);
+      for (const log of receipt?.logs ?? []) {
+        if (logMatchesFilter(log, filter)) logs.push(log);
+      }
+    }
+  }
+  return logs;
+}
+
+async function getLogsPaged(rpcUrl, filter, { fromBlock = 0, toBlock = 'latest', pageSize = 100, fallbackToReceipts = false, forceReceipts = false } = {}) {
+  if (!Number.isSafeInteger(fromBlock) || fromBlock < 0) throw new Error('fromBlock must be a non-negative safe integer');
+  if (!Number.isSafeInteger(pageSize) || pageSize <= 0) throw new Error('pageSize must be a positive safe integer');
+  const latest = toBlock === 'latest' ? Number(BigInt(await rpc(rpcUrl, 'eth_blockNumber'))) : Number(toBlock);
+  if (!Number.isSafeInteger(latest) || latest < 0) throw new Error('latest block must be a non-negative safe integer');
+  if (fromBlock > latest) return [];
+
+  const logs = [];
+  for (let start = fromBlock; start <= latest; start += pageSize) {
+    const end = Math.min(latest, start + pageSize - 1);
+    if (forceReceipts) {
+      const page = await getLogsFromReceipts(rpcUrl, filter, start, end);
+      logs.push(...page);
+      continue;
+    }
+    try {
+      const page = await rpc(rpcUrl, 'eth_getLogs', [{
+        ...filter,
+        fromBlock: hexBlock(start),
+        toBlock: hexBlock(end),
+      }]);
+      logs.push(...page);
+    } catch (error) {
+      if (!fallbackToReceipts) throw error;
+      const page = await getLogsFromReceipts(rpcUrl, filter, start, end);
+      logs.push(...page);
+    }
+  }
+  return logs;
+}
+
 async function cast(args, options = {}) {
   try {
     const { stdout } = await execFileAsync('cast', args, {
@@ -112,23 +180,19 @@ export class LiveEvmBridgeClient {
 
   async getDeposits({ fromBlock = 0 }) {
     if (this.side !== 'ethereum') throw new Error('getDeposits only valid for ethereum side');
-    const logs = await rpc(this.rpcUrl, 'eth_getLogs', [{
-      fromBlock: `0x${BigInt(fromBlock).toString(16)}`,
-      toBlock: 'latest',
+    const logs = await getLogsPaged(this.rpcUrl, {
       address: this.rootCustodyAddress,
       topics: [EVENT_TOPICS.DEPOSITED],
-    }]);
+    }, { fromBlock, pageSize: 1000 });
     return Promise.all(logs.map((log) => this.decodeDeposit(log)));
   }
 
   async getWithdrawals({ fromBlock = 0 }) {
     if (this.side !== 'goldChain') throw new Error('getWithdrawals only valid for goldChain side');
-    const logs = await rpc(this.rpcUrl, 'eth_getLogs', [{
-      fromBlock: `0x${BigInt(fromBlock).toString(16)}`,
-      toBlock: 'latest',
+    const logs = await getLogsPaged(this.rpcUrl, {
       address: this.childBridgeAddress,
       topics: [EVENT_TOPICS.WITHDRAWAL_INITIATED],
-    }]);
+    }, { fromBlock, forceReceipts: true });
     return Promise.all(logs.map((log) => this.decodeWithdrawal(log)));
   }
 
