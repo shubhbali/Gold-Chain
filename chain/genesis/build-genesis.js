@@ -9,16 +9,20 @@ const ROOT = path.resolve(__dirname, '../..');
 const GENESIS_CONTRACT_ROOT = path.join(ROOT, 'gilt-genesis-contract');
 
 function usage() {
-  console.error('Usage: node chain/genesis/build-genesis.js --network <mainnet|testnet>');
+  console.error('Usage: node chain/genesis/build-genesis.js --network <mainnet|testnet> [--check] [--out-dir <dir>]');
   process.exit(2);
 }
 
+function arg(name) {
+  const idx = process.argv.indexOf(name);
+  return idx === -1 ? null : process.argv[idx + 1];
+}
+
 function parseArgs() {
-  const idx = process.argv.indexOf('--network');
-  if (idx === -1 || !process.argv[idx + 1]) usage();
-  const network = process.argv[idx + 1];
-  if (!['mainnet', 'testnet'].includes(network)) usage();
-  return { network };
+  const network = arg('--network');
+  if (!network || !['mainnet', 'testnet'].includes(network)) usage();
+  const outDir = arg('--out-dir');
+  return { network, checkOnly: process.argv.includes('--check'), outDir };
 }
 
 function stripQuotes(v) {
@@ -100,6 +104,10 @@ function validateSpec(spec, network) {
   if (network !== 'devnet' && spec.forks.compressedTestSchedule !== false) throw new Error('persistent networks must not use compressedTestSchedule');
   if (spec.consensus.engine !== 'parlia') throw new Error('Gold Chain canonical consensus engine must be parlia');
   if (!Array.isArray(spec.validators) || spec.validators.length === 0) throw new Error('at least one validator is required');
+  const minValidators = network === 'mainnet' || network === 'testnet' ? 3 : 1;
+  if (spec.validators.length < minValidators) {
+    throw new Error(`${network} requires ${minValidators}+ validators; found ${spec.validators.length}`);
+  }
 
   const seen = new Set();
   for (const [i, v] of spec.validators.entries()) {
@@ -234,12 +242,15 @@ function buildGenesis(spec, network) {
 }
 
 function main() {
-  const { network } = parseArgs();
+  const { network, checkOnly, outDir: requestedOutDir } = parseArgs();
   const specPath = path.join(ROOT, 'chain/spec', `gold-${network}.yaml`);
   const spec = parseGoldSpec(fs.readFileSync(specPath, 'utf8'));
   validateSpec(spec, network);
-  const outDir = path.join(ROOT, 'chain/genesis/out', network);
-  fs.mkdirSync(outDir, { recursive: true });
+
+  if (checkOnly) {
+    console.log(`validated ${network} genesis config without writing files`);
+    return;
+  }
 
   const genesis = buildGenesis(spec, network);
   const validatorsConf = spec.validators.map(v => [v.consensusAddress, v.feeAddress, v.giltFeeAddress, `0x${Number(v.votingPower).toString(16).padStart(16, '0')}`, v.blsPublicKey].join(',')).join('\n') + '\n';
@@ -250,6 +261,9 @@ function main() {
     systemContracts: spec.systemContracts,
     generatedAt: new Date().toISOString(),
   };
+
+  const outDir = requestedOutDir ? path.resolve(requestedOutDir) : path.join(ROOT, 'chain/genesis/out', network);
+  fs.mkdirSync(outDir, { recursive: true });
 
   fs.writeFileSync(path.join(outDir, 'genesis.json'), JSON.stringify(genesis, null, 2) + '\n');
   fs.writeFileSync(path.join(outDir, 'validators.conf'), validatorsConf);

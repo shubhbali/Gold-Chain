@@ -28,16 +28,20 @@ if git grep -nE 'bridge/gilt-exec|gilt-exec|bridge/gilt-consensus|bridge/pos-con
   fail "non-canonical duplicate/removed bridge references remain in production path"
 fi
 
-run node chain/genesis/build-genesis.js --network testnet >/tmp/gold-gen-testnet.log
-run node chain/genesis/build-genesis.js --network mainnet >/tmp/gold-gen-mainnet.log
+run node scripts/readiness-gate.js
+run node chain/genesis/build-genesis.js --network testnet --check >/tmp/gold-gen-testnet-check.log
+run node chain/genesis/build-genesis.js --network mainnet --check >/tmp/gold-gen-mainnet-check.log
+GENESIS_TMP="$(mktemp -d /tmp/gold-genesis.XXXXXX)"
+trap 'rm -rf "$GENESIS_TMP"' EXIT
+run node chain/genesis/build-genesis.js --network testnet --out-dir "$GENESIS_TMP/testnet" >/tmp/gold-gen-testnet.log
 run node chain/scripts/preflight-validators.js \
-  --genesis chain/genesis/out/testnet/genesis.json \
-  --validators chain/genesis/out/testnet/validators.conf >/tmp/gold-validator-preflight.log
+  --genesis "$GENESIS_TMP/testnet/genesis.json" \
+  --validators "$GENESIS_TMP/testnet/validators.conf" >/tmp/gold-validator-preflight.log
 run node chain/scripts/persistent-testnet-acceptance.js --network testnet --offline --target-block 0 >/tmp/gold-persistent-acceptance-offline.log
 
-validator_count="$(node - <<'NODE'
+validator_count="$(GENESIS_TMP="$GENESIS_TMP" node - <<'NODE'
 const fs = require('fs');
-const g = JSON.parse(fs.readFileSync('chain/genesis/out/testnet/genesis.json', 'utf8'));
+const g = JSON.parse(fs.readFileSync(`${process.env.GENESIS_TMP}/testnet/genesis.json`, 'utf8'));
 const hex = g.extraData.slice(2);
 process.stdout.write(String(hex.slice(64, -130).length / 40));
 NODE
@@ -46,7 +50,7 @@ if (( validator_count < 3 )); then
   fail "persistent testnet requires 3+ validators; generated testnet has ${validator_count}"
 fi
 
-chain_id="$(node -e "const g=require('./chain/genesis/out/testnet/genesis.json'); process.stdout.write(String(g.config.chainId))")"
+chain_id="$(GENESIS_TMP="$GENESIS_TMP" node -e "const fs=require('fs'); const g=JSON.parse(fs.readFileSync(process.env.GENESIS_TMP + '/testnet/genesis.json','utf8')); process.stdout.write(String(g.config.chainId))")"
 [[ "$chain_id" != "56" ]] || fail "generated testnet genesis has forbidden chain ID 56"
 
 # Acceptance tooling must include a real fresh transaction/receipt path, even when no live RPC is supplied to CI.
