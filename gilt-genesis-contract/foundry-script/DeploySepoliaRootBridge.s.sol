@@ -25,7 +25,7 @@ contract DeploySepoliaRootBridge is Script {
 
         vm.startBroadcast(deployerKey);
         MockRootGoldToken paxg = new MockRootGoldToken("Mock PAX Gold", "mPAXG", 18, deployer);
-        MockRootGoldToken xaut = new MockRootGoldToken("Mock Tether Gold", "mXAUT", 18, deployer);
+        MockRootGoldToken xaut = new MockRootGoldToken("Mock Tether Gold", "mXAUT", 6, deployer);
         BridgeThresholdVerifier verifier = new BridgeThresholdVerifier(governance, signers, 1, signerSetDelay);
         GoldRootCustody custody = new GoldRootCustody(governance, verifier, goldChainChainId, childBridge);
         custody.setRoute(PAXG_ROUTE_ID, address(paxg), true, true, true);
