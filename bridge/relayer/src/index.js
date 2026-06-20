@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-import { validateRelayerConfig } from './config.js';
+import { assertBridgeContractsHaveCode, validateRelayerConfig } from './config.js';
 import { LiveEvmBridgeClient } from './live-rpc-client.js';
 import { GoldBridgeRelayer } from './relayer.js';
 import { JsonRelayerStore } from './store.js';
@@ -45,6 +45,7 @@ function buildClients(config) {
 export async function main(argv = process.argv.slice(2)) {
   const configPath = argv[0] ?? process.env.GOLD_BRIDGE_RELAYER_CONFIG;
   const config = await loadConfig(configPath);
+  await assertBridgeContractsHaveCode(config);
   const store = new JsonRelayerStore(config.statePath ?? './relayer-state.json');
   await store.load();
 

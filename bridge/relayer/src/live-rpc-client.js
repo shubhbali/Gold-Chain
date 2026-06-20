@@ -53,7 +53,7 @@ async function rpcWithRetry(rpcUrl, method, params = [], { attempts = 4, baseDel
       return await rpc(rpcUrl, method, params);
     } catch (error) {
       lastError = error;
-      const retryable = error.status === 429 || error.status === 503 || /rate|too many|timeout/i.test(error.message);
+      const retryable = error.status === 408 || error.status === 429 || error.status === 503 || /rate|too many|timeout/i.test(error.message);
       if (!retryable || attempt === attempts) throw error;
       await sleep(baseDelayMs * attempt);
     }
