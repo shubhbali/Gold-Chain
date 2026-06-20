@@ -11,7 +11,7 @@ GETH="${GETH:-$ROOT/gilt-chain/build/bin/geth}"
 LOG_DIR="$DATADIR/logs"
 PID_DIR="$DATADIR/pids"
 RPC_API="eth,net,web3,admin,miner,personal,txpool"
-WS_API="eth,net,web3,net,debug"
+WS_API="eth,net,web3,debug"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "FAIL missing command: $1" >&2; exit 1; }; }
 rpc() {
