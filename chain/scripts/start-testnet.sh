@@ -27,10 +27,40 @@ rpc() {
   ' "$port" "$method" "$params" 2>/dev/null
 }
 port_up() { rpc "$1" eth_chainId >/dev/null 2>&1; }
+ws_up() {
+  local port="$1"
+  node -e '
+    const net=require("net"), crypto=require("crypto");
+    const port=Number(process.argv[1]);
+    const key=crypto.randomBytes(16).toString("base64");
+    const req=[
+      "GET / HTTP/1.1",
+      "Host: 127.0.0.1:"+port,
+      "Upgrade: websocket",
+      "Connection: Upgrade",
+      "Sec-WebSocket-Key: "+key,
+      "Sec-WebSocket-Version: 13",
+      "",
+      ""
+    ].join("\r\n");
+    const s=net.createConnection({host:"127.0.0.1",port,timeout:2500},()=>s.write(req));
+    let data="";
+    s.on("data",c=>{data+=c.toString("utf8"); if(data.includes("\r\n\r\n")){process.exit(data.startsWith("HTTP/1.1 101") ? 0 : 2);}});
+    s.on("error",()=>process.exit(3));
+    s.on("timeout",()=>process.exit(4));
+  ' "$port" >/dev/null 2>&1
+}
 wait_rpc() {
   local port="$1" deadline=$((SECONDS + 60))
   until port_up "$port"; do
     if (( SECONDS >= deadline )); then echo "FAIL RPC $port did not become ready" >&2; exit 1; fi
+    sleep 1
+  done
+}
+wait_ws() {
+  local port="$1" deadline=$((SECONDS + 60))
+  until ws_up "$port"; do
+    if (( SECONDS >= deadline )); then echo "FAIL WS $port did not become ready" >&2; exit 1; fi
     sleep 1
   done
 }
@@ -47,8 +77,12 @@ start_node() {
   local node_dir="$DATADIR/node$idx" pid_file="$PID_DIR/node$idx.pid" log_file="$LOG_DIR/node$idx.log"
   local addr; addr="$(validator_addr "$idx")"
   if port_up "$rpc_port"; then
-    echo "PASS node$idx already serving RPC on $rpc_port"
-    return
+    if ws_up "$ws_port"; then
+      echo "PASS node$idx already serving RPC on $rpc_port and WS on $ws_port"
+      return
+    fi
+    echo "FAIL node$idx is serving RPC on $rpc_port but WS $ws_port is not healthy; restart it with --ws without resetting $node_dir" >&2
+    exit 1
   fi
   if pid_running "$pid_file"; then
     echo "FAIL node$idx pid $(cat "$pid_file") is running but RPC $rpc_port is not healthy" >&2
@@ -68,6 +102,7 @@ start_node() {
     >"$log_file" 2>&1 &
   echo $! > "$pid_file"
   wait_rpc "$rpc_port"
+  wait_ws "$ws_port"
   echo "PASS node$idx started pid=$(cat "$pid_file") rpc=$rpc_port ws=$ws_port"
 }
 
