@@ -32,3 +32,6 @@ scan/goldscan/docker-compose/services/logs/prod/
 **/pg_data/
 
 .claude/
+
+# Local Hermes supervisor runtime wrappers are host-specific.
+.hermes-gold-supervisor*.sh
