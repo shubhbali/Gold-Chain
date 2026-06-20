@@ -4,7 +4,7 @@ import { assertFinalizedEvent } from './finality.js';
 const SCANNER_EVENT_TOPICS = Object.freeze({
   ...EVENT_TOPICS,
   DEPOSIT_FINALIZED: '0x9c4ad71a6b370f8c51d930b662bd10003786459e074657747779b1ffc6d232af',
-  ROOT_RELEASED: '0x93ae2d6252f7d32dd8ce81697627f4c4580477ccb15535ec842c26511ed4cc38',
+  WITHDRAWAL_FINALIZED: '0x40ddfca8bd184549882d20964a0d844a7d4e8f462d674155c8915d6e70de4544',
 });
 
 function isAddress(value) {
@@ -123,7 +123,7 @@ export function scannerBridgeRowFromFinalizedEvent({ chainName, headBlock, final
         goldAmount: event.amount,
       });
     }
-    case 'RootReleased': {
+    case 'WithdrawalFinalized': {
       const routeId = normalizeRouteId(event.routeId);
       return baseRow({
         event,
@@ -145,8 +145,8 @@ export function scannerBridgeRowFromFinalizedEvent({ chainName, headBlock, final
 export function scanFinalizedBridgeRows({ rootHeadBlock, childHeadBlock, rootFinality, childFinality, rootEvents = [], childEvents = [], rootChainId, childChainId, rootBridgeAddress, childBridgeAddress }) {
   const rows = [];
   for (const event of rootEvents) {
-    const expected = event.eventName === 'RootReleased'
-      ? { eventName: 'RootReleased', topic0: SCANNER_EVENT_TOPICS.ROOT_RELEASED, sourceChainId: rootChainId, emitterAddress: rootBridgeAddress }
+    const expected = event.eventName === 'WithdrawalFinalized'
+      ? { eventName: 'WithdrawalFinalized', topic0: SCANNER_EVENT_TOPICS.WITHDRAWAL_FINALIZED, sourceChainId: rootChainId, emitterAddress: rootBridgeAddress }
       : { eventName: 'Deposited', topic0: EVENT_TOPICS.DEPOSITED, sourceChainId: rootChainId, emitterAddress: rootBridgeAddress };
     const row = scannerBridgeRowFromFinalizedEvent({ chainName: 'ethereum', headBlock: rootHeadBlock, finality: rootFinality, event, expected });
     if (row) rows.push(row);
